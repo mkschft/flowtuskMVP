@@ -1432,9 +1432,6 @@ Which approach would you like to use?`;
       updateGenerationState({ isGenerating: true, currentStep: 'one-time-email' });
 
       try {
-        // Start generation tracking
-        generationManager.startGeneration('one-time-email', { icp: icp.id });
-
         // Update thinking steps
         setConversations(prev =>
           prev.map(conv =>
@@ -1511,7 +1508,6 @@ Which approach would you like to use?`;
             }
           });
 
-          generationManager.completeGeneration('one-time-email', { icp: icp.id }, data as Record<string, unknown>);
           memoryManager.addGenerationRecord(activeConversationId, 'generate-one-time-email', { icpId: icp.id, data } as Record<string, unknown>);
         }, 800);
       } catch (error) {
@@ -1574,9 +1570,6 @@ Which approach would you like to use?`;
     updateGenerationState({ isGenerating: true, currentStep: 'email-sequence' });
 
     try {
-      // Start generation tracking
-      generationManager.startGeneration('email-sequence', { icp: icp.id, days });
-
       // Update thinking steps progressively
       setConversations(prev =>
         prev.map(conv =>
@@ -1679,7 +1672,6 @@ Which approach would you like to use?`;
           }
         });
 
-        generationManager.completeGeneration('email-sequence', { icp: icp.id, days }, data as Record<string, unknown>);
         memoryManager.addGenerationRecord(activeConversationId, 'generate-email-sequence', { icpId: icp.id, days, data } as Record<string, unknown>);
       }, 1000);
     } catch (error) {
