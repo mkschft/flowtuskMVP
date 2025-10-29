@@ -331,104 +331,109 @@ function SolutionSlide() {
   );
 }
 
-// Slide 5: Before/After (Real Examples)
+// Slide 5: Before & After
 function BeforeAfterSlide() {
   return (
     <Slide slideNumber={5}>
-      <div className="space-y-12">
-        <div className="space-y-4">
-          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-            Proof
-          </Badge>
-          <h2 className="text-5xl font-bold">
-            How This <span className="gradient-text">Changes Your Workflow</span>
-          </h2>
-        </div>
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground">
+          Before & After
+        </h2>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Before */}
-          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10">
-            <h3 className="text-2xl font-bold mb-6 text-red-700 dark:text-red-400">
-              ❌ Before Flowtusk
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Day 1-2:</span>
-                <span>&quot;Who are our customers?&quot; → Workshop or guesswork</span>
+        {/* Two Column Comparison */}
+        <div className="grid grid-cols-2 gap-8">
+          {/* Before Column */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-20 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-sm">Before</span>
               </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Day 3-4:</span>
-                <span>Write landing page → Generic, untargeted</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Day 5-6:</span>
-                <span>Email sequence → Template-based</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Day 7-8:</span>
-                <span>LinkedIn posts → Random ideas</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Day 9+:</span>
-                <span>A/B test → Hope something works</span>
-              </div>
+              <p className="text-lg font-semibold text-muted-foreground">Manual, time-consuming, inconsistent</p>
             </div>
-            <div className="mt-6 pt-4 border-t border-red-300 dark:border-red-700">
-              <p className="font-bold text-red-700 dark:text-red-400">
-                Result: 2 weeks, inconsistent messaging, mediocre conversions
-              </p>
-            </div>
-          </Card>
 
-          {/* After */}
-          <Card className="p-8 border-2 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/10">
-            <h3 className="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">
-              ✅ With Flowtusk
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Min 0:</span>
-                <span className="font-bold">Paste website URL</span>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
+                <div>
+                  <p className="font-semibold text-foreground">3-6 weeks to articulate positioning</p>
+                  <p className="text-sm text-muted-foreground">Workshops, interviews, consultant reports</p>
+                </div>
               </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Min 5:</span>
-                <span>&quot;You have 3 customer types: VP Sales, Head of Product, Marketing Manager&quot;</span>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
+                <div>
+                  <p className="font-semibold text-foreground">No clear ICP</p>
+                  <p className="text-sm text-muted-foreground">Vague assumptions about who buys</p>
+                </div>
               </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Min 10:</span>
-                <span>Email sequences ready (per persona, optimized)</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Min 15:</span>
-                <span>LinkedIn templates ready</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="font-mono text-muted-foreground shrink-0">Min 20:</span>
-                <span>Landing page + pitch deck + Twitter posts ready</span>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
+                <div>
+                  <p className="font-semibold text-foreground">Different pitch on website, deck, LinkedIn, sales calls</p>
+                  <p className="text-sm text-muted-foreground">Inconsistent messaging across channels</p>
+                </div>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-green-300 dark:border-green-700">
-              <p className="font-bold text-green-700 dark:text-green-400">
-                Result: 20 minutes, consistent messaging, higher conversions
-              </p>
+          </div>
+
+          {/* After Column */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-20 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-sm">After</span>
+              </div>
+              <p className="text-lg font-semibold text-muted-foreground">Automated, consistent, clear</p>
             </div>
-          </Card>
+
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <p className="font-semibold text-foreground">10 minutes to articulate positioning</p>
+                  <p className="text-sm text-muted-foreground">AI-powered analysis and generation</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <p className="font-semibold text-foreground">3 detailed customer personas</p>
+                  <p className="text-sm text-muted-foreground">With pain points, goals, and objections</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <p className="font-semibold text-foreground">Tailored messaging for every channel</p>
+                  <p className="text-sm text-muted-foreground">Consistent voice, different formats</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Case Study */}
-        <Card className="p-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-2">
-          <div className="flex items-start gap-4">
-            <div className="text-4xl">💼</div>
-            <div>
-              <Badge className="mb-2">Real Case Study</Badge>
-              <p className="text-lg font-medium leading-relaxed">
-                &quot;KONE marketing team typically spent <span className="font-bold text-red-600">3-4 days</span> on discovery + messaging.
-                With Flowtusk, they got persona clarity + templates in <span className="font-bold text-green-600">15 minutes</span>.
-                Launched same day. First campaign: <span className="font-bold gradient-text">500 qualified leads in 2 weeks</span>.&quot;
-              </p>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-24 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+              <span className="text-white font-bold text-sm">Case Study</span>
             </div>
+            <h3 className="text-2xl font-bold text-foreground">KONE</h3>
           </div>
-        </Card>
+
+          <div className="border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 p-6 rounded-r-lg">
+            <p className="text-lg italic text-foreground mb-2">
+              &quot;We&apos;ve reduced our time to market by 50% with Flowtusk.&quot;
+            </p>
+            <p className="text-sm text-muted-foreground">
+              — Head of Marketing, KONE
+            </p>
+          </div>
+        </div>
       </div>
     </Slide>
   );
