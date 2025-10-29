@@ -18,7 +18,8 @@ import {
   FileText,
   Users,
   DollarSign,
-  Presentation
+  Presentation,
+  Image
 } from "lucide-react";
 
 // Slide wrapper component
@@ -73,71 +74,84 @@ function CoverSlide() {
 
 // Slide 2: Problem
 function ProblemSlide() {
+  const problems = [
+    {
+      title: "Inconsistent messaging",
+      description: "Different pitch on website, deck, LinkedIn, sales calls",
+      barWidth: "w-3/5"
+    },
+    {
+      title: "No clear ICP",
+      description: '"We sell to everyone" or vague gut feelings about customers',
+      barWidth: "w-3/5"
+    },
+    {
+      title: "Wasted time",
+      description: "3-6 weeks to articulate positioning, often still unclear",
+      barWidth: "w-3/5"
+    },
+    {
+      title: "Expensive solutions",
+      description: "Positioning consultants charge €15K-50K for a PDF deck",
+      barWidth: "w-3/5"
+    }
+  ];
+
   return (
     <Slide slideNumber={2}>
       <div className="space-y-12">
+        {/* Header */}
         <div className="space-y-4">
-          <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-sm">
+          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 text-sm">
             Problem
           </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
-            Positioning Down. 360 Rules.
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl">
+            Founders and marketers don&apos;t know who they&apos;re selling to—or how to talk about it
           </h2>
-          <p className="text-2xl text-muted-foreground max-w-3xl">
-            Predictable B2B funnels take forever. And you still don&apos;t know if you&apos;re reaching the right person.
+        </div>
+
+        {/* Main Content - Two Columns */}
+        <div className="grid grid-cols-5 gap-8">
+          {/* Left Column - Problem Items */}
+          <div className="col-span-3 space-y-6">
+            {problems.map((problem, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 min-w-fit">
+                    {problem.title}
+                  </h3>
+                  <div className={`h-2 rounded-full bg-purple-500 ${problem.barWidth}`} />
+                </div>
+                <p className="text-sm text-muted-foreground pl-0">
+                  {problem.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Right Column - Illustration Placeholder */}
+          <div className="col-span-2 flex items-center">
+            <div className="w-full h-full min-h-[300px] border-2 border-dashed border-purple-400 dark:border-purple-600 rounded-xl bg-purple-50/30 dark:bg-purple-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
+              <Image className="h-16 w-16 text-pink-500 dark:text-pink-400" />
+              <div className="space-y-2">
+                <h4 className="font-semibold text-purple-700 dark:text-purple-300">
+                  Illustration: Positioning Chaos
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Split-screen visualization showing chaotic sticky notes, scattered whiteboard ideas, and tangled messaging on the left vs. clean, organized positioning document with clear personas and value props on the right. Conveys the before/after transformation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Quote */}
+        <div className="border-l-4 border-purple-500 bg-purple-50/50 dark:bg-purple-950/20 p-6 rounded-r-lg">
+          <p className="text-lg italic text-foreground mb-2">
+            &quot;We&apos;ve pivoted 3 times this year. Our website still talks about our old product.&quot;
           </p>
-        </div>
-
-        {/* Two column comparison */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* For Startups */}
-          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Target className="h-5 w-5 text-red-600" />
-              For Startups
-            </h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>Building for &quot;everyone in SaaS&quot; = talking to no one</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>Weeks spent on discovery, messaging still feels generic</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>Landing pages, emails, LinkedIn—all disconnected</span>
-              </li>
-            </ul>
-          </Card>
-
-          {/* The Result */}
-          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-red-600 rotate-180" />
-              The Result
-            </h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>Mediocre conversion rates (2-3%)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>4-6 weeks to launch campaigns</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-500 mt-1">•</span>
-                <span>Endless A/B testing hoping something works</span>
-              </li>
-            </ul>
-          </Card>
-        </div>
-
-        <div className="text-center">
-          <p className="text-xl font-medium text-muted-foreground italic">
-            &quot;Meanwhile, your competitors launch targeted campaigns in days, not weeks&quot;
+          <p className="text-sm text-muted-foreground">
+            — SaaS Founder, Helsinki
           </p>
         </div>
       </div>
