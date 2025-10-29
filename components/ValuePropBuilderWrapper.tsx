@@ -32,6 +32,7 @@ type ValuePropVariation = {
   text: string;
   useCase: string;
   emoji: string;
+  sourceFactIds?: string[];
 };
 
 type ValuePropData = {
@@ -51,6 +52,9 @@ type ValuePropBuilderWrapperProps = {
   websiteUrl: string;
   conversationId?: string;
   onVariationsGenerated?: (data: ValuePropData) => void;
+  onRegenerateVariation?: (variationId: string, variationIndex: number) => Promise<void>;
+  onConfirmValueProp?: () => void;
+  factsJson?: any;
 };
 
 export function ValuePropBuilderWrapper({
@@ -58,6 +62,9 @@ export function ValuePropBuilderWrapper({
   websiteUrl,
   conversationId,
   onVariationsGenerated,
+  onRegenerateVariation,
+  onConfirmValueProp,
+  factsJson,
 }: ValuePropBuilderWrapperProps) {
   const [localVariables, setLocalVariables] = useState(valuePropData.variables);
   const [localVariations, setLocalVariations] = useState(valuePropData.variations);
@@ -79,6 +86,7 @@ export function ValuePropBuilderWrapper({
         body: JSON.stringify({
           icp: valuePropData.icp,
           websiteUrl,
+          factsJson,
           variables: localVariables
         }),
       });
@@ -104,6 +112,18 @@ export function ValuePropBuilderWrapper({
     }
   };
 
+  const handleRegenerateVariation = async (variationId: string, variationIndex: number) => {
+    if (onRegenerateVariation) {
+      await onRegenerateVariation(variationId, variationIndex);
+    }
+  };
+
+  const handleConfirmValueProp = () => {
+    if (onConfirmValueProp) {
+      onConfirmValueProp();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <ValuePropBuilder
@@ -114,6 +134,8 @@ export function ValuePropBuilderWrapper({
         variations={localVariations}
         isGeneratingVariations={isGeneratingVariations}
         conversationId={conversationId}
+        onRegenerateVariation={handleRegenerateVariation}
+        onConfirmValueProp={handleConfirmValueProp}
       />
       
     </div>

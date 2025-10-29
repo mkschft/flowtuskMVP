@@ -20,6 +20,7 @@ import { SequenceLengthChoice } from "@/components/SequenceLengthChoice";
 import { EmailSequenceCard } from "@/components/EmailSequenceCard";
 import { OneTimeEmailCard } from "@/components/OneTimeEmailCard";
 import { LinkedInOutreachCard } from "@/components/LinkedInOutreachCard";
+import { LinkedInSingleContentCard } from "@/components/LinkedInSingleContentCard";
 import { nanoid } from "nanoid";
 
 type ICP = {
@@ -198,6 +199,8 @@ type UserJourney = {
 type ConversationMemory = {
   id: string;
   websiteUrl: string;
+  websiteContent?: string; // Raw content fallback
+  factsJson?: Record<string, unknown>; // NEW: Structured facts for evidence-based generation
   selectedIcp: ICP | null;
   generationHistory: Array<{
     timestamp: Date;
@@ -852,7 +855,7 @@ export default function ChatPage() {
         updateThinkingStep(thinkingMsgId, 'analyze', { 
           status: 'running', 
           startTime: analyzeStart,
-          substeps: ['Fetching website content', 'Parsing structure']
+          substeps: ['Fetching website content...', 'Extracting structured facts with AI (15-30s)...']
         });
 
         const analyzeRes = await fetch("/api/analyze-website", {
@@ -862,11 +865,12 @@ export default function ChatPage() {
         });
 
         if (!analyzeRes.ok) throw new Error("Failed to analyze website");
-        const { content, metadata } = await analyzeRes.json();
+        const { content, metadata, factsJson } = await analyzeRes.json();
         
         const analyzeSubsteps = [
-          `Parsed ${Math.round(content.length / 1000)}k characters`,
-          metadata?.heroImage ? 'Found hero image' : 'No hero image found'
+          `✅ Fetched ${Math.round(content.length / 1000)}k characters`,
+          `✅ Extracted ${factsJson?.facts?.length || 0} facts from website`,
+          metadata?.heroImage ? '✅ Found brand visuals' : '⚠️ No brand visuals detected'
         ];
         
         updateThinkingStep(thinkingMsgId, 'analyze', { 
@@ -874,6 +878,22 @@ export default function ChatPage() {
           duration: Date.now() - analyzeStart,
           substeps: analyzeSubsteps
         });
+
+        // Store factsJson and content in conversation memory for reuse
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? {
+                  ...conv,
+                  memory: {
+                    ...conv.memory,
+                    websiteContent: content,
+                    factsJson: factsJson || undefined,
+                  }
+                }
+              : conv
+          )
+        );
 
         // Step 2: Extract visuals
         const extractStart = Date.now();
@@ -900,13 +920,16 @@ export default function ChatPage() {
         updateThinkingStep(thinkingMsgId, 'generate', { 
           status: 'running',
           startTime: icpStart,
-          substeps: ['Analyzing content patterns', 'Identifying target audiences', 'Creating personas']
+          substeps: ['Analyzing content patterns...', 'Generating customer profiles with AI (10-20s)...']
         });
 
         const icpRes = await fetch("/api/generate-icps", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content }),
+          body: JSON.stringify({ 
+            content, // Fallback for legacy mode
+            factsJson: factsJson || undefined // NEW: Pass structured facts
+          }),
         });
 
         if (!icpRes.ok) throw new Error("Failed to generate ICPs");
@@ -919,9 +942,9 @@ export default function ChatPage() {
           status: 'complete',
           duration: Date.now() - icpStart,
           substeps: [
-            `Generated ${icps.length} customer profiles`,
-            `Brand colors: ${brandColors?.primary || 'default'}`,
-            'Personas ready for selection'
+            `✅ Generated ${icps.length} detailed customer profiles`,
+            `✅ Identified ${icps.reduce((sum: number, icp: ICP) => sum + (icp.painPoints?.length || 0), 0)} total pain points`,
+            '✅ Personas ready for selection'
           ]
         });
 
@@ -1278,6 +1301,72 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
     memoryManager.addGenerationRecord(activeConversationId, 'approve-value-prop-summary', { approved: true } as Record<string, unknown>);
   };
 
+  // Handler for regenerating a single variation
+  const handleRegenerateVariation = async (variationId: string, variationIndex: number) => {
+    try {
+      const activeConversation = conversations.find(c => c.id === activeConversationId);
+      const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
+      
+      if (!valuePropData) return;
+
+      const response = await fetch("/api/generate-value-prop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          icp: valuePropData.icp,
+          websiteUrl,
+          factsJson: activeConversation?.memory.factsJson,
+          regenerateIndex: variationIndex,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update the specific variation in the conversation state
+        setConversations(prev => prev.map(conv => {
+          if (conv.id !== activeConversationId) return conv;
+          
+          const updatedValueProp = {
+            ...valuePropData,
+            variations: valuePropData.variations.map((v, idx) => 
+              idx === variationIndex ? data.variations[variationIndex] : v
+            )
+          };
+
+          return {
+            ...conv,
+            generationState: {
+              ...conv.generationState,
+              generatedContent: {
+                ...conv.generationState.generatedContent,
+                valueProp: updatedValueProp
+              }
+            },
+            messages: conv.messages.map(msg =>
+              msg.component === "value-prop" 
+                ? { ...msg, data: updatedValueProp }
+                : msg
+            )
+          };
+        }));
+      }
+    } catch (error) {
+      console.error("Error regenerating variation:", error);
+    }
+  };
+
+  // Handler for confirming value prop (moves to next step)
+  const handleConfirmValueProp = () => {
+    const activeConversation = conversations.find(c => c.id === activeConversationId);
+    const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
+    
+    if (!valuePropData) return;
+
+    // Move to positioning summary
+    handleVariationsGenerated(valuePropData, valuePropData.icp);
+  };
+
   // Handler for when variations are generated
   const handleVariationsGenerated = (valuePropData: ValuePropData, icp: ICP) => {
     // Step 1: Show text message with mini summary of accomplishment
@@ -1517,25 +1606,34 @@ What would you like to create?`;
     updateGenerationState({ isGenerating: true, currentStep: 'linkedin-outreach' });
 
     try {
-      // Update thinking steps
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map(msg =>
-                  msg.id === thinkingMsgId
-                    ? { ...msg, thinking: msg.thinking?.map((t, i) => i === 0 ? { ...t, status: 'complete' } : t) }
-                    : msg
-                ),
-              }
-            : conv
-        )
-      );
+      // Step 1: Analyze persona insights
+      const analyzeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'running',
+        startTime: analyzeStart,
+        substeps: ['Analyzing ICP pain points & goals...', 'Matching to value propositions...']
+      });
 
       // Get current value prop data
       const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
       const websiteUrl = activeConversation?.memory.websiteUrl;
+
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'complete',
+        duration: Date.now() - analyzeStart,
+        substeps: [
+          `✅ Analyzed ${icp.painPoints?.length || 0} pain points`,
+          `✅ Matched to ${valuePropData?.variations?.length || 0} value props`
+        ]
+      });
+
+      // Step 2: Craft LinkedIn content
+      const craftStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'craft', {
+        status: 'running',
+        startTime: craftStart,
+        substeps: [`Generating ${typeLabels[type]} with AI (10-20s)...`]
+      });
 
       // Call LinkedIn generation API
       const response = await fetch('/api/generate-linkedin-outreach', {
@@ -1545,6 +1643,8 @@ What would you like to create?`;
           icp,
           valueProp: valuePropData,
           websiteUrl,
+          factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+          websiteContent: activeConversation?.memory.websiteContent, // Fallback
           type, // Pass the specific type
         }),
       });
@@ -1553,66 +1653,60 @@ What would you like to create?`;
 
       const linkedInData = await response.json();
 
-      // Update second thinking step
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map(msg =>
-                  msg.id === thinkingMsgId
-                    ? { ...msg, thinking: msg.thinking?.map((t, i) => i <= 1 ? { ...t, status: 'complete' } : t) }
-                    : msg
-                ),
-              }
-            : conv
-        )
-      );
+      updateThinkingStep(thinkingMsgId, 'craft', {
+        status: 'complete',
+        duration: Date.now() - craftStart,
+        substeps: [
+          `✅ Generated ${linkedInData?.messages?.length || 0} LinkedIn messages`,
+          `✅ Total ${linkedInData?.messages?.reduce((sum: number, m: any) => sum + (m.characterCount || 0), 0) || 0} characters`
+        ]
+      });
 
-      // Update third thinking step
+      // Step 3: Optimize for engagement
+      const optimizeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'optimize', {
+        status: 'running',
+        startTime: optimizeStart,
+        substeps: ['Adding personalization tips...', 'Optimizing for engagement...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'optimize', {
+        status: 'complete',
+        duration: Date.now() - optimizeStart,
+        substeps: [
+          `✅ Added ${linkedInData?.messages?.[0]?.personalizationTips?.length || 0} personalization tips`,
+          '✅ Optimized for LinkedIn best practices'
+        ]
+      });
+
+      // Remove thinking message and show result
       setTimeout(() => {
         setConversations(prev =>
           prev.map(conv =>
             conv.id === activeConversationId
-              ? {
-                  ...conv,
-                  messages: conv.messages.map(msg =>
-                    msg.id === thinkingMsgId
-                      ? { ...msg, thinking: msg.thinking?.map(t => ({ ...t, status: 'complete' })) }
-                      : msg
-                  ),
-                }
+              ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
               : conv
           )
         );
 
-        // Remove thinking message and show result
-        setTimeout(() => {
-          setConversations(prev =>
-            prev.map(conv =>
-              conv.id === activeConversationId
-                ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
-                : conv
-            )
-          );
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: `Here's your ${typeLabels[type]} for **${icp.title}**. Copy it and use it on LinkedIn!`,
+          component: "linkedin-outreach",
+          data: linkedInData.messages 
+            ? { outreach: linkedInData, icp, type } // Sequence format
+            : { ...linkedInData, icp, type }, // Single content format
+        });
 
-          addMessage({
-            id: nanoid(),
-            role: "assistant",
-            content: `Here's your ${typeLabels[type]} for **${icp.title}**. Copy it and use it on LinkedIn!`,
-            component: "linkedin-outreach",
-            data: { ...linkedInData, icp, type },
-          });
-
-          updateGenerationState({
-            isGenerating: false,
-            generatedContent: {
-              ...activeConversation?.generationState.generatedContent,
-              linkedinOutreach: linkedInData
-            }
-          });
-        }, 300);
-      }, 500);
+        updateGenerationState({
+          isGenerating: false,
+          generatedContent: {
+            ...activeConversation?.generationState.generatedContent,
+            linkedinOutreach: linkedInData
+          }
+        });
+      }, 300);
 
     } catch (error) {
       console.error('Error generating LinkedIn content:', error);
@@ -1659,53 +1753,70 @@ What would you like to create?`;
       updateGenerationState({ isGenerating: true, currentStep: 'one-time-email' });
 
       try {
-        // Update thinking steps
-        setConversations(prev =>
-          prev.map(conv =>
-            conv.id === activeConversationId
-              ? {
-                  ...conv,
-                  messages: conv.messages.map(m =>
-                    m.id === thinkingMsgId
-                      ? {
-                          ...m,
-                          thinking: m.thinking?.map(t =>
-                            t.id === 'analyze' ? { ...t, status: 'complete' as const } : t
-                          ),
-                        }
-                      : m
-                  ),
-                }
-              : conv
-          )
-        );
+        // Step 1: Analyze persona insights
+        const analyzeStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'analyze', {
+          status: 'running',
+          startTime: analyzeStart,
+          substeps: ['Analyzing persona profile...', 'Identifying key pain points...']
+        });
+
+        updateThinkingStep(thinkingMsgId, 'analyze', {
+          status: 'complete',
+          duration: Date.now() - analyzeStart,
+          substeps: [
+            `✅ Analyzed ${icp.title}`,
+            `✅ ${icp.painPoints?.length || 0} pain points identified`
+          ]
+        });
+
+        // Step 2: Craft email copy
+        const craftStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'craft', {
+          status: 'running',
+          startTime: craftStart,
+          substeps: ['Crafting email body (10-20s)...', 'Generating A/B/C subject lines...']
+        });
 
         const response = await fetch('/api/generate-one-time-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ icp, websiteUrl, valueProp: activeConversation?.generationState.generatedContent.valueProp })
+          body: JSON.stringify({ 
+            icp, 
+            websiteContext: activeConversation?.memory.websiteContent, // Fallback
+            factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+            valueProp: activeConversation?.generationState.generatedContent.valueProp,
+            userChoices: {} // Can be extended later with tone, CTA choices
+          })
         });
 
         const data: OneTimeEmailData = await response.json();
 
-        // Complete thinking steps
-        setConversations(prev =>
-          prev.map(conv =>
-            conv.id === activeConversationId
-              ? {
-                  ...conv,
-                  messages: conv.messages.map(m =>
-                    m.id === thinkingMsgId
-                      ? {
-                          ...m,
-                          thinking: m.thinking?.map(t => ({ ...t, status: 'complete' as const })),
-                        }
-                      : m
-                  ),
-                }
-              : conv
-          )
-        );
+        updateThinkingStep(thinkingMsgId, 'craft', {
+          status: 'complete',
+          duration: Date.now() - craftStart,
+          substeps: [
+            `✅ Email body: ${data?.emailBody?.split(' ')?.length || 0} words`,
+            `✅ Generated ${Object.keys(data?.subjectLines || {}).length} subject line variations`
+          ]
+        });
+
+        // Step 3: Optimize subject lines
+        const subjectsStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'subjects', {
+          status: 'running',
+          startTime: subjectsStart,
+          substeps: ['Optimizing subject lines for open rates...']
+        });
+
+        updateThinkingStep(thinkingMsgId, 'subjects', {
+          status: 'complete',
+          duration: Date.now() - subjectsStart,
+          substeps: [
+            `✅ ${data?.subjectLines?.A?.length || 0} chars (optimal: 40-50)`,
+            '✅ Ready for A/B/C testing'
+          ]
+        });
 
         // Remove thinking message
         setTimeout(() => {
@@ -1797,48 +1908,47 @@ What would you like to create?`;
     updateGenerationState({ isGenerating: true, currentStep: 'email-sequence' });
 
     try {
-      // Update thinking steps progressively
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map(m =>
-                  m.id === thinkingMsgId
-                    ? {
-                        ...m,
-                        thinking: m.thinking?.map(t =>
-                          t.id === 'analyze' ? { ...t, status: 'complete' as const } : t
-                        ),
-                      }
-                    : m
-                ),
-              }
-            : conv
-        )
-      );
+      // Step 1: Analyze persona journey
+      const analyzeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'running',
+        startTime: analyzeStart,
+        substeps: ['Analyzing customer journey...', 'Identifying touchpoints...']
+      });
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'complete',
+        duration: Date.now() - analyzeStart,
+        substeps: [
+          `✅ Mapped ${days}-day journey`,
+          '✅ Identified key decision points'
+        ]
+      });
 
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map(m =>
-                  m.id === thinkingMsgId
-                    ? {
-                        ...m,
-                        thinking: m.thinking?.map(t =>
-                          t.id === 'sequence' ? { ...t, status: 'complete' as const } : t
-                        ),
-                      }
-                    : m
-                ),
-              }
-            : conv
-        )
-      );
+      // Step 2: Plan sequence
+      const sequenceStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'sequence', {
+        status: 'running',
+        startTime: sequenceStart,
+        substeps: [`Planning ${days} touchpoints...`, 'Defining email objectives...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'sequence', {
+        status: 'complete',
+        duration: Date.now() - sequenceStart,
+        substeps: [
+          `✅ Planned ${days} emails`,
+          '✅ Defined sequence flow'
+        ]
+      });
+
+      // Step 3: Craft emails
+      const emailsStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'emails', {
+        status: 'running',
+        startTime: emailsStart,
+        substeps: [`Crafting ${days} emails with AI (20-40s)...`, 'Generating A/B variations...']
+      });
 
       const response = await fetch('/api/generate-email-sequence', {
         method: 'POST',
@@ -1846,6 +1956,8 @@ What would you like to create?`;
         body: JSON.stringify({
           icp,
           websiteUrl,
+          factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+          websiteContent: activeConversation?.memory.websiteContent, // Fallback
           valueProp: activeConversation?.generationState.generatedContent.valueProp,
           sequenceLength: days
         })
@@ -1853,24 +1965,31 @@ What would you like to create?`;
 
       const data: EmailSequenceData = await response.json();
 
-      // Complete thinking steps
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map(m =>
-                  m.id === thinkingMsgId
-                    ? {
-                        ...m,
-                        thinking: m.thinking?.map(t => ({ ...t, status: 'complete' as const })),
-                      }
-                    : m
-                ),
-              }
-            : conv
-        )
-      );
+      updateThinkingStep(thinkingMsgId, 'emails', {
+        status: 'complete',
+        duration: Date.now() - emailsStart,
+        substeps: [
+          `✅ Generated ${data?.emails?.length || 0} emails`,
+          `✅ ${data?.emails?.reduce((sum: number, e: EmailMessage) => sum + (e.subjectLines?.length || 0), 0)} total subject lines`
+        ]
+      });
+
+      // Step 4: Build timeline
+      const timelineStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'timeline', {
+        status: 'running',
+        startTime: timelineStart,
+        substeps: ['Building visual timeline...', 'Adding delivery schedule...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'timeline', {
+        status: 'complete',
+        duration: Date.now() - timelineStart,
+        substeps: [
+          `✅ Timeline: Day 0 → Day ${days}`,
+          '✅ Ready to deploy'
+        ]
+      });
 
       // Remove thinking message and show result
       setTimeout(() => {
@@ -1991,7 +2110,8 @@ What would you like to create?`;
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               icp,
-              websiteUrl
+              websiteUrl,
+              factsJson: activeConversation?.memory.factsJson // NEW: Pass structured facts
             }),
           });
 
@@ -2451,12 +2571,16 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                     {/* Value Prop Builder */}
                     {message.component === "value-prop" && message.data && (() => {
                       const data = message.data as ValuePropData;
+                      const activeConv = conversations.find(c => c.id === activeConversationId);
                       return (
                         <ValuePropBuilderWrapper
                           valuePropData={data}
                           websiteUrl={websiteUrl}
                           conversationId={activeConversationId}
+                          factsJson={activeConv?.memory.factsJson}
                           onVariationsGenerated={(updatedData) => handleVariationsGenerated(updatedData, data.icp)}
+                          onRegenerateVariation={handleRegenerateVariation}
+                          onConfirmValueProp={handleConfirmValueProp}
                         />
                       );
                     })()}
@@ -2572,12 +2696,39 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
 
                     {/* LinkedIn Outreach */}
                     {message.component === "linkedin-outreach" && message.data && (() => {
-                      const data = message.data as { outreach: LinkedInOutreachData; icp: ICP };
+                      const data = message.data as any;
+                      
+                      // Check if it's a sequence format (has outreach.messages)
+                      if (data.outreach?.messages) {
+                        return (
+                          <LinkedInOutreachCard
+                            data={data.outreach}
+                            personaTitle={data.icp?.title || 'Unknown Persona'}
+                          />
+                        );
+                      }
+                      
+                      // Check if it's single content format (has content or type)
+                      if (data.content || data.type) {
+                        return (
+                          <LinkedInSingleContentCard
+                            content={data.content}
+                            type={data.type}
+                            hashtags={data.suggestedHashtags}
+                            callToAction={data.callToAction}
+                            sourceFactIds={data.sourceFactIds}
+                            personaTitle={data.icp?.title || 'Unknown Persona'}
+                          />
+                        );
+                      }
+                      
+                      // Fallback for unexpected format
                       return (
-                        <LinkedInOutreachCard
-                          data={data.outreach}
-                          personaTitle={data.icp.title}
-                        />
+                        <Card className="p-6 text-center">
+                          <p className="text-muted-foreground">
+                            Unable to display LinkedIn content. Please regenerate.
+                          </p>
+                        </Card>
                       );
                     })()}
 

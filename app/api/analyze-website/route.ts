@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import FirecrawlApp from "@mendable/firecrawl-js";
+import OpenAI from "openai";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { buildAnalyzePrompt } from "@/lib/prompt-templates";
+import { validateFactsJSON } from "@/lib/validators";
+import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,8 +22,17 @@ export async function POST(req: NextRequest) {
 
     console.log('🔍 [Analyze] Starting analysis for:', url);
 
+    // ========================================================================
+    // STEP 1: Fetch website content (Firecrawl or Jina)
+    // ========================================================================
+    let rawContent = "";
+    let source = "jina";
+    let metadata = {
+      heroImage: null as string | null,
+      faviconUrl: `${new URL(url).origin}/favicon.ico`,
+    };
+
     // Use Firecrawl only if explicitly enabled (it's slower but more comprehensive)
-    // Set FIRECRAWL_ENABLED=true in .env.local to enable
     if (process.env.FIRECRAWL_API_KEY && process.env.FIRECRAWL_ENABLED === 'true') {
       console.log('🔥 [Analyze] Using Firecrawl');
       const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
@@ -40,133 +58,177 @@ export async function POST(req: NextRequest) {
           fullMarkdown += "\n\n---\n\n";
         }
 
-        // Truncate if too large (keep first 15k chars for speed)
-        const MAX_CONTENT_LENGTH = 15000;
-        if (fullMarkdown.length > MAX_CONTENT_LENGTH) {
-          console.log(`⚡ [Analyze] Truncating content: ${fullMarkdown.length} → ${MAX_CONTENT_LENGTH} chars`);
-          fullMarkdown = fullMarkdown.substring(0, MAX_CONTENT_LENGTH) + '\n\n[Content truncated for performance]';
-        }
-
-        console.log(`📊 [Analyze] Content size: ${fullMarkdown.length} chars`);
+        rawContent = fullMarkdown;
+        source = "firecrawl";
 
         // Extract metadata from Firecrawl
         const firstPage = crawlResult.data?.[0];
-        const metadata = {
-          heroImage: firstPage?.metadata?.ogImage || null,
-          faviconUrl: `${new URL(url).origin}/favicon.ico`,
-        };
-
-        console.log('🖼️ [Analyze] Metadata:', { 
-          heroImage: metadata.heroImage ? 'found' : 'not found',
-          pages: crawlResult.data?.length 
-        });
-
-        // Optional: Save to file system only in development
-        if (process.env.NODE_ENV === 'development') {
-          try {
-            const blueprintsDir = join(process.cwd(), "blueprints");
-            await mkdir(blueprintsDir, { recursive: true });
-            
-            const filename = new URL(url).hostname.replace(/\./g, "_") + ".md";
-            const filepath = join(blueprintsDir, filename);
-            
-            await writeFile(filepath, fullMarkdown, "utf-8");
-            console.log('💾 [Analyze] Saved blueprint:', filename);
-          } catch (err) {
-            console.warn('⚠️ [Analyze] Failed to save blueprint:', err);
-          }
-        }
-
-        return NextResponse.json({
-          content: fullMarkdown,
-          source: "firecrawl",
-          pages: crawlResult.data?.length || 0,
-          metadata,
-        });
+        metadata.heroImage = firstPage?.metadata?.ogImage || null;
       }
     }
 
-    // Fallback to Jina AI Reader
-    console.log('🌐 [Analyze] Using Jina AI Reader (fast mode)');
-    const jinaUrl = `https://r.jina.ai/${url}`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // Reduced to 20s timeout
-    
-    const startTime = Date.now();
-    const response = await fetch(jinaUrl, {
-      headers: {
-        Accept: "application/json",
-        "X-Return-Format": "markdown",
+    // Fallback to Jina AI Reader if Firecrawl not used or failed
+    if (!rawContent) {
+      console.log('🌐 [Analyze] Using Jina AI Reader (fast mode)');
+      const jinaUrl = `https://r.jina.ai/${url}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      
+      const startTime = Date.now();
+      const response = await fetch(jinaUrl, {
+        headers: {
+          Accept: "application/json",
+          "X-Return-Format": "markdown",
+        },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      const fetchTime = Date.now() - startTime;
+      console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch website content");
+      }
+
+      const data = await response.json();
+      rawContent = data.data?.content || "";
+
+      // Extract visual metadata from Jina response
+      metadata.heroImage = data.data?.images?.[0] || null;
+
+      // Try to extract Open Graph image from content
+      const ogImageMatch = rawContent.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
+      if (ogImageMatch && ogImageMatch[1]) {
+        metadata.heroImage = ogImageMatch[1];
+      }
+    }
+
+    // Truncate content for optimal processing (GPT-4o can handle more, but we want speed)
+    const MAX_CONTENT_LENGTH = 15000;
+    if (rawContent.length > MAX_CONTENT_LENGTH) {
+      console.log(`⚡ [Analyze] Truncating content: ${rawContent.length} → ${MAX_CONTENT_LENGTH} chars`);
+      rawContent = rawContent.substring(0, MAX_CONTENT_LENGTH) + '\n\n[Content truncated for performance]';
+    }
+
+    console.log(`📊 [Analyze] Content size: ${rawContent.length} chars`);
+
+    // ========================================================================
+    // STEP 2: Extract Facts JSON using GPT-4o with 3-layer prompt
+    // ========================================================================
+    console.log('🧠 [Analyze] Extracting Facts JSON with GPT-4o...');
+
+    const { system, developer, user } = buildAnalyzePrompt(rawContent);
+    const extractStartTime = Date.now();
+
+    // Use GPT-4o for best reasoning on fact extraction
+    const result = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
+          model: "gpt-4o", // Using GPT-4o for better reasoning
+          messages: [
+            { role: "system", content: system },
+            { role: "developer" as any, content: developer }, // Cast to avoid TS error
+            { role: "user", content: user },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.3, // Low temperature for factual extraction
+        });
       },
-      signal: controller.signal,
+      { timeout: 45000, maxRetries: 2 }, // Longer timeout for GPT-4o
+      ErrorContext.WEBSITE_ANALYSIS
+    );
+
+    const extractTime = Date.now() - extractStartTime;
+    console.log(`⚡ [Analyze] Facts extraction completed in ${extractTime}ms`);
+
+    // Handle API call failure
+    if (!result.success || !result.data) {
+      console.error('❌ [Analyze] Facts extraction failed:', result.error);
+      
+      // Fallback: Return raw content without facts
+      return NextResponse.json({
+        content: rawContent,
+        source,
+        pages: source === "firecrawl" ? 3 : 1,
+        metadata,
+        factsJson: null,
+        extractionError: result.error?.message || "Failed to extract facts",
+      });
+    }
+
+    // Parse Facts JSON response
+    const completion = result.data;
+    const factsJson = JSON.parse(completion.choices[0].message.content || "{}");
+
+    // Validate Facts JSON structure
+    const validation = validateFactsJSON(factsJson);
+
+    if (!validation.ok) {
+      console.error('❌ [Analyze] Facts validation failed:', validation.errors);
+      
+      // Fallback: Return raw content without facts
+      return NextResponse.json({
+        content: rawContent,
+        source,
+        pages: source === "firecrawl" ? 3 : 1,
+        metadata,
+        factsJson: null,
+        validationErrors: validation.errors,
+      });
+    }
+
+    console.log('✅ [Analyze] Facts JSON extracted:', {
+      facts: factsJson.facts?.length || 0,
+      valueProps: factsJson.valueProps?.length || 0,
+      pains: factsJson.pains?.length || 0,
+      brandName: factsJson.brand?.name || 'unknown',
     });
-    clearTimeout(timeout);
 
-    const fetchTime = Date.now() - startTime;
-    console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch website content");
-    }
-
-    const data = await response.json();
-    let content = data.data?.content || "";
-    
-    // Truncate content for faster processing (10k chars is plenty for ICP generation)
-    const MAX_CONTENT_LENGTH = 10000;
-    if (content.length > MAX_CONTENT_LENGTH) {
-      console.log(`⚡ [Analyze] Truncating content: ${content.length} → ${MAX_CONTENT_LENGTH} chars`);
-      content = content.substring(0, MAX_CONTENT_LENGTH) + '\n\n[Content truncated for performance]';
-    }
-
-    console.log(`📊 [Analyze] Final content size: ${content.length} chars`);
-
-    // Extract visual metadata from Jina response
-    const metadata = {
-      heroImage: data.data?.images?.[0] || null, // First image if available
-      faviconUrl: `${new URL(url).origin}/favicon.ico`,
-    };
-
-    // Try to extract Open Graph image from content
-    const ogImageMatch = content.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
-    if (ogImageMatch && ogImageMatch[1]) {
-      metadata.heroImage = ogImageMatch[1];
-    }
-
-    console.log('🖼️ [Analyze] Metadata extracted:', {
-      heroImage: metadata.heroImage ? 'found' : 'not found',
-      images: data.data?.images?.length || 0
-    });
-
-    // Optional: Save Jina result only in development
+    // ========================================================================
+    // STEP 3: Optional - Save to file system in development
+    // ========================================================================
     if (process.env.NODE_ENV === 'development') {
       try {
         const blueprintsDir = join(process.cwd(), "blueprints");
         await mkdir(blueprintsDir, { recursive: true });
         
-        const filename = new URL(url).hostname.replace(/\./g, "_") + "_jina.md";
-        const filepath = join(blueprintsDir, filename);
+        const hostname = new URL(url).hostname.replace(/\./g, "_");
         
-        await writeFile(filepath, content, "utf-8");
-        console.log('💾 [Analyze] Saved blueprint:', filename);
+        // Save raw content
+        const contentFilepath = join(blueprintsDir, `${hostname}_content.md`);
+        await writeFile(contentFilepath, rawContent, "utf-8");
+        
+        // Save facts JSON
+        const factsFilepath = join(blueprintsDir, `${hostname}_facts.json`);
+        await writeFile(factsFilepath, JSON.stringify(factsJson, null, 2), "utf-8");
+        
+        console.log('💾 [Analyze] Saved blueprints:', hostname);
       } catch (err) {
-        console.warn('⚠️ [Analyze] Failed to save blueprint:', err);
+        console.warn('⚠️ [Analyze] Failed to save blueprints:', err);
       }
     }
 
-    console.log('✅ [Analyze] Analysis complete');
+    console.log('✅ [Analyze] Analysis complete with Facts JSON');
 
+    // ========================================================================
+    // STEP 4: Return both Facts JSON and raw content
+    // ========================================================================
     return NextResponse.json({
-      content,
-      source: "jina",
-      pages: 1,
+      content: rawContent, // Keep for fallback
+      source,
+      pages: source === "firecrawl" ? 3 : 1,
       metadata,
+      factsJson, // NEW: Structured facts for reuse
     });
+
   } catch (error) {
     console.error("Error analyzing website:", error);
-    return NextResponse.json(
-      { error: "Failed to analyze website" },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      'UNKNOWN_ERROR',
+      ErrorContext.WEBSITE_ANALYSIS,
+      500
     );
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }

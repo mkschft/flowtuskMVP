@@ -39,8 +39,13 @@ type LinkedInOutreachCardProps = {
 };
 
 export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCardProps) {
+  // Safety check: ensure messages exists and has content
+  const messages = data?.messages || [];
+  const overallStrategy = data?.overallStrategy || "LinkedIn outreach strategy";
+  const keyTakeaways = data?.keyTakeaways || [];
+
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(data.messages[0]?.id || null);
+  const [expandedId, setExpandedId] = useState<string | null>(messages[0]?.id || null);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -75,6 +80,19 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
     }
   };
 
+  // If no messages, show a loading or error state
+  if (messages.length === 0) {
+    return (
+      <Card className="p-8 text-center">
+        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="font-semibold text-lg mb-2">No LinkedIn messages generated</h3>
+        <p className="text-sm text-muted-foreground">
+          Please try regenerating the LinkedIn outreach sequence.
+        </p>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Main Card */}
@@ -97,13 +115,13 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
             Outreach Strategy
           </h4>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {data.overallStrategy}
+            {overallStrategy}
           </p>
         </div>
 
         {/* Messages */}
         <div className="p-4 space-y-3">
-          {data.messages.map((message, idx) => {
+          {messages.map((message, idx) => {
             const colors = messageColors[message.type];
             const isExpanded = expandedId === message.id;
 
@@ -210,17 +228,19 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
         </div>
 
         {/* Key Takeaways */}
-        <div className="p-4 border-t bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
-          <h4 className="text-sm font-semibold mb-2">🎯 Key Takeaways</h4>
-          <div className="space-y-1">
-            {data.keyTakeaways.map((takeaway, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-xs">
-                <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                <span className="text-muted-foreground">{takeaway}</span>
-              </div>
-            ))}
+        {keyTakeaways.length > 0 && (
+          <div className="p-4 border-t bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
+            <h4 className="text-sm font-semibold mb-2">🎯 Key Takeaways</h4>
+            <div className="space-y-1">
+              {keyTakeaways.map((takeaway, idx) => (
+                <div key={idx} className="flex items-start gap-2 text-xs">
+                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                  <span className="text-muted-foreground">{takeaway}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="p-4 border-t flex gap-2">
@@ -228,7 +248,7 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
             variant="outline"
             className="flex-1"
             onClick={() => {
-              const allMessages = data.messages
+              const allMessages = messages
                 .map(m => `=== ${m.title} (${m.timing}) ===\n\n${m.message}`)
                 .join('\n\n---\n\n');
               handleCopy(allMessages, 'all');
@@ -251,7 +271,7 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
             onClick={() => {
               const csv = [
                 'Step,Type,Timing,Message,Tips',
-                ...data.messages.map(m => 
+                ...messages.map(m => 
                   `${m.step},"${m.title}","${m.timing}","${m.message.replace(/"/g, '""')}","${m.personalizationTips.join('; ')}"`
                 )
               ].join('\n');

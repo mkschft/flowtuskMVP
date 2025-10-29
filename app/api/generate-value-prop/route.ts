@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateValuePropResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
+import { buildValuePropPrompt, type FactsJSON, type ICP } from "@/lib/prompt-templates";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +11,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { icp, websiteUrl } = await req.json();
+    const { icp, websiteUrl, factsJson } = await req.json();
 
     if (!icp) {
       return NextResponse.json(
@@ -20,6 +21,82 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('🎯 [Generate Value Prop] Starting generation for:', icp.title);
+
+    const startTime = Date.now();
+
+    // ========================================================================
+    // NEW FLOW: Use Facts JSON + ICP with 3-layer prompt
+    // ========================================================================
+    if (factsJson) {
+      console.log('📊 [Generate Value Prop] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
+
+      const { system, developer, user } = buildValuePropPrompt(factsJson as FactsJSON, icp as ICP);
+
+      const result = await executeWithRetryAndTimeout(
+        async () => {
+          return await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: system },
+              { role: "developer" as any, content: developer },
+              { role: "user", content: user },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.7, // Moderate creativity for copy
+          });
+        },
+        { timeout: 30000, maxRetries: 3 },
+        ErrorContext.VALUE_PROP_GENERATION
+      );
+
+      const genTime = Date.now() - startTime;
+      console.log(`⚡ [Generate Value Prop] Operation completed in ${genTime}ms`);
+
+      if (!result.success || !result.data) {
+        console.error('❌ [Generate Value Prop] API call failed:', result.error);
+        const errorResponse = createErrorResponse(
+          result.error?.code || 'UNKNOWN_ERROR',
+          ErrorContext.VALUE_PROP_GENERATION,
+          500
+        );
+        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      }
+
+      const completion = result.data;
+      const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+
+      // Validate response structure
+      const validation = validateValuePropResponse(parsedResult);
+
+      if (!validation.ok) {
+        console.error('❌ [Generate Value Prop] Validation failed:', validation.errors);
+        const errorResponse = createErrorResponse(
+          'VALIDATION_ERROR',
+          ErrorContext.VALUE_PROP_GENERATION,
+          500
+        );
+        return NextResponse.json({
+          ...errorResponse.body,
+          validationErrors: validation.errors,
+        }, { status: errorResponse.status });
+      }
+
+      console.log('✅ [Generate Value Prop] Generated successfully with evidence tracking');
+
+      // Log evidence tracking for each variation
+      parsedResult.variations?.forEach((variation: any) => {
+        if (variation.sourceFactIds && variation.sourceFactIds.length > 0) {
+          console.log(`📎 [${variation.id}] Evidence: ${variation.sourceFactIds.join(', ')}`);
+        }
+      });
+
+      return NextResponse.json(parsedResult);
+    }
+
+    // ========================================================================
+    // FALLBACK FLOW: Use legacy prompt without Facts JSON
+    // ========================================================================
+    console.log('⚠️ [Generate Value Prop] Using legacy prompt (no Facts JSON)');
 
     const prompt = `You are an expert conversion copywriter specializing in value propositions.
 
@@ -151,9 +228,6 @@ Important:
 - Pain points should be specific to the persona, not generic
 - Expected impact should include realistic numbers/metrics`;
 
-    const startTime = Date.now();
-
-    // Wrap OpenAI call with retry and timeout logic
     const result = await executeWithRetryAndTimeout(
       async () => {
         return await openai.chat.completions.create({
@@ -179,7 +253,6 @@ Important:
     const genTime = Date.now() - startTime;
     console.log(`⚡ [Generate Value Prop] Operation completed in ${genTime}ms`);
 
-    // Handle API call failure
     if (!result.success || !result.data) {
       console.error('❌ [Generate Value Prop] API call failed:', result.error);
       const errorResponse = createErrorResponse(
@@ -190,11 +263,9 @@ Important:
       return NextResponse.json(errorResponse.body, { status: errorResponse.status });
     }
 
-    // Parse JSON response
     const completion = result.data;
     const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
-    // Validate response structure
     const validation = validateValuePropResponse(parsedResult);
 
     if (!validation.ok) {
@@ -223,4 +294,3 @@ Important:
     return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }
-

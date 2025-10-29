@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateEmailSequenceResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
+import { buildEmailSequencePrompt, type FactsJSON, type ICP, type ValueProp, type EmailSequenceOptions } from "@/lib/prompt-templates";
+import { MODEL_CONFIGS } from "@/lib/models";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +12,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { icp, websiteUrl, valueProp, sequenceLength = 7 } = await req.json();
+    const { icp, websiteUrl, valueProp, sequenceLength = 7, factsJson, websiteContent } = await req.json();
 
     if (!icp) {
       return NextResponse.json(
@@ -20,10 +22,120 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate sequence length
-    const validLengths = [5, 7, 10];
-    const length = validLengths.includes(sequenceLength) ? sequenceLength : 7;
+    const validLengths = [5, 7, 10] as const;
+    const length = (validLengths.includes(sequenceLength as any) ? sequenceLength : 7) as 5 | 7 | 10;
 
     console.log('📨 [Generate Email Sequence] Starting generation for:', icp.title, `(${length} emails)`);
+
+    const startTime = Date.now();
+    const modelConfig = MODEL_CONFIGS.GENERATE_SEQUENCE;
+
+    // ========================================================================
+    // NEW FLOW: Use Facts JSON with 3-layer prompt
+    // ========================================================================
+    if (factsJson && valueProp) {
+      console.log('📊 [Generate Email Sequence] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
+
+      const { system, developer, user } = buildEmailSequencePrompt(
+        factsJson as FactsJSON,
+        icp as ICP,
+        valueProp as ValueProp,
+        { length } as EmailSequenceOptions
+      );
+
+      const result = await executeWithRetryAndTimeout(
+        async () => {
+          return await openai.chat.completions.create({
+            model: modelConfig.model,
+            messages: [
+              { role: "system", content: system },
+              { role: "developer" as any, content: developer },
+              { role: "user", content: user },
+            ],
+            response_format: { type: "json_object" },
+            temperature: modelConfig.temperature,
+          });
+        },
+        { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
+        ErrorContext.EMAIL_GENERATION
+      );
+
+      const genTime = Date.now() - startTime;
+      console.log(`⚡ [Generate Email Sequence] Operation completed in ${genTime}ms`);
+
+      if (!result.success || !result.data) {
+        console.error('❌ [Generate Email Sequence] API call failed:', result.error);
+        const errorResponse = createErrorResponse(
+          result.error?.code || 'UNKNOWN_ERROR',
+          ErrorContext.EMAIL_GENERATION,
+          500
+        );
+        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      }
+
+      const completion = result.data;
+      const responseText = completion.choices[0]?.message?.content;
+
+      if (!responseText) {
+        const errorResponse = createErrorResponse(
+          'PARSE_ERROR',
+          ErrorContext.EMAIL_GENERATION,
+          500
+        );
+        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      }
+
+      let sequenceData;
+      try {
+        sequenceData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Failed to parse OpenAI response:", responseText);
+        const errorResponse = createErrorResponse(
+          'PARSE_ERROR',
+          ErrorContext.EMAIL_GENERATION,
+          500
+        );
+        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      }
+
+      // Validate response structure
+      const validation = validateEmailSequenceResponse(sequenceData);
+
+      if (!validation.ok) {
+        console.error('❌ [Generate Email Sequence] Validation failed:', validation.errors);
+        const errorResponse = createErrorResponse(
+          'VALIDATION_ERROR',
+          ErrorContext.EMAIL_GENERATION,
+          500
+        );
+        return NextResponse.json({
+          ...errorResponse.body,
+          validationErrors: validation.errors,
+        }, { status: errorResponse.status });
+      }
+
+      console.log('✅ [Generate Email Sequence] Generated', sequenceData.emails?.length || 0, 'emails with evidence tracking');
+
+      // Log evidence tracking
+      sequenceData.emails?.forEach((email: any) => {
+        if (email.sourceFactIds && email.sourceFactIds.length > 0) {
+          console.log(`📎 [Email ${email.id}] Evidence: ${email.sourceFactIds.join(', ')}`);
+        }
+      });
+
+      return NextResponse.json(sequenceData);
+    }
+
+    // ========================================================================
+    // FALLBACK FLOW: Use legacy prompt without Facts JSON
+    // ========================================================================
+    console.log('⚠️ [Generate Email Sequence] Using legacy prompt (no Facts JSON)');
+
+    const pacing = {
+      5: [1, 2, 3, 4, 5],
+      7: [1, 3, 5, 7, 10, 14, 21],
+      10: [1, 3, 5, 7, 10, 14, 17, 21, 28, 35],
+    };
 
     const prompt = `You are an expert email marketing strategist specializing in B2B nurture sequences.
 
@@ -34,229 +146,46 @@ Context:
 - Pain Points: ${icp.painPoints.join(', ')}
 - Goals: ${icp.goals.join(', ')}
 - Demographics: ${icp.demographics}
-${valueProp ? `- Value Proposition: ${valueProp}` : ''}
+${valueProp ? `- Value Proposition: ${JSON.stringify(valueProp)}` : ''}
 
 Task: Create a ${length}-email nurture sequence designed to convert cold leads into qualified opportunities.
 
+Sequence pacing (days between emails): ${pacing[length].join(', ')}
+
 Return a JSON object with this structure:
 {
-  "sequenceGoal": "<1-2 sentence goal for this sequence>",
+  "sequenceGoal": "1-2 sentence goal for this sequence",
+  "sequenceLength": ${length},
   "emails": [
     {
       "id": "email-1",
-      "step": 1,
-      "type": "intro",
       "dayNumber": 1,
-      "subjectLines": [
-        "<Subject line A - curiosity-driven>",
-        "<Subject line B - benefit-driven>",
-        "<Subject line C - personalized>"
-      ],
-      "body": "<Email body 150-200 words. Focus on identifying with their pain point. No hard sell yet.>",
-      "cta": "<Soft CTA: asking a question or offering value>",
-      "openRateBenchmark": "25-35%",
-      "replyRateBenchmark": "3-5%",
-      "tips": [
-        "<Tip 1>",
-        "<Tip 2>",
-        "<Tip 3>"
-      ]
-    },
-    {
-      "id": "email-2",
-      "step": 2,
-      "type": "value",
-      "dayNumber": ${length === 5 ? 2 : length === 7 ? 3 : 4},
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 150-200 words. Share your value prop, how you solve their pain.>",
-      "cta": "<CTA: offer demo, call, or resource>",
-      "openRateBenchmark": "20-30%",
-      "replyRateBenchmark": "5-8%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }${length >= 3 ? `,
-    {
-      "id": "email-3",
-      "step": 3,
-      "type": "social-proof",
-      "dayNumber": ${length === 5 ? 3 : length === 7 ? 5 : 7},
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 150-200 words. Share case study, testimonial, or results.>",
-      "cta": "<CTA: specific meeting request>",
-      "openRateBenchmark": "18-25%",
-      "replyRateBenchmark": "6-10%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 4 ? `,
-    {
-      "id": "email-4",
-      "step": 4,
-      "type": "urgency",
-      "dayNumber": ${length === 5 ? 4 : length === 7 ? 6 : 9},
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 100-150 words. Create gentle urgency - limited spots, seasonal offer, etc.>",
-      "cta": "<CTA: clear action with deadline>",
-      "openRateBenchmark": "15-22%",
-      "replyRateBenchmark": "8-12%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 5 ? `,
-    {
-      "id": "email-5",
-      "step": 5,
-      "type": "breakup",
-      "dayNumber": ${length === 5 ? 5 : length === 7 ? 7 : 10},
-      "subjectLines": [
-        "<Subject line A - 'Should I close your file?'>",
-        "<Subject line B - 'Last email'>",
-        "<Subject line C - creative breakup>"
-      ],
-      "body": "<Email body 80-120 words. Friendly breakup email. Often gets highest response.>",
-      "cta": "<CTA: yes/no question to keep door open>",
-      "openRateBenchmark": "30-40%",
-      "replyRateBenchmark": "15-25%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 6 ? `,
-    {
-      "id": "email-6",
-      "step": 6,
-      "type": "nurture",
-      "dayNumber": ${length === 7 ? 8 : 12},
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 120-180 words. Additional value content, industry insights, or helpful resources.>",
-      "cta": "<CTA: soft ask for engagement>",
-      "openRateBenchmark": "12-20%",
-      "replyRateBenchmark": "4-8%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 7 ? `,
-    {
-      "id": "email-7",
-      "step": 7,
-      "type": "final-ask",
-      "dayNumber": ${length === 7 ? 10 : 14},
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 100-150 words. Final attempt with clear value proposition and urgency.>",
-      "cta": "<CTA: specific meeting request with deadline>",
-      "openRateBenchmark": "15-25%",
-      "replyRateBenchmark": "8-15%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 8 ? `,
-    {
-      "id": "email-8",
-      "step": 8,
-      "type": "nurture",
-      "dayNumber": 16,
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 120-180 words. Educational content or industry insights.>",
-      "cta": "<CTA: soft engagement ask>",
-      "openRateBenchmark": "10-18%",
-      "replyRateBenchmark": "3-6%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 9 ? `,
-    {
-      "id": "email-9",
-      "step": 9,
-      "type": "nurture",
-      "dayNumber": 18,
-      "subjectLines": [
-        "<Subject line A>",
-        "<Subject line B>",
-        "<Subject line C>"
-      ],
-      "body": "<Email body 120-180 words. Additional value content or case studies.>",
-      "cta": "<CTA: soft ask for engagement>",
-      "openRateBenchmark": "10-18%",
-      "replyRateBenchmark": "3-6%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}${length >= 10 ? `,
-    {
-      "id": "email-10",
-      "step": 10,
-      "type": "breakup",
-      "dayNumber": 20,
-      "subjectLines": [
-        "<Subject line A - 'Should I close your file?'>",
-        "<Subject line B - 'Last email'>",
-        "<Subject line C - creative breakup>"
-      ],
-      "body": "<Email body 80-120 words. Friendly breakup email. Often gets highest response.>",
-      "cta": "<CTA: yes/no question to keep door open>",
-      "openRateBenchmark": "30-40%",
-      "replyRateBenchmark": "15-25%",
-      "tips": [
-        "<3 tips>"
-      ]
-    }` : ''}
+      "subject": "Subject line",
+      "body": "Email body 100-150 words",
+      "cta": "Call to action",
+      "purpose": "Why this email exists"
+    }
   ],
-  "bestPractices": [
-    "<Best practice 1>",
-    "<Best practice 2>",
-    "<Best practice 3>",
-    "<Best practice 4>",
-    "<Best practice 5>",
-    "<Best practice 6>"
-  ],
-  "expectedOutcome": "<Realistic outcome description: expected reply rate, meeting rate, and typical time to conversion>"
+  "bestPractices": ["tip1", "tip2", "tip3"],
+  "expectedOutcome": "What success looks like"
 }
 
-Guidelines:
-- Write in a conversational, human tone
-- Address pain points directly but empathetically
-- Each email should stand alone (they might not read previous ones)
-- Subject lines should be under 50 characters
-- Body text should be skimmable with short paragraphs
-- CTAs should be specific and low-friction
-- Use realistic benchmarks based on B2B email best practices
-- Make emails feel personal, not templated`;
+Important:
+- Each email should be 100-150 words max
+- Progressive value delivery (educate → persuade → close)
+- Reference previous emails naturally
+- Vary subject line approaches
+- Include clear CTAs
+- Keep tone professional and conversational`;
 
-    const startTime = Date.now();
-
-    // Wrap OpenAI call with retry and timeout logic
     const result = await executeWithRetryAndTimeout(
       async () => {
         return await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: modelConfig.model,
           messages: [
             {
               role: "system",
-              content: "You are an expert B2B email marketing strategist. Write conversion-optimized emails that feel human. Return only valid JSON.",
+              content: "You are an expert email marketing strategist. Return only valid JSON.",
             },
             {
               role: "user",
@@ -264,39 +193,58 @@ Guidelines:
             },
           ],
           response_format: { type: "json_object" },
-          temperature: 0.8,
+          temperature: modelConfig.temperature,
         });
       },
-      { timeout: 40000, maxRetries: 3 },
-      ErrorContext.EMAIL_SEQUENCE_GENERATION
+      { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
+      ErrorContext.EMAIL_GENERATION
     );
 
     const genTime = Date.now() - startTime;
     console.log(`⚡ [Generate Email Sequence] Operation completed in ${genTime}ms`);
 
-    // Handle API call failure
     if (!result.success || !result.data) {
       console.error('❌ [Generate Email Sequence] API call failed:', result.error);
       const errorResponse = createErrorResponse(
         result.error?.code || 'UNKNOWN_ERROR',
-        ErrorContext.EMAIL_SEQUENCE_GENERATION,
+        ErrorContext.EMAIL_GENERATION,
         500
       );
       return NextResponse.json(errorResponse.body, { status: errorResponse.status });
     }
 
-    // Parse JSON response
     const completion = result.data;
-    const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+    const responseText = completion.choices[0]?.message?.content;
 
-    // Validate response structure
-    const validation = validateEmailSequenceResponse(parsedResult);
+    if (!responseText) {
+      const errorResponse = createErrorResponse(
+        'PARSE_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
+
+    let sequenceData;
+    try {
+      sequenceData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response:", responseText);
+      const errorResponse = createErrorResponse(
+        'PARSE_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
+
+    const validation = validateEmailSequenceResponse(sequenceData);
 
     if (!validation.ok) {
       console.error('❌ [Generate Email Sequence] Validation failed:', validation.errors);
       const errorResponse = createErrorResponse(
         'VALIDATION_ERROR',
-        ErrorContext.EMAIL_SEQUENCE_GENERATION,
+        ErrorContext.EMAIL_GENERATION,
         500
       );
       return NextResponse.json({
@@ -305,14 +253,14 @@ Guidelines:
       }, { status: errorResponse.status });
     }
 
-    console.log('✅ [Generate Email Sequence] Generated successfully');
+    console.log('✅ [Generate Email Sequence] Generated', sequenceData.emails?.length || 0, 'emails');
 
-    return NextResponse.json(parsedResult);
+    return NextResponse.json(sequenceData);
   } catch (error) {
     console.error("Error generating email sequence:", error);
     const errorResponse = createErrorResponse(
       'UNKNOWN_ERROR',
-      ErrorContext.EMAIL_SEQUENCE_GENERATION,
+      ErrorContext.EMAIL_GENERATION,
       500
     );
     return NextResponse.json(errorResponse.body, { status: errorResponse.status });
