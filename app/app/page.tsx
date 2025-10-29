@@ -1581,7 +1581,7 @@ Which approach would you like to use?`;
                     ? {
                         ...m,
                         thinking: m.thinking?.map(t =>
-                          t.id === 'analyze' ? { ...t, status: 'completed' as const } : t
+                          t.id === 'analyze' ? { ...t, status: 'complete' as const } : t
                         ),
                       }
                     : m
@@ -1636,7 +1636,7 @@ Which approach would you like to use?`;
                   m.id === thinkingMsgId
                     ? {
                         ...m,
-                        thinking: m.thinking?.map(t => ({ ...t, status: 'completed' as const })),
+                        thinking: m.thinking?.map(t => ({ ...t, status: 'complete' as const })),
                       }
                     : m
                 ),
