@@ -23,7 +23,9 @@ import {
   Bot,
   BarChart3,
   Triangle,
-  GitBranch
+  GitBranch,
+  Monitor,
+  Download
 } from "lucide-react";
 
 // Slide wrapper component
@@ -252,82 +254,77 @@ function GapSlide() {
   );
 }
 
-// Slide 4: Solution (The Core)
+// Slide 4: Solution (How It Works)
 function SolutionSlide() {
+  const steps = [
+    {
+      number: 1,
+      title: "Input",
+      description: "Paste your website URL"
+    },
+    {
+      number: 2,
+      title: "Analysis",
+      description: "AI scrapes site, analyzes messaging, identifies market positioning"
+    },
+    {
+      number: 3,
+      title: "Personas",
+      description: "3 detailed customer profiles appear with visual cards"
+    },
+    {
+      number: 4,
+      title: "Value Props",
+      description: "For each persona, see tailored messaging, pain points addressed, objections handled"
+    },
+    {
+      number: 5,
+      title: "Export",
+      description: "Download as pitch deck, copy to Notion, generate LinkedIn posts, create email templates"
+    }
+  ];
+
   return (
     <Slide slideNumber={4}>
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-            Solution
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-            Website URL → Customer Clarity<br />
-            → <span className="gradient-text">Campaign Templates</span>
-          </h2>
-        </div>
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          From website URL to pitch-ready positioning in under 10 minutes
+        </h2>
 
-        {/* 5-Step Visual Flow */}
-        <div className="grid grid-cols-1 gap-4">
-          {[
-            {
-              step: 1,
-              icon: <Globe className="h-8 w-8 text-blue-600" />,
-              title: "Website URL Input",
-              desc: "Paste any B2B website URL",
-              color: "blue"
-            },
-            {
-              step: 2,
-              icon: <Brain className="h-8 w-8 text-purple-600" />,
-              title: "Persona Intelligence",
-              desc: "AI generates 3 ICP profiles: roles, pain points, goals, objections",
-              color: "purple"
-            },
-            {
-              step: 3,
-              icon: <Users className="h-8 w-8 text-pink-600" />,
-              title: "Beautiful ICP Cards",
-              desc: "Copy-paste ready. Share with team. Reference for all campaigns",
-              color: "pink"
-            },
-            {
-              step: 4,
-              icon: <Target className="h-8 w-8 text-purple-600" />,
-              title: "Value Prop Generation",
-              desc: "Per-persona messaging that resonates",
-              color: "purple"
-            },
-            {
-              step: 5,
-              icon: <FileText className="h-8 w-8 text-blue-600" />,
-              title: "Export Templates",
-              desc: "Email sequences, LinkedIn posts, pitch decks, landing pages",
-              color: "blue"
-            }
-          ].map((item) => (
-            <Card
-              key={item.step}
-              className={`p-6 border-2 border-${item.color}-200 dark:border-${item.color}-800 bg-gradient-to-r from-${item.color}-50/50 to-transparent dark:from-${item.color}-950/20`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="shrink-0">{item.icon}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <Badge variant="outline" className="text-xs">Step {item.step}</Badge>
-                    <h3 className="text-lg font-bold">{item.title}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-2 gap-12">
+          {/* Left Column - Steps */}
+          <div className="space-y-4">
+            {steps.map((step) => (
+              <div key={step.number} className="flex gap-4">
+                {/* Number badge */}
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                  {step.number}
+                </div>
+                {/* Content */}
+                <div className="flex-1 space-y-1">
+                  <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
               </div>
-            </Card>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="text-center pt-4">
-          <p className="text-lg text-muted-foreground italic max-w-3xl mx-auto">
-            &quot;Everything starts with understanding who you&apos;re selling to. Once you know that—really know it—everything else gets easier.&quot;
-          </p>
+          {/* Right Column - Product Screenshot Placeholder */}
+          <div className="flex items-center">
+            <div className="w-full h-full min-h-[400px] border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
+              <Monitor className="h-16 w-16 text-pink-500 dark:text-pink-400" />
+              <div className="space-y-2">
+                <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+                  Product Screenshot
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                  Interface showing beautiful persona cards with photos, pain points, goals, and objections. Below, export options panel with buttons for Google Slides, Notion, LinkedIn, Email Templates. Clean, modern UI with purple-pink gradient accents.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Slide>
