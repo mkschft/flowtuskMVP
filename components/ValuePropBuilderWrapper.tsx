@@ -52,7 +52,6 @@ type ValuePropBuilderWrapperProps = {
   websiteUrl: string;
   conversationId?: string;
   onVariationsGenerated?: (data: ValuePropData) => void;
-  onRegenerateVariation?: (variationId: string, variationIndex: number) => Promise<void>;
   onConfirmValueProp?: () => void;
   factsJson?: any;
 };
@@ -62,7 +61,6 @@ export function ValuePropBuilderWrapper({
   websiteUrl,
   conversationId,
   onVariationsGenerated,
-  onRegenerateVariation,
   onConfirmValueProp,
   factsJson,
 }: ValuePropBuilderWrapperProps) {
@@ -112,12 +110,6 @@ export function ValuePropBuilderWrapper({
     }
   };
 
-  const handleRegenerateVariation = async (variationId: string, variationIndex: number) => {
-    if (onRegenerateVariation) {
-      await onRegenerateVariation(variationId, variationIndex);
-    }
-  };
-
   const handleConfirmValueProp = () => {
     if (onConfirmValueProp) {
       onConfirmValueProp();
@@ -134,7 +126,6 @@ export function ValuePropBuilderWrapper({
         variations={localVariations}
         isGeneratingVariations={isGeneratingVariations}
         conversationId={conversationId}
-        onRegenerateVariation={handleRegenerateVariation}
         onConfirmValueProp={handleConfirmValueProp}
       />
       

@@ -69,39 +69,39 @@ export async function POST(req: NextRequest) {
 
     // Fallback to Jina AI Reader if Firecrawl not used or failed
     if (!rawContent) {
-      console.log('🌐 [Analyze] Using Jina AI Reader (fast mode)');
-      const jinaUrl = `https://r.jina.ai/${url}`;
-      const controller = new AbortController();
+    console.log('🌐 [Analyze] Using Jina AI Reader (fast mode)');
+    const jinaUrl = `https://r.jina.ai/${url}`;
+    const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 20000);
-      
-      const startTime = Date.now();
-      const response = await fetch(jinaUrl, {
-        headers: {
-          Accept: "application/json",
-          "X-Return-Format": "markdown",
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
+    
+    const startTime = Date.now();
+    const response = await fetch(jinaUrl, {
+      headers: {
+        Accept: "application/json",
+        "X-Return-Format": "markdown",
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
 
-      const fetchTime = Date.now() - startTime;
-      console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
+    const fetchTime = Date.now() - startTime;
+    console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch website content");
-      }
+    if (!response.ok) {
+      throw new Error("Failed to fetch website content");
+    }
 
-      const data = await response.json();
+    const data = await response.json();
       rawContent = data.data?.content || "";
 
-      // Extract visual metadata from Jina response
+    // Extract visual metadata from Jina response
       metadata.heroImage = data.data?.images?.[0] || null;
 
-      // Try to extract Open Graph image from content
+    // Try to extract Open Graph image from content
       const ogImageMatch = rawContent.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
-      if (ogImageMatch && ogImageMatch[1]) {
-        metadata.heroImage = ogImageMatch[1];
-      }
+    if (ogImageMatch && ogImageMatch[1]) {
+      metadata.heroImage = ogImageMatch[1];
+    }
     }
 
     // Truncate content for optimal processing (GPT-4o can handle more, but we want speed)

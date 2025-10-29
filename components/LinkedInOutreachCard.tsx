@@ -229,17 +229,17 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
 
         {/* Key Takeaways */}
         {keyTakeaways.length > 0 && (
-          <div className="p-4 border-t bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
-            <h4 className="text-sm font-semibold mb-2">🎯 Key Takeaways</h4>
-            <div className="space-y-1">
+        <div className="p-4 border-t bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
+          <h4 className="text-sm font-semibold mb-2">🎯 Key Takeaways</h4>
+          <div className="space-y-1">
               {keyTakeaways.map((takeaway, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-xs">
-                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
-                  <span className="text-muted-foreground">{takeaway}</span>
-                </div>
-              ))}
-            </div>
+              <div key={idx} className="flex items-start gap-2 text-xs">
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">✓</span>
+                <span className="text-muted-foreground">{takeaway}</span>
+              </div>
+            ))}
           </div>
+        </div>
         )}
 
         {/* Actions */}

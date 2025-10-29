@@ -165,7 +165,7 @@ Return a JSON object with this structure:
       "cta": "Call to action",
       "purpose": "Why this email exists"
     }
-  ],
+      ],
   "bestPractices": ["tip1", "tip2", "tip3"],
   "expectedOutcome": "What success looks like"
 }

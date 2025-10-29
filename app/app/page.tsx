@@ -1361,47 +1361,26 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
     const activeConversation = conversations.find(c => c.id === activeConversationId);
     const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
     
-    if (!valuePropData || !valuePropData.icp) return;
+    if (!valuePropData) {
+      console.error('No value prop data found');
+      return;
+    }
 
-    // Go directly to positioning summary (skip the "Excellent!" message)
-    showPositioningSummary(valuePropData, valuePropData.icp);
+    // Get ICP from the valueProp data
+    const icp = valuePropData.icp;
+    
+    if (!icp) {
+      console.error('No ICP found in value prop data');
+      return;
+    }
+
+    // Move to positioning summary
+    handleVariationsGenerated(valuePropData, icp);
   };
 
-  // Helper function to show positioning summary
-  const showPositioningSummary = (valuePropData: ValuePropData, icp: ICP) => {
-    const positioningSummary = `I've created a complete positioning package for **${icp.personaName}** (${icp.title}).
-
-**Persona Match:**
-• ${icp.personaRole} at ${icp.personaCompany}
-• ${icp.location}, ${icp.country}
-
-**Value Proposition Strategy:**
-${valuePropData.summary?.approachStrategy || 'Strategic positioning'}
-
-**Why This Positioning Works:**
-${valuePropData.summary?.mainInsight || 'Targeted messaging approach'}
-
-**Impact You Can Expect:**
-${valuePropData.summary?.expectedImpact || 'Improved conversion rates'}
-
-Ready to see your complete positioning package?`;
-
-    addMessage({
-      id: nanoid(),
-      role: "assistant",
-      content: "",
-      component: "positioning-summary",
-      data: {
-        summary: positioningSummary,
-        icp,
-        valuePropData
-      }
-    });
-  };
-
-  // Handler for when variations are generated (initial generation only)
+  // Handler for when variations are generated
   const handleVariationsGenerated = (valuePropData: ValuePropData, icp: ICP) => {
-    // For initial generation, show the accomplishment message
+    // Step 1: Show text message with mini summary of accomplishment
     const accomplishmentText = `Excellent! I've generated 5 value proposition variations for **${icp.title}**.
 
 **What We Created:**
@@ -1418,9 +1397,36 @@ Now let me prepare your complete positioning package...`;
       content: accomplishmentText
     });
 
-    // Show positioning summary after short delay
+    // Step 2: Show positioning summary card after short delay for readability
     setTimeout(() => {
-      showPositioningSummary(valuePropData, icp);
+      const positioningSummary = `I've created a complete positioning package for **${icp.personaName}** (${icp.title}).
+
+**Persona Match:**
+• ${icp.personaRole} at ${icp.personaCompany}
+• ${icp.location}, ${icp.country}
+
+**Value Proposition Strategy:**
+${valuePropData.summary?.approachStrategy || 'Strategic positioning'}
+
+**Why This Positioning Works:**
+${valuePropData.summary?.mainInsight || 'Targeted messaging approach'}
+
+**Impact You Can Expect:**
+${valuePropData.summary?.expectedImpact || 'Improved conversion rates'}
+
+Ready to see your complete positioning package?`;
+
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "positioning-summary",
+        data: {
+          summary: positioningSummary,
+          icp,
+          valuePropData
+        }
+      });
     }, 1000);
   };
 
@@ -2163,14 +2169,11 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
         },
       });
 
-      // Update state with generated content (include ICP for later access)
+      // Update state with generated content
       updateGenerationState({
         generatedContent: {
           ...activeConversation?.generationState.generatedContent,
-          valueProp: {
-            ...valuePropData,
-            icp // Store ICP with valueProp for easy access later
-          }
+          valueProp: valuePropData
         },
         completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
       });
@@ -2587,7 +2590,6 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                           conversationId={activeConversationId}
                           factsJson={activeConv?.memory.factsJson}
                           onVariationsGenerated={(updatedData) => handleVariationsGenerated(updatedData, data.icp)}
-                          onRegenerateVariation={handleRegenerateVariation}
                           onConfirmValueProp={handleConfirmValueProp}
                         />
                       );

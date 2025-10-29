@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, RefreshCw, Check, Copy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy } from "lucide-react";
 
 type ValuePropVariation = {
   id: string;
@@ -19,9 +19,7 @@ type IntegratedValuePropPreviewProps = {
   variations: ValuePropVariation[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
-  onRegenerate: (variationId: string) => void;
   onConfirm: () => void;
-  isRegenerating: boolean;
   personaTitle: string;
 };
 
@@ -29,9 +27,7 @@ export function IntegratedValuePropPreview({
   variations,
   currentIndex,
   onNavigate,
-  onRegenerate,
   onConfirm,
-  isRegenerating,
   personaTitle,
 }: IntegratedValuePropPreviewProps) {
   const [copied, setCopied] = useState(false);
@@ -145,17 +141,6 @@ export function IntegratedValuePropPreview({
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onRegenerate(currentVariation.id)}
-              disabled={isRegenerating}
-              className="flex-1"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
-              {isRegenerating ? 'Regenerating...' : 'Regenerate'}
             </Button>
 
             <Button

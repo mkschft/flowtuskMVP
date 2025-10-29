@@ -49,7 +49,6 @@ type ValuePropBuilderProps = {
   variations?: ValuePropVariation[];
   isGeneratingVariations?: boolean;
   conversationId?: string;
-  onRegenerateVariation?: (variationId: string, variationIndex: number) => void;
   onConfirmValueProp?: () => void;
 };
 
@@ -61,13 +60,11 @@ export function ValuePropBuilder({
   variations = [],
   // isGeneratingVariations = false,
   conversationId,
-  onRegenerateVariation,
   onConfirmValueProp
 }: ValuePropBuilderProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showVariations, setShowVariations] = useState(false);
   const [currentVariationIndex, setCurrentVariationIndex] = useState(0);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Build preview text
   const buildPreview = () => {
@@ -98,17 +95,6 @@ export function ValuePropBuilder({
     setShowVariations(true);
     setCurrentVariationIndex(0); // Auto-select first variation
     onGenerateVariations();
-  };
-
-  const handleRegenerateVariation = async (variationId: string) => {
-    if (!onRegenerateVariation) return;
-    
-    setIsRegenerating(true);
-    try {
-      await onRegenerateVariation(variationId, currentVariationIndex);
-    } finally {
-      setIsRegenerating(false);
-    }
   };
 
   const handleNavigate = (newIndex: number) => {
@@ -301,9 +287,7 @@ export function ValuePropBuilder({
           variations={variations}
           currentIndex={currentVariationIndex}
           onNavigate={handleNavigate}
-          onRegenerate={handleRegenerateVariation}
           onConfirm={handleConfirm}
-          isRegenerating={isRegenerating}
           personaTitle={personaTitle}
         />
       )}
