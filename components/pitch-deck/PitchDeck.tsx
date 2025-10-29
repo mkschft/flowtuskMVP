@@ -19,7 +19,11 @@ import {
   Users,
   DollarSign,
   Presentation,
-  Image
+  Image,
+  Bot,
+  BarChart3,
+  Triangle,
+  GitBranch
 } from "lucide-react";
 
 // Slide wrapper component
@@ -159,69 +163,89 @@ function ProblemSlide() {
   );
 }
 
-// Slide 3: The Gap
+// Slide 3: The Gap / Why Now
 function GapSlide() {
   return (
     <Slide slideNumber={3}>
-      <div className="space-y-12">
-        <div className="space-y-4">
-          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
-            Market Gap
-          </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold leading-tight">
-            No one connects<br />
-            <span className="gradient-text">customer insights to campaign execution</span>
-          </h2>
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          2025: GenAI has transformed content creation, but positioning intelligence is still manual
+        </h2>
+
+        {/* 2x2 Grid */}
+        <div className="grid grid-cols-2 gap-8">
+          {/* Content AI is commoditized */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
+            </div>
+            <p className="text-sm text-muted-foreground pl-15">
+              Jasper, Copy.ai, ChatGPT write copy—but they don&apos;t know WHO you&apos;re selling to
+            </p>
+          </div>
+
+          {/* Data tools give numbers */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
+            </div>
+            <p className="text-sm text-muted-foreground pl-15">
+              Clearbit provides firmographics, not positioning insights
+            </p>
+          </div>
+
+          {/* The gap */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <Triangle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">The gap</h3>
+            </div>
+            <p className="text-sm text-muted-foreground pl-15">
+              No tool bridges strategic positioning + tactical execution
+            </p>
+          </div>
+
+          {/* The opportunity */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <Rocket className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">The opportunity</h3>
+            </div>
+            <p className="text-sm text-muted-foreground pl-15">
+              &quot;Vibe-creating&quot; for positioning—just like Bolt.new did for coding
+            </p>
+          </div>
         </div>
 
-        {/* Comparison Table */}
-        <div className="grid grid-cols-4 gap-4 text-sm">
-          {/* Header */}
-          <div className="font-bold text-muted-foreground"></div>
-          <div className="text-center">
-            <div className="font-bold text-base">Consultants</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-base">Platforms</div>
-            <div className="text-xs font-normal text-muted-foreground">(HubSpot, Jasper)</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-base gradient-text">Flowtusk</div>
-          </div>
-
-          {/* Customer Clarity */}
-          <div className="font-medium py-2">Customer Clarity</div>
-          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
-          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
-          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
-
-          {/* Speed */}
-          <div className="font-medium py-2">Speed</div>
-          <div className="text-center py-2 text-red-500">Weeks</div>
-          <div className="text-center py-2 text-green-500">Fast</div>
-          <div className="text-center py-2 text-green-500 font-bold">10 min</div>
-
-          {/* Templates */}
-          <div className="font-medium py-2">Campaign Templates</div>
-          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
-          <div className="text-center py-2">Generic</div>
-          <div className="text-center py-2 text-green-500 font-bold">Persona-specific</div>
-
-          {/* Export */}
-          <div className="font-medium py-2">Export Ready</div>
-          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
-          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
-          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+        {/* Middle statement */}
+        <div className="bg-muted/50 py-6 px-8 rounded-lg">
+          <p className="text-xl font-medium text-center text-foreground">
+            The same transformation that happened to coding is ready to happen to positioning.
+          </p>
         </div>
 
-        <div className="text-center pt-8">
-          <p className="text-2xl font-bold">
-            Everyone gives you <span className="text-red-500">thinking (slow)</span> or{" "}
-            <span className="text-orange-500">templates (generic)</span>
-          </p>
-          <p className="text-2xl font-bold mt-2">
-            We give you <span className="gradient-text">smart thinking that powers specific templates. Fast.</span>
-          </p>
+        {/* Bottom illustration placeholder */}
+        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 p-8 flex flex-col items-center justify-center space-y-4">
+          <GitBranch className="h-12 w-12 text-pink-500 dark:text-pink-400" />
+          <div className="text-center space-y-2">
+            <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+              Illustration: Evolution Timeline
+            </h4>
+            <p className="text-xs text-muted-foreground max-w-3xl">
+              Timeline graphic showing progression: Manual positioning with consultants (2020) → Generic AI copy tools (2023) → Positioning Copilot (2025). Use arrows and visual milestones to show the gap that Flowtusk fills.
+            </p>
+          </div>
         </div>
       </div>
     </Slide>
