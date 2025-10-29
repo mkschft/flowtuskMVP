@@ -1,0 +1,754 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Circle,
+  CheckCircle2,
+  Target,
+  Zap,
+  TrendingUp,
+  Rocket,
+  Globe,
+  Brain,
+  FileText,
+  Users,
+  DollarSign,
+  Presentation
+} from "lucide-react";
+
+// Slide wrapper component
+function Slide({ children, slideNumber }: { children: React.ReactNode; slideNumber: number }) {
+  return (
+    <div className="relative w-full h-screen flex items-center justify-center p-8 md:p-16">
+      {/* Slide number indicator */}
+      <div className="absolute top-8 right-8 text-sm text-muted-foreground">
+        {slideNumber.toString().padStart(2, '0')}
+      </div>
+      
+      {/* Content */}
+      <div className="w-full max-w-6xl">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Slide 1: Cover
+function CoverSlide() {
+  return (
+    <Slide slideNumber={1}>
+      <div className="text-center space-y-8">
+        {/* Logo/Brand */}
+        <div className="inline-block">
+          <div className="text-6xl font-bold gradient-text mb-4">
+            Flowtusk
+          </div>
+          <p className="text-xl text-muted-foreground">
+            The Shortcut from Brand to Funnel
+          </p>
+        </div>
+
+        {/* Main Tagline */}
+        <h1 className="text-5xl md:text-7xl font-extrabold text-foreground leading-tight">
+          Vibe create your B2B funnel<br />
+          <span className="gradient-text">in minutes not weekends</span>
+        </h1>
+
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <span>October 2025</span>
+          <Circle className="h-1 w-1 fill-current" />
+          <span>Series Seed</span>
+          <Circle className="h-1 w-1 fill-current" />
+          <span>B2B SaaS</span>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 2: Problem
+function ProblemSlide() {
+  return (
+    <Slide slideNumber={2}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-sm">
+            Problem
+          </Badge>
+          <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
+            Positioning Down. 360 Rules.
+          </h2>
+          <p className="text-2xl text-muted-foreground max-w-3xl">
+            Predictable B2B funnels take forever. And you still don&apos;t know if you&apos;re reaching the right person.
+          </p>
+        </div>
+
+        {/* Two column comparison */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* For Startups */}
+          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-red-600" />
+              For Startups
+            </h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>Building for &quot;everyone in SaaS&quot; = talking to no one</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>Weeks spent on discovery, messaging still feels generic</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>Landing pages, emails, LinkedIn—all disconnected</span>
+              </li>
+            </ul>
+          </Card>
+
+          {/* The Result */}
+          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-red-600 rotate-180" />
+              The Result
+            </h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>Mediocre conversion rates (2-3%)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>4-6 weeks to launch campaigns</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span>Endless A/B testing hoping something works</span>
+              </li>
+            </ul>
+          </Card>
+        </div>
+
+        <div className="text-center">
+          <p className="text-xl font-medium text-muted-foreground italic">
+            &quot;Meanwhile, your competitors launch targeted campaigns in days, not weeks&quot;
+          </p>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 3: The Gap
+function GapSlide() {
+  return (
+    <Slide slideNumber={3}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+            Market Gap
+          </Badge>
+          <h2 className="text-5xl md:text-6xl font-bold leading-tight">
+            No one connects<br />
+            <span className="gradient-text">customer insights to campaign execution</span>
+          </h2>
+        </div>
+
+        {/* Comparison Table */}
+        <div className="grid grid-cols-4 gap-4 text-sm">
+          {/* Header */}
+          <div className="font-bold text-muted-foreground"></div>
+          <div className="text-center">
+            <div className="font-bold text-base">Consultants</div>
+          </div>
+          <div className="text-center">
+            <div className="font-bold text-base">Platforms</div>
+            <div className="text-xs font-normal text-muted-foreground">(HubSpot, Jasper)</div>
+          </div>
+          <div className="text-center">
+            <div className="font-bold text-base gradient-text">Flowtusk</div>
+          </div>
+
+          {/* Customer Clarity */}
+          <div className="font-medium py-2">Customer Clarity</div>
+          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
+          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+
+          {/* Speed */}
+          <div className="font-medium py-2">Speed</div>
+          <div className="text-center py-2 text-red-500">Weeks</div>
+          <div className="text-center py-2 text-green-500">Fast</div>
+          <div className="text-center py-2 text-green-500 font-bold">10 min</div>
+
+          {/* Templates */}
+          <div className="font-medium py-2">Campaign Templates</div>
+          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
+          <div className="text-center py-2">Generic</div>
+          <div className="text-center py-2 text-green-500 font-bold">Persona-specific</div>
+
+          {/* Export */}
+          <div className="font-medium py-2">Export Ready</div>
+          <div className="flex justify-center py-2"><Circle className="h-5 w-5 text-red-500" /></div>
+          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+          <div className="flex justify-center py-2"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+        </div>
+
+        <div className="text-center pt-8">
+          <p className="text-2xl font-bold">
+            Everyone gives you <span className="text-red-500">thinking (slow)</span> or{" "}
+            <span className="text-orange-500">templates (generic)</span>
+          </p>
+          <p className="text-2xl font-bold mt-2">
+            We give you <span className="gradient-text">smart thinking that powers specific templates. Fast.</span>
+          </p>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 4: Solution (The Core)
+function SolutionSlide() {
+  return (
+    <Slide slideNumber={4}>
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+            Solution
+          </Badge>
+          <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+            Website URL → Customer Clarity<br />
+            → <span className="gradient-text">Campaign Templates</span>
+          </h2>
+        </div>
+
+        {/* 5-Step Visual Flow */}
+        <div className="grid grid-cols-1 gap-4">
+          {[
+            {
+              step: 1,
+              icon: <Globe className="h-8 w-8 text-blue-600" />,
+              title: "Website URL Input",
+              desc: "Paste any B2B website URL",
+              color: "blue"
+            },
+            {
+              step: 2,
+              icon: <Brain className="h-8 w-8 text-purple-600" />,
+              title: "Persona Intelligence",
+              desc: "AI generates 3 ICP profiles: roles, pain points, goals, objections",
+              color: "purple"
+            },
+            {
+              step: 3,
+              icon: <Users className="h-8 w-8 text-pink-600" />,
+              title: "Beautiful ICP Cards",
+              desc: "Copy-paste ready. Share with team. Reference for all campaigns",
+              color: "pink"
+            },
+            {
+              step: 4,
+              icon: <Target className="h-8 w-8 text-purple-600" />,
+              title: "Value Prop Generation",
+              desc: "Per-persona messaging that resonates",
+              color: "purple"
+            },
+            {
+              step: 5,
+              icon: <FileText className="h-8 w-8 text-blue-600" />,
+              title: "Export Templates",
+              desc: "Email sequences, LinkedIn posts, pitch decks, landing pages",
+              color: "blue"
+            }
+          ].map((item) => (
+            <Card
+              key={item.step}
+              className={`p-6 border-2 border-${item.color}-200 dark:border-${item.color}-800 bg-gradient-to-r from-${item.color}-50/50 to-transparent dark:from-${item.color}-950/20`}
+            >
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">{item.icon}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <Badge variant="outline" className="text-xs">Step {item.step}</Badge>
+                    <h3 className="text-lg font-bold">{item.title}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <div className="text-center pt-4">
+          <p className="text-lg text-muted-foreground italic max-w-3xl mx-auto">
+            &quot;Everything starts with understanding who you&apos;re selling to. Once you know that—really know it—everything else gets easier.&quot;
+          </p>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 5: Before/After (Real Examples)
+function BeforeAfterSlide() {
+  return (
+    <Slide slideNumber={5}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+            Proof
+          </Badge>
+          <h2 className="text-5xl font-bold">
+            How This <span className="gradient-text">Changes Your Workflow</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Before */}
+          <Card className="p-8 border-2 border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10">
+            <h3 className="text-2xl font-bold mb-6 text-red-700 dark:text-red-400">
+              ❌ Before Flowtusk
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Day 1-2:</span>
+                <span>&quot;Who are our customers?&quot; → Workshop or guesswork</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Day 3-4:</span>
+                <span>Write landing page → Generic, untargeted</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Day 5-6:</span>
+                <span>Email sequence → Template-based</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Day 7-8:</span>
+                <span>LinkedIn posts → Random ideas</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Day 9+:</span>
+                <span>A/B test → Hope something works</span>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-red-300 dark:border-red-700">
+              <p className="font-bold text-red-700 dark:text-red-400">
+                Result: 2 weeks, inconsistent messaging, mediocre conversions
+              </p>
+            </div>
+          </Card>
+
+          {/* After */}
+          <Card className="p-8 border-2 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/10">
+            <h3 className="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">
+              ✅ With Flowtusk
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Min 0:</span>
+                <span className="font-bold">Paste website URL</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Min 5:</span>
+                <span>&quot;You have 3 customer types: VP Sales, Head of Product, Marketing Manager&quot;</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Min 10:</span>
+                <span>Email sequences ready (per persona, optimized)</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Min 15:</span>
+                <span>LinkedIn templates ready</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="font-mono text-muted-foreground shrink-0">Min 20:</span>
+                <span>Landing page + pitch deck + Twitter posts ready</span>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-green-300 dark:border-green-700">
+              <p className="font-bold text-green-700 dark:text-green-400">
+                Result: 20 minutes, consistent messaging, higher conversions
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Case Study */}
+        <Card className="p-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-2">
+          <div className="flex items-start gap-4">
+            <div className="text-4xl">💼</div>
+            <div>
+              <Badge className="mb-2">Real Case Study</Badge>
+              <p className="text-lg font-medium leading-relaxed">
+                &quot;KONE marketing team typically spent <span className="font-bold text-red-600">3-4 days</span> on discovery + messaging.
+                With Flowtusk, they got persona clarity + templates in <span className="font-bold text-green-600">15 minutes</span>.
+                Launched same day. First campaign: <span className="font-bold gradient-text">500 qualified leads in 2 weeks</span>.&quot;
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 6: MVP vs Vision
+function MVPVisionSlide() {
+  return (
+    <Slide slideNumber={6}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+            Roadmap
+          </Badge>
+          <h2 className="text-5xl font-bold leading-tight">
+            Available <span className="gradient-text">Today</span> vs Coming Soon
+          </h2>
+          <p className="text-xl text-muted-foreground">
+            Start creating campaigns today. Scale into full automation tomorrow.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Available Today */}
+          <Card className="p-8 border-2 border-green-200 dark:border-green-800 bg-green-50/20 dark:bg-green-950/10">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
+              Available TODAY
+            </h3>
+            <ul className="space-y-2 text-sm">
+              {[
+                "Website → Customer personas",
+                "Beautiful ICP cards (share ready)",
+                "Value prop generation (per persona)",
+                "Email sequence templates",
+                "LinkedIn outreach copy",
+                "Google Slides templates",
+                "Pitch deck templates",
+                "X/Twitter post ideas",
+                "Bio/positioning text",
+                "Export everything (copy-paste)"
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          {/* Coming Soon */}
+          <Card className="p-8 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-950/10">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Zap className="h-6 w-6 text-blue-600" />
+              Coming Q4/Q1
+            </h3>
+            <ul className="space-y-2 text-sm">
+              {[
+                "Full landing page builder",
+                "Automated email scheduling",
+                "Multi-channel orchestration",
+                "Analytics & performance tracking",
+                "CRM integrations (HubSpot, Salesforce)",
+                "A/B testing recommendations",
+                "Team collaboration features",
+                "API access"
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <Rocket className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 7: Market
+function MarketSlide() {
+  return (
+    <Slide slideNumber={7}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+            Market
+          </Badge>
+          <h2 className="text-5xl font-bold">
+            <span className="gradient-text">150K+ B2B founders</span><br />
+            buying templates
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-3 gap-6">
+          <Card className="p-8 text-center border-2">
+            <div className="text-4xl font-bold gradient-text mb-2">$100B+</div>
+            <div className="text-sm text-muted-foreground">TAM: B2B SaaS Market</div>
+          </Card>
+          <Card className="p-8 text-center border-2">
+            <div className="text-4xl font-bold gradient-text mb-2">$15B</div>
+            <div className="text-sm text-muted-foreground">SAM: Marketing Tools</div>
+          </Card>
+          <Card className="p-8 text-center border-2">
+            <div className="text-4xl font-bold gradient-text mb-2">€300M</div>
+            <div className="text-sm text-muted-foreground">SOM: Annual Opportunity</div>
+          </Card>
+        </div>
+
+        {/* Why Now section */}
+        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2">
+          <h3 className="text-2xl font-bold mb-4">Why Now?</h3>
+          <ul className="space-y-3">
+            {[
+              "GenAI makes persona generation fast + reliable",
+              "Founders want speed (not weeks of consulting)",
+              "Everyone building go-to-market in weeks not months",
+              "No integrated solution exists"
+            ].map((item, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                <Zap className="h-5 w-5 text-purple-600 mt-0.5 shrink-0" />
+                <span className="text-lg">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 8: Traction
+function TractionSlide() {
+  return (
+    <Slide slideNumber={8}>
+      <div className="space-y-12">
+        <div className="space-y-4">
+          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+            Traction
+          </Badge>
+          <h2 className="text-5xl font-bold">
+            Proof & <span className="gradient-text">Early Validation</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          <Card className="p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2">
+            <div className="text-5xl font-bold gradient-text mb-2">€61K</div>
+            <div className="text-lg font-medium mb-1">Consulting Revenue</div>
+            <div className="text-sm text-muted-foreground">Proof founders want this</div>
+          </Card>
+
+          <Card className="p-8 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2">
+            <div className="text-5xl font-bold gradient-text mb-2">150+</div>
+            <div className="text-lg font-medium mb-1">Waitlist Signups</div>
+            <div className="text-sm text-muted-foreground">Demand validation</div>
+          </Card>
+
+          <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2">
+            <div className="text-5xl font-bold gradient-text mb-2">3</div>
+            <div className="text-lg font-medium mb-1">Enterprise Pilots</div>
+            <div className="text-sm text-muted-foreground">KONE, Zipli, Arkken</div>
+          </Card>
+
+          <Card className="p-8 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-2">
+            <div className="text-5xl font-bold gradient-text mb-2">✓</div>
+            <div className="text-lg font-medium mb-1">MVP Complete</div>
+            <div className="text-sm text-muted-foreground">All core features working</div>
+          </Card>
+        </div>
+
+        {/* Testimonials */}
+        <div className="space-y-4">
+          <h3 className="text-2xl font-bold">Pilot Results</h3>
+          <div className="grid gap-4">
+            {[
+              {
+                company: "KONE",
+                quote: "Saved 3-4 days per campaign. Faster, more targeted. 500 leads in 2 weeks.",
+                metric: "500 leads"
+              },
+              {
+                company: "Zipli",
+                quote: "Email templates → 70% higher engagement than previous campaigns",
+                metric: "70% ↑"
+              },
+              {
+                company: "Arkken",
+                quote: "Finally consistent messaging across LinkedIn, landing pages, and pitches",
+                metric: "Consistent"
+              }
+            ].map((item, idx) => (
+              <Card key={idx} className="p-6 border-l-4 border-l-green-500">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-1">{item.company}</div>
+                    <p className="text-sm text-muted-foreground italic">&quot;{item.quote}&quot;</p>
+                  </div>
+                  <Badge className="shrink-0 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">{item.metric}</Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 9: CTA
+function CTASlide() {
+  return (
+    <Slide slideNumber={9}>
+      <div className="text-center space-y-12">
+        <div className="space-y-6">
+          <h2 className="text-6xl md:text-7xl font-bold leading-tight">
+            Ready to<br />
+            <span className="gradient-text">Vibe Create Your Funnel?</span>
+          </h2>
+          <p className="text-2xl text-muted-foreground max-w-3xl mx-auto">
+            Website → Personas → Templates → Launch
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <Button 
+            size="lg" 
+            className="h-16 px-12 text-xl bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700"
+          >
+            <Rocket className="mr-3 h-6 w-6" />
+            Try Flowtusk Now
+          </Button>
+
+          <div className="flex items-center justify-center gap-8 text-lg">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <span>No credit card</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <span>15 min setup</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <span>Export everything</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-12 border-t max-w-2xl mx-auto">
+          <div className="text-lg text-muted-foreground">
+            Contact: <span className="font-medium">hello@flowtusk.com</span>
+          </div>
+          <div className="text-sm text-muted-foreground mt-2">
+            flowtusk.com • @flowtusk
+          </div>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Main Deck Component
+export function PitchDeck() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    <CoverSlide key="cover" />,
+    <ProblemSlide key="problem" />,
+    <GapSlide key="gap" />,
+    <SolutionSlide key="solution" />,
+    <BeforeAfterSlide key="beforeafter" />,
+    <MVPVisionSlide key="mvp" />,
+    <MarketSlide key="market" />,
+    <TractionSlide key="traction" />,
+    <CTASlide key="cta" />,
+  ];
+
+  const nextSlide = () => {
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide(currentSlide + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentSlide]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="relative w-full h-screen bg-background overflow-hidden">
+      {/* Slides */}
+      <div className="relative w-full h-full">
+        {slides[currentSlide]}
+      </div>
+
+      {/* Navigation */}
+      <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center gap-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={prevSlide}
+          disabled={currentSlide === 0}
+          className="rounded-full"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        {/* Slide indicators */}
+        <div className="flex gap-2">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => goToSlide(idx)}
+              className={`h-2 rounded-full transition-all ${
+                idx === currentSlide
+                  ? 'w-8 bg-gradient-to-r from-pink-600 to-purple-600'
+                  : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={nextSlide}
+          disabled={currentSlide === slides.length - 1}
+          className="rounded-full"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
