@@ -122,12 +122,18 @@ type EmailSequenceData = {
 };
 
 type OneTimeEmailData = {
-  subjectLines: string[];
-  body: string;
+  subjectLines: {
+    A: string;
+    B: string;
+    C: string;
+  };
+  emailBody: string;
   cta: string;
-  openRateBenchmark: string;
-  replyRateBenchmark: string;
-  conversionBenchmark: string;
+  benchmarks: {
+    openRate: string;
+    replyRate: string;
+    conversionRate: string;
+  };
   tips: string[];
 };
 
