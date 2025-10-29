@@ -160,7 +160,7 @@ type ChatMessage = {
 };
 
 // Enhanced Generation State Types
-type GenerationStep = 'analysis' | 'icp-selection' | 'value-prop' | 'export' | 'complete';
+type GenerationStep = 'analysis' | 'icp-selection' | 'value-prop' | 'one-time-email' | 'email-sequence' | 'export' | 'complete';
 
 type GeneratedContent = {
   icps?: ICP[];
