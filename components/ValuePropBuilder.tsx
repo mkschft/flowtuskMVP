@@ -60,6 +60,7 @@ export function ValuePropBuilder({
 }: ValuePropBuilderProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showVariations, setShowVariations] = useState(false);
+  const [currentVariationIndex, setCurrentVariationIndex] = useState(0);
 
   // Build preview text
   const buildPreview = () => {
@@ -88,8 +89,17 @@ export function ValuePropBuilder({
 
   const handleGenerateVariations = () => {
     setShowVariations(true);
+    setCurrentVariationIndex(0); // Reset to first variation
     onGenerateVariations();
   };
+
+  const handleRegenerateVariation = () => {
+    // Cycle to next variation
+    setCurrentVariationIndex((prev) => (prev + 1) % variations.length);
+  };
+
+  // Get current variation to display
+  const currentVariation = variations[currentVariationIndex];
 
   return (
     <div className="space-y-4">
@@ -223,10 +233,10 @@ export function ValuePropBuilder({
                 onClick={handleGenerateVariations}
                 conversationId={conversationId}
                 className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white"
-                loadingText="Generating variations..."
+                loadingText="Creating your value proposition..."
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Generate Variations
+                <Sparkles className="h-4 w-4 mr-2" />
+                Create Value Proposition
               </SmartButton>
               <Button
                 variant="outline"
@@ -262,103 +272,58 @@ export function ValuePropBuilder({
         </div>
       </Card>
 
-      {/* Variations Section */}
-      {showVariations && variations.length > 0 && (
+      {/* Single Variation Display */}
+      {showVariations && variations.length > 0 && currentVariation && (
         <Card className="border-2 border-purple-200 dark:border-purple-800">
-          <div className="p-4 border-b bg-gradient-to-r from-pink-500/10 to-purple-500/10">
-            <h4 className="font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              {variations.length} Variations Ready
-            </h4>
-            <p className="text-xs text-muted-foreground mt-1">
-              Different styles to match your communication needs
-            </p>
-          </div>
-
-          <div className="p-4 space-y-3">
-            {variations.map((variation) => (
-              <div
-                key={variation.id}
-                className="group relative p-4 rounded-lg border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all"
-              >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{variation.emoji}</span>
-                    <div>
-                      <p className="text-sm font-semibold">{variation.style}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Use for: {variation.useCase}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handleCopy(variation.text, variation.id)}
-                  >
-                    {copiedId === variation.id ? (
-                      <>
-                        <Check className="h-3 w-3 mr-1" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3 w-3 mr-1" />
-                        Copy
-                      </>
-                    )}
-                  </Button>
+          <div className="p-6">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{currentVariation.emoji}</span>
+                <div>
+                  <p className="font-semibold">{currentVariation.style}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Use for: {currentVariation.useCase}
+                  </p>
                 </div>
-                
-                <p className="text-sm leading-relaxed">
-                  &ldquo;{variation.text}&rdquo;
-                </p>
               </div>
-            ))}
-          </div>
 
-          <div className="p-4 border-t bg-muted/30">
-            <div className="flex gap-2">
               <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  const allVariations = variations.map(v => v.text).join('\n\n');
-                  handleCopy(allVariations, 'all');
-                }}
+                size="sm"
+                variant="ghost"
+                onClick={() => handleCopy(currentVariation.text, currentVariation.id)}
               >
-                {copiedId === 'all' ? (
+                {copiedId === currentVariation.id ? (
                   <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Copied All
+                    <Check className="h-4 w-4 mr-1" />
+                    Copied
                   </>
                 ) : (
                   <>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy All
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copy
                   </>
                 )}
               </Button>
+            </div>
+
+            <p className="text-base leading-relaxed mb-6">
+              &ldquo;{currentVariation.text}&rdquo;
+            </p>
+
+            <div className="flex gap-2 pt-4 border-t">
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => {
-                  const csv = [
-                    'Style,Text,Use Case',
-                    ...variations.map(v => `"${v.style}","${v.text}","${v.useCase}"`)
-                  ].join('\n');
-                  const blob = new Blob([csv], { type: 'text/csv' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'value-prop-variations.csv';
-                  a.click();
-                }}
+                onClick={handleRegenerateVariation}
               >
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Regenerate ({currentVariationIndex + 1} of {variations.length})
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleCopy(currentVariation.text, currentVariation.id)}
+              >
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>

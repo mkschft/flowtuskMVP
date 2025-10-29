@@ -46,18 +46,20 @@ export const ICPResponseSchema = z.object({
 // ============================================================================
 
 export const ValuePropVariableSchema = z.object({
-  id: z.string().min(1),
+  key: z.string().min(1), // OpenAI returns "key" not "id"
   label: z.string().min(1).max(100),
-  value: z.string().min(1).max(500),
-  type: z.enum(['text', 'select', 'number']).optional(),
+  type: z.enum(['dropdown', 'input', 'text', 'select', 'number']).optional(), // Added dropdown and input
   options: z.array(z.string()).optional(),
+  selectedValue: z.string().min(1).max(500), // OpenAI returns "selectedValue" not "value"
+  placeholder: z.string().optional(), // OpenAI includes placeholder
 });
 
 export const ValuePropVariationSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1).max(100),
-  template: z.string().min(1).max(1000),
-  description: z.string().min(1).max(500).optional(),
+  style: z.string().min(1).max(100), // OpenAI returns "style" not "name"
+  text: z.string().min(1).max(1000), // OpenAI returns "text" not "template"
+  useCase: z.string().min(1).max(500).optional(), // OpenAI returns "useCase" not "description"
+  emoji: z.string().optional(), // OpenAI includes emoji
 });
 
 export const ValuePropSummarySchema = z.object({

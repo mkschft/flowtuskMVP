@@ -1957,17 +1957,12 @@ What would you like to create?`;
       content: `Create value proposition for: ${icp.title}`,
     });
 
-    // Create thinking message for value prop
-    const thinkingMsgId = nanoid();
+    // Add text-based conversational messages instead of thinking block
+    const analyzeMsg = nanoid();
     addMessage({
-      id: thinkingMsgId,
+      id: analyzeMsg,
       role: "assistant",
-      content: "thinking",
-      thinking: [
-        { id: 'analyze', label: 'Analyzing persona insights', status: 'pending' },
-        { id: 'generate', label: 'Crafting value proposition', status: 'pending' },
-        { id: 'variations', label: 'Creating variations', status: 'pending' },
-      ],
+      content: "Analyzing your customer insights...",
     });
 
     try {
@@ -1977,33 +1972,24 @@ What would you like to create?`;
         { icp: icp.id, websiteUrl },
         async () => {
           // Step 1: Analyze
-          const analyzeStart = Date.now();
-          updateThinkingStep(thinkingMsgId, 'analyze', { 
-            status: 'running', 
-            startTime: analyzeStart,
-            substeps: ['Extracting pain points', 'Identifying goals']
-          });
-
           await new Promise(resolve => setTimeout(resolve, 400));
 
-          updateThinkingStep(thinkingMsgId, 'analyze', { 
-            status: 'complete',
-            duration: Date.now() - analyzeStart,
-            substeps: [`${icp.painPoints.length} pain points identified`, `${icp.goals.length} goals mapped`]
-          });
+          // Update to show progress
+          setTimeout(() => {
+            addMessage({
+              id: nanoid(),
+              role: "assistant",
+              content: `Found ${icp.painPoints.length} key pain points and ${icp.goals.length} goals. Crafting your positioning...`,
+            });
+          }, 500);
 
           // Step 2: Generate value prop
-          const generateStart = Date.now();
-          updateThinkingStep(thinkingMsgId, 'generate', { 
-            status: 'running',
-            startTime: generateStart,
-            substeps: ['Creating template with variables']
-          });
+          await new Promise(resolve => setTimeout(resolve, 300));
 
           const valuePropRes = await fetch("/api/generate-value-prop", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               icp,
               websiteUrl
             }),
@@ -2012,27 +1998,16 @@ What would you like to create?`;
           if (!valuePropRes.ok) throw new Error("Failed to generate value prop");
           const data = await valuePropRes.json();
 
-          updateThinkingStep(thinkingMsgId, 'generate', { 
-            status: 'complete',
-            duration: Date.now() - generateStart,
-            substeps: ['Template ready with 7 variables']
-          });
-
-          // Step 3: Variations (already generated)
-          const variationsStart = Date.now();
-          updateThinkingStep(thinkingMsgId, 'variations', { 
-            status: 'running',
-            startTime: variationsStart,
-            substeps: ['Generating 5 style variations']
-          });
+          // Step 3: Show variations message
+          setTimeout(() => {
+            addMessage({
+              id: nanoid(),
+              role: "assistant",
+              content: "Creating variations tailored to different use cases...",
+            });
+          }, 800);
 
           await new Promise(resolve => setTimeout(resolve, 300));
-
-          updateThinkingStep(thinkingMsgId, 'variations', { 
-            status: 'complete',
-            duration: Date.now() - variationsStart,
-            substeps: ['5 variations ready']
-          });
 
           return data;
         }
@@ -2526,6 +2501,8 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                           }}
                           onExport={handleExport}
                           onContinue={(persona) => handleContinueToOutreach(persona)}
+                          onGenerateLinkedIn={(persona) => handleContinueToLinkedIn(persona)}
+                          onGenerateEmail={(persona) => handleContinueToEmail(persona)}
                           readOnly={false}
                         />
                       );

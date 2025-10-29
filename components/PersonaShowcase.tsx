@@ -71,6 +71,8 @@ type PersonaShowcaseProps = {
   onPersonaChange?: (personaId: string) => void;
   onExport?: (format: string, data: { personas: ICP[]; valuePropData: Record<string, ValuePropData> }) => void;
   onContinue?: (persona: ICP) => void;
+  onGenerateLinkedIn?: (persona: ICP) => void;
+  onGenerateEmail?: (persona: ICP) => void;
   readOnly?: boolean;
 };
 
@@ -81,6 +83,8 @@ export function PersonaShowcase({
   onPersonaChange,
   onExport,
   onContinue,
+  onGenerateLinkedIn,
+  onGenerateEmail,
   readOnly = false
 }: PersonaShowcaseProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -179,14 +183,6 @@ export function PersonaShowcase({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="text-center py-4">
-        <h3 className="text-2xl font-bold mb-2">Your Customer Positioning</h3>
-        <p className="text-muted-foreground">
-          {personas.length} ideal customer profiles with tailored value propositions
-        </p>
-      </div>
-
       {/* Persona Cards Stack */}
       <div className="relative min-h-[500px] flex items-center justify-center">
         <div className="w-full max-w-2xl mx-auto space-y-4">
@@ -318,91 +314,118 @@ export function PersonaShowcase({
                           </Button>
                         </div>
 
-                        {/* Export Options - Dropdown Menu */}
-                        <div className="pt-3">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                        {/* Action Buttons */}
+                        <div className="pt-3 space-y-3">
+                          <div className="flex gap-2">
+                            {/* Export Dropdown */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="flex-1 h-9 text-sm hover:bg-purple-50 dark:hover:bg-purple-950"
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Export
+                                  <ChevronDown className="h-4 w-4 ml-auto" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start" className="w-52">
+                                <DropdownMenuLabel className="text-xs">Export Format</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExport('image');
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <FileImage className="h-3.5 w-3.5 mr-2" />
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-medium">PNG Image</span>
+                                    <span className="text-[10px] text-muted-foreground">High-res card image</span>
+                                  </div>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExport('google-slides');
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <Presentation className="h-3.5 w-3.5 mr-2" />
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-medium">Google Slides</span>
+                                    <span className="text-[10px] text-muted-foreground">Presentation template</span>
+                                  </div>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExport('linkedin');
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <Share2 className="h-3.5 w-3.5 mr-2" />
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-medium">LinkedIn Post</span>
+                                    <span className="text-[10px] text-muted-foreground">Copy to clipboard</span>
+                                  </div>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExport('plain-text');
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <FileText className="h-3.5 w-3.5 mr-2" />
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-medium">Plain Text</span>
+                                    <span className="text-[10px] text-muted-foreground">Copy all details</span>
+                                  </div>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {/* Generate LinkedIn Button */}
+                            {onGenerateLinkedIn && (
                               <Button
-                                size="sm"
                                 variant="outline"
-                                className="h-8 text-xs w-full hover:bg-purple-50 dark:hover:bg-purple-950"
+                                className="flex-1 h-9 text-sm hover:bg-blue-50 dark:hover:bg-blue-950"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onGenerateLinkedIn(persona);
+                                }}
                               >
-                                <Download className="h-3 w-3 mr-2" />
-                                Export
-                                <ChevronDown className="h-3 w-3 ml-auto" />
+                                <Share2 className="h-4 w-4 mr-2" />
+                                LinkedIn Post
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-52">
-                              <DropdownMenuLabel className="text-xs">Export Format</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
+                            )}
 
-                              <DropdownMenuItem
+                            {/* Generate Email Button */}
+                            {onGenerateEmail && (
+                              <Button
+                                variant="outline"
+                                className="flex-1 h-9 text-sm hover:bg-purple-50 dark:hover:bg-purple-950"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleExport('image');
+                                  onGenerateEmail(persona);
                                 }}
-                                className="cursor-pointer"
                               >
-                                <FileImage className="h-3.5 w-3.5 mr-2" />
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium">PNG Image</span>
-                                  <span className="text-[10px] text-muted-foreground">High-res card image</span>
-                                </div>
-                              </DropdownMenuItem>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Generate Email
+                              </Button>
+                            )}
+                          </div>
 
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleExport('google-slides');
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <Presentation className="h-3.5 w-3.5 mr-2" />
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium">Google Slides</span>
-                                  <span className="text-[10px] text-muted-foreground">Presentation template</span>
-                                </div>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleExport('linkedin');
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <Share2 className="h-3.5 w-3.5 mr-2" />
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium">LinkedIn Post</span>
-                                  <span className="text-[10px] text-muted-foreground">Copy to clipboard</span>
-                                </div>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleExport('plain-text');
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <FileText className="h-3.5 w-3.5 mr-2" />
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium">Plain Text</span>
-                                  <span className="text-[10px] text-muted-foreground">Copy all details</span>
-                                </div>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuSeparator />
-
-                              <DropdownMenuItem disabled className="opacity-50">
-                                <FileText className="h-3.5 w-3.5 mr-2" />
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium">PDF</span>
-                                  <span className="text-[10px] text-muted-foreground">Coming soon</span>
-                                </div>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          {/* Explanatory Text */}
+                          <p className="text-xs text-muted-foreground text-center">
+                            Review your positioning above. Export, share, or generate outreach content.
+                          </p>
                         </div>
                       </div>
 
@@ -488,24 +511,6 @@ export function PersonaShowcase({
           })}
         </div>
       </div>
-
-      {/* Continue to Email Button */}
-      {onContinue && !readOnly && (
-        <div className="px-4 pb-4">
-          <Button
-            onClick={() => {
-              const selectedPersona = personas.find(p => p.id === selectedPersonaId);
-              if (selectedPersona) {
-                onContinue(selectedPersona);
-              }
-            }}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-            size="lg"
-          >
-            Continue to Email Sequence →
-          </Button>
-        </div>
-      )}
 
       {/* Navigation dots */}
       {personas.length > 1 && (
