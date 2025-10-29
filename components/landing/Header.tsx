@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -13,10 +14,14 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">F</span>
-            </div>
+          <Link href="/" className="flex items-center space-x-3">
+            <Image
+              src="/logo.svg"
+              alt="Flowtusk Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
             <span className="font-extrabold text-xl tracking-tight">Flowtusk</span>
           </Link>
 

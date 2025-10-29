@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Twitter, Linkedin, Github } from "lucide-react";
@@ -43,10 +44,14 @@ export function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
             {/* Brand Section */}
             <div className="lg:col-span-2">
-              <Link href="/" className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
+              <Link href="/" className="flex items-center space-x-3 mb-4">
+                <Image
+                  src="/logo.svg"
+                  alt="Flowtusk Logo"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8"
+                />
                 <span className="font-bold text-xl">Flowtusk</span>
               </Link>
               <p className="text-gray-400 mb-6 max-w-md">
