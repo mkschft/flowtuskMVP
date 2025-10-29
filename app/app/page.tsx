@@ -13,6 +13,8 @@ import { type ExportFormat } from "@/components/ExportOptions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SystemMessage } from "@/components/ui/system-message";
 import { SummaryApprovalCard } from "@/components/SummaryApprovalCard";
+import { OutreachChoice } from "@/components/OutreachChoice";
+import { LinkedInTypeChoice } from "@/components/LinkedInTypeChoice";
 import { EmailTypeChoice } from "@/components/EmailTypeChoice";
 import { SequenceLengthChoice } from "@/components/SequenceLengthChoice";
 import { EmailSequenceCard } from "@/components/EmailSequenceCard";
@@ -160,13 +162,13 @@ type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
-  component?: "icps" | "value-prop" | "persona-showcase" | "export-options" | "value-prop-summary" | "positioning-summary" | "landing-preview" | "email-strategy-summary" | "email-type-choice" | "sequence-length-choice" | "email-sequence" | "one-time-email" | "linkedin-outreach" | "email-sequence-summary";
+  component?: "icps" | "value-prop" | "persona-showcase" | "export-options" | "value-prop-summary" | "positioning-summary" | "landing-preview" | "email-strategy-summary" | "email-type-choice" | "sequence-length-choice" | "email-sequence" | "one-time-email" | "linkedin-outreach" | "email-sequence-summary" | "outreach-choice" | "linkedin-type-choice";
   data?: ICP[] | ValuePropData | Record<string, unknown>;
   thinking?: ThinkingStep[];
 };
 
 // Enhanced Generation State Types
-type GenerationStep = 'analysis' | 'icp-selection' | 'value-prop' | 'one-time-email' | 'email-sequence' | 'export' | 'complete';
+type GenerationStep = 'analysis' | 'icp-selection' | 'value-prop' | 'one-time-email' | 'email-sequence' | 'linkedin-outreach' | 'export' | 'complete';
 
 type GeneratedContent = {
   icps?: ICP[];
@@ -1382,10 +1384,50 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }, 1000);
   };
 
+  // Outreach choice handler (Email vs LinkedIn)
+  const handleContinueToOutreach = (icp: ICP) => {
+    // Show outreach choice summary message
+    const outreachText = `Great! Now let's deploy your value proposition for **${icp.title}**.
+
+**Where do you want to use this?**
+• **Email** – Single emails or multi-day nurture sequences
+• **LinkedIn** – Posts, profile bios, or InMail outreach
+
+Choose your channel:`;
+
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: outreachText
+    });
+
+    // Show outreach choice card
+    setTimeout(() => {
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "outreach-choice",
+        data: { icp }
+      });
+    }, 500);
+
+    memoryManager.addGenerationRecord(activeConversationId, 'show-outreach-choice', { icpId: icp.id } as Record<string, unknown>);
+  };
+
+  // Handler for outreach choice selection
+  const handleOutreachChoice = (choice: 'email' | 'linkedin', icp: ICP) => {
+    if (choice === 'email') {
+      handleContinueToEmail(icp);
+    } else {
+      handleContinueToLinkedIn(icp);
+    }
+  };
+
   // Email sequence handlers
   const handleContinueToEmail = (icp: ICP) => {
     // Show email strategy summary message
-    const emailStrategyText = `Now let's create your outreach strategy for **${icp.title}**.
+    const emailStrategyText = `Let's create your email outreach for **${icp.title}**.
 
 **Available Options:**
 • **Single Email** – Perfect for announcements or quick outreach
@@ -1411,6 +1453,185 @@ Which approach would you like to use?`;
     }, 500);
 
     memoryManager.addGenerationRecord(activeConversationId, 'show-email-choice', { icpId: icp.id } as Record<string, unknown>);
+  };
+
+  // LinkedIn outreach handlers
+  const handleContinueToLinkedIn = (icp: ICP) => {
+    // Show LinkedIn strategy summary message
+    const linkedInStrategyText = `Let's create LinkedIn content for **${icp.title}**.
+
+**Available Formats:**
+• **Post** – Single LinkedIn post with hashtags and CTA
+• **Profile Bio** – First-person bio highlighting your expertise
+• **InMail** – 60-120 word outreach message to connect
+
+What would you like to create?`;
+
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: linkedInStrategyText
+    });
+
+    // Show LinkedIn type choice card
+    setTimeout(() => {
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "linkedin-type-choice",
+        data: { icp }
+      });
+    }, 500);
+
+    memoryManager.addGenerationRecord(activeConversationId, 'show-linkedin-choice', { icpId: icp.id } as Record<string, unknown>);
+  };
+
+  // Handler for LinkedIn type choice
+  const handleLinkedInTypeChoice = async (type: 'post' | 'profile_bio' | 'inmail', icp: ICP) => {
+    const typeLabels = {
+      post: 'LinkedIn Post',
+      profile_bio: 'Profile Bio',
+      inmail: 'InMail Message'
+    };
+
+    addMessage({
+      id: nanoid(),
+      role: "user",
+      content: `Generate a ${typeLabels[type]} for ${icp.title}`
+    });
+
+    // Create thinking message
+    const thinkingMsgId = nanoid();
+    addMessage({
+      id: thinkingMsgId,
+      role: "assistant",
+      content: "thinking",
+      thinking: [
+        { id: 'analyze', label: 'Analyzing persona insights', status: 'pending' },
+        { id: 'craft', label: `Crafting ${typeLabels[type]}`, status: 'pending' },
+        { id: 'optimize', label: 'Optimizing for engagement', status: 'pending' },
+      ],
+    });
+
+    updateGenerationState({ isGenerating: true, currentStep: 'linkedin-outreach' });
+
+    try {
+      // Update thinking steps
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+                ...conv,
+                messages: conv.messages.map(msg =>
+                  msg.id === thinkingMsgId
+                    ? { ...msg, thinking: msg.thinking?.map((t, i) => i === 0 ? { ...t, status: 'complete' } : t) }
+                    : msg
+                ),
+              }
+            : conv
+        )
+      );
+
+      // Get current value prop data
+      const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
+      const websiteUrl = activeConversation?.memory.websiteUrl;
+
+      // Call LinkedIn generation API
+      const response = await fetch('/api/generate-linkedin-outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          icp,
+          valueProp: valuePropData,
+          websiteUrl,
+          type, // Pass the specific type
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate LinkedIn content');
+
+      const linkedInData = await response.json();
+
+      // Update second thinking step
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+                ...conv,
+                messages: conv.messages.map(msg =>
+                  msg.id === thinkingMsgId
+                    ? { ...msg, thinking: msg.thinking?.map((t, i) => i <= 1 ? { ...t, status: 'complete' } : t) }
+                    : msg
+                ),
+              }
+            : conv
+        )
+      );
+
+      // Update third thinking step
+      setTimeout(() => {
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? {
+                  ...conv,
+                  messages: conv.messages.map(msg =>
+                    msg.id === thinkingMsgId
+                      ? { ...msg, thinking: msg.thinking?.map(t => ({ ...t, status: 'complete' })) }
+                      : msg
+                  ),
+                }
+              : conv
+          )
+        );
+
+        // Remove thinking message and show result
+        setTimeout(() => {
+          setConversations(prev =>
+            prev.map(conv =>
+              conv.id === activeConversationId
+                ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+                : conv
+            )
+          );
+
+          addMessage({
+            id: nanoid(),
+            role: "assistant",
+            content: `Here's your ${typeLabels[type]} for **${icp.title}**. Copy it and use it on LinkedIn!`,
+            component: "linkedin-outreach",
+            data: { ...linkedInData, icp, type },
+          });
+
+          updateGenerationState({
+            isGenerating: false,
+            generatedContent: {
+              ...activeConversation?.generationState.generatedContent,
+              linkedinOutreach: linkedInData
+            }
+          });
+        }, 300);
+      }, 500);
+
+    } catch (error) {
+      console.error('Error generating LinkedIn content:', error);
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+            : conv
+        )
+      );
+
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `I encountered an error generating your ${typeLabels[type]}. Please try again.`,
+      });
+
+      updateGenerationState({ isGenerating: false });
+    }
   };
 
   const handleEmailTypeChoice = async (type: 'one-time' | 'sequence', icp: ICP) => {
@@ -2304,8 +2525,28 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                             );
                           }}
                           onExport={handleExport}
-                          onContinue={(persona) => handleContinueToEmail(persona)}
+                          onContinue={(persona) => handleContinueToOutreach(persona)}
                           readOnly={false}
+                        />
+                      );
+                    })()}
+
+                    {/* Outreach Choice (Email vs LinkedIn) */}
+                    {message.component === "outreach-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <OutreachChoice
+                          onSelect={(choice) => handleOutreachChoice(choice, data.icp)}
+                        />
+                      );
+                    })()}
+
+                    {/* LinkedIn Type Choice */}
+                    {message.component === "linkedin-type-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <LinkedInTypeChoice
+                          onSelect={(type) => handleLinkedInTypeChoice(type, data.icp)}
                         />
                       );
                     })()}

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { executeWithRetryAndTimeout, truncateInput } from "@/lib/api-handler";
+import { validateOneTimeEmailResponse } from "@/lib/validators";
+import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,6 +15,8 @@ export async function POST(request: NextRequest) {
     if (!icp) {
       return NextResponse.json({ error: "ICP is required" }, { status: 400 });
     }
+
+    console.log('📧 [Generate One-Time Email] Starting generation for:', icp.title);
 
     const prompt = `You are an expert email marketing strategist. Create a high-converting one-time email for the following ICP:
 
@@ -78,44 +83,99 @@ Return the response as JSON with this exact structure:
   ]
 }`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert email marketing strategist who creates high-converting one-time emails. Always respond with valid JSON only."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 1500
-    });
+    const truncatedContext = truncateInput(websiteContext || "", 10000);
+    const startTime = Date.now();
 
-    const responseText = completion.choices[0]?.message?.content;
-    
-    if (!responseText) {
-      throw new Error("No response from OpenAI");
+    // Wrap OpenAI call with retry and timeout logic
+    const result = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert email marketing strategist who creates high-converting one-time emails. Always respond with valid JSON only."
+            },
+            {
+              role: "user",
+              content: prompt.replace(websiteContext || "", truncatedContext)
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1500
+        });
+      },
+      { timeout: 30000, maxRetries: 3 },
+      ErrorContext.EMAIL_GENERATION
+    );
+
+    const genTime = Date.now() - startTime;
+    console.log(`⚡ [Generate One-Time Email] Operation completed in ${genTime}ms`);
+
+    // Handle API call failure
+    if (!result.success || !result.data) {
+      console.error('❌ [Generate One-Time Email] API call failed:', result.error);
+      const errorResponse = createErrorResponse(
+        result.error?.code || 'UNKNOWN_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
     }
 
-    // Parse the JSON response
+    // Parse JSON response
+    const completion = result.data;
+    const responseText = completion.choices[0]?.message?.content;
+
+    if (!responseText) {
+      const errorResponse = createErrorResponse(
+        'PARSE_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
+
     let emailData;
     try {
       emailData = JSON.parse(responseText);
     } catch (parseError) {
       console.error("Failed to parse OpenAI response:", responseText);
-      throw new Error("Invalid response format from AI");
+      const errorResponse = createErrorResponse(
+        'PARSE_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
     }
+
+    // Validate response structure
+    const validation = validateOneTimeEmailResponse(emailData);
+
+    if (!validation.ok) {
+      console.error('❌ [Generate One-Time Email] Validation failed:', validation.errors);
+      const errorResponse = createErrorResponse(
+        'VALIDATION_ERROR',
+        ErrorContext.EMAIL_GENERATION,
+        500
+      );
+      return NextResponse.json({
+        ...errorResponse.body,
+        validationErrors: validation.errors,
+      }, { status: errorResponse.status });
+    }
+
+    console.log('✅ [Generate One-Time Email] Generated successfully');
 
     return NextResponse.json(emailData);
 
   } catch (error) {
     console.error("Error generating one-time email:", error);
-    return NextResponse.json(
-      { error: "Failed to generate one-time email" },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      'UNKNOWN_ERROR',
+      ErrorContext.EMAIL_GENERATION,
+      500
     );
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }

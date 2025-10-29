@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { validateEmailSequenceResponse } from "@/lib/validators";
+import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -19,6 +22,8 @@ export async function POST(req: NextRequest) {
     // Validate sequence length
     const validLengths = [5, 7, 10];
     const length = validLengths.includes(sequenceLength) ? sequenceLength : 7;
+
+    console.log('📨 [Generate Email Sequence] Starting generation for:', icp.title, `(${length} emails)`);
 
     const prompt = `You are an expert email marketing strategist specializing in B2B nurture sequences.
 
@@ -241,30 +246,75 @@ Guidelines:
 - Use realistic benchmarks based on B2B email best practices
 - Make emails feel personal, not templated`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert B2B email marketing strategist. Write conversion-optimized emails that feel human. Return only valid JSON.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.8,
-    });
+    const startTime = Date.now();
 
-    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    // Wrap OpenAI call with retry and timeout logic
+    const result = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert B2B email marketing strategist. Write conversion-optimized emails that feel human. Return only valid JSON.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.8,
+        });
+      },
+      { timeout: 40000, maxRetries: 3 },
+      ErrorContext.EMAIL_SEQUENCE_GENERATION
+    );
 
-    return NextResponse.json(result);
+    const genTime = Date.now() - startTime;
+    console.log(`⚡ [Generate Email Sequence] Operation completed in ${genTime}ms`);
+
+    // Handle API call failure
+    if (!result.success || !result.data) {
+      console.error('❌ [Generate Email Sequence] API call failed:', result.error);
+      const errorResponse = createErrorResponse(
+        result.error?.code || 'UNKNOWN_ERROR',
+        ErrorContext.EMAIL_SEQUENCE_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
+
+    // Parse JSON response
+    const completion = result.data;
+    const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+
+    // Validate response structure
+    const validation = validateEmailSequenceResponse(parsedResult);
+
+    if (!validation.ok) {
+      console.error('❌ [Generate Email Sequence] Validation failed:', validation.errors);
+      const errorResponse = createErrorResponse(
+        'VALIDATION_ERROR',
+        ErrorContext.EMAIL_SEQUENCE_GENERATION,
+        500
+      );
+      return NextResponse.json({
+        ...errorResponse.body,
+        validationErrors: validation.errors,
+      }, { status: errorResponse.status });
+    }
+
+    console.log('✅ [Generate Email Sequence] Generated successfully');
+
+    return NextResponse.json(parsedResult);
   } catch (error) {
     console.error("Error generating email sequence:", error);
-    return NextResponse.json(
-      { error: "Failed to generate email sequence" },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      'UNKNOWN_ERROR',
+      ErrorContext.EMAIL_SEQUENCE_GENERATION,
+      500
     );
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }

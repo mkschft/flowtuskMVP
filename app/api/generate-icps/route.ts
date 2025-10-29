@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { executeWithRetryAndTimeout, truncateInput } from "@/lib/api-handler";
+import { validateICPResponse } from "@/lib/validators";
+import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -16,8 +19,15 @@ export async function POST(req: NextRequest) {
     console.log('🧠 [Generate ICPs] Starting generation');
     console.log('📊 [Generate ICPs] Content length:', content.length, 'chars');
 
+    // Truncate large inputs to prevent timeouts
+    const truncatedContent = truncateInput(content, 50000);
+
     const startTime = Date.now();
-    const completion = await openai.chat.completions.create({
+
+    // Wrap OpenAI call with retry and timeout logic
+    const result = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -90,27 +100,72 @@ Make numbers realistic and industry-appropriate. For enterprise software, use bi
         },
         {
           role: "user",
-          content: `Website content:\n\n${content}\n\nGenerate 3 ICPs in JSON format.`,
+          content: `Website content:\n\n${truncatedContent}\n\nGenerate 3 ICPs in JSON format.`,
         },
       ],
       temperature: 0.8,
       response_format: { type: "json_object" },
-    });
+        });
+      },
+      { timeout: 30000, maxRetries: 3 },
+      ErrorContext.ICP_GENERATION
+    );
 
     const genTime = Date.now() - startTime;
-    console.log(`⚡ [Generate ICPs] OpenAI completed in ${genTime}ms`);
+    console.log(`⚡ [Generate ICPs] Operation completed in ${genTime}ms`);
 
-    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    // Handle API call failure
+    if (!result.success || !result.data) {
+      console.error('❌ [Generate ICPs] API call failed:', result.error);
+      const errorResponse = createErrorResponse(
+        result.error?.code || 'UNKNOWN_ERROR',
+        ErrorContext.ICP_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
 
-    console.log('✅ [Generate ICPs] Generated', result.icps?.length || 0, 'profiles');
-    console.log('🎨 [Generate ICPs] Brand colors:', result.brandColors);
-    console.log('📝 [Generate ICPs] Summary:', result.summary);
+    // Parse JSON response
+    const completion = result.data;
+    const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
-    return NextResponse.json({ 
-      icps: result.icps || [],
-      brandColors: result.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
-      summary: result.summary || { 
-        businessDescription: "", 
+    // Validate response structure
+    const validation = validateICPResponse({
+      icps: parsedResult.icps || [],
+      summary: parsedResult.summary,
+    });
+
+    if (!validation.ok) {
+      console.error('❌ [Generate ICPs] Validation failed:', validation.errors);
+      const errorResponse = createErrorResponse(
+        'VALIDATION_ERROR',
+        ErrorContext.ICP_GENERATION,
+        500
+      );
+      return NextResponse.json({
+        ...errorResponse.body,
+        validationErrors: validation.errors,
+        // Provide fallback data
+        icps: [],
+        brandColors: { primary: "#FF6B9D", secondary: "#A78BFA" },
+        summary: {
+          businessDescription: "",
+          targetMarket: "",
+          painPointsWithMetrics: [],
+          opportunityMultiplier: "3"
+        }
+      }, { status: errorResponse.status });
+    }
+
+    console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles');
+    console.log('🎨 [Generate ICPs] Brand colors:', parsedResult.brandColors);
+    console.log('📝 [Generate ICPs] Summary:', parsedResult.summary);
+
+    return NextResponse.json({
+      icps: parsedResult.icps || [],
+      brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
+      summary: parsedResult.summary || {
+        businessDescription: "",
         targetMarket: "",
         painPointsWithMetrics: [],
         opportunityMultiplier: "3"
@@ -118,9 +173,11 @@ Make numbers realistic and industry-appropriate. For enterprise software, use bi
     });
   } catch (error) {
     console.error("Error generating ICPs:", error);
-    return NextResponse.json(
-      { error: "Failed to generate ICPs" },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      'UNKNOWN_ERROR',
+      ErrorContext.ICP_GENERATION,
+      500
     );
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }

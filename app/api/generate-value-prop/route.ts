@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { validateValuePropResponse } from "@/lib/validators";
+import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -15,6 +18,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log('🎯 [Generate Value Prop] Starting generation for:', icp.title);
 
     const prompt = `You are an expert conversion copywriter specializing in value propositions.
 
@@ -146,31 +151,76 @@ Important:
 - Pain points should be specific to the persona, not generic
 - Expected impact should include realistic numbers/metrics`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert conversion copywriter. Return only valid JSON.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.8,
-    });
+    const startTime = Date.now();
 
-    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    // Wrap OpenAI call with retry and timeout logic
+    const result = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert conversion copywriter. Return only valid JSON.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.8,
+        });
+      },
+      { timeout: 30000, maxRetries: 3 },
+      ErrorContext.VALUE_PROP_GENERATION
+    );
 
-    return NextResponse.json(result);
+    const genTime = Date.now() - startTime;
+    console.log(`⚡ [Generate Value Prop] Operation completed in ${genTime}ms`);
+
+    // Handle API call failure
+    if (!result.success || !result.data) {
+      console.error('❌ [Generate Value Prop] API call failed:', result.error);
+      const errorResponse = createErrorResponse(
+        result.error?.code || 'UNKNOWN_ERROR',
+        ErrorContext.VALUE_PROP_GENERATION,
+        500
+      );
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    }
+
+    // Parse JSON response
+    const completion = result.data;
+    const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+
+    // Validate response structure
+    const validation = validateValuePropResponse(parsedResult);
+
+    if (!validation.ok) {
+      console.error('❌ [Generate Value Prop] Validation failed:', validation.errors);
+      const errorResponse = createErrorResponse(
+        'VALIDATION_ERROR',
+        ErrorContext.VALUE_PROP_GENERATION,
+        500
+      );
+      return NextResponse.json({
+        ...errorResponse.body,
+        validationErrors: validation.errors,
+      }, { status: errorResponse.status });
+    }
+
+    console.log('✅ [Generate Value Prop] Generated successfully');
+
+    return NextResponse.json(parsedResult);
   } catch (error) {
     console.error("Error generating value prop:", error);
-    return NextResponse.json(
-      { error: "Failed to generate value proposition" },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      'UNKNOWN_ERROR',
+      ErrorContext.VALUE_PROP_GENERATION,
+      500
     );
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
   }
 }
 
