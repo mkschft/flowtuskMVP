@@ -331,312 +331,536 @@ function SolutionSlide() {
   );
 }
 
-// Slide 5: Before & After
-function BeforeAfterSlide() {
+// Slide 5: Market Validation
+function MarketValidationSlide() {
   return (
     <Slide slideNumber={5}>
-      <div className="space-y-10">
+      <div className="space-y-12">
         {/* Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground">
-          Before & After
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-tight">
+          150+ waitlist, €61K YTD revenue, proven market demand
         </h2>
 
-        {/* Two Column Comparison */}
-        <div className="grid grid-cols-2 gap-8">
-          {/* Before Column */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-20 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Before</span>
-              </div>
-              <p className="text-lg font-semibold text-muted-foreground">Manual, time-consuming, inconsistent</p>
+        {/* Key Metrics Cards */}
+        <div className="grid grid-cols-3 gap-6">
+          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
+            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+              150+
             </div>
+            <p className="text-sm text-muted-foreground">
+              Waitlist signups (organic, no paid ads)
+            </p>
+          </Card>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
-                <div>
-                  <p className="font-semibold text-foreground">3-6 weeks to articulate positioning</p>
-                  <p className="text-sm text-muted-foreground">Workshops, interviews, consultant reports</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
-                <div>
-                  <p className="font-semibold text-foreground">No clear ICP</p>
-                  <p className="text-sm text-muted-foreground">Vague assumptions about who buys</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">×</div>
-                <div>
-                  <p className="font-semibold text-foreground">Different pitch on website, deck, LinkedIn, sales calls</p>
-                  <p className="text-sm text-muted-foreground">Inconsistent messaging across channels</p>
-                </div>
-              </div>
+          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
+            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+              €61K
             </div>
-          </div>
+            <p className="text-sm text-muted-foreground">
+              YTD revenue from positioning consulting
+            </p>
+          </Card>
 
-          {/* After Column */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-20 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">After</span>
-              </div>
-              <p className="text-lg font-semibold text-muted-foreground">Automated, consistent, clear</p>
+          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
+            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+              3
             </div>
+            <p className="text-sm text-muted-foreground">
+              Pilot clients using MVP (KONE, Zipli, Arkken)
+            </p>
+          </Card>
+        </div>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
-                <div>
-                  <p className="font-semibold text-foreground">10 minutes to articulate positioning</p>
-                  <p className="text-sm text-muted-foreground">AI-powered analysis and generation</p>
-                </div>
-              </div>
+        {/* Early Results Section */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-foreground">
+            Early Results from Pilot Clients
+          </h3>
 
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
-                <div>
-                  <p className="font-semibold text-foreground">3 detailed customer personas</p>
-                  <p className="text-sm text-muted-foreground">With pain points, goals, and objections</p>
-                </div>
+          <div className="grid grid-cols-3 gap-6">
+            <Card className="p-6 bg-muted/50">
+              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                KONE
               </div>
+              <p className="text-sm text-muted-foreground">
+                Used positioning deck in internal pitch, secured €200K budget approval
+              </p>
+            </Card>
 
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">✓</div>
-                <div>
-                  <p className="font-semibold text-foreground">Tailored messaging for every channel</p>
-                  <p className="text-sm text-muted-foreground">Consistent voice, different formats</p>
-                </div>
+            <Card className="p-6 bg-muted/50">
+              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                Zipli
               </div>
-            </div>
+              <p className="text-sm text-muted-foreground">
+                Updated website copy with personas, saw 40% increase in qualified leads
+              </p>
+            </Card>
+
+            <Card className="p-6 bg-muted/50">
+              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                Arkken
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Generated LinkedIn posts from value props, 3X engagement rate
+              </p>
+            </Card>
           </div>
         </div>
 
-        {/* Case Study */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-24 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-              <span className="text-white font-bold text-sm">Case Study</span>
-            </div>
-            <h3 className="text-2xl font-bold text-foreground">KONE</h3>
-          </div>
-
-          <div className="border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 p-6 rounded-r-lg">
-            <p className="text-lg italic text-foreground mb-2">
-              &quot;We&apos;ve reduced our time to market by 50% with Flowtusk.&quot;
+        {/* Testimonials */}
+        <div className="grid grid-cols-2 gap-6">
+          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
+            <p className="text-lg italic text-foreground mb-3">
+              &quot;This would have saved us 6 weeks and €30K in consultant fees&quot;
             </p>
             <p className="text-sm text-muted-foreground">
-              — Head of Marketing, KONE
+              — B2B CMO, Helsinki
             </p>
-          </div>
+          </Card>
+
+          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
+            <p className="text-lg italic text-foreground mb-3">
+              &quot;Finally, a tool that understands positioning, not just copywriting&quot;
+            </p>
+            <p className="text-sm text-muted-foreground">
+              — SaaS Founder
+            </p>
+          </Card>
         </div>
       </div>
     </Slide>
   );
 }
 
-// Slide 6: MVP vs Vision
-function MVPVisionSlide() {
+// Slide 6: Roadmap
+function RoadmapSlide() {
+  const phases = [
+    {
+      number: 1,
+      title: "Positioning Copilot MVP",
+      timeframe: "Now - Month 3",
+      features: [
+        "Website → Personas → Value Props",
+        "Google Slides export",
+        "Validate product-market fit"
+      ],
+      target: "50 customers",
+      mrr: "€7.5K MRR"
+    },
+    {
+      number: 2,
+      title: "Multi-Format Exports",
+      timeframe: "Month 4-6",
+      features: [
+        "LinkedIn posts, email templates",
+        "Notion docs, website copy",
+        "Team collaboration features"
+      ],
+      target: "200 customers",
+      mrr: "€30K MRR"
+    },
+    {
+      number: 3,
+      title: "Brand Intelligence Platform",
+      timeframe: "Month 7-12",
+      features: [
+        "Competitive positioning analysis",
+        "Messaging consistency tracker",
+        "A/B testing for value props",
+        "API integrations (HubSpot, Salesforce)"
+      ],
+      target: "500 customers",
+      mrr: "€75K MRR"
+    }
+  ];
+
   return (
     <Slide slideNumber={6}>
-      <div className="space-y-12">
-        <div className="space-y-4">
-          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-            Roadmap
-          </Badge>
-          <h2 className="text-5xl font-bold leading-tight">
-            Available <span className="gradient-text">Today</span> vs Coming Soon
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            Start creating campaigns today. Scale into full automation tomorrow.
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          From MVP to brand intelligence platform in 12 months
+        </h2>
+
+        {/* Three Phase Cards */}
+        <div className="grid grid-cols-3 gap-6">
+          {phases.map((phase) => (
+            <Card key={phase.number} className="p-6 bg-muted/30 border-l-4 border-l-purple-600">
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                    PHASE {phase.number}
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">
+                    {phase.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {phase.timeframe}
+                  </p>
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-2">
+                  {phase.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <span className="text-purple-600 dark:text-purple-400 mt-0.5">•</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Target */}
+                <div className="pt-4 border-t space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Target
+                  </p>
+                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {phase.target}
+                  </p>
+                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {phase.mrr}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Vision Statement */}
+        <div className="bg-muted/50 py-6 px-8 rounded-lg">
+          <p className="text-lg font-medium text-center text-foreground">
+            Long-term vision: Every B2B brand uses Flowtusk to maintain positioning clarity as a living, breathing asset
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Available Today */}
-          <Card className="p-8 border-2 border-green-200 dark:border-green-800 bg-green-50/20 dark:bg-green-950/10">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
-              Available TODAY
-            </h3>
-            <ul className="space-y-2 text-sm">
-              {[
-                "Website → Customer personas",
-                "Beautiful ICP cards (share ready)",
-                "Value prop generation (per persona)",
-                "Email sequence templates",
-                "LinkedIn outreach copy",
-                "Google Slides templates",
-                "Pitch deck templates",
-                "X/Twitter post ideas",
-                "Bio/positioning text",
-                "Export everything (copy-paste)"
-              ].map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          {/* Coming Soon */}
-          <Card className="p-8 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/20 dark:bg-blue-950/10">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Zap className="h-6 w-6 text-blue-600" />
-              Coming Q4/Q1
-            </h3>
-            <ul className="space-y-2 text-sm">
-              {[
-                "Full landing page builder",
-                "Automated email scheduling",
-                "Multi-channel orchestration",
-                "Analytics & performance tracking",
-                "CRM integrations (HubSpot, Salesforce)",
-                "A/B testing recommendations",
-                "Team collaboration features",
-                "API access"
-              ].map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <Rocket className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
+        {/* Illustration Placeholder */}
+        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 p-8 flex flex-col items-center justify-center space-y-4">
+          <GitBranch className="h-12 w-12 text-pink-500 dark:text-pink-400" />
+          <div className="text-center space-y-2">
+            <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+              Illustration: Roadmap Timeline
+            </h4>
+            <p className="text-xs text-muted-foreground max-w-3xl">
+              Visual timeline showing three phases from left to right with milestone markers. Phase 1 (green checkmark), Phase 2 (in progress), Phase 3 (future). Include growth arrow showing customer and MRR progression.
+            </p>
+          </div>
         </div>
       </div>
     </Slide>
   );
 }
 
-// Slide 7: Market
-function MarketSlide() {
+// Slide 7: Business Model
+function BusinessModelSlide() {
+  const tiers = [
+    {
+      name: "Starter",
+      price: "€99/month",
+      description: "3 personas, basic exports (Google Slides, PDF)"
+    },
+    {
+      name: "Professional",
+      price: "€149/month",
+      description: "Unlimited personas, all export formats, team collaboration"
+    },
+    {
+      name: "Agency",
+      price: "€299/month",
+      description: "White-label, client management, API access"
+    }
+  ];
+
   return (
     <Slide slideNumber={7}>
-      <div className="space-y-12">
-        <div className="space-y-4">
-          <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-            Market
-          </Badge>
-          <h2 className="text-5xl font-bold">
-            <span className="gradient-text">150K+ B2B founders</span><br />
-            buying templates
-          </h2>
-        </div>
+      <div className="space-y-8">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          High-margin SaaS with strong unit economics and clear path to profitability
+        </h2>
 
-        <div className="grid grid-cols-3 gap-6">
-          <Card className="p-8 text-center border-2">
-            <div className="text-4xl font-bold gradient-text mb-2">$100B+</div>
-            <div className="text-sm text-muted-foreground">TAM: B2B SaaS Market</div>
-          </Card>
-          <Card className="p-8 text-center border-2">
-            <div className="text-4xl font-bold gradient-text mb-2">$15B</div>
-            <div className="text-sm text-muted-foreground">SAM: Marketing Tools</div>
-          </Card>
-          <Card className="p-8 text-center border-2">
-            <div className="text-4xl font-bold gradient-text mb-2">€300M</div>
-            <div className="text-sm text-muted-foreground">SOM: Annual Opportunity</div>
-          </Card>
-        </div>
-
-        {/* Why Now section */}
-        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2">
-          <h3 className="text-2xl font-bold mb-4">Why Now?</h3>
-          <ul className="space-y-3">
-            {[
-              "GenAI makes persona generation fast + reliable",
-              "Founders want speed (not weeks of consulting)",
-              "Everyone building go-to-market in weeks not months",
-              "No integrated solution exists"
-            ].map((item, idx) => (
-              <li key={idx} className="flex items-start gap-3">
-                <Zap className="h-5 w-5 text-purple-600 mt-0.5 shrink-0" />
-                <span className="text-lg">{item}</span>
-              </li>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-2 gap-8">
+          {/* Left: Pricing Tiers */}
+          <div className="space-y-4">
+            {tiers.map((tier) => (
+              <Card key={tier.name} className="p-6 bg-white dark:bg-muted/30">
+                <div className="flex items-baseline justify-between mb-2">
+                  <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
+                  <span className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                    {tier.price}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{tier.description}</p>
+              </Card>
             ))}
-          </ul>
+          </div>
+
+          {/* Right: Unit Economics */}
+          <div className="space-y-4">
+            {/* Top Row: CAC and LTV */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">CAC</p>
+                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">€50</p>
+              </Card>
+              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">LTV</p>
+                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">€1,788</p>
+              </Card>
+            </div>
+
+            {/* Bottom Row: LTV:CAC and Gross Margin */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">LTV:CAC</p>
+                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">35:1</p>
+              </Card>
+              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Gross Margin</p>
+                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">85%</p>
+              </Card>
+            </div>
+
+            {/* ARR Growth Chart */}
+            <Card className="p-6 bg-white dark:bg-muted/30">
+              <h4 className="text-sm font-bold text-foreground mb-4">ARR Growth Projection (3 Years)</h4>
+              <div className="flex items-end justify-between h-32 gap-2">
+                <div className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full bg-gradient-to-t from-purple-400 to-purple-500 rounded-t" style={{ height: '25%' }}></div>
+                  <span className="text-xs text-muted-foreground">Year 1</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full bg-gradient-to-t from-pink-400 to-pink-500 rounded-t" style={{ height: '60%' }}></div>
+                  <span className="text-xs text-muted-foreground">Year 2</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full bg-gradient-to-t from-pink-500 to-pink-600 rounded-t" style={{ height: '100%' }}></div>
+                  <span className="text-xs text-muted-foreground">Year 3</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <Card className="p-4 bg-muted/50">
+          <p className="text-sm text-center text-muted-foreground">
+            <span className="font-bold text-pink-600 dark:text-pink-400">85% gross margin</span> with AI inference costs ~€20/month per customer
+          </p>
         </Card>
       </div>
     </Slide>
   );
 }
 
-// Slide 8: Traction
-function TractionSlide() {
+// Slide 8: Competitive Positioning
+function CompetitivePositioningSlide() {
   return (
     <Slide slideNumber={8}>
-      <div className="space-y-12">
-        <div className="space-y-4">
-          <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-            Traction
-          </Badge>
-          <h2 className="text-5xl font-bold">
-            Proof & <span className="gradient-text">Early Validation</span>
-          </h2>
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          We own the top-right quadrant: Strategic positioning intelligence + Export flexibility
+        </h2>
+
+        {/* 2x2 Quadrant Grid */}
+        <div className="relative">
+          {/* Grid Container */}
+          <div className="grid grid-cols-2 gap-1">
+            {/* Top Left */}
+            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-foreground">Jasper / Copy.ai</h3>
+                <p className="text-sm text-muted-foreground">Generic AI copywriting</p>
+                <p className="text-sm text-muted-foreground">No positioning strategy</p>
+              </div>
+            </Card>
+
+            {/* Top Right */}
+            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center border-2 border-purple-400 dark:border-purple-600">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-foreground">Clearbit / Data Tools</h3>
+                <p className="text-sm text-muted-foreground">Firmographic data only</p>
+                <p className="text-sm text-muted-foreground">No strategic insights</p>
+              </div>
+            </Card>
+
+            {/* Bottom Left */}
+            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-foreground">Positioning Consultants</h3>
+                <p className="text-sm text-muted-foreground">€15K-50K per engagement</p>
+                <p className="text-sm text-muted-foreground">Locked PDF deliverable</p>
+              </div>
+            </Card>
+
+            {/* Bottom Right - Flowtusk */}
+            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center border-4 border-purple-600 dark:border-purple-500 relative">
+              <div className="space-y-3 text-center">
+                <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-300">Flowtusk</h3>
+                <p className="text-sm font-medium text-foreground">Strategic positioning intelligence</p>
+                <p className="text-sm font-medium text-foreground">Export to anywhere</p>
+                <p className="text-sm font-bold text-purple-600 dark:text-purple-400">€149/month</p>
+              </div>
+            </Card>
+          </div>
+
+          {/* Axis Labels */}
+          <div className="absolute -left-32 top-1/2 -translate-y-1/2 -rotate-90 text-sm text-muted-foreground uppercase tracking-wide">
+            Focus
+          </div>
+          <div className="absolute left-0 -bottom-12 right-0 text-center text-sm text-muted-foreground uppercase tracking-wide">
+            ← Low Export Flexibility — High Export Flexibility →
+          </div>
+          <div className="absolute left-2 top-2 text-xs text-muted-foreground">
+            Low Focus, Low Export
+          </div>
+          <div className="absolute right-2 top-2 text-xs text-muted-foreground">
+            Low Focus, High Export
+          </div>
+          <div className="absolute left-2 bottom-2 text-xs text-muted-foreground">
+            High Focus, Low Export
+          </div>
+          <div className="absolute right-2 bottom-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+            High Focus, High Export
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <Card className="p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2">
-            <div className="text-5xl font-bold gradient-text mb-2">€61K</div>
-            <div className="text-lg font-medium mb-1">Consulting Revenue</div>
-            <div className="text-sm text-muted-foreground">Proof founders want this</div>
-          </Card>
+        {/* Our Moat */}
+        <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20">
+          <h3 className="text-lg font-bold text-center mb-4">Our Moat</h3>
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="space-y-2">
+              <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <p className="text-sm font-medium">B2B Positioning Expertise</p>
+            </div>
+            <div className="space-y-2">
+              <Bot className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <p className="text-sm font-medium">AI-Powered Intelligence</p>
+            </div>
+            <div className="space-y-2">
+              <Download className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <p className="text-sm font-medium">Multi-Format Export Flexibility</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </Slide>
+  );
+}
 
-          <Card className="p-8 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2">
-            <div className="text-5xl font-bold gradient-text mb-2">150+</div>
-            <div className="text-lg font-medium mb-1">Waitlist Signups</div>
-            <div className="text-sm text-muted-foreground">Demand validation</div>
-          </Card>
+// Slide 9: Team
+function TeamSlide() {
+  return (
+    <Slide slideNumber={9}>
+      <div className="space-y-10">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          Proven founder with deep B2B positioning expertise and track record
+        </h2>
 
-          <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2">
-            <div className="text-5xl font-bold gradient-text mb-2">3</div>
-            <div className="text-lg font-medium mb-1">Enterprise Pilots</div>
-            <div className="text-sm text-muted-foreground">KONE, Zipli, Arkken</div>
-          </Card>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-5 gap-12">
+          {/* Left: Founder Profile */}
+          <div className="col-span-2 space-y-6">
+            {/* Photo Placeholder */}
+            <Card className="p-12 bg-purple-50/50 dark:bg-purple-950/20 border-2 border-dashed border-purple-400 dark:border-purple-600 flex flex-col items-center justify-center space-y-4">
+              <Users className="h-24 w-24 text-purple-500 dark:text-purple-400" />
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                  Founder Photo
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Professional headshot
+                </p>
+              </div>
+            </Card>
 
-          <Card className="p-8 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-2">
-            <div className="text-5xl font-bold gradient-text mb-2">✓</div>
-            <div className="text-lg font-medium mb-1">MVP Complete</div>
-            <div className="text-sm text-muted-foreground">All core features working</div>
-          </Card>
-        </div>
+            {/* Name & Title */}
+            <div className="text-center space-y-2">
+              <h3 className="text-2xl font-bold text-foreground">Md Hasan Shahriar</h3>
+              <p className="text-lg text-purple-600 dark:text-purple-400 font-medium">Founder & CEO</p>
+            </div>
 
-        {/* Testimonials */}
-        <div className="space-y-4">
-          <h3 className="text-2xl font-bold">Pilot Results</h3>
-          <div className="grid gap-4">
-            {[
-              {
-                company: "KONE",
-                quote: "Saved 3-4 days per campaign. Faster, more targeted. 500 leads in 2 weeks.",
-                metric: "500 leads"
-              },
-              {
-                company: "Zipli",
-                quote: "Email templates → 70% higher engagement than previous campaigns",
-                metric: "70% ↑"
-              },
-              {
-                company: "Arkken",
-                quote: "Finally consistent messaging across LinkedIn, landing pages, and pitches",
-                metric: "Consistent"
-              }
-            ].map((item, idx) => (
-              <Card key={idx} className="p-6 border-l-4 border-l-green-500">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="font-bold text-lg mb-1">{item.company}</div>
-                    <p className="text-sm text-muted-foreground italic">&quot;{item.quote}&quot;</p>
-                  </div>
-                  <Badge className="shrink-0 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">{item.metric}</Badge>
-                </div>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">10+</div>
+                <div className="text-xs text-muted-foreground">Years in B2B Marketing</div>
               </Card>
-            ))}
+              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">€61K</div>
+                <div className="text-xs text-muted-foreground">YTD Revenue</div>
+              </Card>
+              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">100+</div>
+                <div className="text-xs text-muted-foreground">Campaigns Delivered</div>
+              </Card>
+              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">4</div>
+                <div className="text-xs text-muted-foreground">Enterprise Clients</div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Right: Experience Timeline */}
+          <div className="col-span-3 space-y-6">
+            <h3 className="text-xl font-bold text-foreground mb-6">Experience Timeline</h3>
+            
+            <div className="space-y-6">
+              {[
+                {
+                  period: "2014-2016",
+                  title: "Started at Nordea Bank",
+                  description: "Intern in marketing department, learned B2B financial services positioning"
+                },
+                {
+                  period: "2016-2020",
+                  title: "B2B Marketing Specialist",
+                  description: "Led campaigns for enterprise clients including KONE and TietoEvry"
+                },
+                {
+                  period: "2020-2024",
+                  title: "Positioning Consultant",
+                  description: "Independent consultant helping B2B SaaS companies articulate positioning. Generated €61K YTD revenue working with Zipli, Arkken, and others"
+                },
+                {
+                  period: "2025",
+                  title: "Founded Flowtusk",
+                  description: "Building the positioning copilot to scale expertise and help 1000s of founders"
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-4">
+                  <div className="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400 mt-2 shrink-0" />
+                  <div className="flex-1 space-y-1">
+                    <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                      {item.period}
+                    </div>
+                    <h4 className="text-lg font-bold text-foreground">{item.title}</h4>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Core Expertise */}
+            <div className="pt-6 border-t">
+              <h4 className="text-sm font-bold text-foreground mb-3">Core Expertise</h4>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "B2B SaaS Positioning",
+                  "ICP Development",
+                  "Value Proposition Design",
+                  "Messaging Strategy",
+                  "Enterprise Marketing"
+                ].map((skill, idx) => (
+                  <Badge key={idx} className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -644,52 +868,187 @@ function TractionSlide() {
   );
 }
 
-// Slide 9: CTA
-function CTASlide() {
+// Slide 10: The Ask
+function TheAskSlide() {
   return (
-    <Slide slideNumber={9}>
+    <Slide slideNumber={10}>
+      <div className="space-y-12">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          €300K business loan to build MVP and acquire first 200 customers
+        </h2>
+
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-5 gap-12">
+          {/* Left: The Ask Amount & Use of Funds */}
+          <div className="col-span-2 space-y-6">
+            {/* Amount */}
+            <div className="space-y-4">
+              <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">€300K</div>
+              <Card className="p-4 bg-muted/30 border-2 border-dashed border-purple-400 dark:border-purple-600">
+                <p className="text-sm text-muted-foreground">
+                  Business loan to validate product-market fit and build foundation for Series A
+                </p>
+              </Card>
+            </div>
+
+            {/* Use of Funds */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-foreground">Use of Funds</h3>
+              
+              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Engineering & Product</span>
+                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€180K (60%)</span>
+              </Card>
+
+              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Customer Acquisition</span>
+                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€75K (25%)</span>
+              </Card>
+
+              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Operations</span>
+                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€45K (15%)</span>
+              </Card>
+            </div>
+
+            {/* Donut Chart Placeholder */}
+            <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 flex flex-col items-center justify-center space-y-4">
+              <div className="w-32 h-32 rounded-full border-[24px] border-purple-500 dark:border-purple-400 relative">
+                <div className="absolute inset-0 rounded-full" style={{
+                  background: `conic-gradient(from 0deg, #ec4899 0% 60%, #a855f7 60% 85%, #8b5cf6 85% 100%)`
+                }} />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Fund allocation breakdown
+              </p>
+            </Card>
+          </div>
+
+          {/* Right: Key Milestones */}
+          <div className="col-span-3 space-y-6">
+            <h3 className="text-xl font-bold text-foreground">Key Milestones</h3>
+
+            <div className="space-y-4">
+              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+                <div className="flex items-start gap-4">
+                  <Badge className="bg-purple-600 text-white shrink-0">M3</Badge>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-foreground">Month 3</h4>
+                    <p className="text-sm text-muted-foreground">
+                      50 paying customers, €7.5K MRR, validated positioning copilot concept
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+                <div className="flex items-start gap-4">
+                  <Badge className="bg-purple-600 text-white shrink-0">M6</Badge>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-foreground">Month 6</h4>
+                    <p className="text-sm text-muted-foreground">
+                      100 customers, break-even, multi-format export features launched
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+                <div className="flex items-start gap-4">
+                  <Badge className="bg-purple-600 text-white shrink-0">M12</Badge>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold text-foreground">Month 12</h4>
+                    <p className="text-sm text-muted-foreground">
+                      200 customers, €30K MRR, Series A ready with proven unit economics
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Bottom Statement */}
+            <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20">
+              <p className="text-sm text-center text-muted-foreground">
+                Clear path to profitability: Break-even in 6 months, <span className="font-bold text-purple-600 dark:text-purple-400">€10M+ ARR potential</span> in 3 years
+              </p>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 11: Closing
+function ClosingSlide() {
+  return (
+    <Slide slideNumber={11}>
       <div className="text-center space-y-12">
+        {/* Logo/Brand */}
+        <div className="inline-block space-y-4">
+          <div className="text-5xl font-bold gradient-text">
+            Flowtusk
+          </div>
+        </div>
+
+        {/* Main Message */}
         <div className="space-y-6">
-          <h2 className="text-6xl md:text-7xl font-bold leading-tight">
-            Ready to<br />
-            <span className="gradient-text">Vibe Create Your Funnel?</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl mx-auto">
+            2025 is the year <span className="gradient-text">positioning becomes a product</span>, not a service
           </h2>
-          <p className="text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Website → Personas → Templates → Launch
+        </div>
+
+        {/* Key Points */}
+        <div className="space-y-4 max-w-2xl mx-auto">
+          <Card className="p-4 bg-muted/30 border-2 border-purple-400 dark:border-purple-600">
+            <div className="flex items-center justify-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <p className="text-sm font-medium">Massive market with clear, validated pain point</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-muted/30">
+            <div className="flex items-center justify-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <p className="text-sm font-medium">No direct competitors in positioning intelligence</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-muted/30">
+            <div className="flex items-center justify-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <p className="text-sm font-medium">First platform that exports positioning everywhere</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-muted/30">
+            <div className="flex items-center justify-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <p className="text-sm font-medium">Foundation for €10M+ ARR business</p>
+            </div>
+          </Card>
+        </div>
+
+        {/* The Ask */}
+        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2 border-purple-400 dark:border-purple-600 max-w-3xl mx-auto">
+          <p className="text-2xl font-bold text-foreground">
+            The Ask: <span className="text-purple-600 dark:text-purple-400">€300K</span> to validate product-market fit and build the future of B2B positioning
           </p>
-        </div>
+        </Card>
 
-        <div className="space-y-6">
-          <Button 
-            size="lg" 
-            className="h-16 px-12 text-xl bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700"
-          >
-            <Rocket className="mr-3 h-6 w-6" />
-            Try Flowtusk Now
-          </Button>
-
-          <div className="flex items-center justify-center gap-8 text-lg">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span>No credit card</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span>15 min setup</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span>Export everything</span>
-            </div>
+        {/* Contact */}
+        <div className="pt-12 border-t max-w-2xl mx-auto space-y-3">
+          <div className="text-xl font-bold text-foreground">
+            Md Hasan Shahriar
           </div>
-        </div>
-
-        <div className="pt-12 border-t max-w-2xl mx-auto">
-          <div className="text-lg text-muted-foreground">
-            Contact: <span className="font-medium">hello@flowtusk.com</span>
+          <div className="text-lg">
+            <a href="mailto:hasan@flowtusk.com" className="text-purple-600 dark:text-purple-400 hover:underline">
+              hasan@flowtusk.com
+            </a>
           </div>
-          <div className="text-sm text-muted-foreground mt-2">
-            flowtusk.com • @flowtusk
+          <div className="text-sm text-muted-foreground">
+            Helsinki, Finland
           </div>
         </div>
       </div>
@@ -706,11 +1065,13 @@ export function PitchDeck() {
     <ProblemSlide key="problem" />,
     <GapSlide key="gap" />,
     <SolutionSlide key="solution" />,
-    <BeforeAfterSlide key="beforeafter" />,
-    <MVPVisionSlide key="mvp" />,
-    <MarketSlide key="market" />,
-    <TractionSlide key="traction" />,
-    <CTASlide key="cta" />,
+    <MarketValidationSlide key="marketvalidation" />,
+    <RoadmapSlide key="roadmap" />,
+    <BusinessModelSlide key="businessmodel" />,
+    <CompetitivePositioningSlide key="competitive" />,
+    <TeamSlide key="team" />,
+    <TheAskSlide key="ask" />,
+    <ClosingSlide key="closing" />,
   ];
 
   const nextSlide = () => {
@@ -744,7 +1105,11 @@ export function PitchDeck() {
   }, [currentSlide]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative w-full h-screen bg-background overflow-hidden">
+    <div className="relative w-full h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-purple-950 overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-400/10 to-purple-400/10 dark:from-blue-600/10 dark:to-purple-600/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-purple-400/10 to-pink-400/10 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl" />
+      
       {/* Slides */}
       <div className="relative w-full h-full">
         {slides[currentSlide]}
