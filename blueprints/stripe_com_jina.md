@@ -19,7 +19,7 @@ Stripe | Financial Infrastructure to Grow Your Revenue
 
 [Contact sales](https://stripe.com/contact/sales)
 
-[Sign up](https://dashboard.stripe.com/register)[](https://stripe.com/# "Open mobile navigation")
+[](https://stripe.com/# "Open mobile navigation")
 
 [](https://stripe.com/)
 
@@ -274,6 +274,7 @@ Guides
 
  Sessions 2025 ·[Watch on demand](https://stripe.com/sessions/2025)
 
-Financial infrastructure to
+Financial infrastructure to grow your revenue
+=============================
 
 [Content truncated for performance]
