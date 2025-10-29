@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
@@ -26,12 +26,9 @@ export async function POST(req: NextRequest) {
     }
 
     const slug = nanoid(8);
+    const supabase = await createClient();
 
-    if (!supabaseAdmin) {
-      throw new Error("Supabase not configured");
-    }
-
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from("landing_pages")
       .insert({
         slug,

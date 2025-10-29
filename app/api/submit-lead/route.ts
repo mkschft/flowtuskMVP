@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,12 +20,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (!supabaseAdmin) {
-      throw new Error("Supabase not configured");
-    }
+    const supabase = await createClient();
 
     // Insert lead
-    const { error: leadError } = await supabaseAdmin.from("leads").insert({
+    const { error: leadError } = await supabase.from("leads").insert({
       landing_page_id: landingPageId,
       name,
       email,
@@ -35,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (leadError) throw leadError;
 
     // Update landing page stats
-    const { data: page } = await supabaseAdmin
+    const { data: page } = await supabase
       .from("landing_pages")
       .select("views, leads")
       .eq("id", landingPageId)
@@ -45,7 +43,7 @@ export async function POST(req: NextRequest) {
       const newLeads = page.leads + 1;
       const conversionRate = page.views > 0 ? (newLeads / page.views) * 100 : 0;
 
-      await supabaseAdmin
+      await supabase
         .from("landing_pages")
         .update({
           leads: newLeads,
