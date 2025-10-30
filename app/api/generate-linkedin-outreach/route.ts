@@ -136,10 +136,10 @@ export async function POST(req: NextRequest) {
 Context:
 - Website: ${websiteUrl || 'Not provided'}
 - Target Persona: ${icp.title}
-- Persona Details: ${icp.description}
-- Pain Points: ${icp.painPoints.join(', ')}
-- Goals: ${icp.goals.join(', ')}
-- Demographics: ${icp.demographics}
+- Persona Details: ${icp.description || 'Not specified'}
+- Pain Points: ${icp.painPoints?.join(', ') || 'Not specified'}
+- Goals: ${icp.goals?.join(', ') || 'Not specified'}
+- Demographics: ${icp.demographics || 'Not specified'}
 ${valueProp ? `- Value Proposition: ${JSON.stringify(valueProp)}` : ''}
 
 Task: Create a 3-message LinkedIn outreach sequence that feels human and personalized.
