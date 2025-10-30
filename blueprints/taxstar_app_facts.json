@@ -13,87 +13,88 @@
       "By Use Case",
       "About",
       "Resources",
-      "Pricing"
+      "Pricing",
+      "Contact Us"
     ],
     "keyPages": [
       {
-        "path": "https://taxstar.app/accounting-practice-owners",
+        "path": "/accounting-practice-owners",
         "title": "Accounting Practice Owners"
       },
       {
-        "path": "https://taxstar.app/tax-advisors",
+        "path": "/tax-advisors",
         "title": "Tax Advisors"
       },
       {
-        "path": "https://taxstar.app/by-role-erp-resellers",
+        "path": "/by-role-erp-resellers",
         "title": "ERP Resellers"
       },
       {
-        "path": "https://taxstar.app/corporate-tax-calculations",
+        "path": "/corporate-tax-calculations",
         "title": "Corporate Tax Calculations"
       },
       {
-        "path": "https://taxstar.app/internal-and-client-approvals",
+        "path": "/internal-and-client-approvals",
         "title": "Internal and Client Approvals"
       },
       {
-        "path": "https://taxstar.app/financial-statement-production",
+        "path": "/financial-statement-production",
         "title": "Financial Statements"
       },
       {
-        "path": "https://taxstar.app/practice-and-deadline-management",
+        "path": "/practice-and-deadline-management",
         "title": "Practice Management & Deadline"
       },
       {
-        "path": "https://taxstar.app/about",
-        "title": "About Us"
+        "path": "/about",
+        "title": "About us"
       },
       {
-        "path": "https://taxstar.app/faq",
+        "path": "/faq",
         "title": "FAQ"
       },
       {
-        "path": "https://taxstar.app/contact",
+        "path": "/contact",
         "title": "Contact Us"
       },
       {
-        "path": "https://taxstar.app/partners",
+        "path": "/partners",
         "title": "Our Partners"
       },
       {
-        "path": "https://taxstar.app/security-and-certifications",
+        "path": "/security-and-certifications",
         "title": "Security & Certifications"
       },
       {
-        "path": "https://taxstar.app/tutorials",
+        "path": "/tutorials",
         "title": "Video Tutorials"
       },
       {
-        "path": "https://taxstar.app/podcast",
+        "path": "/podcast",
         "title": "Podcast"
       },
       {
-        "path": "https://taxstar.app/webinar",
+        "path": "/webinar",
         "title": "Webinar"
       },
       {
-        "path": "https://taxstar.app/blog",
+        "path": "/blog",
         "title": "Blogs"
       },
       {
-        "path": "https://taxstar.app/press",
+        "path": "/press",
         "title": "Press"
       },
       {
-        "path": "https://taxstar.app/corporatetaxpenalties",
+        "path": "/corporatetaxpenalties",
         "title": "Tax Penalties"
       },
       {
-        "path": "https://taxstar.app/corporate-tax-guide",
+        "path": "/corporate-tax-guide",
         "title": "Corporate Tax Guide"
       },
       {
-        "path": "https://taxstar.app/pricing",
+        "path": "/pricing",
         "title": "Pricing"
       }
     ],
@@ -102,7 +103,11 @@
       "Terms and conditions",
       "Privacy policy",
       "Our Partners",
-      "Contact Us"
+      "Contact Us",
+      "Podcast",
+      "Webinar",
+      "Blog",
+      "FAQ"
     ]
   },
   "audienceSignals": [
@@ -123,154 +128,125 @@
       "id": "v2",
       "text": "AI Powered Corporate Tax Calculator",
       "evidence": [
-        "fact-9"
+        "fact-5"
       ]
     },
     {
       "id": "v3",
-      "text": "Eliminate word and excel and reduce errors",
+      "text": "Eliminate word and excel to reduce errors",
       "evidence": [
-        "fact-11"
+        "fact-6"
       ]
     },
     {
       "id": "v4",
-      "text": "Save 40% of your time by automating workflows",
+      "text": "Automated tracking and reminders for compliance",
       "evidence": [
-        "fact-15"
+        "fact-9"
       ]
     },
     {
       "id": "v5",
-      "text": "Handle 30-40% more clients without hiring additional staff",
+      "text": "Handle more clients without increasing staff",
       "evidence": [
-        "fact-17"
+        "fact-10"
       ]
     }
   ],
   "pains": [
-    "Time-consuming & error-prone tax management",
-    "Hefty penalties for document expiry",
+    "Time-consuming and error-prone tax processes",
+    "Penalties for late document updates",
     "Manual tax calculations"
   ],
   "proof": [
     "AI Powered Corporate Tax Software",
-    "Seamless integration with accounting tools like Zoho, QuickBooks, and Xero"
+    "Seamless integration with Zoho, QuickBooks, and Xero",
+    "Client testimonials from JRB Chartered Accountants, Gulf School Finance, Adzum Global"
   ],
   "facts": [
     {
       "id": "fact-1",
       "text": "Tax Star is a corporate tax software.",
-      "page": "Home",
+      "page": "homepage",
       "evidence": "Tax Star | Corporate Tax Software"
     },
     {
       "id": "fact-2",
       "text": "Primary call to action is 'Book a Demo'.",
-      "page": "Home",
+      "page": "homepage",
       "evidence": "[Book a Demo](https://calendar.app.google/JC4VQuD3WcBHxwXKA)"
     },
     {
       "id": "fact-3",
       "text": "Tax Star automates every step of the tax process.",
-      "page": "Home",
+      "page": "homepage",
       "evidence": "Tax Star automates every step of the tax process - from filing and compliance to document storage and approval workflows."
     },
     {
       "id": "fact-4",
       "text": "Tax Star serves accounting practice owners, tax advisors, and ERP resellers.",
-      "page": "By Role",
+      "page": "homepage",
       "evidence": "[Accounting Practice Owners](https://taxstar.app/accounting-practice-owners)[Tax Advisors](https://taxstar.app/tax-advisors)[ERP Resellers](https://taxstar.app/by-role-erp-resellers)"
     },
     {
       "id": "fact-5",
-      "text": "Corporate Tax Calculator is an AI powered feature.",
-      "page": "Features",
-      "evidence": "AI Powered Corporate Tax Calculator"
+      "text": "AI Powered Corporate Tax Calculator completes tax returns timely and accurately.",
+      "page": "features",
+      "evidence": "AI Powered Corporate Tax Calculator Complete your tax return timely and accurately."
     },
     {
       "id": "fact-6",
-      "text": "Tax Star offers easy financial statement production.",
-      "page": "Features",
-      "evidence": "Easy Financial Statement Production"
+      "text": "Eliminates word and excel to reduce errors in financial statement production.",
+      "page": "features",
+      "evidence": "Eliminate word and excel and reduce errors."
     },
     {
       "id": "fact-7",
-      "text": "Tax Star provides doc expiry reminders to avoid penalties.",
-      "page": "Features",
-      "evidence": "Tax Star notifies you when they are due on a timely basis."
+      "text": "Automated tax calculation saves 40% of time.",
+      "page": "features",
+      "evidence": "Save 40% of your time by automating corporate tax workflows."
     },
     {
       "id": "fact-8",
       "text": "Failure to update registration documents within 20 days of expiry results in AED 5,000 penalty.",
-      "page": "Features",
+      "page": "features",
       "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
     },
     {
       "id": "fact-9",
-      "text": "AI Powered Corporate Tax Calculator helps complete tax returns timely and accurately.",
-      "page": "Features",
-      "evidence": "Complete your tax return timely and accurately."
+      "text": "Automated tracking and reminders keep users compliant and ensure on-time filings.",
+      "page": "features",
+      "evidence": "Automated tracking and reminders keep you compliant and ensure on-time filings, every time."
     },
     {
       "id": "fact-10",
-      "text": "Tax Star eliminates the need for spreadsheets.",
-      "page": "Features",
-      "evidence": "Eliminate Spreadsheets"
+      "text": "Handle 30-40% more clients with automated workflows without hiring additional team members.",
+      "page": "features",
+      "evidence": "Handle 30-40% more clients with automated workflows, all without hiring additional team members."
     },
     {
       "id": "fact-11",
-      "text": "Tax Star reduces errors by eliminating word and excel.",
-      "page": "Features",
-      "evidence": "Eliminate word and excel and reduce errors."
+      "text": "Tax Star integrates with Zoho, QuickBooks, and Xero.",
+      "page": "integration",
+      "evidence": "Seamlessly integrate your existing accounting tools like Zoho, QuickBooks, and Xero with TaxStar"
     },
     {
       "id": "fact-12",
-      "text": "Tax Star integrates with ERP systems.",
-      "page": "Features",
-      "evidence": "ERP Integrations"
+      "text": "Client testimonials highlight improved workflow and accuracy.",
+      "page": "testimonials",
+      "evidence": "With seamless integration of tax computation and practice management, it's reliable, user-friendly, and has greatly improved our workflow."
     },
     {
       "id": "fact-13",
-      "text": "Tax Star provides audit trails.",
-      "page": "Features",
-      "evidence": "Audit Trails"
+      "text": "Client testimonials report 50% increase in number of clients and 75% time saved in calculation.",
+      "page": "testimonials",
+      "evidence": "Increase in number of clients 50% Time saved in calculation 75%"
     },
     {
       "id": "fact-14",
-      "text": "Tax Star tracks deadlines and deliverables.",
-      "page": "Features",
-      "evidence": "Tracking of Deadlines & Deliverables"
-    },
-    {
-      "id": "fact-15",
-      "text": "Automating corporate tax workflows saves 40% of time.",
-      "page": "Features",
-      "evidence": "Save 40% of your time by automating corporate tax workflows"
-    },
-    {
-      "id": "fact-16",
-      "text": "Tax Star ensures compliance and meets deadlines.",
-      "page": "Features",
-      "evidence": "Ensure Compliance and Meet Deadlines"
-    },
-    {
-      "id": "fact-17",
-      "text": "Handle 30-40% more clients with automated workflows.",
-      "page": "Features",
-      "evidence": "Handle 30-40% more clients with automated workflows"
-    },
-    {
-      "id": "fact-18",
-      "text": "Tax Star centralizes client information and communication.",
-      "page": "Practice Management",
-      "evidence": "Centralize client information and communication in one place"
-    },
-    {
-      "id": "fact-19",
-      "text": "Tax Star integrates with Zoho, QuickBooks, and Xero.",
-      "page": "Integration",
-      "evidence": "Seamlessly integrate your existing accounting tools like Zoho, QuickBooks, and Xero with TaxStar"
+      "text": "Tax Star is built by accountants for accountants.",
+      "page": "about",
+      "evidence": "Built by Accountants for Accountants"
     }
   ]
 }
