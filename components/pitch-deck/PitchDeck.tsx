@@ -168,9 +168,14 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
             </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              Jasper, Copy.ai, ChatGPT write copy—but they don&apos;t know WHO you&apos;re selling to
-            </p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>
+                Teams can spin up copy fast (Jasper, Copy.ai, ChatGPT) — <span className="font-semibold text-foreground">but it&apos;s blind to ICP and brand positioning.</span>
+              </p>
+              <p>
+                Result: plausible content → <span className="font-semibold text-foreground">generic funnels → poor conversion.</span>
+              </p>
+            </div>
           </div>
 
           {/* Data tools give numbers */}
@@ -181,9 +186,14 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
             </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              Clearbit provides firmographics, not positioning insights
-            </p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>
+                Clearbit/Apollo surface firmographics and intent, <span className="font-semibold text-foreground">not who to prioritize, what pains to speak to, or what to say.</span>
+              </p>
+              <p>
+                Great for lists, <span className="font-semibold text-foreground">not for message-market fit.</span>
+              </p>
+            </div>
           </div>
 
           {/* The gap */}
@@ -192,11 +202,16 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                 <Triangle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">The gap</h3>
+              <h3 className="text-xl font-bold text-foreground">The gap (what&apos;s missing)</h3>
             </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              No tool bridges strategic positioning + tactical execution
-            </p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>
+                There&apos;s <span className="font-semibold text-foreground">no clarity layer</span> that turns a URL into <span className="font-semibold text-foreground">validated ICPs, pains/JTBD, value props, and on-brand positioning</span>, then carries that context into execution (LP, LinkedIn, email).
+              </p>
+              <p>
+                Teams juggle 7+ tools → <span className="font-semibold text-foreground">context lost, output inconsistent.</span>
+              </p>
+            </div>
           </div>
 
           {/* The opportunity */}
@@ -205,19 +220,19 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                 <Rocket className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">The opportunity</h3>
+              <h3 className="text-xl font-bold text-foreground">The opportunity (what the solution must do)</h3>
             </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              &quot;Vibe-creating&quot; for positioning—just like Bolt.new did for coding
-            </p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>
+                A <span className="font-semibold text-foreground">Positioning Copilot</span> that delivers:
+              </p>
+              <ul className="space-y-1 pl-4">
+                <li>• <span className="font-semibold text-foreground">URL → Clarity:</span> ICPs, pains, brand positioning</li>
+                <li>• <span className="font-semibold text-foreground">Clarity → Assets:</span> on-brand landing pages, LinkedIn, and email</li>
+                <li>• <span className="font-semibold text-foreground">Assets → Learning:</span> feedback loops to improve conversion over time</li>
+              </ul>
+            </div>
           </div>
-        </div>
-
-        {/* Middle statement */}
-        <div className="bg-muted/50 py-6 px-8 rounded-lg">
-          <p className="text-xl font-medium text-center text-foreground">
-            The same transformation that happened to coding is ready to happen to positioning.
-          </p>
         </div>
 
         {/* Bottom illustration placeholder */}
