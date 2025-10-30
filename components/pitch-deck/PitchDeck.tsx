@@ -795,17 +795,17 @@ function BusinessModelSlide() {
             {/* ARR Growth Chart */}
             <Card className="p-6">
               <h4 className="text-sm font-bold text-foreground mb-4">ARR Growth Projection (3 Years)</h4>
-              <div className="flex items-end justify-between h-32 gap-2">
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-gradient-to-t from-purple-400 to-purple-500 rounded-t" style={{ height: '25%' }}></div>
+              <div className="flex items-end justify-between gap-4 h-40">
+                <div className="flex-1 flex flex-col items-center gap-2 h-full">
+                  <div className="w-full bg-gradient-to-t from-purple-400 to-purple-500 rounded-t mt-auto" style={{ height: '25%' }}></div>
                   <span className="text-xs text-muted-foreground">Year 1</span>
                 </div>
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-gradient-to-t from-pink-400 to-pink-500 rounded-t" style={{ height: '60%' }}></div>
+                <div className="flex-1 flex flex-col items-center gap-2 h-full">
+                  <div className="w-full bg-gradient-to-t from-pink-400 to-pink-500 rounded-t mt-auto" style={{ height: '60%' }}></div>
                   <span className="text-xs text-muted-foreground">Year 2</span>
                 </div>
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-gradient-to-t from-pink-500 to-pink-600 rounded-t" style={{ height: '100%' }}></div>
+                <div className="flex-1 flex flex-col items-center gap-2 h-full">
+                  <div className="w-full bg-gradient-to-t from-pink-500 to-pink-600 rounded-t mt-auto" style={{ height: '100%' }}></div>
                   <span className="text-xs text-muted-foreground">Year 3</span>
                 </div>
               </div>
