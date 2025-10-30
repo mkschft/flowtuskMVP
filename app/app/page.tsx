@@ -2323,11 +2323,14 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
         },
       });
 
-      // Update state with generated content
+      // Update state with generated content (include ICP for export functionality)
       updateGenerationState({
         generatedContent: {
           ...activeConversation?.generationState.generatedContent,
-          valueProp: valuePropData
+          valueProp: {
+            ...valuePropData,
+            icp // Add ICP to valueProp data for PNG export
+          }
         },
         completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
       });
