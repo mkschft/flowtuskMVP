@@ -682,24 +682,44 @@ function ChatPageContent() {
   // Handle URL from landing page on mount
   useEffect(() => {
     const urlParam = searchParams.get('url');
-    if (urlParam && !hasProcessedUrlParam && conversations.length === 0) {
+    console.log('🔍 [URL Param Check]', {
+      urlParam,
+      hasProcessedUrlParam,
+      conversationsCount: conversations.length,
+      willProcess: !!(urlParam && !hasProcessedUrlParam)
+    });
+
+    if (urlParam && !hasProcessedUrlParam) {
+      console.log('✅ [URL Param] Processing URL from landing page:', urlParam);
       setHasProcessedUrlParam(true);
       // Pre-fill the input with URL from landing page
       setInput(urlParam);
       // Set flag to trigger auto-submit after input state updates
       setShouldAutoSubmit(true);
+      console.log('🎯 [URL Param] Input set, auto-submit flag enabled');
     }
-  }, [searchParams, hasProcessedUrlParam, conversations.length]);
+  }, [searchParams, hasProcessedUrlParam]);
 
   // Auto-submit after input is set from URL param
   useEffect(() => {
+    console.log('🔄 [Auto-Submit Check]', {
+      shouldAutoSubmit,
+      input: input.substring(0, 50) + (input.length > 50 ? '...' : ''),
+      inputLength: input.length,
+      willSubmit: !!(shouldAutoSubmit && input.trim())
+    });
+
     if (shouldAutoSubmit && input.trim()) {
+      console.log('🚀 [Auto-Submit] Triggering form submission...');
       // Reset flag to prevent duplicate submissions
       setShouldAutoSubmit(false);
       // Trigger form submission now that input state is updated
       const form = document.querySelector('form[data-chat-form]');
       if (form) {
+        console.log('✅ [Auto-Submit] Form found, calling requestSubmit()');
         (form as HTMLFormElement).requestSubmit();
+      } else {
+        console.error('❌ [Auto-Submit] Form not found! Cannot auto-submit.');
       }
     }
   }, [input, shouldAutoSubmit]);
@@ -871,10 +891,17 @@ function ChatPageContent() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    console.log('📨 [handleSendMessage] Called with input:', input.substring(0, 100) + (input.length > 100 ? '...' : ''));
+    console.log('📊 [handleSendMessage] State:', { inputLength: input.length, isLoading, hasInput: !!input.trim() });
+
+    if (!input.trim() || isLoading) {
+      console.warn('⚠️ [handleSendMessage] Skipping - no input or already loading');
+      return;
+    }
 
     // Ensure we have an active conversation and get the ID
     const convId = ensureActiveConversation();
+    console.log('✅ [handleSendMessage] Active conversation ID:', convId);
     
     // Wait a tick for state to settle if we just created a new conversation
     if (convId !== activeConversationId) {
@@ -922,8 +949,14 @@ function ChatPageContent() {
         });
 
         // Add timeout to prevent indefinite hangs (90s = longer than backend max ~90s)
+        console.log('⏱️ [Fetch] Starting website analysis with 90s timeout:', url);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 90000);
+        const fetchStartTime = Date.now();
+        const timeoutId = setTimeout(() => {
+          const elapsed = Date.now() - fetchStartTime;
+          console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (90s limit reached)`);
+          controller.abort();
+        }, 90000);
 
         let analyzeRes;
         try {
@@ -933,16 +966,25 @@ function ChatPageContent() {
             body: JSON.stringify({ url }),
             signal: controller.signal,
           });
+          const elapsed = Date.now() - fetchStartTime;
+          console.log(`✅ [Fetch] Analysis completed in ${elapsed}ms`);
           clearTimeout(timeoutId);
         } catch (fetchError) {
+          const elapsed = Date.now() - fetchStartTime;
           clearTimeout(timeoutId);
           if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.error(`❌ [Timeout] Request aborted after ${elapsed}ms`);
             throw new Error("TIMEOUT: Website analysis timed out after 90 seconds. This website may be too complex or slow to respond.");
           }
+          console.error(`❌ [Fetch] Error after ${elapsed}ms:`, fetchError);
           throw fetchError;
         }
 
-        if (!analyzeRes.ok) throw new Error("Failed to analyze website");
+        if (!analyzeRes.ok) {
+          console.error('❌ [Fetch] Response not OK:', analyzeRes.status, analyzeRes.statusText);
+          throw new Error("Failed to analyze website");
+        }
+        console.log('📦 [Fetch] Parsing response JSON...');
         const { content, metadata, factsJson } = await analyzeRes.json();
         
         const analyzeSubsteps = [
@@ -1136,7 +1178,11 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("❌❌❌ [Error Caught] ❌❌❌");
+      console.error("Error type:", error instanceof Error ? error.constructor.name : typeof error);
+      console.error("Error message:", error instanceof Error ? error.message : String(error));
+      console.error("Error stack:", error instanceof Error ? error.stack : 'N/A');
+      console.error("Full error object:", error);
 
       let userMessage = "Something went wrong. Please try again.";
 
