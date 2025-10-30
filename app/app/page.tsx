@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu } from "lucide-react";
 import { LinkedInProfileDrawer } from "@/components/LinkedInProfileDrawer";
 import { ValuePropBuilderWrapper } from "@/components/ValuePropBuilderWrapper";
 import { PersonaShowcase } from "@/components/PersonaShowcase";
 import { type ExportFormat } from "@/components/ExportOptions";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { SystemMessage } from "@/components/ui/system-message";
 import { SummaryApprovalCard } from "@/components/SummaryApprovalCard";
 import { OutreachChoice } from "@/components/OutreachChoice";
@@ -641,6 +642,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
@@ -2328,59 +2330,91 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
     }
   };
 
+  // Sidebar content (reused in desktop & mobile)
+  const SidebarContent = () => (
+    <>
+      <div className="p-4 border-b">
+        <div className="font-semibold mb-4">Flowtusk</div>
+        <Button
+          onClick={() => {
+            createNewConversation();
+            setSidebarOpen(false); // Close mobile drawer on action
+          }}
+          className="w-full"
+          variant="outline"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New conversation
+        </Button>
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="p-2 space-y-1">
+          {conversations.map(conv => (
+            <button
+              key={conv.id}
+              onClick={() => {
+                setActiveConversationId(conv.id);
+                setSidebarOpen(false); // Close mobile drawer on selection
+              }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                conv.id === activeConversationId
+                  ? "bg-muted"
+                  : "hover:bg-muted/50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <span className="truncate">{conv.title}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </ScrollArea>
+    </>
+  );
+
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <div className="w-64 border-r flex flex-col">
-        <div className="p-4 border-b">
-          <div className="font-semibold mb-4">Flowtusk</div>
-          <Button
-            onClick={createNewConversation}
-            className="w-full"
-            variant="outline"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New conversation
-          </Button>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
-            {conversations.map(conv => (
-              <button
-                key={conv.id}
-                onClick={() => setActiveConversationId(conv.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  conv.id === activeConversationId
-                    ? "bg-muted"
-                    : "hover:bg-muted/50"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{conv.title}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </ScrollArea>
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:flex md:w-64 border-r flex-col">
+        <SidebarContent />
       </div>
+
+      {/* Mobile Sidebar Sheet */}
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent side="left" className="w-64 p-0">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
+        {/* Mobile Header - Only visible on mobile */}
+        <div className="md:hidden flex items-center gap-3 p-4 border-b bg-background">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}
+            className="shrink-0"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <span className="font-semibold">Flowtusk</span>
+        </div>
         {/* Messages */}
-        <ScrollArea className="flex-1 px-4 py-12" ref={scrollRef}>
+        <ScrollArea className="flex-1 px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
           <div className="space-y-4 mx-auto max-w-3xl">
             {!activeConversation?.messages.length && (
-              <div className="text-center py-20">
-                <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h2 className="text-2xl font-bold mb-2">
+              <div className="text-center py-12 sm:py-20 px-4">
+                <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">
                   Your Positioning Co-Pilot
                 </h2>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
                   Enter a website URL to generate customer personas and value propositions
                 </p>
-                <div className="flex flex-wrap gap-2 justify-center">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center max-w-sm sm:max-w-none mx-auto">
                   {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
                     <Button
                       key={url}
@@ -2394,6 +2428,7 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                           form?.requestSubmit();
                         }, 100);
                       }}
+                      className="text-xs sm:text-sm w-full sm:w-auto"
                     >
                       {url}
                     </Button>
@@ -2465,7 +2500,7 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
 
                     {/* ICP Cards */}
                     {message.component === "icps" && message.data && (
-                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                         {(message.data as ICP[]).map((icp, idx) => {
                           const colors = [
                             { 
@@ -2507,7 +2542,7 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                               {/* Gradient background */}
                               <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient}`} />
                               
-                              <div className="relative p-4 space-y-3">
+                              <div className="relative p-3 sm:p-4 space-y-2 sm:space-y-3">
                                 {/* Persona Header */}
                                 <div className="flex items-start gap-3">
                                   {/* Avatar with online indicator */}
@@ -2808,10 +2843,10 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
         </ScrollArea>
 
         {/* Input */}
-        <div className="mx-auto w-full max-w-3xl px-4 pb-4">
+        <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pb-3 sm:pb-4">
           <form
             onSubmit={handleSendMessage}
-            className="relative w-full rounded-3xl border bg-background p-3 shadow-sm"
+            className="relative w-full rounded-3xl border bg-background p-2.5 sm:p-3 shadow-sm"
           >
             <Input
               value={input}
@@ -2824,18 +2859,18 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                   : "What would you like to do?"
               }
               disabled={isLoading}
-              className="border-0 pr-12 focus-visible:ring-0 bg-transparent"
+              className="border-0 pr-11 sm:pr-12 focus-visible:ring-0 bg-transparent text-sm sm:text-base"
             />
             <Button
               type="submit"
               disabled={isLoading || !input.trim()}
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full"
+              className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 rounded-full shrink-0"
             >
               {isLoading ? (
                 <span className="h-3 w-3 rounded-sm bg-white" />
               ) : (
-                <ArrowUp className="h-4 w-4" />
+                <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               )}
             </Button>
           </form>
