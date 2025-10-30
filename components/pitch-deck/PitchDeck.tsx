@@ -526,7 +526,7 @@ function RoadmapSlide() {
 
   return (
     <Slide slideNumber={6}>
-      <div className="space-y-10">
+      <div className="space-y-8">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
           From MVP to brand intelligence platform in 12 months
@@ -535,52 +535,56 @@ function RoadmapSlide() {
         {/* Three Phase Cards */}
         <div className="grid grid-cols-3 gap-6">
           {phases.map((phase) => (
-            <Card key={phase.number} className="p-6 bg-muted/30 border-l-4 border-l-purple-600">
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
-                    PHASE {phase.number}
+            <div key={phase.number} className="space-y-6">
+              <Card className="p-6 bg-white dark:bg-muted/30">
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                      PHASE {phase.number}
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground">
+                      {phase.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {phase.timeframe}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground">
-                    {phase.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {phase.timeframe}
-                  </p>
+
+                  {/* Features */}
+                  <ul className="space-y-2">
+                    {phase.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="text-purple-600 dark:text-purple-400 mt-0.5">•</span>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              </Card>
 
-                {/* Features */}
-                <ul className="space-y-2">
-                  {phase.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <span className="text-purple-600 dark:text-purple-400 mt-0.5">•</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Target */}
-                <div className="pt-4 border-t space-y-1">
+              {/* Target Card */}
+              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 border-2 border-dashed border-purple-300 dark:border-purple-700">
+                <div className="space-y-2">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">
                     Target
                   </p>
-                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {phase.target}
                   </p>
-                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {phase.mrr}
                   </p>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           ))}
         </div>
 
         {/* Vision Statement */}
-        <div className="bg-muted/50 py-6 px-8 rounded-lg">
-          <p className="text-lg font-medium text-center text-foreground">
-            Long-term vision: Every B2B brand uses Flowtusk to maintain positioning clarity as a living, breathing asset
+        <div className="text-center py-4">
+          <p className="text-base text-muted-foreground">
+            <span className="font-semibold text-foreground">Long-term vision:</span> Every B2B brand uses Flowtusk to maintain positioning clarity as a living, breathing asset
           </p>
         </div>
 
@@ -592,7 +596,7 @@ function RoadmapSlide() {
               Illustration: Roadmap Timeline
             </h4>
             <p className="text-xs text-muted-foreground max-w-3xl">
-              Visual timeline showing three phases from left to right with milestone markers. Phase 1 (green checkmark), Phase 2 (in progress), Phase 3 (future). Include growth arrow showing customer and MRR progression
+              Horizontal timeline visualization showing three phases with key milestones marked. Use arrows, checkpoints, and visual progression to show growth from MVP to platform.
             </p>
           </div>
         </div>
