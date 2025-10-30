@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -628,7 +628,7 @@ function ThinkingBlock({ thinking }: { thinking: ThinkingStep[] }) {
   );
 }
 
-export default function ChatPage() {
+function ChatPageContent() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string>("");
   const [input, setInput] = useState("");
@@ -2891,5 +2891,18 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
         <MemoryStatusIndicator conversationId={activeConversationId} />
       )}
     </div>
+  );
+}
+
+// Wrap in Suspense to handle useSearchParams() during build
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <ChatPageContent />
+    </Suspense>
   );
 }
