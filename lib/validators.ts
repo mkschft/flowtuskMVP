@@ -8,6 +8,44 @@
 import { z } from 'zod';
 
 // ============================================================================
+// Facts JSON Schema (NEW - Phase 2)
+// ============================================================================
+
+export const FactSchema = z.object({
+  id: z.string().min(1),
+  text: z.string().min(1),
+  page: z.string().min(1),
+  evidence: z.string().min(1),
+});
+
+export const ValuePropFactSchema = z.object({
+  id: z.string().min(1),
+  text: z.string().min(1),
+  evidence: z.array(z.string()).optional(),
+});
+
+export const FactsJSONSchema = z.object({
+  brand: z.object({
+    name: z.string().min(1),
+    tones: z.array(z.string()),
+    primaryCTA: z.string(),
+  }),
+  structure: z.object({
+    nav: z.array(z.string()),
+    keyPages: z.array(z.object({
+      path: z.string(),
+      title: z.string(),
+    })),
+    footer: z.array(z.string()),
+  }),
+  audienceSignals: z.array(z.string()),
+  valueProps: z.array(ValuePropFactSchema),
+  pains: z.array(z.string()),
+  proof: z.array(z.string()),
+  facts: z.array(FactSchema).min(1),
+});
+
+// ============================================================================
 // ICP (Ideal Customer Profile) Schemas
 // ============================================================================
 
@@ -23,6 +61,7 @@ export const ICPSchema = z.object({
   personaCompany: z.string().min(1).max(100),
   location: z.string().min(1).max(100),
   country: z.string().min(1).max(100),
+  evidence: z.array(z.string()).optional(), // NEW: Track which facts support this ICP
 });
 
 export const ICPSummarySchema = z.object({
@@ -60,6 +99,7 @@ export const ValuePropVariationSchema = z.object({
   text: z.string().min(1).max(1000), // OpenAI returns "text" not "template"
   useCase: z.string().min(1).max(500).optional(), // OpenAI returns "useCase" not "description"
   emoji: z.string().optional(), // OpenAI includes emoji
+  sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts support this variation
 });
 
 export const ValuePropSummarySchema = z.object({
@@ -97,6 +137,7 @@ export const OneTimeEmailSchema = z.object({
     conversionRate: z.string(),
   }).optional(),
   tips: z.array(z.string()).optional(),
+  sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts inform this email
 });
 
 export const EmailMessageSchema = z.object({
@@ -129,6 +170,7 @@ export const LinkedInMessageSchema = z.object({
   body: z.string().min(10).max(3000),
   characterCount: z.number().int().optional(),
   tips: z.array(z.string()).optional(),
+  sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts inform this message
 });
 
 export const LinkedInOutreachSchema = z.object({
@@ -140,6 +182,7 @@ export const LinkedInOutreachSchema = z.object({
   overallStrategy: z.string().min(1).max(2000).optional(),
   messages: z.array(LinkedInMessageSchema).optional(),
   keyTakeaways: z.array(z.string()).optional(),
+  sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts inform this content
 });
 
 // ============================================================================
@@ -155,6 +198,30 @@ export interface ValidationResult<T> {
 // ============================================================================
 // Validation Functions
 // ============================================================================
+
+/**
+ * Validate Facts JSON response (NEW - Phase 2)
+ */
+export function validateFactsJSON(data: unknown): ValidationResult<z.infer<typeof FactsJSONSchema>> {
+  try {
+    const validated = FactsJSONSchema.parse(data);
+    return {
+      ok: true,
+      data: validated,
+    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        ok: false,
+        errors: error.errors.map((e) => `${e.path.join('.')}: ${e.message}`),
+      };
+    }
+    return {
+      ok: false,
+      errors: ['Unknown validation error'],
+    };
+  }
+}
 
 /**
  * Validate ICP API response

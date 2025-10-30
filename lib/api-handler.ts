@@ -230,6 +230,188 @@ export function parseJSONResponse<T>(text: string, operation: string): APIResult
 }
 
 /**
+ * Auto-repair logic for validation failures
+ * 
+ * When a response fails validation, this function:
+ * 1. Extracts validation errors
+ * 2. Crafts a repair prompt with explicit instructions
+ * 3. Retries the generation once
+ * 4. If still fails, returns the original response with error details
+ */
+export interface ValidationResult<T> {
+  ok: boolean;
+  data?: T;
+  errors?: string[];
+}
+
+export interface PromptTemplate {
+  system: string;
+  developer: string;
+  user: string;
+}
+
+export interface ModelConfig {
+  model: string;
+  temperature: number;
+  timeout: number;
+  maxRetries: number;
+}
+
+export async function callWithAutoRepair<T>(
+  promptFn: () => PromptTemplate,
+  validateFn: (data: unknown) => ValidationResult<T>,
+  modelConfig: ModelConfig,
+  openai: any, // OpenAI instance
+  operation: string = 'Generation'
+): Promise<APIResult<T & { validationErrors?: string[] }>> {
+  console.log(`🔧 [Auto-Repair] ${operation} - Initial attempt`);
+
+  // First attempt
+  const { system, developer, user } = promptFn();
+  
+  const firstAttempt = await executeWithRetryAndTimeout(
+    async () => {
+      return await openai.chat.completions.create({
+        model: modelConfig.model,
+        messages: [
+          { role: "system", content: system },
+          { role: "developer" as any, content: developer },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: modelConfig.temperature,
+      });
+    },
+    { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
+    operation
+  );
+
+  if (!firstAttempt.success || !firstAttempt.data) {
+    console.error(`❌ [Auto-Repair] ${operation} - API call failed`);
+    return {
+      success: false,
+      error: firstAttempt.error,
+    };
+  }
+
+  // Parse and validate first attempt
+  const firstResponse = firstAttempt.data;
+  const firstContent = firstResponse.choices[0]?.message?.content;
+  
+  if (!firstContent) {
+    return {
+      success: false,
+      error: {
+        code: 'EMPTY_RESPONSE',
+        message: 'Empty response from API',
+        retryable: false,
+      },
+    };
+  }
+
+  let firstData: unknown;
+  try {
+    firstData = JSON.parse(firstContent);
+  } catch (parseError) {
+    console.error(`❌ [Auto-Repair] ${operation} - JSON parse failed`);
+    return {
+      success: false,
+      error: {
+        code: 'PARSE_ERROR',
+        message: 'Invalid JSON response',
+        retryable: false,
+      },
+    };
+  }
+
+  const validation = validateFn(firstData);
+
+  // If validation passes, return immediately
+  if (validation.ok && validation.data) {
+    console.log(`✅ [Auto-Repair] ${operation} - Validation passed on first attempt`);
+    return {
+      success: true,
+      data: validation.data,
+    };
+  }
+
+  // Validation failed - attempt auto-repair
+  console.warn(`⚠️ [Auto-Repair] ${operation} - Validation failed, attempting repair`, {
+    errors: validation.errors?.slice(0, 3), // Show first 3 errors
+  });
+
+  const repairPrompt = {
+    system,
+    developer: developer + `\n\nIMPORTANT: The previous response had validation errors. Fix these specific issues:\n${validation.errors?.slice(0, 5).map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nReturn STRICTLY valid JSON matching the schema. No commentary, no markdown.`,
+    user,
+  };
+
+  const repairAttempt = await executeWithRetryAndTimeout(
+    async () => {
+      return await openai.chat.completions.create({
+        model: modelConfig.model,
+        messages: [
+          { role: "system", content: repairPrompt.system },
+          { role: "developer" as any, content: repairPrompt.developer },
+          { role: "user", content: repairPrompt.user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: Math.max(modelConfig.temperature - 0.1, 0.2), // Slightly lower temp for repair
+      });
+    },
+    { timeout: modelConfig.timeout, maxRetries: 2 }, // Fewer retries for repair
+    `${operation} (repair)`
+  );
+
+  if (!repairAttempt.success || !repairAttempt.data) {
+    console.error(`❌ [Auto-Repair] ${operation} - Repair attempt failed`);
+    // Return original data with validation errors
+    return {
+      success: true, // Still return as success but with errors
+      data: { ...(firstData as T), validationErrors: validation.errors },
+    };
+  }
+
+  const repairResponse = repairAttempt.data;
+  const repairContent = repairResponse.choices[0]?.message?.content;
+
+  if (!repairContent) {
+    return {
+      success: true,
+      data: { ...(firstData as T), validationErrors: validation.errors },
+    };
+  }
+
+  let repairData: unknown;
+  try {
+    repairData = JSON.parse(repairContent);
+  } catch (parseError) {
+    console.error(`❌ [Auto-Repair] ${operation} - Repair JSON parse failed`);
+    return {
+      success: true,
+      data: { ...(firstData as T), validationErrors: validation.errors },
+    };
+  }
+
+  const repairValidation = validateFn(repairData);
+
+  if (repairValidation.ok && repairValidation.data) {
+    console.log(`✅ [Auto-Repair] ${operation} - Validation passed after repair`);
+    return {
+      success: true,
+      data: repairValidation.data,
+    };
+  }
+
+  // Even repair failed - return repaired data with errors
+  console.warn(`⚠️ [Auto-Repair] ${operation} - Repair still has errors, returning best attempt`);
+  return {
+    success: true,
+    data: { ...(repairData as T), validationErrors: repairValidation.errors },
+  };
+}
+
+/**
  * APIHandler - Main export with all utilities
  */
 export const APIHandler = {
@@ -239,6 +421,7 @@ export const APIHandler = {
   parseJSONResponse,
   isRetryableError,
   getErrorCode,
+  callWithAutoRepair,
 };
 
 export default APIHandler;

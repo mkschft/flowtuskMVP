@@ -21,6 +21,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { SmartButton } from "@/app/app/page";
+import { IntegratedValuePropPreview } from "./IntegratedValuePropPreview";
 
 type ValuePropVariable = {
   key: string;
@@ -37,6 +38,7 @@ type ValuePropVariation = {
   text: string;
   useCase: string;
   emoji: string;
+  sourceFactIds?: string[];
 };
 
 type ValuePropBuilderProps = {
@@ -47,6 +49,7 @@ type ValuePropBuilderProps = {
   variations?: ValuePropVariation[];
   isGeneratingVariations?: boolean;
   conversationId?: string;
+  onConfirmValueProp?: () => void;
 };
 
 export function ValuePropBuilder({
@@ -56,7 +59,8 @@ export function ValuePropBuilder({
   onGenerateVariations,
   variations = [],
   // isGeneratingVariations = false,
-  conversationId
+  conversationId,
+  onConfirmValueProp
 }: ValuePropBuilderProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showVariations, setShowVariations] = useState(false);
@@ -89,13 +93,18 @@ export function ValuePropBuilder({
 
   const handleGenerateVariations = () => {
     setShowVariations(true);
-    setCurrentVariationIndex(0); // Reset to first variation
+    setCurrentVariationIndex(0); // Auto-select first variation
     onGenerateVariations();
   };
 
-  const handleRegenerateVariation = () => {
-    // Cycle to next variation
-    setCurrentVariationIndex((prev) => (prev + 1) % variations.length);
+  const handleNavigate = (newIndex: number) => {
+    setCurrentVariationIndex(newIndex);
+  };
+
+  const handleConfirm = () => {
+    if (onConfirmValueProp) {
+      onConfirmValueProp();
+    }
   };
 
   // Get current variation to display
@@ -272,62 +281,15 @@ export function ValuePropBuilder({
         </div>
       </Card>
 
-      {/* Single Variation Display */}
-      {showVariations && variations.length > 0 && currentVariation && (
-        <Card className="border-2 border-purple-200 dark:border-purple-800">
-          <div className="p-6">
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{currentVariation.emoji}</span>
-                <div>
-                  <p className="font-semibold">{currentVariation.style}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Use for: {currentVariation.useCase}
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleCopy(currentVariation.text, currentVariation.id)}
-              >
-                {copiedId === currentVariation.id ? (
-                  <>
-                    <Check className="h-4 w-4 mr-1" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4 mr-1" />
-                    Copy
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <p className="text-base leading-relaxed mb-6">
-              &ldquo;{currentVariation.text}&rdquo;
-            </p>
-
-            <div className="flex gap-2 pt-4 border-t">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={handleRegenerateVariation}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Regenerate ({currentVariationIndex + 1} of {variations.length})
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleCopy(currentVariation.text, currentVariation.id)}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </Card>
+      {/* Integrated Value Prop Preview */}
+      {showVariations && variations.length > 0 && (
+        <IntegratedValuePropPreview
+          variations={variations}
+          currentIndex={currentVariationIndex}
+          onNavigate={handleNavigate}
+          onConfirm={handleConfirm}
+          personaTitle={personaTitle}
+        />
       )}
     </div>
   );

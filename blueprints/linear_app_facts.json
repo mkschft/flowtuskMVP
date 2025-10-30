@@ -1,0 +1,218 @@
+{
+  "brand": {
+    "name": "Linear",
+    "tones": [
+      "modern",
+      "efficient",
+      "focused"
+    ],
+    "primaryCTA": "Start building"
+  },
+  "structure": {
+    "nav": [
+      "Product",
+      "Resources",
+      "Pricing",
+      "Customers",
+      "Now",
+      "Contact",
+      "Docs",
+      "Open app",
+      "Log in",
+      "Sign up"
+    ],
+    "keyPages": [
+      {
+        "path": "/features",
+        "title": "Product"
+      },
+      {
+        "path": "/about",
+        "title": "Resources"
+      },
+      {
+        "path": "/pricing",
+        "title": "Pricing"
+      },
+      {
+        "path": "/customers",
+        "title": "Customers"
+      },
+      {
+        "path": "/now",
+        "title": "Now"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact"
+      },
+      {
+        "path": "/docs",
+        "title": "Docs"
+      },
+      {
+        "path": "/login",
+        "title": "Open app"
+      },
+      {
+        "path": "/signup",
+        "title": "Sign up"
+      }
+    ],
+    "footer": [
+      "Plan",
+      "Build",
+      "Insights",
+      "Customer Requests",
+      "Linear Asks",
+      "Security",
+      "Mobile",
+      "Pricing",
+      "Method",
+      "Integrations",
+      "Changelog",
+      "Documentation Docs",
+      "Download",
+      "Switch",
+      "About",
+      "Customers",
+      "Careers",
+      "Now",
+      "README",
+      "Quality",
+      "Brand",
+      "Developers",
+      "Status"
+    ]
+  },
+  "audienceSignals": [
+    "modern software development teams",
+    "next-gen startups",
+    "established enterprises"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Streamline issues, projects, and product roadmaps.",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "AI-assisted product development for delegating work.",
+      "evidence": [
+        "fact-8",
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "manual and routine tasks in product development",
+    "lack of streamlined project management"
+  ],
+  "proof": [
+    "SOC 2",
+    "GDPR",
+    "HIPAA"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Linear is a purpose-built tool for planning and building products.",
+      "page": "homepage",
+      "evidence": "Linear is a purpose-built tool for planning and building products"
+    },
+    {
+      "id": "fact-2",
+      "text": "Linear powers the world’s best product teams.",
+      "page": "homepage",
+      "evidence": "Powering the world’s best product teams."
+    },
+    {
+      "id": "fact-3",
+      "text": "Linear is designed to streamline issues, projects, and product roadmaps.",
+      "page": "homepage",
+      "evidence": "Streamline issues, projects, and product roadmaps."
+    },
+    {
+      "id": "fact-4",
+      "text": "Linear is made for modern product teams.",
+      "page": "homepage",
+      "evidence": "Made for modern product teams"
+    },
+    {
+      "id": "fact-5",
+      "text": "Linear is shaped by practices that distinguish world-class product teams.",
+      "page": "homepage",
+      "evidence": "Linear is shaped by the practices and principles that distinguish world-class product teams"
+    },
+    {
+      "id": "fact-6",
+      "text": "Linear offers AI agents for product development tasks.",
+      "page": "AI",
+      "evidence": "Choose from a variety of AI agents and start delegating work"
+    },
+    {
+      "id": "fact-7",
+      "text": "Linear is crafted to perfection.",
+      "page": "homepage",
+      "evidence": "Crafted to perfection"
+    },
+    {
+      "id": "fact-8",
+      "text": "Linear provides AI assistance for routine, manual tasks.",
+      "page": "AI",
+      "evidence": "Streamline your product development workflows with AI assistance for routine, manual tasks."
+    },
+    {
+      "id": "fact-9",
+      "text": "Linear integrates with tools like Cursor, Claude, ChatGPT.",
+      "page": "MCP",
+      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT, and more."
+    },
+    {
+      "id": "fact-10",
+      "text": "Linear offers project and long-term planning tools.",
+      "page": "plan",
+      "evidence": "Plan, manage, and track all product initiatives with Linear’s visual planning tools."
+    },
+    {
+      "id": "fact-11",
+      "text": "Linear provides tailored workflows and custom views.",
+      "page": "insights",
+      "evidence": "Track progress across custom issue flows for your team."
+    },
+    {
+      "id": "fact-12",
+      "text": "Linear has a high-performance architecture.",
+      "page": "under the hood",
+      "evidence": "Built with a high-performance architecture and an obsessive focus on speed."
+    },
+    {
+      "id": "fact-13",
+      "text": "Linear is engineered for scale.",
+      "page": "under the hood",
+      "evidence": "Built for teams of all sizes. From early-stage startups to global enterprises."
+    },
+    {
+      "id": "fact-14",
+      "text": "Linear offers enterprise-ready security.",
+      "page": "under the hood",
+      "evidence": "Best-in-class security practices keep your work safe and secure at every layer."
+    },
+    {
+      "id": "fact-15",
+      "text": "Linear supports integrations with over 100 tools.",
+      "page": "integrations",
+      "evidence": "100+ ways to enhance your Linear experience"
+    },
+    {
+      "id": "fact-16",
+      "text": "Linear provides insights with real-time analytics and reporting dashboards.",
+      "page": "insights",
+      "evidence": "Take the guesswork out of product planning with realtime analytics and reporting dashboards."
+    }
+  ]
+}
