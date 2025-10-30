@@ -82,24 +82,24 @@ function CoverSlide() {
 function ProblemSlide() {
   const problems = [
     {
-      title: "Inconsistent messaging",
-      description: "Different pitch on website, deck, LinkedIn, sales calls",
+      title: "No customer clarity — just blind guesswork.",
+      description: "Teams launch without a validated ICP; messaging stays generic.",
       barWidth: "w-3/5"
     },
     {
-      title: "No clear ICP",
-      description: '"We sell to everyone" or vague gut feelings about customers',
+      title: "Tool chaos (7+ fragmented tools for one funnel).",
+      description: "Brief in Notion → copy in Jasper/Docs → designs in Figma/Slides → page in Webflow/Unbounce → emails in HubSpot/Mailchimp → outreach on LinkedIn → tracking in GA. Context is lost.",
+      barWidth: "w-4/5"
+    },
+    {
+      title: "Optimized for optimization, not for who you're selling to.",
+      description: "Page builders make pages fast, AI writers make text fast, and marketing platforms automate — but they all assume you already know the persona and positioning. Speed without clarity = poor conversion.",
       barWidth: "w-3/5"
     },
     {
-      title: "Wasted time",
-      description: "3-6 weeks to articulate positioning, often still unclear",
-      barWidth: "w-3/5"
-    },
-    {
-      title: "Expensive solutions",
-      description: "Positioning consultants charge €15K-50K for a PDF deck",
-      barWidth: "w-3/5"
+      title: "Expensive, slow, inconsistent.",
+      description: "3–6 weeks to ship; consultants cost €15k–50k+; messaging drifts across website, deck, LinkedIn, and sales calls.",
+      barWidth: "w-4/5"
     }
   ];
 
@@ -112,7 +112,7 @@ function ProblemSlide() {
             Problem
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl">
-            Founders and marketers don&apos;t know who they&apos;re selling to—or how to talk about it
+            B2B funnels take weeks to build — and fail to convert ~95% of the time.
           </h2>
         </div>
 
@@ -123,7 +123,7 @@ function ProblemSlide() {
             {problems.map((problem, idx) => (
               <div key={idx} className="space-y-2">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 min-w-fit">
+                  <h3 className="text-base font-semibold text-purple-600 dark:text-purple-400 min-w-fit">
                     {problem.title}
                   </h3>
                   <div className={`h-2 rounded-full bg-purple-500 ${problem.barWidth}`} />
@@ -150,16 +150,6 @@ function ProblemSlide() {
             </div>
           </div>
         </div>
-
-        {/* Bottom Quote */}
-        <div className="border-l-4 border-purple-500 bg-purple-50/50 dark:bg-purple-950/20 p-6 rounded-r-lg">
-          <p className="text-lg italic text-foreground mb-2">
-            &quot;We&apos;ve pivoted 3 times this year. Our website still talks about our old product.&quot;
-          </p>
-          <p className="text-sm text-muted-foreground">
-            — SaaS Founder, Helsinki
-          </p>
-        </div>
       </div>
     </Slide>
   );
@@ -169,84 +159,24 @@ function ProblemSlide() {
 function GapSlide() {
   return (
     <Slide slideNumber={3}>
-      <div className="space-y-10">
+      <div className="space-y-12">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-          2025: GenAI has transformed content creation, but positioning intelligence is still manual
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight text-center">
+          2025: GenAI has transformed content creation without knowing who to sell to. Clarity layer is missing.
         </h2>
 
-        {/* 2x2 Grid */}
-        <div className="grid grid-cols-2 gap-8">
-          {/* Content AI is commoditized */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
+        {/* Large Diagram Placeholder */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full h-[500px] border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 flex flex-col items-center justify-center p-12 text-center space-y-6">
+            <GitBranch className="h-20 w-20 text-pink-500 dark:text-pink-400" />
+            <div className="space-y-3">
+              <h4 className="text-xl font-semibold text-pink-700 dark:text-pink-300">
+                Illustration: The Missing Clarity Layer
+              </h4>
+              <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
+                Diagram showing three layers: Bottom layer (Content Generation Tools - Jasper, Copy.ai, ChatGPT), Middle layer highlighted as missing/broken (Positioning Intelligence - who to sell to), Top layer (Business Results - conversions, revenue). Visual gap or broken bridge in the middle emphasizes the missing clarity layer that Flowtusk fills.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              Jasper, Copy.ai, ChatGPT write copy—but they don&apos;t know WHO you&apos;re selling to
-            </p>
-          </div>
-
-          {/* Data tools give numbers */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
-            </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              Clearbit provides firmographics, not positioning insights
-            </p>
-          </div>
-
-          {/* The gap */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Triangle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">The gap</h3>
-            </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              No tool bridges strategic positioning + tactical execution
-            </p>
-          </div>
-
-          {/* The opportunity */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Rocket className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">The opportunity</h3>
-            </div>
-            <p className="text-sm text-muted-foreground pl-15">
-              &quot;Vibe-creating&quot; for positioning—just like Bolt.new did for coding
-            </p>
-          </div>
-        </div>
-
-        {/* Middle statement */}
-        <div className="bg-muted/50 py-6 px-8 rounded-lg">
-          <p className="text-xl font-medium text-center text-foreground">
-            The same transformation that happened to coding is ready to happen to positioning.
-          </p>
-        </div>
-
-        {/* Bottom illustration placeholder */}
-        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 p-8 flex flex-col items-center justify-center space-y-4">
-          <GitBranch className="h-12 w-12 text-pink-500 dark:text-pink-400" />
-          <div className="text-center space-y-2">
-            <h4 className="font-semibold text-pink-700 dark:text-pink-300">
-              Illustration: Evolution Timeline
-            </h4>
-            <p className="text-xs text-muted-foreground max-w-3xl">
-              Timeline graphic showing progression: Manual positioning with consultants (2020) → Generic AI copy tools (2023) → Positioning Copilot (2025). Use arrows and visual milestones to show the gap that Flowtusk fills.
-            </p>
           </div>
         </div>
       </div>
