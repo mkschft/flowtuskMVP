@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu } from "lucide-react";
+import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu, Trash2 } from "lucide-react";
 import { LinkedInProfileDrawer } from "@/components/LinkedInProfileDrawer";
 import { ValuePropBuilderWrapper } from "@/components/ValuePropBuilderWrapper";
 import { PersonaShowcase } from "@/components/PersonaShowcase";
@@ -814,6 +814,33 @@ function ChatPageContent() {
     
     // Initialize memory manager
     memoryManager.updateMemory(newConvId, newConv.memory);
+  };
+
+  const deleteConversation = (convId: string) => {
+    setConversations(prev => {
+      const filtered = prev.filter(c => c.id !== convId);
+      
+      // If we deleted the active conversation, switch to another one
+      if (convId === activeConversationId) {
+        // Try to switch to the next conversation, or create a new one if none exist
+        if (filtered.length > 0) {
+          const nextConv = filtered[0];
+          setActiveConversationId(nextConv.id);
+          // Update UI state to match the conversation we're switching to
+          setWebsiteUrl(nextConv.memory.websiteUrl || "");
+          setSelectedIcp(nextConv.memory.selectedIcp);
+        } else {
+          // No conversations left, create a new one
+          setTimeout(() => createNewConversation(), 0);
+        }
+      }
+      
+      // Clean up memory manager
+      memoryManager.clearMemory(convId);
+      
+      console.log(`🗑️ [Conversation] Deleted conversation: ${convId}`);
+      return filtered;
+    });
   };
 
   const addMessage = (message: ChatMessage) => {
@@ -2508,23 +2535,39 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
           {conversations.map(conv => (
-            <button
+            <div
               key={conv.id}
-              onClick={() => {
-                setActiveConversationId(conv.id);
-                setSidebarOpen(false); // Close mobile drawer on selection
-              }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+              className={`group relative w-full rounded-lg text-sm transition-colors ${
                 conv.id === activeConversationId
                   ? "bg-muted"
                   : "hover:bg-muted/50"
               }`}
             >
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 shrink-0" />
-                <span className="truncate">{conv.title}</span>
-              </div>
-            </button>
+              <button
+                onClick={() => {
+                  setActiveConversationId(conv.id);
+                  setSidebarOpen(false); // Close mobile drawer on selection
+                }}
+                className="w-full text-left px-3 py-2 pr-10"
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{conv.title}</span>
+                </div>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm(`Delete "${conv.title}"?`)) {
+                    deleteConversation(conv.id);
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                title="Delete conversation"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ))}
         </div>
       </ScrollArea>
