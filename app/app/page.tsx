@@ -539,11 +539,29 @@ export const SmartButton: React.FC<SmartButtonProps> = ({
 };
 
 // Thinking Block Component
-function ThinkingBlock({ thinking }: { thinking: ThinkingStep[] }) {
+function ThinkingBlock({ thinking, onCancel }: { thinking: ThinkingStep[]; onCancel?: () => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const totalTime = thinking.reduce((sum, s) => sum + (s.duration || 0), 0);
   const allComplete = thinking.every(s => s.status === 'complete');
   const hasError = thinking.some(s => s.status === 'error');
+  const isRunning = thinking.some(s => s.status === 'running');
+  const runningStep = thinking.find(s => s.status === 'running');
+  
+  // Update elapsed time every 500ms for running steps
+  useEffect(() => {
+    if (!isRunning || !runningStep?.startTime) return;
+    
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - runningStep.startTime!;
+      setElapsedTime(elapsed);
+    }, 500);
+    
+    return () => clearInterval(interval);
+  }, [isRunning, runningStep?.startTime]);
+  
+  const completedSteps = thinking.filter(s => s.status === 'complete').length;
+  const progress = (completedSteps / thinking.length) * 100;
   
   return (
     <Card className="border-l-4 border-l-purple-500">
@@ -551,32 +569,58 @@ function ThinkingBlock({ thinking }: { thinking: ThinkingStep[] }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {hasError ? (
-            <div className="h-9 w-9 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0">
               <span className="text-red-600 dark:text-red-400">✗</span>
             </div>
           ) : allComplete ? (
-            <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center shrink-0">
               <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
           ) : (
-            <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center shrink-0">
               <Loader2 className="h-5 w-5 animate-spin text-purple-600 dark:text-purple-400" />
             </div>
           )}
-          <div className="text-left">
+          <div className="text-left flex-1 min-w-0">
             <div className="text-sm font-medium">
               {hasError ? 'Error occurred' : allComplete ? 'Analysis complete' : 'Thinking...'}
             </div>
             <div className="text-xs text-muted-foreground">
-              {thinking.filter(s => s.status === 'complete').length} / {thinking.length} steps
+              {completedSteps} / {thinking.length} steps
               {totalTime > 0 && ` • ${(totalTime / 1000).toFixed(1)}s`}
+              {isRunning && elapsedTime > 0 && ` • ${(elapsedTime / 1000).toFixed(0)}s elapsed`}
             </div>
           </div>
         </div>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <div className="flex items-center gap-2 shrink-0">
+          {onCancel && isRunning && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel();
+              }}
+              className="h-7 px-2 text-xs"
+            >
+              Cancel
+            </Button>
+          )}
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </div>
       </button>
+      
+      {/* Progress bar */}
+      {isRunning && (
+        <div className="h-1 bg-muted">
+          <div 
+            className="h-full bg-purple-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
 
       {expanded && (
         <div className="px-3 pb-3 space-y-3 border-t pt-3">
@@ -639,6 +683,7 @@ function ChatPageContent() {
   const [selectedProfilesICP, setSelectedProfilesICP] = useState<ICP | null>(null);
   const [linkedInProfiles, setLinkedInProfiles] = useState<LinkedInProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
+  const [currentAbortController, setCurrentAbortController] = useState<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
@@ -948,15 +993,16 @@ function ChatPageContent() {
           substeps: ['Fetching website content...', 'Extracting structured facts with AI (15-30s)...']
         });
 
-        // Add timeout to prevent indefinite hangs (90s = longer than backend max ~90s)
-        console.log('⏱️ [Fetch] Starting website analysis with 90s timeout:', url);
+        // Add timeout to prevent indefinite hangs (60s timeout for faster user feedback)
+        console.log('⏱️ [Fetch] Starting website analysis with 60s timeout:', url);
         const controller = new AbortController();
+        setCurrentAbortController(controller);
         const fetchStartTime = Date.now();
         const timeoutId = setTimeout(() => {
           const elapsed = Date.now() - fetchStartTime;
-          console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (90s limit reached)`);
+          console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (60s limit reached)`);
           controller.abort();
-        }, 90000);
+        }, 60000);
 
         let analyzeRes;
         try {
@@ -969,12 +1015,14 @@ function ChatPageContent() {
           const elapsed = Date.now() - fetchStartTime;
           console.log(`✅ [Fetch] Analysis completed in ${elapsed}ms`);
           clearTimeout(timeoutId);
+          setCurrentAbortController(null);
         } catch (fetchError) {
           const elapsed = Date.now() - fetchStartTime;
           clearTimeout(timeoutId);
+          setCurrentAbortController(null);
           if (fetchError instanceof Error && fetchError.name === 'AbortError') {
             console.error(`❌ [Timeout] Request aborted after ${elapsed}ms`);
-            throw new Error("TIMEOUT: Website analysis timed out after 90 seconds. This website may be too complex or slow to respond.");
+            throw new Error("Analysis cancelled. The website may be too large or slow to respond.");
           }
           console.error(`❌ [Fetch] Error after ${elapsed}ms:`, fetchError);
           throw fetchError;
@@ -2561,7 +2609,14 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                   <div className="w-full space-y-4">
                     {/* Thinking Block */}
                     {message.content === "thinking" && message.thinking && (
-                      <ThinkingBlock thinking={message.thinking} />
+                      <ThinkingBlock 
+                        thinking={message.thinking}
+                        onCancel={currentAbortController ? () => {
+                          currentAbortController.abort();
+                          setCurrentAbortController(null);
+                          setIsLoading(false);
+                        } : undefined}
+                      />
                     )}
                     
                     {/* Status Messages (Legacy - fallback) */}

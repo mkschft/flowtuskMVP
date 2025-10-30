@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
       console.log('🔥 [Analyze] Using Firecrawl');
       const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
 
-      // Crawl only key pages for faster results
+      // Crawl only homepage for fastest results
       const crawlResult = await firecrawl.crawlUrl(url, {
-        limit: 3, // Only 3 pages (landing, about, team) for speed
+        limit: 1, // Only homepage for speed
         scrapeOptions: {
           formats: ["markdown"],
         },
@@ -142,8 +142,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Truncate content for optimal processing (GPT-4o can handle more, but we want speed)
-    const MAX_CONTENT_LENGTH = 15000;
+    // Aggressive truncation for speed (prioritize fast results over comprehensiveness)
+    const MAX_CONTENT_LENGTH = 8000;
     if (rawContent.length > MAX_CONTENT_LENGTH) {
       console.log(`⚡ [Analyze] Truncating content: ${rawContent.length} → ${MAX_CONTENT_LENGTH} chars`);
       rawContent = rawContent.substring(0, MAX_CONTENT_LENGTH) + '\n\n[Content truncated for performance]';
