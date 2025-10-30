@@ -685,6 +685,16 @@ function ChatPageContent() {
       setHasProcessedUrlParam(true);
       // Pre-fill the input with URL from landing page
       setInput(urlParam);
+
+      // Auto-submit the URL to start analysis immediately
+      // Wait for React to process the state update, then trigger form submission
+      setTimeout(() => {
+        const form = document.querySelector('form[data-chat-form]');
+        if (form) {
+          // Use requestSubmit() to properly trigger the form's onSubmit handler
+          (form as HTMLFormElement).requestSubmit();
+        }
+      }, 100);
     }
   }, [searchParams, hasProcessedUrlParam, conversations.length]);
 
@@ -2845,6 +2855,7 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
         {/* Input */}
         <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pb-3 sm:pb-4">
           <form
+            data-chat-form
             onSubmit={handleSendMessage}
             className="relative w-full rounded-3xl border bg-background p-2.5 sm:p-3 shadow-sm"
           >
