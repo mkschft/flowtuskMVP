@@ -526,7 +526,7 @@ function RoadmapSlide() {
 
   return (
     <Slide slideNumber={6}>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
           From MVP to brand intelligence platform in 12 months
@@ -582,22 +582,20 @@ function RoadmapSlide() {
         </div>
 
         {/* Vision Statement */}
-        <div className="text-center py-4">
+        <div className="text-center py-2">
           <p className="text-base text-muted-foreground">
             <span className="font-semibold text-foreground">Long-term vision:</span> Every B2B brand uses Flowtusk to maintain positioning clarity as a living, breathing asset
           </p>
         </div>
 
         {/* Illustration Placeholder */}
-        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 p-8 flex flex-col items-center justify-center space-y-4">
-          <GitBranch className="h-12 w-12 text-pink-500 dark:text-pink-400" />
-          <div className="text-center space-y-2">
-            <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-lg bg-pink-50/30 dark:bg-pink-950/20 px-6 py-3 flex items-center justify-center gap-4">
+          <GitBranch className="h-6 w-6 text-pink-500 dark:text-pink-400 shrink-0" />
+          <div className="text-center">
+            <h4 className="text-xs font-semibold text-pink-700 dark:text-pink-300 inline">
               Illustration: Roadmap Timeline
             </h4>
-            <p className="text-xs text-muted-foreground max-w-3xl">
-              Horizontal timeline visualization showing three phases with key milestones marked. Use arrows, checkpoints, and visual progression to show growth from MVP to platform.
-            </p>
+            <span className="text-xs text-muted-foreground"> — Horizontal timeline showing three phases with key milestones marked.</span>
           </div>
         </div>
       </div>
