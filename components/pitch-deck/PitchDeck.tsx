@@ -839,7 +839,7 @@ function CompetitivePositioningSlide() {
           {/* Grid Container */}
           <div className="grid grid-cols-2 gap-1">
             {/* Top Left */}
-            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center">
+            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center border border-muted-foreground/20">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-foreground">Jasper / Copy.ai</h3>
                 <p className="text-sm text-muted-foreground">Generic AI copywriting</p>
@@ -848,7 +848,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Top Right */}
-            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center">
+            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center border border-muted-foreground/20">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-foreground">Clearbit / Data Tools</h3>
                 <p className="text-sm text-muted-foreground">Firmographic data only</p>
@@ -857,7 +857,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Bottom Left */}
-            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center">
+            <Card className="p-8 bg-muted/30 min-h-[200px] flex flex-col justify-center border border-muted-foreground/20">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-foreground">Positioning Consultants</h3>
                 <p className="text-sm text-muted-foreground">€15K-50K per engagement</p>
@@ -866,7 +866,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Bottom Right - Flowtusk */}
-            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center relative">
+            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center relative border-2 border-purple-600 dark:border-purple-500">
               <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-300">Flowtusk</h3>
                 <p className="text-sm font-medium text-foreground">Strategic positioning intelligence</p>
