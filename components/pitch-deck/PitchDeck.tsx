@@ -378,7 +378,7 @@ function HowItWorksSlide() {
 
             {/* User Input + Orchestrator */}
             <div className="absolute left-4 top-12" style={{ zIndex: 2 }}>
-              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-600 border-indigo-500 shadow-lg">
+              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-600">
                 <User className="h-5 w-5 text-indigo-100 mb-1" />
                 <p className="text-xs font-bold text-white text-center">User Input</p>
                 <p className="text-[10px] text-indigo-200">(URL + Goal)</p>
@@ -386,7 +386,7 @@ function HowItWorksSlide() {
             </div>
 
             <div className="absolute left-[175px] top-12" style={{ zIndex: 2 }}>
-              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-700 border-indigo-600 shadow-lg">
+              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-700">
                 <Workflow className="h-5 w-5 text-indigo-100 mb-1" />
                 <p className="text-xs font-bold text-white">Orchestrator</p>
               </Card>
@@ -395,18 +395,18 @@ function HowItWorksSlide() {
             {/* Agents Layer */}
             <div className="absolute left-[350px] top-4" style={{ zIndex: 2 }}>
               <Badge className="mb-2 bg-amber-600 text-white text-xs font-bold">AGENTS</Badge>
-              <div className="space-y-3 p-3 border-2 border-amber-500 rounded-lg bg-amber-50/90 dark:bg-amber-950/30">
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-amber-700 border-amber-600 shadow-md">
+              <div className="space-y-3 p-3 rounded-lg bg-amber-50/90 dark:bg-amber-950/30">
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-amber-700">
                   <Search className="h-4 w-4 text-amber-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">Analyzer Agent</p>
                 </Card>
                 
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-purple-600 border-purple-500 shadow-md">
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-purple-600">
                   <Users className="h-4 w-4 text-purple-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">ICP Agent</p>
                 </Card>
                 
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-cyan-600 border-cyan-500 shadow-md">
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-cyan-600">
                   <Target className="h-4 w-4 text-cyan-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">Positioning Agent</p>
                 </Card>
@@ -416,18 +416,18 @@ function HowItWorksSlide() {
             {/* Clarity Layer */}
             <div className="absolute left-[550px] top-4" style={{ zIndex: 2 }}>
               <Badge className="mb-2 bg-emerald-600 text-white text-xs font-bold">CLARITY LAYER</Badge>
-              <div className="space-y-3 p-3 border-2 border-emerald-500 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/30">
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700 border-emerald-600 shadow-md">
+              <div className="space-y-3 p-3 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/30">
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700">
                   <Globe className="h-4 w-4 text-emerald-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">Site Context</p>
                 </Card>
                 
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-600 border-emerald-500 shadow-md">
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-600">
                   <Users className="h-4 w-4 text-emerald-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">Personas</p>
                 </Card>
                 
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700 border-emerald-600 shadow-md">
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700">
                   <Zap className="h-4 w-4 text-emerald-100 mb-1" />
                   <p className="text-[11px] font-bold text-white">Value Props</p>
                 </Card>
@@ -437,20 +437,20 @@ function HowItWorksSlide() {
             {/* Content Layer */}
             <div className="absolute left-[820px] top-4" style={{ zIndex: 2 }}>
               <Badge className="mb-2 bg-blue-600 text-white text-xs font-bold">CONTENT LAYER</Badge>
-              <div className="space-y-3 p-3 border-2 border-blue-500 rounded-lg bg-blue-50/90 dark:bg-blue-950/30">
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-blue-700 border-blue-600 shadow-md p-2">
+              <div className="space-y-3 p-3 rounded-lg bg-blue-50/90 dark:bg-blue-950/30">
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-blue-700 p-2">
                   <MessageSquare className="h-4 w-4 text-blue-100 mb-1" />
                   <p className="text-[11px] font-bold text-white text-center">Content → LinkedIn</p>
                   <p className="text-[9px] text-blue-200">(Post • Bio • InMail)</p>
                 </Card>
                 
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-red-700 border-red-600 shadow-md p-2">
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-red-700 p-2">
                   <Mail className="h-4 w-4 text-red-100 mb-1" />
                   <p className="text-[11px] font-bold text-white text-center">Content → Email</p>
                   <p className="text-[9px] text-red-200">(One-time • Sequence)</p>
                 </Card>
                 
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-amber-700 border-amber-600 shadow-md p-2">
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-amber-700 p-2">
                   <FileText className="h-4 w-4 text-amber-100 mb-1" />
                   <p className="text-[11px] font-bold text-white text-center">Content → Landing Page</p>
                   <p className="text-[9px] text-amber-200">(Sections/Components)</p>
@@ -462,13 +462,13 @@ function HowItWorksSlide() {
             <div className="absolute left-[280px] bottom-4" style={{ zIndex: 2 }}>
               <Badge className="mb-2 bg-slate-600 text-white text-xs font-bold">EXPORT LAYER</Badge>
               <div className="flex gap-4">
-                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-slate-700 border-slate-600 shadow-lg p-2">
+                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-slate-700 p-2">
                   <FileText className="h-5 w-5 text-slate-200 mb-1" />
                   <p className="text-xs font-bold text-white text-center">Template Registry</p>
                   <p className="text-[9px] text-slate-300">(Next.js • Webflow • Email)</p>
                 </Card>
                 
-                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-green-700 border-green-600 shadow-lg p-2">
+                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-green-700 p-2">
                   <Share2 className="h-5 w-5 text-green-200 mb-1" />
                   <p className="text-xs font-bold text-white text-center">Publish/Share/Embed</p>
                   <p className="text-[9px] text-green-200">(Webflow • Notion • Slides • API)</p>
@@ -536,7 +536,7 @@ function RoadmapSlide() {
         <div className="grid grid-cols-3 gap-6">
           {phases.map((phase) => (
             <div key={phase.number} className="space-y-6">
-              <Card className="p-6 bg-white dark:bg-muted/30">
+              <Card className="p-6">
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="space-y-2">
@@ -657,7 +657,7 @@ function MarketSizeSlide() {
             </div>
 
             {/* Adoption metric */}
-            <Card className="p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border-2 border-purple-400 dark:border-purple-600">
+            <Card className="p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30">
               <p className="text-sm text-center leading-relaxed">
                 <span className="font-bold text-purple-600 dark:text-purple-400">5% adoption</span> of 100K SaaS founders = <span className="font-bold text-purple-600 dark:text-purple-400">€750K MRR</span> at €149/month
               </p>
@@ -671,7 +671,7 @@ function MarketSizeSlide() {
             </h3>
 
             {/* Time to value */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
                   <Circle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -686,7 +686,7 @@ function MarketSizeSlide() {
             </Card>
 
             {/* Cost */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
                   <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -701,7 +701,7 @@ function MarketSizeSlide() {
             </Card>
 
             {/* Export flexibility */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
                   <Download className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -754,7 +754,7 @@ function BusinessModelSlide() {
           {/* Left: Pricing Tiers */}
           <div className="space-y-4">
             {tiers.map((tier) => (
-              <Card key={tier.name} className="p-6 bg-white dark:bg-muted/30">
+              <Card key={tier.name} className="p-6">
                 <div className="flex items-baseline justify-between mb-2">
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
                   <span className="text-2xl font-bold text-pink-600 dark:text-pink-400">
@@ -793,7 +793,7 @@ function BusinessModelSlide() {
             </div>
 
             {/* ARR Growth Chart */}
-            <Card className="p-6 bg-white dark:bg-muted/30">
+            <Card className="p-6">
               <h4 className="text-sm font-bold text-foreground mb-4">ARR Growth Projection (3 Years)</h4>
               <div className="flex items-end justify-between h-32 gap-2">
                 <div className="flex-1 flex flex-col items-center gap-2">
@@ -848,7 +848,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Top Right */}
-            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center border-2 border-purple-400 dark:border-purple-600">
+            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-foreground">Clearbit / Data Tools</h3>
                 <p className="text-sm text-muted-foreground">Firmographic data only</p>
@@ -866,7 +866,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Bottom Right - Flowtusk */}
-            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center border-4 border-purple-600 dark:border-purple-500 relative">
+            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center relative">
               <div className="space-y-3 text-center">
                 <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-300">Flowtusk</h3>
                 <p className="text-sm font-medium text-foreground">Strategic positioning intelligence</p>
@@ -935,7 +935,7 @@ function TeamSlide() {
           {/* Left: Founder Profile */}
           <div className="col-span-2 space-y-6">
             {/* Photo Placeholder */}
-            <Card className="p-12 bg-purple-50/50 dark:bg-purple-950/20 border-2 border-dashed border-purple-400 dark:border-purple-600 flex flex-col items-center justify-center space-y-4">
+            <Card className="p-12 bg-purple-50/50 dark:bg-purple-950/20 flex flex-col items-center justify-center space-y-4">
               <Users className="h-24 w-24 text-purple-500 dark:text-purple-400" />
               <div className="text-center space-y-1">
                 <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
@@ -955,19 +955,19 @@ function TeamSlide() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+              <Card className="p-4 text-center">
                 <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">10+</div>
                 <div className="text-xs text-muted-foreground">Years in B2B Marketing</div>
               </Card>
-              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+              <Card className="p-4 text-center">
                 <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">€61K</div>
                 <div className="text-xs text-muted-foreground">YTD Revenue</div>
               </Card>
-              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+              <Card className="p-4 text-center">
                 <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">100+</div>
                 <div className="text-xs text-muted-foreground">Campaigns Delivered</div>
               </Card>
-              <Card className="p-4 bg-white dark:bg-muted/30 text-center">
+              <Card className="p-4 text-center">
                 <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">4</div>
                 <div className="text-xs text-muted-foreground">Enterprise Clients</div>
               </Card>
@@ -1055,7 +1055,7 @@ function TheAskSlide() {
             {/* Amount */}
             <div className="space-y-4">
               <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">€300K</div>
-              <Card className="p-4 bg-muted/30 border-2 border-dashed border-purple-400 dark:border-purple-600">
+              <Card className="p-4 bg-muted/30">
                 <p className="text-sm text-muted-foreground">
                   Business loan to validate product-market fit and build foundation for Series A
                 </p>
@@ -1066,17 +1066,17 @@ function TheAskSlide() {
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-foreground">Use of Funds</h3>
               
-              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+              <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Engineering & Product</span>
                 <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€180K (60%)</span>
               </Card>
 
-              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+              <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Customer Acquisition</span>
                 <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€75K (25%)</span>
               </Card>
 
-              <Card className="p-4 bg-white dark:bg-muted/30 flex items-center justify-between">
+              <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Operations</span>
                 <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€45K (15%)</span>
               </Card>
@@ -1100,7 +1100,7 @@ function TheAskSlide() {
             <h3 className="text-xl font-bold text-foreground">Key Milestones</h3>
 
             <div className="space-y-4">
-              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+              <Card className="p-6">
                 <div className="flex items-start gap-4">
                   <Badge className="bg-purple-600 text-white shrink-0">M3</Badge>
                   <div className="space-y-2">
@@ -1112,7 +1112,7 @@ function TheAskSlide() {
                 </div>
               </Card>
 
-              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+              <Card className="p-6">
                 <div className="flex items-start gap-4">
                   <Badge className="bg-purple-600 text-white shrink-0">M6</Badge>
                   <div className="space-y-2">
@@ -1124,7 +1124,7 @@ function TheAskSlide() {
                 </div>
               </Card>
 
-              <Card className="p-6 bg-white dark:bg-muted/30 border-l-4 border-l-purple-600">
+              <Card className="p-6">
                 <div className="flex items-start gap-4">
                   <Badge className="bg-purple-600 text-white shrink-0">M12</Badge>
                   <div className="space-y-2">
@@ -1171,7 +1171,7 @@ function ClosingSlide() {
 
         {/* Key Points */}
         <div className="space-y-4 max-w-2xl mx-auto">
-          <Card className="p-4 bg-muted/30 border-2 border-purple-400 dark:border-purple-600">
+          <Card className="p-4 bg-muted/30">
             <div className="flex items-center justify-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
               <p className="text-sm font-medium">Massive market with clear, validated pain point</p>
@@ -1201,7 +1201,7 @@ function ClosingSlide() {
         </div>
 
         {/* The Ask */}
-        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2 border-purple-400 dark:border-purple-600 max-w-3xl mx-auto">
+        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 max-w-3xl mx-auto">
           <p className="text-2xl font-bold text-foreground">
             The Ask: <span className="text-purple-600 dark:text-purple-400">€300K</span> to validate product-market fit and build the future of B2B positioning
           </p>
