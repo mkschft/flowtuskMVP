@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
           temperature: 0.3, // Low temperature for factual extraction
         });
       },
-      { timeout: 60000, maxRetries: 2 }, // Increased to 60s for complex websites
+      { timeout: 45000, maxRetries: 1 }, // 45s with 1 retry = max 90s (fits frontend timeout)
       ErrorContext.WEBSITE_ANALYSIS
     );
 
@@ -262,8 +262,22 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("Error analyzing website:", error);
+
+    // Provide better error context based on error type
+    let errorCode = 'UNKNOWN_ERROR';
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase();
+      if (message.includes('timeout') || error.name === 'AbortError') {
+        errorCode = 'TIMEOUT';
+      } else if (message.includes('fetch') || message.includes('network') || message.includes('econnreset')) {
+        errorCode = 'ECONNRESET';
+      } else if (message.includes('parse') || message.includes('json')) {
+        errorCode = 'PARSE_ERROR';
+      }
+    }
+
     const errorResponse = createErrorResponse(
-      'UNKNOWN_ERROR',
+      errorCode,
       ErrorContext.WEBSITE_ANALYSIS,
       500
     );

@@ -921,11 +921,26 @@ function ChatPageContent() {
           substeps: ['Fetching website content...', 'Extracting structured facts with AI (15-30s)...']
         });
 
-        const analyzeRes = await fetch("/api/analyze-website", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-        });
+        // Add timeout to prevent indefinite hangs (90s = longer than backend max ~90s)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+        let analyzeRes;
+        try {
+          analyzeRes = await fetch("/api/analyze-website", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            throw new Error("TIMEOUT: Website analysis timed out after 90 seconds. This website may be too complex or slow to respond.");
+          }
+          throw fetchError;
+        }
 
         if (!analyzeRes.ok) throw new Error("Failed to analyze website");
         const { content, metadata, factsJson } = await analyzeRes.json();
@@ -1122,11 +1137,26 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
       }
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+      let userMessage = "Something went wrong. Please try again.";
+
+      if (error instanceof Error) {
+        // Handle specific error types with helpful messages
+        if (error.message.startsWith('TIMEOUT:')) {
+          userMessage = `⏱️ **Website Analysis Timeout**\n\n${error.message.replace('TIMEOUT: ', '')}\n\n**Possible reasons:**\n• Website is very slow or unresponsive\n• Complex website with lots of content\n• Network connectivity issues\n\n**Try:**\n• Using a simpler page from the same site\n• Checking if the website loads in your browser\n• Waiting a moment and retrying`;
+        } else if (error.message.includes('Failed to analyze')) {
+          userMessage = `❌ **Unable to Analyze Website**\n\n**Possible reasons:**\n• Website blocks automated access\n• Invalid or private URL\n• Server returned an error\n\n**Try:**\n• Making sure the URL is correct and publicly accessible\n• Testing with a different website\n• Using the website's homepage URL`;
+        } else if (error.message.includes('Failed to generate')) {
+          userMessage = `❌ **Generation Failed**\n\n${error.message}\n\nPlease try again or contact support if the problem persists.`;
+        } else {
+          userMessage = `❌ **Error:** ${error.message}\n\nPlease try again or check your URL. If the problem persists, try a different website.`;
+        }
+      }
+
       addMessage({
         id: nanoid(),
         role: "assistant",
-        content: `❌ Error: ${errorMessage}\n\nPlease try again or check your URL. If the problem persists, try a different website.`,
+        content: userMessage,
       });
     } finally {
       setIsLoading(false);
