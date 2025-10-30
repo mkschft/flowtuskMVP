@@ -38,11 +38,11 @@ export function ProblemSection() {
           {/* Section Header */}
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
-              You&apos;re building for everyone.{" "}
-              <span className="text-red-600">That&apos;s why nothing works.</span>
+              Creating marketing content{" "}
+              <span className="text-red-600">shouldn&apos;t take weeks.</span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Most B2B companies struggle with the same fundamental problem: they don&apos;t know who they&apos;re really selling to.
+              Most B2B companies waste weeks creating generic content. We generate personalized, ready-to-use marketing materials in minutes.
             </p>
           </div>
 

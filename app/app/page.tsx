@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -638,8 +639,20 @@ export default function ChatPage() {
   const [linkedInProfiles, setLinkedInProfiles] = useState<LinkedInProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
+
+  // Handle URL from landing page on mount
+  useEffect(() => {
+    const urlParam = searchParams.get('url');
+    if (urlParam && !hasProcessedUrlParam && conversations.length === 0) {
+      setHasProcessedUrlParam(true);
+      // Pre-fill the input with URL from landing page
+      setInput(urlParam);
+    }
+  }, [searchParams, hasProcessedUrlParam, conversations.length]);
 
   useEffect(() => {
     if (scrollRef.current) {

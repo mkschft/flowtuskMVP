@@ -33,9 +33,9 @@ export function Hero() {
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline */}
           <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight">
-            Find who you&apos;re selling to in{" "}
+            From website to{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              minutes not weeks
+              marketing content in minutes
             </span>
           </h1>
 
@@ -72,23 +72,23 @@ export function Hero() {
                 <Globe className="h-6 w-6 text-blue-600" />
               </div>
               <h3 className="font-medium text-gray-900 mb-1 text-sm">1. Paste URL</h3>
-              <p className="text-xs text-gray-600">Analyze your content and messaging</p>
+              <p className="text-xs text-gray-600">AI analyzes your website</p>
             </div>
 
             <div className="flex flex-col items-center text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center mb-3">
                 <Brain className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="font-medium text-gray-900 mb-1 text-sm">2. Get Personas</h3>
-              <p className="text-xs text-gray-600">AI generates customer profiles</p>
+              <h3 className="font-medium text-gray-900 mb-1 text-sm">2. Generate Content</h3>
+              <p className="text-xs text-gray-600">Emails, LinkedIn posts, landing pages</p>
             </div>
 
             <div className="flex flex-col items-center text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center mb-3">
                 <FileText className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="font-medium text-gray-900 mb-1 text-sm">3. Export Templates</h3>
-              <p className="text-xs text-gray-600">Download ready-to-use content</p>
+              <h3 className="font-medium text-gray-900 mb-1 text-sm">3. Export & Launch</h3>
+              <p className="text-xs text-gray-600">Ready-to-use marketing materials</p>
             </div>
           </div>
         </div>

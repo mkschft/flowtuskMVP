@@ -16,12 +16,12 @@ export function FinalCTA() {
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline */}
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
-            Ready to Know Your Customers?
+            Ready to Generate Your Marketing Content?
           </h2>
 
           {/* Subheading */}
           <p className="text-lg md:text-xl mb-6 opacity-90 leading-relaxed">
-            Get customer clarity + ready-to-use templates in 15 minutes. 
+            From website to ready-to-use marketing materials in 15 minutes. 
             No credit card required.
           </p>
 
