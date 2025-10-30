@@ -41,11 +41,8 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA - Demo mode: No auth required */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
             <Button asChild>
               <Link href="/app">Get Started</Link>
             </Button>
@@ -95,9 +92,6 @@ export function Header() {
                 Docs
               </Link>
               <div className="flex flex-col gap-2 mt-4">
-                <Button variant="outline" asChild className="w-full">
-                  <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>Sign In</Link>
-                </Button>
                 <Button asChild className="w-full">
                   <Link href="/app" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
                 </Button>
