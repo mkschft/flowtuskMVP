@@ -642,6 +642,7 @@ function ChatPageContent() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
+  const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
@@ -685,18 +686,23 @@ function ChatPageContent() {
       setHasProcessedUrlParam(true);
       // Pre-fill the input with URL from landing page
       setInput(urlParam);
-
-      // Auto-submit the URL to start analysis immediately
-      // Wait for React to process the state update, then trigger form submission
-      setTimeout(() => {
-        const form = document.querySelector('form[data-chat-form]');
-        if (form) {
-          // Use requestSubmit() to properly trigger the form's onSubmit handler
-          (form as HTMLFormElement).requestSubmit();
-        }
-      }, 100);
+      // Set flag to trigger auto-submit after input state updates
+      setShouldAutoSubmit(true);
     }
   }, [searchParams, hasProcessedUrlParam, conversations.length]);
+
+  // Auto-submit after input is set from URL param
+  useEffect(() => {
+    if (shouldAutoSubmit && input.trim()) {
+      // Reset flag to prevent duplicate submissions
+      setShouldAutoSubmit(false);
+      // Trigger form submission now that input state is updated
+      const form = document.querySelector('form[data-chat-form]');
+      if (form) {
+        (form as HTMLFormElement).requestSubmit();
+      }
+    }
+  }, [input, shouldAutoSubmit]);
 
   useEffect(() => {
     if (scrollRef.current) {
