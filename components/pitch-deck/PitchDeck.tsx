@@ -25,7 +25,14 @@ import {
   Triangle,
   GitBranch,
   Monitor,
-  Download
+  Download,
+  ArrowRight,
+  User,
+  Search,
+  MessageSquare,
+  Mail,
+  Share2,
+  Workflow
 } from "lucide-react";
 
 // Slide wrapper component
@@ -82,20 +89,20 @@ function CoverSlide() {
 function ProblemSlide() {
   const problems = [
     {
-      title: "No customer clarity — just blind guesswork.",
-      description: "Teams launch without a validated ICP; messaging stays generic."
+      title: "No customer clarity — just blind guesswork",
+      description: "Teams launch without a validated ICP; messaging stays generic"
     },
     {
-      title: "Tool chaos (7+ fragmented tools for one funnel).",
-      description: "Brief in Notion → copy in Jasper/Docs → designs in Figma/Slides → page in Webflow/Unbounce → emails in HubSpot/Mailchimp → outreach on LinkedIn → tracking in GA. Context is lost."
+      title: "Tool chaos (7+ fragmented tools for one funnel)",
+      description: "Brief in Notion → copy in Jasper/Docs → designs in Figma/Slides → page in Webflow/Unbounce → emails in HubSpot/Mailchimp → outreach on LinkedIn → tracking in GA. Context is lost"
     },
     {
-      title: "Optimized for optimization, not for who you're selling to.",
-      description: "Page builders make pages fast, AI writers make text fast, and marketing platforms automate — but they all assume you already know the persona and positioning. Speed without clarity = poor conversion."
+      title: "Optimized for optimization, not for who you're selling to",
+      description: "Page builders make pages fast, AI writers make text fast, and marketing platforms automate — but they all assume you already know the persona and positioning. Speed without clarity = poor conversion"
     },
     {
-      title: "Expensive, slow, inconsistent.",
-      description: "3–6 weeks to ship; consultants cost €15k–50k+; messaging drifts across website, deck, LinkedIn, and sales calls."
+      title: "Expensive, slow, inconsistent",
+      description: "3–6 weeks to ship; consultants cost €15k–50k+; messaging drifts across website, deck, LinkedIn, and sales calls"
     }
   ];
 
@@ -107,9 +114,9 @@ function ProblemSlide() {
           <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 text-sm">
             Problem
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl">
-            B2B funnels take weeks to build — and fail to convert ~95% of the time.
-          </h2>
+        <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl">
+          B2B Marketing funnels take weeks to build — and fail to convert ~95% of the time
+        </h2>
         </div>
 
         {/* Main Content - Two Columns */}
@@ -137,7 +144,7 @@ function ProblemSlide() {
                   Illustration: Positioning Chaos
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Split-screen visualization showing chaotic sticky notes, scattered whiteboard ideas, and tangled messaging on the left vs. clean, organized positioning document with clear personas and value props on the right. Conveys the before/after transformation.
+                  Split-screen visualization showing chaotic sticky notes, scattered whiteboard ideas, and tangled messaging on the left vs. clean, organized positioning document with clear personas and value props on the right. Conveys the before/after transformation
                 </p>
               </div>
             </div>
@@ -155,7 +162,7 @@ function GapSlide() {
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-          2025: GenAI has transformed content creation without knowing who to sell to. Clarity layer is missing.
+          2025: GenAI has transformed content creation without knowing who to sell to. Clarity layer is missing
         </h2>
 
         {/* 2x2 Grid */}
@@ -168,14 +175,12 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
             </div>
-            <div className="text-sm text-muted-foreground space-y-2">
-              <p>
-                Teams can spin up copy fast (Jasper, Copy.ai, ChatGPT) — <span className="font-semibold text-foreground">but it&apos;s blind to ICP and brand positioning.</span>
-              </p>
-              <p>
-                Result: plausible content → <span className="font-semibold text-foreground">generic funnels → poor conversion.</span>
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Teams can spin up copy fast (Jasper, Copy.ai, ChatGPT) but it&apos;s blind to ICP and brand positioning
+            </p>
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              Result: plausible content <ArrowRight className="h-4 w-4 shrink-0" /> generic funnels <ArrowRight className="h-4 w-4 shrink-0" /> poor conversion
+            </p>
           </div>
 
           {/* Data tools give numbers */}
@@ -186,14 +191,12 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
             </div>
-            <div className="text-sm text-muted-foreground space-y-2">
-              <p>
-                Clearbit/Apollo surface firmographics and intent, <span className="font-semibold text-foreground">not who to prioritize, what pains to speak to, or what to say.</span>
-              </p>
-              <p>
-                Great for lists, <span className="font-semibold text-foreground">not for message-market fit.</span>
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Clearbit/Apollo surface firmographics and intent, not who to prioritize, what pains to speak to, or what to say
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Great for lists, not for message-market fit
+            </p>
           </div>
 
           {/* The gap */}
@@ -204,14 +207,12 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">The gap (what&apos;s missing)</h3>
             </div>
-            <div className="text-sm text-muted-foreground space-y-2">
-              <p>
-                There&apos;s <span className="font-semibold text-foreground">no clarity layer</span> that turns a URL into <span className="font-semibold text-foreground">validated ICPs, pains/JTBD, value props, and on-brand positioning</span>, then carries that context into execution (LP, LinkedIn, email).
-              </p>
-              <p>
-                Teams juggle 7+ tools → <span className="font-semibold text-foreground">context lost, output inconsistent.</span>
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              There&apos;s no clarity layer that turns a URL into validated ICPs, pains/JTBD, value props, and on-brand positioning, then carries that context into execution (LP, LinkedIn, email)
+            </p>
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              Teams juggle 7+ tools <ArrowRight className="h-4 w-4 shrink-0" /> context lost, output inconsistent
+            </p>
           </div>
 
           {/* The opportunity */}
@@ -222,16 +223,14 @@ function GapSlide() {
               </div>
               <h3 className="text-xl font-bold text-foreground">The opportunity (what the solution must do)</h3>
             </div>
-            <div className="text-sm text-muted-foreground space-y-2">
-              <p>
-                A <span className="font-semibold text-foreground">Positioning Copilot</span> that delivers:
-              </p>
-              <ul className="space-y-1 pl-4">
-                <li>• <span className="font-semibold text-foreground">URL → Clarity:</span> ICPs, pains, brand positioning</li>
-                <li>• <span className="font-semibold text-foreground">Clarity → Assets:</span> on-brand landing pages, LinkedIn, and email</li>
-                <li>• <span className="font-semibold text-foreground">Assets → Learning:</span> feedback loops to improve conversion over time</li>
-              </ul>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              A Positioning Copilot that delivers:
+            </p>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">• URL <ArrowRight className="h-3 w-3 shrink-0" /> Clarity: ICPs, pains, brand positioning</li>
+              <li className="flex items-center gap-2">• Clarity <ArrowRight className="h-3 w-3 shrink-0" /> Assets: on-brand landing pages, LinkedIn, and email</li>
+              <li className="flex items-center gap-2">• Assets <ArrowRight className="h-3 w-3 shrink-0" /> Learning: feedback loops to improve conversion over time</li>
+            </ul>
           </div>
         </div>
 
@@ -243,7 +242,7 @@ function GapSlide() {
               Illustration: Evolution Timeline
             </h4>
             <p className="text-xs text-muted-foreground max-w-3xl">
-              Timeline graphic showing progression: Manual positioning with consultants (2020) → Generic AI copy tools (2023) → Positioning Copilot (2025). Use arrows and visual milestones to show the gap that Flowtusk fills.
+              Timeline graphic showing progression: Manual positioning with consultants (2020) → Generic AI copy tools (2023) → Positioning Copilot (2025). Use arrows and visual milestones to show the gap that Flowtusk fills
             </p>
           </div>
         </div>
@@ -258,27 +257,27 @@ function SolutionSlide() {
     {
       number: 1,
       title: "Input",
-      description: "Paste your website URL"
+      description: "Paste your website URL (or use \"Show example\"); optionally add goal, market, and region."
     },
     {
       number: 2,
       title: "Analysis",
-      description: "AI scrapes site, analyzes messaging, identifies market positioning"
+      description: "AI crawls key pages, maps brand voice/colors, product & proof, and builds a SiteContext (sitemap, messaging, competitors)."
     },
     {
       number: 3,
       title: "Personas",
-      description: "3 detailed customer profiles appear with visual cards"
+      description: "Generates 3 ICP cards with role, firmographics, pains/goals, triggers, and LinkedIn lookalikes—pick one to continue."
     },
     {
       number: 4,
       title: "Value Props",
-      description: "For each persona, see tailored messaging, pain points addressed, objections handled"
+      description: "For the selected ICP, creates 5 on-brand options (hero hook, value props, objections handled, CTA + section outline)."
     },
     {
       number: 5,
-      title: "Export",
-      description: "Download as pitch deck, copy to Notion, generate LinkedIn posts, create email templates"
+      title: "Funnel",
+      description: "Auto-builds assets from your chosen ICP & value props: Landing Page (Next.js/Webflow templates), LinkedIn (post + InMail + bio), Email (single + sequences), and Notion/Slides. Export to JSON, Notion, Slides, or code templates in one click."
     }
   ];
 
@@ -318,7 +317,7 @@ function SolutionSlide() {
                   Product Screenshot
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                  Interface showing beautiful persona cards with photos, pain points, goals, and objections. Below, export options panel with buttons for Google Slides, Notion, LinkedIn, Email Templates. Clean, modern UI with purple-pink gradient accents.
+                  Interface showing beautiful persona cards with photos, pain points, goals, and objections. Below, export options panel with buttons for Google Slides, Notion, LinkedIn, Email Templates. Clean, modern UI with purple-pink gradient accents
                 </p>
               </div>
             </div>
@@ -329,101 +328,154 @@ function SolutionSlide() {
   );
 }
 
-// Slide 5: Market Validation
-function MarketValidationSlide() {
+// Slide 5: How it Works (Architecture)
+function HowItWorksSlide() {
   return (
     <Slide slideNumber={5}>
-      <div className="space-y-12">
+      <div className="space-y-6">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-tight">
-          150+ waitlist, €61K YTD revenue, proven market demand
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight text-center">
+          How it Works
         </h2>
 
-        {/* Key Metrics Cards */}
-        <div className="grid grid-cols-3 gap-6">
-          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
-            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-              150+
+        {/* Architecture Diagram */}
+        <div className="flex items-center justify-center">
+          <div className="relative w-full max-w-6xl h-[550px] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 rounded-xl p-6">
+            {/* SVG for all arrows */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+              <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                  <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+                </marker>
+              </defs>
+              
+              {/* User Input → Orchestrator */}
+              <path d="M 130 80 L 170 80" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              
+              {/* Orchestrator → All 3 Agents */}
+              <path d="M 300 80 L 350 60" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 300 80 L 350 130" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 300 80 L 350 200" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              
+              {/* Agents → Clarity Layer specific connections */}
+              <path d="M 490 60 L 550 70" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 490 130 L 550 140" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 490 200 L 550 210" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              
+              {/* Clarity Layer → Content Layer (whole group) */}
+              <path d="M 760 140 L 820 100" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 760 140 L 820 180" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 760 140 L 820 260" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              
+              {/* Content Layer → Export Layer */}
+              <path d="M 1010 100 L 1060 360 Q 1070 380 1050 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 1010 180 L 1020 360 Q 1025 380 1005 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              <path d="M 1010 260 L 980 360 Q 975 380 955 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+              
+              {/* Template Registry → Publish */}
+              <path d="M 600 420 L 680 420" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
+            </svg>
+
+            {/* User Input + Orchestrator */}
+            <div className="absolute left-4 top-12" style={{ zIndex: 2 }}>
+              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-600 border-indigo-500 shadow-lg">
+                <User className="h-5 w-5 text-indigo-100 mb-1" />
+                <p className="text-xs font-bold text-white text-center">User Input</p>
+                <p className="text-[10px] text-indigo-200">(URL + Goal)</p>
+              </Card>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Waitlist signups (organic, no paid ads)
-            </p>
-          </Card>
 
-          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
-            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-              €61K
+            <div className="absolute left-[175px] top-12" style={{ zIndex: 2 }}>
+              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-700 border-indigo-600 shadow-lg">
+                <Workflow className="h-5 w-5 text-indigo-100 mb-1" />
+                <p className="text-xs font-bold text-white">Orchestrator</p>
+              </Card>
             </div>
-            <p className="text-sm text-muted-foreground">
-              YTD revenue from positioning consulting
-            </p>
-          </Card>
 
-          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
-            <div className="text-4xl md:text-5xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-              3
+            {/* Agents Layer */}
+            <div className="absolute left-[350px] top-4" style={{ zIndex: 2 }}>
+              <Badge className="mb-2 bg-amber-600 text-white text-xs font-bold">AGENTS</Badge>
+              <div className="space-y-3 p-3 border-2 border-amber-500 rounded-lg bg-amber-50/90 dark:bg-amber-950/30">
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-amber-700 border-amber-600 shadow-md">
+                  <Search className="h-4 w-4 text-amber-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">Analyzer Agent</p>
+                </Card>
+                
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-purple-600 border-purple-500 shadow-md">
+                  <Users className="h-4 w-4 text-purple-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">ICP Agent</p>
+                </Card>
+                
+                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-cyan-600 border-cyan-500 shadow-md">
+                  <Target className="h-4 w-4 text-cyan-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">Positioning Agent</p>
+                </Card>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Pilot clients using MVP (KONE, Zipli, Arkken)
-            </p>
-          </Card>
-        </div>
 
-        {/* Early Results Section */}
-        <div className="space-y-6">
-          <h3 className="text-2xl font-bold text-foreground">
-            Early Results from Pilot Clients
-          </h3>
-
-          <div className="grid grid-cols-3 gap-6">
-            <Card className="p-6 bg-muted/50">
-              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                KONE
+            {/* Clarity Layer */}
+            <div className="absolute left-[550px] top-4" style={{ zIndex: 2 }}>
+              <Badge className="mb-2 bg-emerald-600 text-white text-xs font-bold">CLARITY LAYER</Badge>
+              <div className="space-y-3 p-3 border-2 border-emerald-500 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/30">
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700 border-emerald-600 shadow-md">
+                  <Globe className="h-4 w-4 text-emerald-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">Site Context</p>
+                </Card>
+                
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-600 border-emerald-500 shadow-md">
+                  <Users className="h-4 w-4 text-emerald-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">Personas</p>
+                </Card>
+                
+                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700 border-emerald-600 shadow-md">
+                  <Zap className="h-4 w-4 text-emerald-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white">Value Props</p>
+                </Card>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Used positioning deck in internal pitch, secured €200K budget approval
-              </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 bg-muted/50">
-              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                Zipli
+            {/* Content Layer */}
+            <div className="absolute left-[820px] top-4" style={{ zIndex: 2 }}>
+              <Badge className="mb-2 bg-blue-600 text-white text-xs font-bold">CONTENT LAYER</Badge>
+              <div className="space-y-3 p-3 border-2 border-blue-500 rounded-lg bg-blue-50/90 dark:bg-blue-950/30">
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-blue-700 border-blue-600 shadow-md p-2">
+                  <MessageSquare className="h-4 w-4 text-blue-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white text-center">Content → LinkedIn</p>
+                  <p className="text-[9px] text-blue-200">(Post • Bio • InMail)</p>
+                </Card>
+                
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-red-700 border-red-600 shadow-md p-2">
+                  <Mail className="h-4 w-4 text-red-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white text-center">Content → Email</p>
+                  <p className="text-[9px] text-red-200">(One-time • Sequence)</p>
+                </Card>
+                
+                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-amber-700 border-amber-600 shadow-md p-2">
+                  <FileText className="h-4 w-4 text-amber-100 mb-1" />
+                  <p className="text-[11px] font-bold text-white text-center">Content → Landing Page</p>
+                  <p className="text-[9px] text-amber-200">(Sections/Components)</p>
+                </Card>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Updated website copy with personas, saw 40% increase in qualified leads
-              </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 bg-muted/50">
-              <div className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                Arkken
+            {/* Export Layer */}
+            <div className="absolute left-[280px] bottom-4" style={{ zIndex: 2 }}>
+              <Badge className="mb-2 bg-slate-600 text-white text-xs font-bold">EXPORT LAYER</Badge>
+              <div className="flex gap-4">
+                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-slate-700 border-slate-600 shadow-lg p-2">
+                  <FileText className="h-5 w-5 text-slate-200 mb-1" />
+                  <p className="text-xs font-bold text-white text-center">Template Registry</p>
+                  <p className="text-[9px] text-slate-300">(Next.js • Webflow • Email)</p>
+                </Card>
+                
+                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-green-700 border-green-600 shadow-lg p-2">
+                  <Share2 className="h-5 w-5 text-green-200 mb-1" />
+                  <p className="text-xs font-bold text-white text-center">Publish/Share/Embed</p>
+                  <p className="text-[9px] text-green-200">(Webflow • Notion • Slides • API)</p>
+                </Card>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Generated LinkedIn posts from value props, 3X engagement rate
-              </p>
-            </Card>
+            </div>
           </div>
-        </div>
-
-        {/* Testimonials */}
-        <div className="grid grid-cols-2 gap-6">
-          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
-            <p className="text-lg italic text-foreground mb-3">
-              &quot;This would have saved us 6 weeks and €30K in consultant fees&quot;
-            </p>
-            <p className="text-sm text-muted-foreground">
-              — B2B CMO, Helsinki
-            </p>
-          </Card>
-
-          <Card className="p-6 bg-muted/50 border-l-4 border-l-purple-600">
-            <p className="text-lg italic text-foreground mb-3">
-              &quot;Finally, a tool that understands positioning, not just copywriting&quot;
-            </p>
-            <p className="text-sm text-muted-foreground">
-              — SaaS Founder
-            </p>
-          </Card>
         </div>
       </div>
     </Slide>
@@ -540,7 +592,7 @@ function RoadmapSlide() {
               Illustration: Roadmap Timeline
             </h4>
             <p className="text-xs text-muted-foreground max-w-3xl">
-              Visual timeline showing three phases from left to right with milestone markers. Phase 1 (green checkmark), Phase 2 (in progress), Phase 3 (future). Include growth arrow showing customer and MRR progression.
+              Visual timeline showing three phases from left to right with milestone markers. Phase 1 (green checkmark), Phase 2 (in progress), Phase 3 (future). Include growth arrow showing customer and MRR progression
             </p>
           </div>
         </div>
@@ -549,7 +601,123 @@ function RoadmapSlide() {
   );
 }
 
-// Slide 7: Business Model
+// Slide 7: Market Size
+function MarketSizeSlide() {
+  return (
+    <Slide slideNumber={7}>
+      <div className="space-y-8">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          100K+ SaaS founders and B2B marketers need positioning clarity—no good tools exist
+        </h2>
+
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-2 gap-12">
+          {/* Left Column - Market Size */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+              Market Size
+            </h3>
+
+            {/* TAM */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                TAM (Total Addressable Market)
+              </p>
+              <p className="text-5xl font-bold text-foreground">$15B</p>
+              <p className="text-sm text-muted-foreground">
+                B2B marketing automation market
+              </p>
+            </div>
+
+            {/* SAM */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                SAM (Serviceable Addressable Market)
+              </p>
+              <p className="text-5xl font-bold text-foreground">$2.4B</p>
+              <p className="text-sm text-muted-foreground">
+                Positioning and messaging tools segment
+              </p>
+            </div>
+
+            {/* SOM */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                SOM (Serviceable Obtainable Market)
+              </p>
+              <p className="text-5xl font-bold text-foreground">€178M</p>
+              <p className="text-sm text-muted-foreground">
+                100K SaaS founders in US alone x €149/month
+              </p>
+            </div>
+
+            {/* Adoption metric */}
+            <Card className="p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border-2 border-purple-400 dark:border-purple-600">
+              <p className="text-sm text-center leading-relaxed">
+                <span className="font-bold text-purple-600 dark:text-purple-400">5% adoption</span> of 100K SaaS founders = <span className="font-bold text-purple-600 dark:text-purple-400">€750K MRR</span> at €149/month
+              </p>
+            </Card>
+          </div>
+
+          {/* Right Column - Why We Win */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+              Why We Win
+            </h3>
+
+            {/* Time to value */}
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                  <Circle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Time to value</p>
+                  <p className="text-lg font-bold text-foreground">
+                    <span className="text-purple-600 dark:text-purple-400">10 minutes</span> vs 4 weeks
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Cost */}
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                  <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Cost</p>
+                  <p className="text-lg font-bold text-foreground">
+                    <span className="text-purple-600 dark:text-purple-400">€149/month</span> vs €50K one-time
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Export flexibility */}
+            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10 border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                  <Download className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Export flexibility</p>
+                  <p className="text-lg font-bold text-foreground">
+                    <span className="text-purple-600 dark:text-purple-400">Export to anywhere</span> vs locked PDF
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 8: Business Model
 function BusinessModelSlide() {
   const tiers = [
     {
@@ -570,7 +738,7 @@ function BusinessModelSlide() {
   ];
 
   return (
-    <Slide slideNumber={7}>
+    <Slide slideNumber={8}>
       <div className="space-y-8">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
@@ -652,10 +820,10 @@ function BusinessModelSlide() {
   );
 }
 
-// Slide 8: Competitive Positioning
+// Slide 9: Competitive Positioning
 function CompetitivePositioningSlide() {
   return (
-    <Slide slideNumber={8}>
+    <Slide slideNumber={9}>
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
@@ -748,10 +916,10 @@ function CompetitivePositioningSlide() {
   );
 }
 
-// Slide 9: Team
+// Slide 10: Team
 function TeamSlide() {
   return (
-    <Slide slideNumber={9}>
+    <Slide slideNumber={10}>
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
@@ -866,10 +1034,10 @@ function TeamSlide() {
   );
 }
 
-// Slide 10: The Ask
+// Slide 11: The Ask
 function TheAskSlide() {
   return (
-    <Slide slideNumber={10}>
+    <Slide slideNumber={11}>
       <div className="space-y-12">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
@@ -978,10 +1146,10 @@ function TheAskSlide() {
   );
 }
 
-// Slide 11: Closing
+// Slide 12: Closing
 function ClosingSlide() {
   return (
-    <Slide slideNumber={11}>
+    <Slide slideNumber={12}>
       <div className="text-center space-y-12">
         {/* Logo/Brand */}
         <div className="inline-block space-y-4">
@@ -1063,8 +1231,9 @@ export function PitchDeck() {
     <ProblemSlide key="problem" />,
     <GapSlide key="gap" />,
     <SolutionSlide key="solution" />,
-    <MarketValidationSlide key="marketvalidation" />,
+    <HowItWorksSlide key="howitworks" />,
     <RoadmapSlide key="roadmap" />,
+    <MarketSizeSlide key="marketsize" />,
     <BusinessModelSlide key="businessmodel" />,
     <CompetitivePositioningSlide key="competitive" />,
     <TeamSlide key="team" />,
