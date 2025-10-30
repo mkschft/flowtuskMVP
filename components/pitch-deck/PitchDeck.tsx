@@ -277,7 +277,7 @@ function SolutionSlide() {
     {
       number: 5,
       title: "Funnel",
-      description: "Auto-builds assets from your chosen ICP & value props: Landing Page (Next.js/Webflow templates), LinkedIn (post + InMail + bio), Email (single + sequences), and Notion/Slides. Export to JSON, Notion, Slides, or code templates in one click."
+      description: "Auto-builds Landing Page, LinkedIn, Email, and Notion/Slides from chosen ICP & value props. Export as JSON, Notion, Slides, or code in one click."
     }
   ];
 
