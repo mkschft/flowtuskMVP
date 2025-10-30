@@ -12,13 +12,14 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { 
-  Eye, 
-  Copy, 
-  Download, 
-  Sparkles, 
-  Check, 
-  RefreshCw
+import {
+  Eye,
+  Copy,
+  Download,
+  Sparkles,
+  Check,
+  RefreshCw,
+  Loader2
 } from "lucide-react";
 import { SmartButton } from "@/app/app/page";
 import { IntegratedValuePropPreview } from "./IntegratedValuePropPreview";
@@ -58,7 +59,7 @@ export function ValuePropBuilder({
   onVariableChange,
   onGenerateVariations,
   variations = [],
-  // isGeneratingVariations = false,
+  isGeneratingVariations = false,
   conversationId,
   onConfirmValueProp
 }: ValuePropBuilderProps) {
@@ -243,9 +244,19 @@ export function ValuePropBuilder({
                 conversationId={conversationId}
                 className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white"
                 loadingText="Creating your value proposition..."
+                disabled={isGeneratingVariations}
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Create Value Proposition
+                {isGeneratingVariations ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating your value proposition...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Create Value Proposition
+                  </>
+                )}
               </SmartButton>
               <Button
                 variant="outline"

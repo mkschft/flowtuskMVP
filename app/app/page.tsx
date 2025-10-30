@@ -1461,6 +1461,13 @@ Now let me prepare your complete positioning package...`;
       content: accomplishmentText
     });
 
+    // Show loading message before positioning summary
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: "✨ Preparing your positioning package..."
+    });
+
     // Step 2: Show positioning summary card after short delay for readability
     setTimeout(() => {
       const positioningSummary = `I've created a complete positioning package for **${icp.personaName}** (${icp.title}).
@@ -1526,6 +1533,13 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       id: nanoid(),
       role: "assistant",
       content: explanationText
+    });
+
+    // Show loading message before persona showcase
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: "📦 Loading your persona showcase..."
     });
 
     // Step 2: Show PersonaShowcase after short delay for readability

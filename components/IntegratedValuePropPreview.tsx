@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Check, Copy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy, Loader2 } from "lucide-react";
 
 type ValuePropVariation = {
   id: string;
@@ -31,7 +31,8 @@ export function IntegratedValuePropPreview({
   personaTitle,
 }: IntegratedValuePropPreviewProps) {
   const [copied, setCopied] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   const currentVariation = variations[currentIndex];
   const totalVariations = variations.length;
 
@@ -177,11 +178,24 @@ export function IntegratedValuePropPreview({
             </Button>
 
             <Button
-              onClick={onConfirm}
+              onClick={() => {
+                setIsLoading(true);
+                onConfirm();
+              }}
+              disabled={isLoading}
               className="flex-[2] bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              <Check className="h-4 w-4 mr-2" />
-              Create Value Proposition
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating positioning package...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Create Value Proposition
+                </>
+              )}
             </Button>
           </div>
         </div>
