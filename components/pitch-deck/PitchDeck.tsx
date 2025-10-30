@@ -516,7 +516,6 @@ function RoadmapSlide() {
       features: [
         "Competitive positioning analysis",
         "Messaging consistency tracker",
-        "A/B testing for value props",
         "API integrations (HubSpot, Salesforce)"
       ],
       target: "500 customers",
