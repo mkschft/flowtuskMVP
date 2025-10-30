@@ -644,6 +644,38 @@ export default function ChatPage() {
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
+  // Load conversations from localStorage on mount
+  useEffect(() => {
+    const savedConversations = localStorage.getItem('flowtusk_conversations');
+    const savedActiveId = localStorage.getItem('flowtusk_active_conversation');
+    
+    if (savedConversations) {
+      try {
+        const parsed = JSON.parse(savedConversations);
+        setConversations(parsed);
+        if (savedActiveId) {
+          setActiveConversationId(savedActiveId);
+        }
+        console.log('📦 [Storage] Loaded conversations from localStorage');
+      } catch (error) {
+        console.error('❌ [Storage] Failed to load conversations:', error);
+      }
+    }
+  }, []);
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    if (conversations.length > 0) {
+      try {
+        localStorage.setItem('flowtusk_conversations', JSON.stringify(conversations));
+        localStorage.setItem('flowtusk_active_conversation', activeConversationId);
+        console.log('💾 [Storage] Saved conversations to localStorage');
+      } catch (error) {
+        console.error('❌ [Storage] Failed to save conversations:', error);
+      }
+    }
+  }, [conversations, activeConversationId]);
+
   // Handle URL from landing page on mount
   useEffect(() => {
     const urlParam = searchParams.get('url');
@@ -1072,10 +1104,11 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
       }
     } catch (error) {
       console.error("Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       addMessage({
         id: nanoid(),
         role: "assistant",
-        content: "Sorry, something went wrong. Please try again.",
+        content: `❌ Error: ${errorMessage}\n\nPlease try again or check your URL. If the problem persists, try a different website.`,
       });
     } finally {
       setIsLoading(false);

@@ -69,39 +69,77 @@ export async function POST(req: NextRequest) {
 
     // Fallback to Jina AI Reader if Firecrawl not used or failed
     if (!rawContent) {
-    console.log('🌐 [Analyze] Using Jina AI Reader (fast mode)');
-    const jinaUrl = `https://r.jina.ai/${url}`;
-    const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
-    
-    const startTime = Date.now();
-    const response = await fetch(jinaUrl, {
-      headers: {
-        Accept: "application/json",
-        "X-Return-Format": "markdown",
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
+      console.log('🌐 [Analyze] Using Jina AI Reader');
+      const jinaUrl = `https://r.jina.ai/${url}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // Increased to 30s
+      
+      try {
+        const startTime = Date.now();
+        const response = await fetch(jinaUrl, {
+          headers: {
+            Accept: "application/json",
+            "X-Return-Format": "markdown",
+          },
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
 
-    const fetchTime = Date.now() - startTime;
-    console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
+        const fetchTime = Date.now() - startTime;
+        console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch website content");
+        if (response.ok) {
+          const data = await response.json();
+          rawContent = data.data?.content || "";
+
+          // Extract visual metadata from Jina response
+          metadata.heroImage = data.data?.images?.[0] || null;
+
+          // Try to extract Open Graph image from content
+          const ogImageMatch = rawContent.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
+          if (ogImageMatch && ogImageMatch[1]) {
+            metadata.heroImage = ogImageMatch[1];
+          }
+        }
+      } catch (jinaError) {
+        console.warn('⚠️ [Analyze] Jina failed, trying direct fetch:', jinaError);
+        clearTimeout(timeout);
+      }
     }
 
-    const data = await response.json();
-      rawContent = data.data?.content || "";
-
-    // Extract visual metadata from Jina response
-      metadata.heroImage = data.data?.images?.[0] || null;
-
-    // Try to extract Open Graph image from content
-      const ogImageMatch = rawContent.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
-    if (ogImageMatch && ogImageMatch[1]) {
-      metadata.heroImage = ogImageMatch[1];
-    }
+    // Final fallback: direct fetch if Jina failed
+    if (!rawContent) {
+      console.log('🌐 [Analyze] Using direct fetch fallback');
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; FlowtuskBot/1.0)',
+          },
+          signal: AbortSignal.timeout(15000),
+        });
+        
+        if (response.ok) {
+          const html = await response.text();
+          // Basic HTML to markdown conversion (strip tags, keep text)
+          rawContent = html
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          console.log('✅ [Analyze] Direct fetch successful');
+        }
+      } catch (fetchError) {
+        console.error('❌ [Analyze] All fetch methods failed:', fetchError);
+        return NextResponse.json(
+          { 
+            error: "Unable to access website. Please check the URL and try again.",
+            details: "The website may be blocking automated access or taking too long to respond."
+          }, 
+          { status: 500 }
+        );
+      }
     }
 
     // Truncate content for optimal processing (GPT-4o can handle more, but we want speed)
@@ -135,7 +173,7 @@ export async function POST(req: NextRequest) {
           temperature: 0.3, // Low temperature for factual extraction
         });
       },
-      { timeout: 45000, maxRetries: 2 }, // Longer timeout for GPT-4o
+      { timeout: 60000, maxRetries: 2 }, // Increased to 60s for complex websites
       ErrorContext.WEBSITE_ANALYSIS
     );
 
