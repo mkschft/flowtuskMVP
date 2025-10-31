@@ -215,7 +215,12 @@ export function PersonaShowcase({
                     ? `translateY(${offset * -20}px) scale(${isSelected ? 1 : 0.95})` 
                     : 'translateY(0)',
                 }}
-                onClick={() => {
+                onClick={(e) => {
+                  // Only handle clicks if not clicking on interactive elements
+                  const target = e.target as HTMLElement;
+                  if (target.closest('button') || target.closest('[role="menuitem"]')) {
+                    return;
+                  }
                   if (!readOnly && !isSelected && onPersonaChange) {
                     onPersonaChange(persona.id);
                   }

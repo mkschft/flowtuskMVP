@@ -23,18 +23,18 @@ export function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20 md:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-purple-50 py-20 md:py-32">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#7c3aed]/20 to-[#8b5cf6]/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-[#7c3aed]/20 to-[#8b5cf6]/20 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline */}
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-medium text-gray-900 mb-8 leading-tight tracking-tight">
             From website to{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="gradient-text">
               tailored marketing content in minutes
             </span>
           </h1>
@@ -57,7 +57,7 @@ export function Hero() {
                 onClick={handleAnalyze}
                 disabled={!websiteUrl.trim()}
                 size="lg"
-                className="h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold"
+                className="h-12 px-8 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d32d1] hover:to-[#7c3aed] text-white font-semibold"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Analyze
@@ -68,16 +68,16 @@ export function Hero() {
           {/* 3-Step Process */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
             <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-3">
-                <Globe className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl flex items-center justify-center mb-3">
+                <Globe className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="font-medium text-gray-900 mb-1 text-sm">1. Paste URL</h3>
               <p className="text-xs text-gray-600">AI analyzes your website</p>
             </div>
 
             <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center mb-3">
-                <Brain className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl flex items-center justify-center mb-3">
+                <Brain className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="font-medium text-gray-900 mb-1 text-sm">2. Generate Content</h3>
               <p className="text-xs text-gray-600">Emails, LinkedIn posts, landing pages</p>

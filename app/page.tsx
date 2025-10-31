@@ -9,11 +9,18 @@ import { Pricing } from "@/components/landing/Pricing";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
+import { Varela_Round } from "next/font/google";
+
+const varelaRound = Varela_Round({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 // Demo mode: Always show landing page without auth check
 export default async function RootPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen bg-white ${varelaRound.className}`}>
       {/* Header */}
       <Header />
 

@@ -63,7 +63,7 @@ export function FeaturesGrid() {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               Everything You Need to Launch
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -82,7 +82,7 @@ export function FeaturesGrid() {
                   className="p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
                 >
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                       <Icon className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">

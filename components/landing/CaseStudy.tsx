@@ -12,7 +12,7 @@ export function CaseStudy() {
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               Real Customer Success
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed">
@@ -21,7 +21,7 @@ export function CaseStudy() {
           </div>
 
           {/* Case Study Card */}
-          <Card className="overflow-hidden shadow-xl border-0 bg-gradient-to-br from-blue-50 to-purple-50">
+          <Card className="overflow-hidden shadow-xl border-0 bg-gradient-to-br from-violet-50 to-purple-50">
             <div className="p-8 md:p-12">
               {/* Company Header */}
               <div className="flex items-center mb-8">
@@ -46,7 +46,7 @@ export function CaseStudy() {
               {/* Author */}
               <div className="flex items-center mb-8">
                 <Avatar className="w-12 h-12 mr-4">
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                  <div className="w-full h-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] flex items-center justify-center text-white font-semibold">
                     MK
                   </div>
                 </Avatar>
@@ -108,7 +108,7 @@ export function CaseStudy() {
             <p className="text-lg text-gray-600 mb-4">
               Ready to get similar results for your business?
             </p>
-            <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 text-sm font-semibold">
+            <Badge className="bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white px-6 py-2 text-sm font-semibold">
               Start your success story today
             </Badge>
           </div>

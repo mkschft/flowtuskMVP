@@ -2744,7 +2744,14 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                             <Card
                               key={icp.id}
                               className={`group relative overflow-hidden border-2 ${color.border} hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1`}
-                              onClick={() => handleSelectIcp(icp)}
+                              onClick={(e) => {
+                                // Only handle clicks if not clicking on interactive elements
+                                const target = e.target as HTMLElement;
+                                if (target.closest('button') || target.closest('[role="menuitem"]')) {
+                                  return;
+                                }
+                                handleSelectIcp(icp);
+                              }}
                             >
                               {/* Gradient background */}
                               <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient}`} />

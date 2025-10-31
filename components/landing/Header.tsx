@@ -18,11 +18,11 @@ export function Header() {
             <Image
               src="/logo.svg"
               alt="Flowtusk Logo"
-              width={32}
-              height={32}
-              className="h-8 w-8"
+              width={24}
+              height={24}
+              className="h-6 w-6"
             />
-            <span className="font-extrabold text-xl tracking-tight">Flowtusk</span>
+            <span className="font-semibold text-xl tracking-tight gradient-text">Flowtusk</span>
           </Link>
 
           {/* Desktop Navigation */}

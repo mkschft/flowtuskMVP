@@ -6,7 +6,7 @@ import { Sparkles, ArrowRight, Play } from "lucide-react";
 
 export function FinalCTA() {
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
@@ -15,7 +15,7 @@ export function FinalCTA() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline */}
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
+          <h2 className="text-3xl md:text-4xl font-medium mb-4 leading-tight">
             Ready to Generate Your Marketing Content?
           </h2>
 
@@ -29,7 +29,7 @@ export function FinalCTA() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Button 
               size="lg" 
-              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg h-auto"
+              className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg h-auto"
               asChild
             >
               <Link href="/app">
@@ -42,7 +42,7 @@ export function FinalCTA() {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-4 text-lg h-auto"
+              className="border-white text-white hover:bg-white hover:text-purple-600 font-semibold px-8 py-4 text-lg h-auto"
               asChild
             >
               <Link href="#demo">

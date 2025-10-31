@@ -72,7 +72,7 @@ export function CompetitiveEdge() {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               We Own the B2B Funnel + Clarity Intersection
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -154,9 +154,9 @@ export function CompetitiveEdge() {
 
           {/* Bottom Message */}
           <div className="text-center mt-12">
-            <Card className="inline-block p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <Card className="inline-block p-6 bg-gradient-to-r from-violet-50 to-purple-50 border-purple-200">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] rounded-xl flex items-center justify-center">
                   <Star className="h-6 w-6 text-white" />
                 </div>
                 <div className="text-left">

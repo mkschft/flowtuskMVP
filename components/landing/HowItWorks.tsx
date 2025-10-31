@@ -43,7 +43,7 @@ export function HowItWorks() {
         <div className="max-w-5xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               Website → Clarity → Templates → Launch
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -62,12 +62,12 @@ export function HowItWorks() {
                 <div key={index} className="relative">
                   <Card className="p-6 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
                     {/* Step Number */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] rounded-xl flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">
                       {step.number}
                     </div>
                     
                     {/* Icon */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Icon className="h-8 w-8 text-blue-600" />
                     </div>
                     
@@ -95,7 +95,7 @@ export function HowItWorks() {
 
           {/* Bottom CTA */}
           <div className="text-center mt-16">
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
               <Globe className="h-5 w-5 mr-2" />
               Try it now - takes 2 minutes
             </div>

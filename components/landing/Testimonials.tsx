@@ -35,7 +35,7 @@ export function Testimonials() {
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               Trusted by B2B Leaders
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -62,7 +62,7 @@ export function Testimonials() {
                 {/* Author */}
                 <div className="flex items-center">
                   <Avatar className="w-12 h-12 mr-4">
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                    <div className="w-full h-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] flex items-center justify-center text-white font-semibold">
                       {testimonial.avatar}
                     </div>
                   </Avatar>

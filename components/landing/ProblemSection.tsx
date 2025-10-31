@@ -37,7 +37,7 @@ export function ProblemSection() {
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4 leading-tight">
               Creating marketing content{" "}
               <span className="text-red-600">shouldn&apos;t take weeks.</span>
             </h2>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,7 @@ import {
   Users,
   DollarSign,
   Presentation,
-  Image,
+  Image as ImageIcon,
   Bot,
   BarChart3,
   Triangle,
@@ -56,29 +57,30 @@ function Slide({ children, slideNumber }: { children: React.ReactNode; slideNumb
 function CoverSlide() {
   return (
     <Slide slideNumber={1}>
-      <div className="text-center space-y-8">
-        {/* Logo/Brand */}
-        <div className="inline-block">
-          <div className="text-6xl font-bold gradient-text mb-4">
+      <div className="text-center space-y-12">
+        {/* Logo + Brand Name - Side by Side */}
+        <div className="flex items-center justify-center gap-4">
+          <Image
+            src="/logo.svg"
+            alt="Flowtusk Logo"
+            width={56}
+            height={56}
+            className="h-14 w-14"
+          />
+          <div className="text-6xl font-semibold gradient-text">
             Flowtusk
           </div>
-          <p className="text-xl text-muted-foreground">
-            The Shortcut from Brand to Funnel
-          </p>
         </div>
 
-        {/* Main Tagline */}
-        <h1 className="text-5xl md:text-7xl font-extrabold text-foreground leading-tight">
-          Vibe create your B2B funnel<br />
-          <span className="gradient-text">in minutes not weekends</span>
-        </h1>
+        {/* Tagline as subheading */}
+        <h2 className="text-2xl md:text-3xl text-muted-foreground">
+          Vibe create your B2B funnel in minutes not weekends
+        </h2>
 
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+        <div className="mt-16 flex items-center justify-center gap-4 text-lg text-muted-foreground">
           <span>October 2025</span>
-          <Circle className="h-1 w-1 fill-current" />
-          <span>Series Seed</span>
-          <Circle className="h-1 w-1 fill-current" />
-          <span>B2B SaaS</span>
+          <span>•</span>
+          <span>Hasan Shahriar</span>
         </div>
       </div>
     </Slide>
@@ -111,11 +113,10 @@ function ProblemSlide() {
       <div className="space-y-12">
         {/* Header */}
         <div className="space-y-4">
-          <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 text-sm">
-            Problem
-          </Badge>
-        <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl">
-          B2B Marketing funnels take weeks to build — and fail to convert ~95% of the time
+        <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight max-w-4xl">
+          B2B Marketing funnels take weeks to build —<br />
+          and fail to convert ~95%<br />
+          of the time
         </h2>
         </div>
 
@@ -125,7 +126,7 @@ function ProblemSlide() {
           <div className="col-span-3 space-y-8">
             {problems.map((problem, idx) => (
               <div key={idx} className="space-y-2">
-                <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                <h3 className="text-lg font-semibold gradient-text">
                   {problem.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -138,9 +139,9 @@ function ProblemSlide() {
           {/* Right Column - Illustration Placeholder */}
           <div className="col-span-2 flex items-center">
             <div className="w-full h-full min-h-[300px] border-2 border-dashed border-purple-400 dark:border-purple-600 rounded-xl bg-purple-50/30 dark:bg-purple-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <Image className="h-16 w-16 text-pink-500 dark:text-pink-400" />
+              <ImageIcon className="h-16 w-16 text-pink-500 dark:text-pink-400" />
               <div className="space-y-2">
-                <h4 className="font-semibold text-purple-700 dark:text-purple-300">
+                <h4 className="font-semibold gradient-text">
                   Illustration: Positioning Chaos
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -170,8 +171,8 @@ function GapSlide() {
           {/* Content AI is commoditized */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Bot className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                <Bot className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
             </div>
@@ -186,8 +187,8 @@ function GapSlide() {
           {/* Data tools give numbers */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
             </div>
@@ -202,8 +203,8 @@ function GapSlide() {
           {/* The gap */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Triangle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                <Triangle className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="text-xl font-bold text-foreground">The gap (what&apos;s missing)</h3>
             </div>
@@ -218,8 +219,8 @@ function GapSlide() {
           {/* The opportunity */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <Rocket className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                <Rocket className="h-6 w-6 gradient-text" />
               </div>
               <h3 className="text-xl font-bold text-foreground">The opportunity (what the solution must do)</h3>
             </div>
@@ -235,10 +236,10 @@ function GapSlide() {
         </div>
 
         {/* Bottom illustration placeholder */}
-        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 p-8 flex flex-col items-center justify-center space-y-4">
-          <GitBranch className="h-12 w-12 text-pink-500 dark:text-pink-400" />
+        <div className="border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-xl bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 p-8 flex flex-col items-center justify-center space-y-4">
+          <GitBranch className="h-12 w-12 gradient-text" />
           <div className="text-center space-y-2">
-            <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+            <h4 className="font-semibold gradient-text">
               Illustration: Evolution Timeline
             </h4>
             <p className="text-xs text-muted-foreground max-w-3xl">
@@ -296,7 +297,7 @@ function SolutionSlide() {
             {steps.map((step) => (
               <div key={step.number} className="flex gap-4">
                 {/* Number badge */}
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] flex items-center justify-center text-white font-bold text-lg shrink-0">
                   {step.number}
                 </div>
                 {/* Content */}
@@ -310,10 +311,10 @@ function SolutionSlide() {
 
           {/* Right Column - Product Screenshot Placeholder */}
           <div className="flex items-center">
-            <div className="w-full h-full min-h-[400px] border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-xl bg-pink-50/30 dark:bg-pink-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <Monitor className="h-16 w-16 text-pink-500 dark:text-pink-400" />
+            <div className="w-full h-full min-h-[400px] border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-xl bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
+              <Monitor className="h-16 w-16 gradient-text" />
               <div className="space-y-2">
-                <h4 className="font-semibold text-pink-700 dark:text-pink-300">
+                <h4 className="font-semibold gradient-text">
                   Product Screenshot
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
@@ -334,146 +335,125 @@ function HowItWorksSlide() {
     <Slide slideNumber={5}>
       <div className="space-y-6">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight text-center">
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight text-center mb-8">
           How it Works
         </h2>
 
-        {/* Architecture Diagram */}
-        <div className="flex items-center justify-center">
-          <div className="relative w-full max-w-6xl h-[550px] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 rounded-xl p-6">
-            {/* SVG for all arrows */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
-              <defs>
-                <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                  <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-                </marker>
-              </defs>
-              
-              {/* User Input → Orchestrator */}
-              <path d="M 130 80 L 170 80" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              
-              {/* Orchestrator → All 3 Agents */}
-              <path d="M 300 80 L 350 60" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 300 80 L 350 130" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 300 80 L 350 200" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              
-              {/* Agents → Clarity Layer specific connections */}
-              <path d="M 490 60 L 550 70" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 490 130 L 550 140" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 490 200 L 550 210" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              
-              {/* Clarity Layer → Content Layer (whole group) */}
-              <path d="M 760 140 L 820 100" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 760 140 L 820 180" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 760 140 L 820 260" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              
-              {/* Content Layer → Export Layer */}
-              <path d="M 1010 100 L 1060 360 Q 1070 380 1050 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 1010 180 L 1020 360 Q 1025 380 1005 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              <path d="M 1010 260 L 980 360 Q 975 380 955 390" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-              
-              {/* Template Registry → Publish */}
-              <path d="M 600 420 L 680 420" stroke="#6366f1" strokeWidth="2.5" markerEnd="url(#arrow)" />
-            </svg>
+        {/* Top Row: User Input → Orchestrator */}
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
+            <User className="h-7 w-7 mx-auto mb-2" />
+            <h3 className="font-bold text-base mb-1">User Input</h3>
+            <p className="text-xs opacity-90">(URL + Goal)</p>
+          </Card>
+          
+          <ArrowRight className="h-8 w-8 text-purple-500" />
+          
+          <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
+            <Workflow className="h-7 w-7 mx-auto mb-2" />
+            <h3 className="font-bold text-base">Orchestrator</h3>
+          </Card>
+        </div>
 
-            {/* User Input + Orchestrator */}
-            <div className="absolute left-4 top-12" style={{ zIndex: 2 }}>
-              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-600">
-                <User className="h-5 w-5 text-indigo-100 mb-1" />
-                <p className="text-xs font-bold text-white text-center">User Input</p>
-                <p className="text-[10px] text-indigo-200">(URL + Goal)</p>
+        {/* Main Grid: 3 Layers */}
+        <div className="grid grid-cols-3 gap-6 mb-8">
+          
+          {/* AGENTS LAYER */}
+          <div>
+            <Badge className="mb-3 bg-orange-600 text-white font-semibold">AGENTS</Badge>
+            <div className="space-y-3">
+              <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
+                <Search className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Analyzer Agent</h4>
+                <p className="text-xs opacity-90">Crawls & analyzes</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-purple-600 to-purple-700 text-white">
+                <Users className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">ICP Agent</h4>
+                <p className="text-xs opacity-90">Builds personas</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-cyan-600 to-cyan-700 text-white">
+                <Target className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Positioning Agent</h4>
+                <p className="text-xs opacity-90">Creates value props</p>
               </Card>
             </div>
+          </div>
 
-            <div className="absolute left-[175px] top-12" style={{ zIndex: 2 }}>
-              <Card className="w-36 h-20 flex flex-col items-center justify-center bg-indigo-700">
-                <Workflow className="h-5 w-5 text-indigo-100 mb-1" />
-                <p className="text-xs font-bold text-white">Orchestrator</p>
+          {/* CLARITY LAYER */}
+          <div>
+            <Badge className="mb-3 bg-emerald-600 text-white font-semibold">CLARITY LAYER</Badge>
+            <div className="space-y-3">
+              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
+                <Globe className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Site Context</h4>
+                <p className="text-xs opacity-90">Brand & messaging</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
+                <Users className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Personas</h4>
+                <p className="text-xs opacity-90">ICP cards</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
+                <Zap className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Value Props</h4>
+                <p className="text-xs opacity-90">Messaging options</p>
               </Card>
             </div>
+          </div>
 
-            {/* Agents Layer */}
-            <div className="absolute left-[350px] top-4" style={{ zIndex: 2 }}>
-              <Badge className="mb-2 bg-amber-600 text-white text-xs font-bold">AGENTS</Badge>
-              <div className="space-y-3 p-3 rounded-lg bg-amber-50/90 dark:bg-amber-950/30">
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-amber-700">
-                  <Search className="h-4 w-4 text-amber-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">Analyzer Agent</p>
-                </Card>
-                
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-purple-600">
-                  <Users className="h-4 w-4 text-purple-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">ICP Agent</p>
-                </Card>
-                
-                <Card className="w-36 h-16 flex flex-col items-center justify-center bg-cyan-600">
-                  <Target className="h-4 w-4 text-cyan-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">Positioning Agent</p>
-                </Card>
-              </div>
+          {/* CONTENT LAYER */}
+          <div>
+            <Badge className="mb-3 bg-blue-600 text-white font-semibold">CONTENT LAYER</Badge>
+            <div className="space-y-3">
+              <Card className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+                <MessageSquare className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Content → LinkedIn</h4>
+                <p className="text-xs opacity-90">(Post • Bio • InMail)</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-red-600 to-red-700 text-white">
+                <Mail className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Content → Email</h4>
+                <p className="text-xs opacity-90">(One-time • Sequence)</p>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
+                <FileText className="h-5 w-5 mb-2" />
+                <h4 className="font-semibold text-sm mb-1">Content → Landing Page</h4>
+                <p className="text-xs opacity-90">(Sections/Components)</p>
+              </Card>
             </div>
+          </div>
+        </div>
 
-            {/* Clarity Layer */}
-            <div className="absolute left-[550px] top-4" style={{ zIndex: 2 }}>
-              <Badge className="mb-2 bg-emerald-600 text-white text-xs font-bold">CLARITY LAYER</Badge>
-              <div className="space-y-3 p-3 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/30">
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700">
-                  <Globe className="h-4 w-4 text-emerald-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">Site Context</p>
-                </Card>
-                
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-600">
-                  <Users className="h-4 w-4 text-emerald-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">Personas</p>
-                </Card>
-                
-                <Card className="w-48 h-16 flex flex-col items-center justify-center bg-emerald-700">
-                  <Zap className="h-4 w-4 text-emerald-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white">Value Props</p>
-                </Card>
-              </div>
-            </div>
+        {/* Arrow Down */}
+        <div className="flex justify-center my-6">
+          <ArrowRight className="h-8 w-8 text-purple-500 rotate-90" />
+        </div>
 
-            {/* Content Layer */}
-            <div className="absolute left-[820px] top-4" style={{ zIndex: 2 }}>
-              <Badge className="mb-2 bg-blue-600 text-white text-xs font-bold">CONTENT LAYER</Badge>
-              <div className="space-y-3 p-3 rounded-lg bg-blue-50/90 dark:bg-blue-950/30">
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-blue-700 p-2">
-                  <MessageSquare className="h-4 w-4 text-blue-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white text-center">Content → LinkedIn</p>
-                  <p className="text-[9px] text-blue-200">(Post • Bio • InMail)</p>
-                </Card>
-                
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-red-700 p-2">
-                  <Mail className="h-4 w-4 text-red-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white text-center">Content → Email</p>
-                  <p className="text-[9px] text-red-200">(One-time • Sequence)</p>
-                </Card>
-                
-                <Card className="w-44 h-18 flex flex-col items-center justify-center bg-amber-700 p-2">
-                  <FileText className="h-4 w-4 text-amber-100 mb-1" />
-                  <p className="text-[11px] font-bold text-white text-center">Content → Landing Page</p>
-                  <p className="text-[9px] text-amber-200">(Sections/Components)</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* Export Layer */}
-            <div className="absolute left-[280px] bottom-4" style={{ zIndex: 2 }}>
-              <Badge className="mb-2 bg-slate-600 text-white text-xs font-bold">EXPORT LAYER</Badge>
-              <div className="flex gap-4">
-                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-slate-700 p-2">
-                  <FileText className="h-5 w-5 text-slate-200 mb-1" />
-                  <p className="text-xs font-bold text-white text-center">Template Registry</p>
-                  <p className="text-[9px] text-slate-300">(Next.js • Webflow • Email)</p>
-                </Card>
-                
-                <Card className="w-56 h-20 flex flex-col items-center justify-center bg-green-700 p-2">
-                  <Share2 className="h-5 w-5 text-green-200 mb-1" />
-                  <p className="text-xs font-bold text-white text-center">Publish/Share/Embed</p>
-                  <p className="text-[9px] text-green-200">(Webflow • Notion • Slides • API)</p>
-                </Card>
-              </div>
+        {/* Bottom Row: Export Layer */}
+        <div className="flex justify-center">
+          <div>
+            <Badge className="mb-3 bg-slate-700 text-white font-semibold">EXPORT LAYER</Badge>
+            <div className="flex gap-6">
+              <Card className="p-5 bg-gradient-to-br from-slate-700 to-slate-800 text-white min-w-[220px] text-center">
+                <FileText className="h-7 w-7 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm mb-2">Template Registry</h4>
+                <p className="text-xs opacity-90">(Next.js • Webflow • Email)</p>
+              </Card>
+              
+              <ArrowRight className="h-8 w-8 text-slate-500 self-center" />
+              
+              <Card className="p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white min-w-[220px] text-center">
+                <Share2 className="h-7 w-7 mx-auto mb-2" />
+                <h4 className="font-semibold text-sm mb-2">Publish/Share/Embed</h4>
+                <p className="text-xs opacity-90">(Webflow • Notion • Slides • API)</p>
+              </Card>
             </div>
           </div>
         </div>
@@ -487,41 +467,62 @@ function RoadmapSlide() {
   const phases = [
     {
       number: 1,
+      phase: "MVP Development",
       title: "Positioning Copilot MVP",
-      timeframe: "Now - Month 3",
+      timeframe: "Now – Month 3",
       features: [
-        "Website → Personas → Value Props",
-        "Google Slides export",
-        "Validate product-market fit"
+        "Website → Personas → Value Props → Content",
+        "One-click export to Google Slides",
+        "Validate fit with 50 design-partner teams"
       ],
       target: "50 customers",
       mrr: "€7.5K MRR"
     },
     {
       number: 2,
+      phase: "Traction",
       title: "Multi-Format Exports",
-      timeframe: "Month 4-6",
+      timeframe: "Months 4–6",
       features: [
-        "LinkedIn posts, email templates",
-        "Notion docs, website copy",
-        "Team collaboration features"
+        "Channel assets: Landing Page, LinkedIn, Email",
+        "Export formats: Notion, Slides, JSON API",
+        "Template Registry with quality guardrails"
       ],
       target: "200 customers",
       mrr: "€30K MRR"
     },
     {
       number: 3,
+      phase: "Growth",
       title: "Brand Intelligence Platform",
-      timeframe: "Month 7-12",
+      timeframe: "Months 7–12",
       features: [
-        "Competitive positioning analysis",
-        "Messaging consistency tracker",
-        "API integrations (HubSpot, Salesforce)"
+        "Positioning Memory as living source of truth",
+        "Consistency Scanner + competitive radar",
+        "CRM integrations for closed-loop tracking"
       ],
       target: "500 customers",
       mrr: "€75K MRR"
     }
   ];
+
+  // Helper to render features with arrow icons
+  const renderFeature = (feature: string) => {
+    const parts = feature.split('→').map(part => part.trim());
+    if (parts.length === 1) {
+      return <span>{feature}</span>;
+    }
+    return (
+      <span className="flex items-center gap-0.5">
+        {parts.map((part, i) => (
+          <span key={i} className="flex items-center gap-0.5">
+            <span>{part}</span>
+            {i < parts.length - 1 && <ArrowRight className="h-3 w-3 shrink-0 gradient-text" />}
+          </span>
+        ))}
+      </span>
+    );
+  };
 
   return (
     <Slide slideNumber={6}>
@@ -539,8 +540,8 @@ function RoadmapSlide() {
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="space-y-2">
-                    <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
-                      PHASE {phase.number}
+                    <div className="text-xs font-bold gradient-text uppercase tracking-wide">
+                      {phase.phase}
                     </div>
                     <h3 className="text-xl font-bold text-foreground">
                       {phase.title}
@@ -553,9 +554,9 @@ function RoadmapSlide() {
                   {/* Features */}
                   <ul className="space-y-2">
                     {phase.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="text-purple-600 dark:text-purple-400 mt-0.5">•</span>
-                        <span>{feature}</span>
+                      <li key={idx} className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <span className="gradient-text mt-0.5">•</span>
+                        {renderFeature(feature)}
                       </li>
                     ))}
                   </ul>
@@ -563,15 +564,15 @@ function RoadmapSlide() {
               </Card>
 
               {/* Target Card */}
-              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 border-2 border-dashed border-purple-300 dark:border-purple-700">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border-2 border-dashed border-purple-300 dark:border-purple-700">
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">
                     Target
                   </p>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-2xl font-bold gradient-text">
                     {phase.target}
                   </p>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-2xl font-bold gradient-text">
                     {phase.mrr}
                   </p>
                 </div>
@@ -588,10 +589,10 @@ function RoadmapSlide() {
         </div>
 
         {/* Illustration Placeholder */}
-        <div className="border-2 border-dashed border-pink-400 dark:border-pink-600 rounded-lg bg-pink-50/30 dark:bg-pink-950/20 px-6 py-3 flex items-center justify-center gap-4">
-          <GitBranch className="h-6 w-6 text-pink-500 dark:text-pink-400 shrink-0" />
+        <div className="border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-lg bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 px-6 py-3 flex items-center justify-center gap-4">
+          <GitBranch className="h-6 w-6 gradient-text shrink-0" />
           <div className="text-center">
-            <h4 className="text-xs font-semibold text-pink-700 dark:text-pink-300 inline">
+            <h4 className="text-xs font-semibold gradient-text inline">
               Illustration: Roadmap Timeline
             </h4>
             <span className="text-xs text-muted-foreground"> — Horizontal timeline showing three phases with key milestones marked.</span>
@@ -616,7 +617,7 @@ function MarketSizeSlide() {
         <div className="grid grid-cols-2 gap-12">
           {/* Left Column - Market Size */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+            <h3 className="text-xl font-bold gradient-text mb-6">
               Market Size
             </h3>
 
@@ -625,9 +626,12 @@ function MarketSizeSlide() {
               <p className="text-sm text-muted-foreground uppercase tracking-wide">
                 TAM (Total Addressable Market)
               </p>
-              <p className="text-5xl font-bold text-foreground">$15B</p>
+              <p className="text-5xl font-bold text-foreground">💰 $15B</p>
               <p className="text-sm text-muted-foreground">
-                B2B marketing automation market
+                B2B marketing automation market (HubSpot, Salesforce, Marketo, ActiveCampaign).
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Source: Statista, Grand View Research (2024).
               </p>
             </div>
 
@@ -636,9 +640,12 @@ function MarketSizeSlide() {
               <p className="text-sm text-muted-foreground uppercase tracking-wide">
                 SAM (Serviceable Addressable Market)
               </p>
-              <p className="text-5xl font-bold text-foreground">$2.4B</p>
+              <p className="text-5xl font-bold text-foreground">💰 $2.4B</p>
               <p className="text-sm text-muted-foreground">
-                Positioning and messaging tools segment
+                Positioning, messaging, and funnel optimization software segment — includes content AI, CRM, and conversion tools.
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Estimated by carving 16% of global B2B marketing software revenue from Gartner, G2Crowd data.
               </p>
             </div>
 
@@ -647,66 +654,66 @@ function MarketSizeSlide() {
               <p className="text-sm text-muted-foreground uppercase tracking-wide">
                 SOM (Serviceable Obtainable Market)
               </p>
-              <p className="text-5xl font-bold text-foreground">€178M</p>
+              <p className="text-5xl font-bold text-foreground">💰 €178M</p>
               <p className="text-sm text-muted-foreground">
-                100K SaaS founders in US alone x €149/month
+                ~100K SaaS founders & B2B marketers in US/EU using landing page or marketing tools × €149/month (Flowtusk entry pricing).
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Derived from Crunchbase + LinkedIn Sales Navigator (2025 SaaS ecosystem).
               </p>
             </div>
 
             {/* Adoption metric */}
-            <Card className="p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30">
+            <Card className="p-4 bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30">
               <p className="text-sm text-center leading-relaxed">
-                <span className="font-bold text-purple-600 dark:text-purple-400">5% adoption</span> of 100K SaaS founders = <span className="font-bold text-purple-600 dark:text-purple-400">€750K MRR</span> at €149/month
+                🧮 <span className="font-bold gradient-text">5% adoption = €750K MRR</span>
+              </p>
+              <p className="text-xs text-center text-muted-foreground mt-1">
+                At €149/month, assuming penetration across 5K teams actively building funnels or go-to-market pages.
               </p>
             </Card>
           </div>
 
           {/* Right Column - Why We Win */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+            <h3 className="text-xl font-bold gradient-text mb-6">
               Why We Win
             </h3>
 
             {/* Time to value */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
+            <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                  <Circle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
+                <div className="text-3xl shrink-0">🕐</div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Time to value</p>
                   <p className="text-lg font-bold text-foreground">
-                    <span className="text-purple-600 dark:text-purple-400">10 minutes</span> vs 4 weeks
+                    <span className="gradient-text">10 minutes</span> → launch-ready clarity vs 4–6 weeks with consultants
                   </p>
                 </div>
               </div>
             </Card>
 
             {/* Cost */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
+            <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                  <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
+                <div className="text-3xl shrink-0">💸</div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Cost</p>
                   <p className="text-lg font-bold text-foreground">
-                    <span className="text-purple-600 dark:text-purple-400">€149/month</span> vs €50K one-time
+                    <span className="gradient-text">€149/month</span> vs €50K one-time positioning agency deck
                   </p>
                 </div>
               </div>
             </Card>
 
             {/* Export flexibility */}
-            <Card className="p-5 bg-purple-50/30 dark:bg-purple-950/10">
+            <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                  <Download className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
+                <div className="text-3xl shrink-0">🔁</div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Export flexibility</p>
                   <p className="text-lg font-bold text-foreground">
-                    <span className="text-purple-600 dark:text-purple-400">Export to anywhere</span> vs locked PDF
+                    <span className="gradient-text">Publish anywhere</span> (Webflow, Notion, Slides, API) vs locked PDFs
                   </p>
                 </div>
               </div>
@@ -724,17 +731,17 @@ function BusinessModelSlide() {
     {
       name: "Starter",
       price: "€99/month",
-      description: "3 personas, basic exports (Google Slides, PDF)"
+      description: "3 personas · Basic exports (Google Slides, PDF)"
     },
     {
       name: "Professional",
       price: "€149/month",
-      description: "Unlimited personas, all export formats, team collaboration"
+      description: "Unlimited personas · All export formats (Slides, Notion, LinkedIn, Email) · Team collaboration"
     },
     {
       name: "Agency",
       price: "€299/month",
-      description: "White-label, client management, API access"
+      description: "White-label · Client management · API + custom integrations"
     }
   ];
 
@@ -754,7 +761,7 @@ function BusinessModelSlide() {
               <Card key={tier.name} className="p-6">
                 <div className="flex items-baseline justify-between mb-2">
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
-                  <span className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                  <span className="text-2xl font-bold gradient-text">
                     {tier.price}
                   </span>
                 </div>
@@ -767,43 +774,56 @@ function BusinessModelSlide() {
           <div className="space-y-4">
             {/* Top Row: CAC and LTV */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">CAC</p>
-                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">€50</p>
+                <p className="text-4xl font-bold gradient-text">€50</p>
+                <p className="text-xs text-muted-foreground mt-2">(Primarily via founder communities, Product Hunt, and organic SEO)</p>
               </Card>
-              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">LTV</p>
-                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">€1,788</p>
+                <p className="text-4xl font-bold gradient-text">€1,788</p>
+                <p className="text-xs text-muted-foreground mt-2">(12-month average retention × ARPU €149/month)</p>
               </Card>
             </div>
 
             {/* Bottom Row: LTV:CAC and Gross Margin */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">LTV:CAC</p>
-                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">35:1</p>
+                <p className="text-4xl font-bold gradient-text">35:1</p>
+                <p className="text-xs text-muted-foreground mt-2">Ultra-efficient early growth driven by organic inbound + AI differentiation</p>
               </Card>
-              <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 text-center">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Gross Margin</p>
-                <p className="text-4xl font-bold text-pink-600 dark:text-pink-400">85%</p>
+                <p className="text-4xl font-bold gradient-text">85%</p>
+                <p className="text-xs text-muted-foreground mt-2">AI inference cost ≈ €20/month per active customer</p>
               </Card>
             </div>
 
             {/* ARR Growth Chart */}
             <Card className="p-6">
               <h4 className="text-sm font-bold text-foreground mb-4">ARR Growth Projection (3 Years)</h4>
-              <div className="flex items-end justify-between gap-4 h-40">
+              <div className="flex items-end justify-between gap-4 h-32">
                 <div className="flex-1 flex flex-col items-center gap-2 h-full">
-                  <div className="w-full bg-gradient-to-t from-purple-400 to-purple-500 rounded-t mt-auto" style={{ height: '25%' }}></div>
-                  <span className="text-xs text-muted-foreground">Year 1</span>
+                  <div className="w-full bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] rounded-t mt-auto" style={{ height: '25%' }}></div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">€180K</p>
+                    <p className="text-xs text-muted-foreground">Year 1</p>
+                  </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center gap-2 h-full">
-                  <div className="w-full bg-gradient-to-t from-pink-400 to-pink-500 rounded-t mt-auto" style={{ height: '60%' }}></div>
-                  <span className="text-xs text-muted-foreground">Year 2</span>
+                  <div className="w-full bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] rounded-t mt-auto" style={{ height: '60%' }}></div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">€720K</p>
+                    <p className="text-xs text-muted-foreground">Year 2</p>
+                  </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center gap-2 h-full">
-                  <div className="w-full bg-gradient-to-t from-pink-500 to-pink-600 rounded-t mt-auto" style={{ height: '100%' }}></div>
-                  <span className="text-xs text-muted-foreground">Year 3</span>
+                  <div className="w-full bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] rounded-t mt-auto" style={{ height: '100%' }}></div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">€1.8M</p>
+                    <p className="text-xs text-muted-foreground">Year 3</p>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -813,7 +833,7 @@ function BusinessModelSlide() {
         {/* Footer Note */}
         <Card className="p-4 bg-muted/50">
           <p className="text-sm text-center text-muted-foreground">
-            <span className="font-bold text-pink-600 dark:text-pink-400">85% gross margin</span> with AI inference costs ~€20/month per customer
+            <span className="font-bold text-foreground">Why this matters:</span> Flowtusk scales like a content platform, not an agency. High margin, recurring usage, and export integrations make every customer a long-term compounder.
           </p>
         </Card>
       </div>
@@ -845,7 +865,7 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Top Right */}
-            <Card className="p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 min-h-[200px] flex flex-col justify-center border border-muted-foreground/20">
+            <Card className="p-8 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-950/40 dark:to-purple-950/40 min-h-[200px] flex flex-col justify-center border border-muted-foreground/20">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-foreground">Clearbit / Data Tools</h3>
                 <p className="text-sm text-muted-foreground">Firmographic data only</p>
@@ -863,12 +883,12 @@ function CompetitivePositioningSlide() {
             </Card>
 
             {/* Bottom Right - Flowtusk */}
-            <Card className="p-8 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 min-h-[200px] flex flex-col justify-center relative border-2 border-purple-600 dark:border-purple-500">
+            <Card className="p-8 bg-gradient-to-br from-violet-200 to-purple-200 dark:from-violet-900/50 dark:to-purple-900/50 min-h-[200px] flex flex-col justify-center relative border-2 border-purple-600 dark:border-purple-500">
               <div className="space-y-3 text-center">
-                <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-300">Flowtusk</h3>
+                <h3 className="text-2xl font-bold gradient-text">Flowtusk</h3>
                 <p className="text-sm font-medium text-foreground">Strategic positioning intelligence</p>
                 <p className="text-sm font-medium text-foreground">Export to anywhere</p>
-                <p className="text-sm font-bold text-purple-600 dark:text-purple-400">€149/month</p>
+                <p className="text-sm font-bold gradient-text">€149/month</p>
               </div>
             </Card>
           </div>
@@ -889,25 +909,25 @@ function CompetitivePositioningSlide() {
           <div className="absolute left-2 bottom-2 text-xs text-muted-foreground">
             High Focus, Low Export
           </div>
-          <div className="absolute right-2 bottom-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+          <div className="absolute right-2 bottom-2 text-xs gradient-text font-semibold">
             High Focus, High Export
           </div>
         </div>
 
         {/* Our Moat */}
-        <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20">
+        <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
           <h3 className="text-lg font-bold text-center mb-4">Our Moat</h3>
           <div className="grid grid-cols-3 gap-6 text-center">
             <div className="space-y-2">
-              <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <Brain className="h-8 w-8 gradient-text mx-auto" />
               <p className="text-sm font-medium">B2B Positioning Expertise</p>
             </div>
             <div className="space-y-2">
-              <Bot className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <Bot className="h-8 w-8 gradient-text mx-auto" />
               <p className="text-sm font-medium">AI-Powered Intelligence</p>
             </div>
             <div className="space-y-2">
-              <Download className="h-8 w-8 text-purple-600 dark:text-purple-400 mx-auto" />
+              <Download className="h-8 w-8 gradient-text mx-auto" />
               <p className="text-sm font-medium">Multi-Format Export Flexibility</p>
             </div>
           </div>
@@ -932,10 +952,10 @@ function TeamSlide() {
           {/* Left: Founder Profile */}
           <div className="col-span-2 space-y-6">
             {/* Photo Placeholder */}
-            <Card className="p-12 bg-purple-50/50 dark:bg-purple-950/20 flex flex-col items-center justify-center space-y-4">
-              <Users className="h-24 w-24 text-purple-500 dark:text-purple-400" />
+            <Card className="p-12 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center space-y-4">
+              <Users className="h-24 w-24 gradient-text" />
               <div className="text-center space-y-1">
-                <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                <p className="text-sm font-semibold gradient-text">
                   Founder Photo
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -947,25 +967,25 @@ function TeamSlide() {
             {/* Name & Title */}
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold text-foreground">Md Hasan Shahriar</h3>
-              <p className="text-lg text-purple-600 dark:text-purple-400 font-medium">Founder & CEO</p>
+              <p className="text-lg gradient-text font-medium">Founder & CEO</p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">10+</div>
+                <div className="text-3xl font-bold gradient-text">10+</div>
                 <div className="text-xs text-muted-foreground">Years in B2B Marketing</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">€61K</div>
+                <div className="text-3xl font-bold gradient-text">€61K</div>
                 <div className="text-xs text-muted-foreground">YTD Revenue</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">100+</div>
+                <div className="text-3xl font-bold gradient-text">100+</div>
                 <div className="text-xs text-muted-foreground">Campaigns Delivered</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">4</div>
+                <div className="text-3xl font-bold gradient-text">4</div>
                 <div className="text-xs text-muted-foreground">Enterprise Clients</div>
               </Card>
             </div>
@@ -999,9 +1019,9 @@ function TeamSlide() {
                 }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-4">
-                  <div className="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400 mt-2 shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-2 shrink-0" />
                   <div className="flex-1 space-y-1">
-                    <div className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                    <div className="text-xs font-bold gradient-text uppercase tracking-wide">
                       {item.period}
                     </div>
                     <h4 className="text-lg font-bold text-foreground">{item.title}</h4>
@@ -1022,8 +1042,8 @@ function TeamSlide() {
                   "Messaging Strategy",
                   "Enterprise Marketing"
                 ].map((skill, idx) => (
-                  <Badge key={idx} className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                    {skill}
+                  <Badge key={idx} className="bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900 dark:to-purple-900">
+                    <span className="gradient-text font-semibold">{skill}</span>
                   </Badge>
                 ))}
               </div>
@@ -1051,7 +1071,7 @@ function TheAskSlide() {
           <div className="col-span-2 space-y-6">
             {/* Amount */}
             <div className="space-y-4">
-              <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">€300K</div>
+              <div className="text-6xl font-bold gradient-text">€300K</div>
               <Card className="p-4 bg-muted/30">
                 <p className="text-sm text-muted-foreground">
                   Business loan to validate product-market fit and build foundation for Series A
@@ -1065,25 +1085,25 @@ function TheAskSlide() {
               
               <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Engineering & Product</span>
-                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€180K (60%)</span>
+                <span className="text-lg font-bold gradient-text">€180K (60%)</span>
               </Card>
 
               <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Customer Acquisition</span>
-                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€75K (25%)</span>
+                <span className="text-lg font-bold gradient-text">€75K (25%)</span>
               </Card>
 
               <Card className="p-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Operations</span>
-                <span className="text-lg font-bold text-pink-600 dark:text-pink-400">€45K (15%)</span>
+                <span className="text-lg font-bold gradient-text">€45K (15%)</span>
               </Card>
             </div>
 
             {/* Donut Chart Placeholder */}
-            <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20 flex flex-col items-center justify-center space-y-4">
+            <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center space-y-4">
               <div className="w-32 h-32 rounded-full border-[24px] border-purple-500 dark:border-purple-400 relative">
                 <div className="absolute inset-0 rounded-full" style={{
-                  background: `conic-gradient(from 0deg, #ec4899 0% 60%, #a855f7 60% 85%, #8b5cf6 85% 100%)`
+                  background: `conic-gradient(from 0deg, #7c3aed 0% 60%, #8b5cf6 60% 85%, #7c3aed 85% 100%)`
                 }} />
               </div>
               <p className="text-xs text-muted-foreground text-center">
@@ -1099,7 +1119,7 @@ function TheAskSlide() {
             <div className="space-y-4">
               <Card className="p-6">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-purple-600 text-white shrink-0">M3</Badge>
+                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M3</Badge>
                   <div className="space-y-2">
                     <h4 className="text-lg font-bold text-foreground">Month 3</h4>
                     <p className="text-sm text-muted-foreground">
@@ -1111,7 +1131,7 @@ function TheAskSlide() {
 
               <Card className="p-6">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-purple-600 text-white shrink-0">M6</Badge>
+                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M6</Badge>
                   <div className="space-y-2">
                     <h4 className="text-lg font-bold text-foreground">Month 6</h4>
                     <p className="text-sm text-muted-foreground">
@@ -1123,7 +1143,7 @@ function TheAskSlide() {
 
               <Card className="p-6">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-purple-600 text-white shrink-0">M12</Badge>
+                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M12</Badge>
                   <div className="space-y-2">
                     <h4 className="text-lg font-bold text-foreground">Month 12</h4>
                     <p className="text-sm text-muted-foreground">
@@ -1135,9 +1155,9 @@ function TheAskSlide() {
             </div>
 
             {/* Bottom Statement */}
-            <Card className="p-6 bg-purple-50/50 dark:bg-purple-950/20">
+            <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
               <p className="text-sm text-center text-muted-foreground">
-                Clear path to profitability: Break-even in 6 months, <span className="font-bold text-purple-600 dark:text-purple-400">€10M+ ARR potential</span> in 3 years
+                Clear path to profitability: Break-even in 6 months, <span className="font-bold gradient-text">€10M+ ARR potential</span> in 3 years
               </p>
             </Card>
           </div>
@@ -1170,37 +1190,37 @@ function ClosingSlide() {
         <div className="space-y-4 max-w-2xl mx-auto">
           <Card className="p-4 bg-muted/30">
             <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
               <p className="text-sm font-medium">Massive market with clear, validated pain point</p>
             </div>
           </Card>
 
           <Card className="p-4 bg-muted/30">
             <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
               <p className="text-sm font-medium">No direct competitors in positioning intelligence</p>
             </div>
           </Card>
 
           <Card className="p-4 bg-muted/30">
             <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
               <p className="text-sm font-medium">First platform that exports positioning everywhere</p>
             </div>
           </Card>
 
           <Card className="p-4 bg-muted/30">
             <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
               <p className="text-sm font-medium">Foundation for €10M+ ARR business</p>
             </div>
           </Card>
         </div>
 
         {/* The Ask */}
-        <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 max-w-3xl mx-auto">
+        <Card className="p-8 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 max-w-3xl mx-auto">
           <p className="text-2xl font-bold text-foreground">
-            The Ask: <span className="text-purple-600 dark:text-purple-400">€300K</span> to validate product-market fit and build the future of B2B positioning
+            The Ask: <span className="gradient-text">€300K</span> to validate product-market fit and build the future of B2B positioning
           </p>
         </Card>
 
@@ -1210,7 +1230,7 @@ function ClosingSlide() {
             Md Hasan Shahriar
           </div>
           <div className="text-lg">
-            <a href="mailto:hasan@flowtusk.com" className="text-purple-600 dark:text-purple-400 hover:underline">
+            <a href="mailto:hasan@flowtusk.com" className="gradient-text hover:underline">
               hasan@flowtusk.com
             </a>
           </div>
@@ -1276,7 +1296,7 @@ export function PitchDeck() {
     <div className="relative w-full h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-purple-950 overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-400/10 to-purple-400/10 dark:from-blue-600/10 dark:to-purple-600/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-purple-400/10 to-pink-400/10 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-[#7c3aed]/10 to-[#8b5cf6]/10 dark:from-[#7c3aed]/10 dark:to-[#8b5cf6]/10 rounded-full blur-3xl" />
       
       {/* Slides */}
       <div className="relative w-full h-full">
@@ -1303,7 +1323,7 @@ export function PitchDeck() {
               onClick={() => goToSlide(idx)}
               className={`h-2 rounded-full transition-all ${
                 idx === currentSlide
-                  ? 'w-8 bg-gradient-to-r from-pink-600 to-purple-600'
+                  ? 'w-8 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6]'
                   : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
