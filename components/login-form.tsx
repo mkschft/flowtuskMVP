@@ -13,8 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function LoginForm({
   className,
@@ -25,6 +25,17 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Capture redirect param (if any) and store in localStorage so we can restore after login
+  useEffect(() => {
+    const redirect = searchParams?.get("redirect");
+    if (redirect) {
+      try {
+        localStorage.setItem("postLoginRedirect", redirect);
+      } catch {}
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +49,13 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      // Redirect to root page which will show the main app for authenticated users
-      router.push("/");
+      // Prefer post-login redirect target if present
+      let target: string | null = null;
+      try {
+        target = localStorage.getItem("postLoginRedirect");
+        if (target) localStorage.removeItem("postLoginRedirect");
+      } catch {}
+      router.push(target || "/app");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {

@@ -1,0 +1,239 @@
+{
+  "brand": {
+    "name": "Stripe",
+    "tones": [
+      "professional",
+      "informative"
+    ],
+    "primaryCTA": "Contact sales"
+  },
+  "structure": {
+    "nav": [
+      "Products",
+      "Solutions",
+      "Developers",
+      "Resources",
+      "Pricing"
+    ],
+    "keyPages": [
+      {
+        "path": "/payments",
+        "title": "Payments"
+      },
+      {
+        "path": "/billing",
+        "title": "Billing"
+      },
+      {
+        "path": "/connect",
+        "title": "Connect"
+      },
+      {
+        "path": "/financial-accounts",
+        "title": "Financial Accounts"
+      },
+      {
+        "path": "/tax",
+        "title": "Tax"
+      },
+      {
+        "path": "/revenue-recognition",
+        "title": "Revenue Recognition"
+      },
+      {
+        "path": "/sigma",
+        "title": "Stripe Sigma"
+      },
+      {
+        "path": "/data-pipeline",
+        "title": "Data Pipeline"
+      },
+      {
+        "path": "/identity",
+        "title": "Identity"
+      },
+      {
+        "path": "/atlas",
+        "title": "Atlas"
+      }
+    ],
+    "footer": [
+      "Support center",
+      "Support plans",
+      "Guides",
+      "Customer stories",
+      "Blog",
+      "Sessions",
+      "Contact sales",
+      "Professional services",
+      "Jobs",
+      "Newsroom",
+      "Stripe Press",
+      "Become a partner"
+    ]
+  },
+  "audienceSignals": [
+    "Enterprises",
+    "Startups",
+    "Crypto",
+    "Ecommerce",
+    "Embedded finance",
+    "Global businesses",
+    "Marketplaces",
+    "Platforms",
+    "SaaS",
+    "AI companies",
+    "Creator economy",
+    "Hospitality, travel, and leisure",
+    "Insurance",
+    "Media and entertainment",
+    "Nonprofits",
+    "Retail"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Global payments infrastructure",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Comprehensive money management solutions",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Revenue and finance automation tools",
+      "evidence": [
+        "fact-5",
+        "fact-6"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Fraud prevention and security features",
+      "evidence": [
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v5",
+      "text": "Support for diverse industries and use cases",
+      "evidence": [
+        "fact-8",
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "Managing complex payment systems",
+    "Automating financial processes",
+    "Preventing fraud",
+    "Integrating financial services across platforms"
+  ],
+  "proof": [
+    "Access to 100+ global payment methods",
+    "Prebuilt checkout forms",
+    "Custom reports with Stripe Sigma",
+    "Linked financial account data",
+    "Online identity verification"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Stripe offers global payments infrastructure.",
+      "page": "Global payments",
+      "evidence": "Global payments"
+    },
+    {
+      "id": "fact-2",
+      "text": "Stripe provides access to 100+ global payment methods.",
+      "page": "Payments",
+      "evidence": "Payment methods Access to 100+ globally"
+    },
+    {
+      "id": "fact-3",
+      "text": "Stripe offers money management solutions like Connect and Financial Accounts.",
+      "page": "Money Management",
+      "evidence": "Connect Payments for platforms"
+    },
+    {
+      "id": "fact-4",
+      "text": "Stripe provides tools for managing business finances.",
+      "page": "Money Management",
+      "evidence": "Financial Accounts Manage business finances"
+    },
+    {
+      "id": "fact-5",
+      "text": "Stripe offers revenue and finance automation tools.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Billing Subscription management"
+    },
+    {
+      "id": "fact-6",
+      "text": "Stripe provides sales tax & VAT automation.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Tax Sales tax & VAT automation"
+    },
+    {
+      "id": "fact-7",
+      "text": "Stripe includes fraud prevention features with Radar.",
+      "page": "Payments",
+      "evidence": "Radar Fraud prevention"
+    },
+    {
+      "id": "fact-8",
+      "text": "Stripe supports various industries including AI companies and media.",
+      "page": "By industry",
+      "evidence": "AI companies"
+    },
+    {
+      "id": "fact-9",
+      "text": "Stripe caters to use cases like ecommerce and SaaS.",
+      "page": "By use case",
+      "evidence": "Ecommerce"
+    },
+    {
+      "id": "fact-10",
+      "text": "Stripe offers prebuilt payment forms with Checkout.",
+      "page": "Payments",
+      "evidence": "Checkout Prebuilt payment form"
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe provides custom reports with Stripe Sigma.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Stripe Sigma Custom reports"
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe offers online identity verification.",
+      "page": "More products",
+      "evidence": "Identity Online identity verification"
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe supports startup incorporation with Atlas.",
+      "page": "More products",
+      "evidence": "Atlas Startup incorporation"
+    },
+    {
+      "id": "fact-14",
+      "text": "Stripe offers accelerated checkout with Link.",
+      "page": "Payments",
+      "evidence": "Link Accelerated checkout"
+    },
+    {
+      "id": "fact-15",
+      "text": "Stripe provides data sync with Data Pipeline.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Data Pipeline Data sync"
+    }
+  ]
+}
