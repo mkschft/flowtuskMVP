@@ -4,15 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type AIComposerProps = {
     flowId?: string;
     onNewSpeech?: (speech?: { id: string; content: string; author: string; parent_flow: string; created_at?: string }) => void;
+    onLoadingChange?: (loading: boolean) => void;
+    onInputChange?: (hasValue: boolean) => void;
+    onStreamingContent?: (content: string) => void;
 };
 
-export function AIComposer({ flowId, onNewSpeech }: AIComposerProps) {
+export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange, onStreamingContent }: AIComposerProps) {
     const [value, setValue] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
@@ -64,6 +67,59 @@ export function AIComposer({ flowId, onNewSpeech }: AIComposerProps) {
 
                 onNewSpeech?.(createdSpeech as any);
                 setValue("");
+                onLoadingChange?.(true);
+
+                // Generate AI response and stream it
+                try {
+                    const aiResp = await fetch("/api/generate-ai-response", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: content }),
+                    });
+
+                    if (!aiResp.ok || !aiResp.body) {
+                        throw new Error("Failed to start streaming");
+                    }
+
+                    const reader = aiResp.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullResponse = "";
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value, { stream: true });
+                        fullResponse += chunk;
+                        onStreamingContent?.(fullResponse);
+                    }
+
+                    // Save to database only after streaming is complete
+                    if (fullResponse.trim()) {
+                        const createResp = await fetch("/api/create-ai-speech", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                content: fullResponse.trim(),
+                                flowId: newFlow.id,
+                                modelCode: "gpt-4o-mini",
+                            }),
+                        });
+                        if (createResp.ok) {
+                            const aiSpeech = await createResp.json();
+                            onNewSpeech?.(aiSpeech as any);
+                            onStreamingContent?.("");
+                        } else {
+                            const errorData = await createResp.json();
+                            console.error("Failed to create AI speech:", errorData);
+                        }
+                    }
+                } catch (aiError) {
+                    console.error("Failed to generate AI response:", aiError);
+                } finally {
+                    onLoadingChange?.(false);
+                }
+
                 router.push(`/app/${newFlow.id}`);
                 return;
             }
@@ -77,6 +133,59 @@ export function AIComposer({ flowId, onNewSpeech }: AIComposerProps) {
 
             if (speechErr) throw speechErr;
             onNewSpeech?.(createdSpeech as any);
+            onLoadingChange?.(true);
+
+            // Generate AI response and stream it
+            try {
+                const aiResp = await fetch("/api/generate-ai-response", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: content }),
+                });
+
+                if (!aiResp.ok || !aiResp.body) {
+                    throw new Error("Failed to start streaming");
+                }
+
+                const reader = aiResp.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullResponse += chunk;
+                    onStreamingContent?.(fullResponse);
+                }
+
+                // Save to database only after streaming is complete
+                if (fullResponse.trim()) {
+                    const createResp = await fetch("/api/create-ai-speech", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            content: fullResponse.trim(),
+                            flowId: flowId,
+                            modelCode: "gpt-4o-mini",
+                        }),
+                    });
+                    if (createResp.ok) {
+                        const aiSpeech = await createResp.json();
+                        onNewSpeech?.(aiSpeech as any);
+                        onStreamingContent?.("");
+                    } else {
+                        const errorData = await createResp.json();
+                        console.error("Failed to create AI speech:", errorData);
+                    }
+                }
+            } catch (aiError) {
+                console.error("Failed to generate AI response:", aiError);
+            } finally {
+                onLoadingChange?.(false);
+            }
+
             setValue("");
         } finally {
             setSubmitting(false);
@@ -96,11 +205,18 @@ export function AIComposer({ flowId, onNewSpeech }: AIComposerProps) {
                     placeholder="Enter a website URL to analyse..."
                     className="min-h-[56px] resize-none"
                     value={value}
-                    onChange={(e) => setValue(e.target.value)}
+                    onChange={(e) => {
+                        setValue(e.target.value);
+                        onInputChange?.(e.target.value.trim().length > 0);
+                    }}
                     disabled={submitting}
                 />
                 <Button type="submit" aria-label="Send" className="h-10 w-10 shrink-0 rounded-full p-0 flex items-center justify-center" disabled={submitting}>
-                    <ArrowUp className="size-4" />
+                    {submitting ? (
+                        <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                        <ArrowUp className="size-4" />
+                    )}
                 </Button>
             </form>
         </div>

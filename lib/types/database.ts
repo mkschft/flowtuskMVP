@@ -17,10 +17,20 @@ export interface FlowUpdate {
   title?: string;
 }
 
+export interface Model {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Speech {
   id: string;
   content: string;
-  author: string;
+  author: string | null;
+  model_id: string | null;
   parent_flow: string;
   context: Record<string, any>;
   created_at: string;
@@ -29,7 +39,8 @@ export interface Speech {
 
 export interface SpeechInsert {
   content: string;
-  author: string;
+  author?: string | null;
+  model_id?: string | null;
   parent_flow: string;
   context?: Record<string, any>;
 }

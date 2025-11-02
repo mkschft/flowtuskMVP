@@ -32,10 +32,8 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar user={userData} flows={(flowsRows || []) as { id: string; title: string }[]} />
-      <main className="flex-1">
-        {/* <div className=""> */}
+      <main className="flex-1 h-screen overflow-hidden">
         {children}
-        {/* </div> */}
       </main>
     </SidebarProvider>
   );

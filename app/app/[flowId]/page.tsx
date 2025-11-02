@@ -11,14 +11,14 @@ export default async function FlowPage({ params }: { params: Promise<{ flowId: s
   // Prefetch speeches to render and user to align bubbles
   const { data: speeches } = await supabase
     .from("speech")
-    .select("id, content, created_at, author")
+    .select("id, content, created_at, author, model_id")
     .eq("parent_flow", flowId)
     .order("created_at", { ascending: true });
 
   return (
     <FlowConversation
       flowId={flowId}
-      initialSpeeches={(speeches || []) as { id: string; content: string; created_at: string; author: string }[]}
+      initialSpeeches={(speeches || []) as { id: string; content: string; created_at: string; author: string | null; model_id: string | null }[]}
       currentUserId={currentUserId}
     />
   );
