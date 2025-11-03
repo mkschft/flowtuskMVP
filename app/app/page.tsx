@@ -604,8 +604,11 @@ function ThinkingBlock({ thinking, onCancel }: { thinking: ThinkingStep[]; onCan
                 onCancel();
               }}
               className="h-7 px-2 text-xs"
+              asChild
             >
-              Cancel
+              <span role="button" tabIndex={0}>
+                Cancel
+              </span>
             </Button>
           )}
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />

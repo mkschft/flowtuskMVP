@@ -118,9 +118,7 @@ function ProblemSlide() {
         {/* Header */}
         <div className="space-y-4">
         <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight max-w-4xl">
-          B2B Marketing funnels take weeks to build —<br />
-          and fail to convert ~95%<br />
-          of the time
+          B2B Marketing funnels take weeks to build — and fail to convert ~95% of the time
         </h2>
         </div>
 

@@ -45,8 +45,7 @@ export async function POST(req: NextRequest) {
             model: modelConfig.model,
             messages: [
               { role: "system", content: system },
-              { role: "developer" as any, content: developer },
-              { role: "user", content: user },
+              { role: "user", content: `${developer}\n\n${user}` },
             ],
             response_format: { type: "json_object" },
             temperature: modelConfig.temperature,

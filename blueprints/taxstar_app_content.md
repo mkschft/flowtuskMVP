@@ -128,7 +128,7 @@ Practice Management Made Easy
 
 Streamline Corporate Tax processes and empower your practice with Tax Star.
 
-[Client Management Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/)[Deadline Reminders Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/)[Review Workflows Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/)[Task Assignment Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/)
+[Client Management Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/#w-tabs-0-data-w-pane-0)[Deadline Reminders Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/#w-tabs-0-data-w-pane-1)[Review Workflows Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/#w-tabs-0-data-w-pane-2)[Task Assignment Centralize client information and communication in one place, making it easy to manage multiple corporate tax clients efficiently](https://taxstar.app/#w-tabs-0-data-w-pane-3)
 
 ![Image 17: quickbooks dashboard](https://cdn.prod.website-files.com/67128d9c572a2012abee8f3c/67470997419c0e4f6506e756_intuit.png)
 
@@ -163,6 +163,6 @@ Real People, Real Results
 
 Covers all accounting bases
 
-As an accountant, I need a solution that covers all bases. Tax Star software does just that. With se
+As an ac
 
 [Content truncated for performance]
