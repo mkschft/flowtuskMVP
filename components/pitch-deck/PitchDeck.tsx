@@ -95,20 +95,20 @@ function CoverSlide() {
 function ProblemSlide() {
   const problems = [
     {
-      title: "No customer clarity — just blind guesswork",
-      description: "Teams launch without a validated ICP; messaging stays generic"
+      title: "No customer clarity",
+      description: "Teams launch without validated ICPs. Generic messaging → ~5% conversion rates."
     },
     {
-      title: "Tool chaos (7+ fragmented tools for one funnel)",
-      description: "Brief in Notion → copy in Jasper/Docs → designs in Figma/Slides → page in Webflow/Unbounce → emails in HubSpot/Mailchimp → outreach on LinkedIn → tracking in GA. Context is lost"
+      title: "Tool chaos",
+      description: "7+ unconnected tools per funnel (brief → copy → design → LP → email → outreach → tracking). Context gets lost; output is inconsistent."
     },
     {
-      title: "Optimized for optimization, not for who you're selling to",
-      description: "Page builders make pages fast, AI writers make text fast, and marketing platforms automate — but they all assume you already know the persona and positioning. Speed without clarity = poor conversion"
+      title: "Built for speed, not fit",
+      description: "Page builders/AI writers make things fast, but not for the right audience. Consultants cost €15-50k, take 6 weeks, still miss the mark."
     },
     {
-      title: "Expensive, slow, inconsistent",
-      description: "3–6 weeks to ship; consultants cost €15k–50k+; messaging drifts across website, deck, LinkedIn, and sales calls"
+      title: "Expensive & slow results",
+      description: "€15-50k consultants. 6-week timelines. Still generic messaging."
     }
   ];
 
@@ -117,7 +117,7 @@ function ProblemSlide() {
       <div className="space-y-12">
         {/* Header */}
         <div className="space-y-4">
-        <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight max-w-4xl">
+        <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight">
           B2B Marketing funnels take weeks to build — and fail to convert ~95% of the time
         </h2>
         </div>
@@ -125,7 +125,7 @@ function ProblemSlide() {
         {/* Main Content - Two Columns */}
         <div className="grid grid-cols-5 gap-8">
           {/* Left Column - Problem Items */}
-          <div className="col-span-3 space-y-8">
+          <div className="col-span-3 space-y-4">
             {problems.map((problem, idx) => (
               <div key={idx} className="space-y-2">
                 <h3 className="text-lg font-semibold gradient-text">
