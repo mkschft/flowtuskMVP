@@ -109,7 +109,7 @@ importers:
         specifier: ^3
         version: 3.3.1
       '@mendable/firecrawl-js':
-        specifier: ^1.21.1
+        specifier: ^1.29.3
         version: 1.29.3
       '@tailwindcss/postcss':
         specifier: ^4

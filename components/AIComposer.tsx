@@ -74,7 +74,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                     const aiResp = await fetch("/api/generate-ai-response", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: content }),
+                        body: JSON.stringify({ message: content, flowId: newFlow.id }),
                     });
 
                     if (!aiResp.ok || !aiResp.body) {
@@ -140,7 +140,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                 const aiResp = await fetch("/api/generate-ai-response", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: content }),
+                    body: JSON.stringify({ message: content, flowId: flowId }),
                 });
 
                 if (!aiResp.ok || !aiResp.body) {

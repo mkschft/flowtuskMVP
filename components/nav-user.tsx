@@ -7,7 +7,12 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  Sun,
+  Moon,
+  Laptop,
 } from "lucide-react"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 
 import {
   Avatar,
@@ -20,6 +25,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -53,6 +60,14 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const initials = getInitials(user?.name || user?.email)
+  const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const ICON_SIZE = 16
 
   return (
     <SidebarMenu>
@@ -84,7 +99,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -114,6 +129,29 @@ export function NavUser({
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            {mounted && (
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={theme}
+                  onValueChange={(value) => setTheme(value)}
+                >
+                  <DropdownMenuRadioItem value="light" className="gap-2">
+                    <Sun size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>Light</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark" className="gap-2">
+                    <Moon size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>Dark</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system" className="gap-2">
+                    <Laptop size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>System</span>
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />

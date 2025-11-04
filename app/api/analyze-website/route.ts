@@ -44,13 +44,13 @@ export async function POST(req: NextRequest) {
           formats: ["markdown"],
         },
       });
-      
+
       console.log('✅ [Analyze] Firecrawl complete, pages:', 'data' in crawlResult ? crawlResult.data?.length || 0 : 0);
 
       if (crawlResult.success && 'data' in crawlResult) {
         // Combine all pages into one markdown
         let fullMarkdown = `# Website Crawl: ${url}\n\n`;
-        
+
         for (const page of crawlResult.data || []) {
           fullMarkdown += `## Page: ${page.metadata?.title || page.url}\n`;
           fullMarkdown += `URL: ${page.url}\n\n`;
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       const jinaUrl = `https://r.jina.ai/${url}`;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // Increased to 30s
-      
+
       try {
         const startTime = Date.now();
         const response = await fetch(jinaUrl, {
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
           },
           signal: AbortSignal.timeout(15000),
         });
-        
+
         if (response.ok) {
           const html = await response.text();
           // Basic HTML to markdown conversion (strip tags, keep text)
@@ -127,16 +127,16 @@ export async function POST(req: NextRequest) {
             .replace(/<[^>]+>/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
-          
+
           console.log('✅ [Analyze] Direct fetch successful');
         }
       } catch (fetchError) {
         console.error('❌ [Analyze] All fetch methods failed:', fetchError);
         return NextResponse.json(
-          { 
+          {
             error: "Unable to access website. Please check the URL and try again.",
             details: "The website may be blocking automated access or taking too long to respond."
-          }, 
+          },
           { status: 500 }
         );
       }
@@ -183,7 +183,7 @@ export async function POST(req: NextRequest) {
     // Handle API call failure
     if (!result.success || !result.data) {
       console.error('❌ [Analyze] Facts extraction failed:', result.error);
-      
+
       // Fallback: Return raw content without facts
       return NextResponse.json({
         content: rawContent,
@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
 
     if (!validation.ok) {
       console.error('❌ [Analyze] Facts validation failed:', validation.errors);
-      
+
       // Fallback: Return raw content without facts
       return NextResponse.json({
         content: rawContent,
@@ -230,17 +230,17 @@ export async function POST(req: NextRequest) {
       try {
         const blueprintsDir = join(process.cwd(), "blueprints");
         await mkdir(blueprintsDir, { recursive: true });
-        
+
         const hostname = new URL(url).hostname.replace(/\./g, "_");
-        
+
         // Save raw content
         const contentFilepath = join(blueprintsDir, `${hostname}_content.md`);
         await writeFile(contentFilepath, rawContent, "utf-8");
-        
+
         // Save facts JSON
         const factsFilepath = join(blueprintsDir, `${hostname}_facts.json`);
         await writeFile(factsFilepath, JSON.stringify(factsJson, null, 2), "utf-8");
-        
+
         console.log('💾 [Analyze] Saved blueprints:', hostname);
       } catch (err) {
         console.warn('⚠️ [Analyze] Failed to save blueprints:', err);
