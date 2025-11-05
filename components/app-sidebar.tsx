@@ -3,12 +3,8 @@
 import * as React from "react"
 import {
   AudioWaveform,
-  Bot,
   Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Search,
   Trash2,
   Waypoints,
@@ -19,7 +15,6 @@ import {
 import { NavMain } from "@/components/nav-main"
 import { NavFlows } from "@/components/nav-flows"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,

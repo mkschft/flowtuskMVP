@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import FirecrawlApp from "@mendable/firecrawl-js";
 import OpenAI from "openai";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
@@ -23,7 +22,7 @@ export async function POST(req: NextRequest) {
     console.log('🔍 [Analyze] Starting analysis for:', url);
 
     // ========================================================================
-    // STEP 1: Fetch website content (Firecrawl or Jina)
+    // STEP 1: Fetch website content (Internal Scrape Service or Jina)
     // ========================================================================
     let rawContent = "";
     let source = "jina";
@@ -32,42 +31,31 @@ export async function POST(req: NextRequest) {
       faviconUrl: `${new URL(url).origin}/favicon.ico`,
     };
 
-    // Use Firecrawl only if explicitly enabled (it's slower but more comprehensive)
-    if (process.env.FIRECRAWL_API_KEY && process.env.FIRECRAWL_ENABLED === 'true') {
-      console.log('🔥 [Analyze] Using Firecrawl');
-      const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
-
-      // Crawl only homepage for fastest results
-      const crawlResult = await firecrawl.crawlUrl(url, {
-        limit: 1, // Only homepage for speed
-        scrapeOptions: {
-          formats: ["markdown"],
-        },
+    // Use internal scrape service (replaces Firecrawl)
+    try {
+      console.log('🔍 [Analyze] Using internal scrape service');
+      const { scrapeWebsite } = await import("@/lib/scraper");
+      
+      const scrapeResult = await scrapeWebsite(url, {
+        include_text: true,
+        include_links: true,
+        include_images: false,
       });
 
-      console.log('✅ [Analyze] Firecrawl complete, pages:', 'data' in crawlResult ? crawlResult.data?.length || 0 : 0);
+      if (scrapeResult.markdown) {
+        rawContent = scrapeResult.markdown;
+        source = "scraper";
 
-      if (crawlResult.success && 'data' in crawlResult) {
-        // Combine all pages into one markdown
-        let fullMarkdown = `# Website Crawl: ${url}\n\n`;
+        // Extract metadata from scrape service
+        metadata.heroImage = scrapeResult.metadata.heroImage || null;
 
-        for (const page of crawlResult.data || []) {
-          fullMarkdown += `## Page: ${page.metadata?.title || page.url}\n`;
-          fullMarkdown += `URL: ${page.url}\n\n`;
-          fullMarkdown += page.markdown || "";
-          fullMarkdown += "\n\n---\n\n";
-        }
-
-        rawContent = fullMarkdown;
-        source = "firecrawl";
-
-        // Extract metadata from Firecrawl
-        const firstPage = crawlResult.data?.[0];
-        metadata.heroImage = firstPage?.metadata?.ogImage || null;
+        console.log('✅ [Analyze] Scrape service complete');
       }
+    } catch (scrapeError) {
+      console.warn('⚠️ [Analyze] Scrape service error:', scrapeError);
     }
 
-    // Fallback to Jina AI Reader if Firecrawl not used or failed
+    // Fallback to Jina AI Reader if scrape service failed
     if (!rawContent) {
       console.log('🌐 [Analyze] Using Jina AI Reader');
       const jinaUrl = `https://r.jina.ai/${url}`;
@@ -188,7 +176,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         content: rawContent,
         source,
-        pages: source === "firecrawl" ? 3 : 1,
+        pages: 1,
         metadata,
         factsJson: null,
         extractionError: result.error?.message || "Failed to extract facts",
@@ -209,7 +197,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         content: rawContent,
         source,
-        pages: source === "firecrawl" ? 3 : 1,
+        pages: 1,
         metadata,
         factsJson: null,
         validationErrors: validation.errors,
@@ -255,7 +243,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       content: rawContent, // Keep for fallback
       source,
-      pages: source === "firecrawl" ? 3 : 1,
+      pages: 1,
       metadata,
       factsJson, // NEW: Structured facts for reuse
     });

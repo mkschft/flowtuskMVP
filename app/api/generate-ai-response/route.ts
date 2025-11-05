@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
+import { scrapeWebsite, streamScrapeWebsite } from "@/lib/scraper";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -24,57 +25,156 @@ function detectUrls(text: string): string[] {
     return [...new Set(cleanedUrls)];
 }
 
-// Scrape URL using Firecrawl and stream content
-async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder): Promise<string> {
-    const apiKey = process.env.FIRECRAWL_API_KEY;
-    if (!apiKey) {
-        const errorMsg = "\n\n[Error: Firecrawl API key not configured]\n\n";
-        controller.enqueue(encoder.encode(errorMsg));
-        return "";
-    }
-
+// Generate pain points and growth opportunity analysis from scraped content
+async function generatePainPointsAnalysis(
+    content: string,
+    url: string,
+    flowId: string | undefined,
+    req: NextRequest
+): Promise<void> {
     try {
-        controller.enqueue(encoder.encode(`\n\n[Scraping ${url}...]\n\n`));
+        // Limit content to avoid token limits
+        const truncatedContent = content.length > 30000 ? content.substring(0, 30000) + "..." : content;
 
-        const scrapeResp = await fetch("https://api.firecrawl.dev/v2/scrape", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                url: url,
-                formats: ["markdown"],
-            }),
+        const analysisPrompt = `Analyze the following website content and extract:
+
+1. Key Pain Points & Impact: List 2-4 specific pain points that the business addresses, each with a quantified impact (e.g., "45% of firms report increased stress", "average penalty of AED 5,000"). Use bullet points with the format: "• [Pain point] — [Specific impact with numbers/metrics]."
+
+2. Growth Opportunity: Generate a single paragraph (2-3 sentences) about the growth potential when targeting the right customer profile with personalized messaging. Include realistic multipliers (2x-5x) and specific benefits.
+
+Website content:
+${truncatedContent}
+
+Return ONLY valid JSON in this exact format:
+{
+  "painPoints": [
+    "• [Pain point description] — [Specific quantified impact]",
+    "• [Pain point description] — [Specific quantified impact]"
+  ],
+  "growthOpportunity": "[2-3 sentence paragraph about growth potential with realistic metrics]"
+}
+
+IMPORTANT:
+- Use REAL numbers and metrics from the content when available
+- If specific numbers aren't available, use realistic industry-standard estimates
+- Keep pain points concise and specific
+- Growth opportunity should be compelling but realistic (2x-5x multipliers)`;
+
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a B2B marketing analyst specializing in extracting pain points and growth opportunities from business websites.",
+                },
+                {
+                    role: "user",
+                    content: analysisPrompt,
+                },
+            ],
+            temperature: 0.7,
+            response_format: { type: "json_object" },
+            max_tokens: 1000,
         });
 
-        if (!scrapeResp.ok) {
-            const errorText = await scrapeResp.text();
-            const errorMsg = `\n\n[Error scraping ${url}: ${errorText}]\n\n`;
-            controller.enqueue(encoder.encode(errorMsg));
-            return "";
-        }
-
-        const scrapeData = await scrapeResp.json();
-        const markdown = scrapeData.data?.markdown || scrapeData.markdown || "";
-        const metadata = scrapeData.data?.metadata || scrapeData.metadata || {};
-
-        if (markdown) {
-            // Stream the scraped content
-            const title = metadata.title || metadata.ogTitle || new URL(url).hostname;
-            const description = metadata.description || metadata.ogDescription || "";
+        const result = JSON.parse(response.choices[0]?.message?.content || "{}");
+        
+        if (result.painPoints && result.growthOpportunity && flowId) {
+            // Format the analysis as markdown
+            let analysisText = `**Key Pain Points & Impact:**\n\n`;
             
-            let scrapedContent = `## Scraped Content from ${title}\n\n`;
-            if (description) {
-                scrapedContent += `**Description:** ${description}\n\n`;
+            result.painPoints.forEach((point: string) => {
+                analysisText += `${point}\n\n`;
+            });
+            
+            analysisText += `**Growth Opportunity:** ${result.growthOpportunity}`;
+            
+            // Save as a separate speech
+            try {
+                const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
+                const createReq = new NextRequest(req.url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        content: analysisText,
+                        flowId: flowId,
+                        modelCode: "gpt-4o-mini",
+                    }),
+                });
+                await createSpeech(createReq);
+            } catch (saveError) {
+                console.error("Error saving pain points analysis:", saveError);
             }
-            scrapedContent += `**URL:** ${url}\n\n`;
-            scrapedContent += `---\n\n${markdown}\n\n---\n\n`;
-            
-            controller.enqueue(encoder.encode(scrapedContent));
-            return markdown;
-        } else {
-            controller.enqueue(encoder.encode(`\n[No content extracted from ${url}]\n\n`));
+        }
+    } catch (error) {
+        // Silently fail - don't break the flow if analysis fails
+        console.error("Error generating pain points analysis:", error);
+    }
+}
+
+// Scrape URL using internal scrape service and stream OpenAI-formatted content
+async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, flowId?: string, req?: NextRequest): Promise<string> {
+    try {
+        // Output bold "Crawling URL" and preview card with link
+        const previewHtml = `<div class="my-4 border rounded-lg p-4 bg-muted/50">
+<strong>Crawling URL</strong>
+<div class="mt-3 flex items-center gap-3">
+  <div class="flex-1">
+    <p class="text-sm font-medium text-foreground">${url}</p>
+    <p class="text-xs text-muted-foreground mt-1">Website preview unavailable (CSP restrictions)</p>
+  </div>
+  <a href="${url}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+    Open Site →
+  </a>
+</div>
+</div>\n\n`;
+        controller.enqueue(encoder.encode(`\n\n${previewHtml}`));
+
+        let markdown = "";
+        let hasContent = false;
+
+        try {
+            // Stream OpenAI-formatted markdown from scrape service
+            for await (const formattedChunk of streamScrapeWebsite(url, {
+                include_text: true,
+                include_links: true,
+                include_images: false,
+                timeout: 30,
+            })) {
+                markdown += formattedChunk;
+                hasContent = true;
+                // Stream the formatted content as it comes from OpenAI
+                controller.enqueue(encoder.encode(formattedChunk));
+            }
+
+            if (hasContent && markdown) {
+                // Add separator
+                controller.enqueue(encoder.encode(`\n\n---\n\n`));
+                
+                // Generate pain points analysis asynchronously and save as separate speech
+                if (flowId && req) {
+                    generatePainPointsAnalysis(markdown, url, flowId, req).catch((err) => {
+                        console.error("Failed to generate pain points analysis:", err);
+                    });
+                }
+                
+                return markdown;
+            } else {
+                controller.enqueue(encoder.encode(`\n[No content extracted from ${url}]\n\n`));
+                return "";
+            }
+        } catch (streamError) {
+            if (streamError instanceof Error) {
+                if (streamError.message.includes('timeout') || streamError.name === 'AbortError') {
+                    const errorMsg = `\n\n[Timeout: ${url} took too long to respond (30s limit)]\n` +
+                        "The website may be blocking automated access or responding slowly.\n\n";
+                    controller.enqueue(encoder.encode(errorMsg));
+                } else {
+                    const errorMsg = `\n\n[Error scraping ${url}: ${streamError.message}]\n\n`;
+                    controller.enqueue(encoder.encode(errorMsg));
+                }
+            }
             return "";
         }
     } catch (error) {
@@ -231,227 +331,103 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
     try {
         switch (toolName) {
             case "Crawler": {
-                const apiKey = process.env.FIRECRAWL_API_KEY;
-                if (!apiKey) {
-                    return JSON.stringify({ error: "Firecrawl API key not configured" });
-                }
-
-                // Define extraction schema for comprehensive data
-                const extractionSchema = {
-                    type: "object",
-                    properties: {
-                        title: { type: "string" },
-                        favicon: { type: "string" },
-                        description: { type: "string" },
-                        cssColors: {
-                            type: "object",
-                            properties: {
-                                primary: { type: "string" },
-                                secondary: { type: "string" },
-                                accent: { type: "string" },
-                                background: { type: "string" },
-                                text: { type: "string" }
-                            }
-                        },
-                        fonts: {
-                            type: "array",
-                            items: { type: "string" }
-                        },
-                        socialMediaPreview: {
-                            type: "object",
-                            properties: {
-                                ogImage: { type: "string" },
-                                ogTitle: { type: "string" },
-                                ogDescription: { type: "string" },
-                                twitterImage: { type: "string" },
-                                twitterTitle: { type: "string" },
-                                twitterDescription: { type: "string" }
-                            }
-                        },
-                        pageStructure: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    heading: { type: "string" },
-                                    description: { type: "string" },
-                                    section: { type: "string" }
-                                }
-                            }
-                        }
-                    },
-                    required: ["title", "description"]
-                };
-
-                // Call Firecrawl Extract API
-                const firecrawlResp = await fetch("https://api.firecrawl.dev/v2/extract", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${apiKey}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        urls: [args.url],
-                        prompt: "Extract the complete website information including title, favicon, description, CSS colors and fonts used, social media preview metadata (OG tags, Twitter cards), and the page structure with all headings and their descriptions. Provide comprehensive details about the visual design and content organization.",
-                        schema: extractionSchema,
-                        scrapeOptions: {
-                            formats: [
-                                {
-                                    type: "json",
-                                    prompt: "Extract all website metadata, design information, and page structure",
-                                    schema: extractionSchema
-                                }
-                            ]
-                        }
-                    }),
-                });
-
-                if (!firecrawlResp.ok) {
-                    const error = await firecrawlResp.text();
-                    return JSON.stringify({ error: `Firecrawl API error: ${error}` });
-                }
-
-                const firecrawlData = await firecrawlResp.json();
-
-                // Extract data from response
-                let extractedData;
-                if (firecrawlData.data && Array.isArray(firecrawlData.data) && firecrawlData.data.length > 0) {
-                    extractedData = firecrawlData.data[0].extract || firecrawlData.data[0];
-                } else if (firecrawlData.extract) {
-                    extractedData = firecrawlData.extract;
-                } else {
-                    extractedData = firecrawlData;
-                }
-
-                const title = extractedData.title || new URL(args.url).hostname;
-                const favicon = extractedData.favicon || `${new URL(args.url).origin}/favicon.ico`;
-                const description = extractedData.description || "No description available.";
-                const cssColors = extractedData.cssColors || {};
-                const fonts = extractedData.fonts || [];
-                const socialMediaPreview = extractedData.socialMediaPreview || {};
-                const pageStructure = extractedData.pageStructure || [];
-
-                // Build formatted content
-                let formattedContent = "";
-
-                // Row 1: favicon + bold site name
-                formattedContent += `![Favicon](${favicon}) **${title}**\n\n`;
-
-                // Row 2: Social media preview
-                let ogImage = socialMediaPreview.ogImage || socialMediaPreview.twitterImage;
-                const ogTitle = socialMediaPreview.ogTitle || socialMediaPreview.twitterTitle || title;
-                const ogDescription = socialMediaPreview.ogDescription || socialMediaPreview.twitterDescription || description;
-
-                if (ogImage) {
-                    formattedContent += `![Social Preview](${ogImage})\n`;
-                    formattedContent += `**${ogTitle}**\n`;
-                    formattedContent += `${ogDescription}\n\n`;
-                } else {
-                    formattedContent += `*Social media preview not available*\n\n`;
-                }
-
-                // Row 3: Description page
-                formattedContent += `## Description\n\n${description}\n\n`;
-
-                // Add CSS Colors and Fonts if available
-                if (Object.keys(cssColors).length > 0) {
-                    formattedContent += `### Design Colors\n`;
-                    if (cssColors.primary) formattedContent += `- Primary: ${cssColors.primary}\n`;
-                    if (cssColors.secondary) formattedContent += `- Secondary: ${cssColors.secondary}\n`;
-                    if (cssColors.accent) formattedContent += `- Accent: ${cssColors.accent}\n`;
-                    if (cssColors.background) formattedContent += `- Background: ${cssColors.background}\n`;
-                    if (cssColors.text) formattedContent += `- Text: ${cssColors.text}\n`;
-                    formattedContent += `\n`;
-                }
-
-                if (fonts.length > 0) {
-                    formattedContent += `### Fonts\n`;
-                    fonts.forEach((font: string) => {
-                        formattedContent += `- ${font}\n`;
-                    });
-                    formattedContent += `\n`;
-                }
-
-                // Row 4: Page structure with headings and descriptions
-                if (pageStructure.length > 0) {
-                    formattedContent += `## Page Structure\n\n`;
-                    pageStructure.forEach((section: any, index: number) => {
-                        const heading = section.heading || section.section || `Section ${index + 1}`;
-                        const sectionDesc = section.description || "No description provided.";
-                        formattedContent += `### ${heading}\n\n${sectionDesc}\n\n`;
-                    });
-                } else {
-                    formattedContent += `## Page Structure\n\n*Structure analysis not available*\n\n`;
-                }
-
-                formattedContent += `---\n\n`;
-
-                // Stream formatted content if controller and encoder are provided
-                if (controller && encoder) {
-                    controller.enqueue(encoder.encode(formattedContent));
-                }
-
-                // Also get markdown for saving
-                let markdown = "";
                 try {
-                    const scrapeResp = await fetch("https://api.firecrawl.dev/v2/scrape", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${apiKey}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            url: args.url,
-                            formats: ["markdown"],
-                        }),
+                    // Use internal scrape service
+                    const scrapeResult = await scrapeWebsite(args.url, {
+                        include_text: true,
+                        include_links: true,
+                        include_images: false,
                     });
-                    if (scrapeResp.ok) {
-                        const scrapeData = await scrapeResp.json();
-                        markdown = scrapeData.data?.markdown || scrapeData.markdown || "";
+
+                    const title = scrapeResult.metadata.title || new URL(args.url).hostname;
+                    const favicon = `${new URL(args.url).origin}/favicon.ico`;
+                    const description = scrapeResult.metadata.description || "No description available.";
+
+                    // Build formatted content
+                    let formattedContent = "";
+
+                    // Row 1: favicon + bold site name
+                    formattedContent += `![Favicon](${favicon}) **${title}**\n\n`;
+
+                    // Row 2: Social media preview (if hero image available)
+                    const ogImage = scrapeResult.metadata.heroImage;
+                    if (ogImage) {
+                        formattedContent += `![Social Preview](${ogImage})\n`;
+                        formattedContent += `**${title}**\n`;
+                        formattedContent += `${description}\n\n`;
+                    } else {
+                        formattedContent += `*Social media preview not available*\n\n`;
                     }
-                } catch (scrapeErr) {
-                    console.error("Error fetching markdown:", scrapeErr);
-                }
 
-                // Build full markdown content with formatted data
-                let fullMarkdown = formattedContent;
-                if (markdown) {
-                    fullMarkdown += `\n\n## Full Content\n\n${markdown}`;
-                }
+                    // Row 3: Description
+                    formattedContent += `## Description\n\n${description}\n\n`;
 
-                // Save formatted content as speech if flowId is provided
-                if (flowId) {
-                    try {
-                        // Save to database
-                        const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
-                        const createReq = new NextRequest(req.url, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                content: fullMarkdown,
-                                flowId: flowId,
-                                modelCode: "firecrawl-scraper",
-                            }),
+                    // Extract basic page structure from markdown (headings)
+                    const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+                    const headings: Array<{ level: number; text: string }> = [];
+                    let match;
+                    while ((match = headingRegex.exec(scrapeResult.markdown)) !== null) {
+                        headings.push({
+                            level: match[1].length,
+                            text: match[2],
                         });
-                        await createSpeech(createReq);
-                    } catch (saveError) {
-                        console.error("Error saving scraped content:", saveError);
                     }
-                }
 
-                // Return structured summary for AI processing
-                const summary = {
-                    success: true,
-                    url: args.url,
-                    title,
-                    description,
-                    cssColors,
-                    fonts: fonts.slice(0, 5),
-                    hasSocialPreview: !!ogImage,
-                    structureSections: pageStructure.length,
-                    note: "Complete website information including design details and structure has been extracted and saved to the flow.",
-                };
-                return JSON.stringify(summary);
+                    // Row 4: Page structure with headings
+                    if (headings.length > 0) {
+                        formattedContent += `## Page Structure\n\n`;
+                        headings.slice(0, 10).forEach((heading) => {
+                            const prefix = '#'.repeat(heading.level + 2);
+                            formattedContent += `${prefix} ${heading.text}\n\n`;
+                        });
+                    } else {
+                        formattedContent += `## Page Structure\n\n*Structure analysis not available*\n\n`;
+                    }
+
+                    formattedContent += `---\n\n`;
+
+                    // Stream formatted content if controller and encoder are provided
+                    if (controller && encoder) {
+                        controller.enqueue(encoder.encode(formattedContent));
+                    }
+
+                    // Build full markdown content
+                    const fullMarkdown = formattedContent + `\n\n## Full Content\n\n${scrapeResult.markdown}`;
+
+                    // Save formatted content as speech if flowId is provided
+                    if (flowId) {
+                        try {
+                            const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
+                            const createReq = new NextRequest(req.url, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    content: fullMarkdown,
+                                    flowId: flowId,
+                                    modelCode: "gpt-4o-mini",
+                                }),
+                            });
+                            await createSpeech(createReq);
+                        } catch (saveError) {
+                            console.error("Error saving scraped content:", saveError);
+                        }
+                    }
+
+                    // Return structured summary for AI processing
+                    const summary = {
+                        success: true,
+                        url: args.url,
+                        title,
+                        description,
+                        hasSocialPreview: !!ogImage,
+                        structureSections: headings.length,
+                        note: "Complete website information has been extracted and saved to the flow.",
+                    };
+                    return JSON.stringify(summary);
+                } catch (error) {
+                    const errorMsg = error instanceof Error ? error.message : String(error);
+                    return JSON.stringify({ error: `Scrape service error: ${errorMsg}` });
+                }
             }
             case "analyze_website": {
                 const { POST } = await import("@/app/api/analyze-website/route");
@@ -561,6 +537,7 @@ export async function POST(req: NextRequest) {
                     // Detect URLs in the message
                     const urls = detectUrls(message);
                     const scrapedContents: Array<{ url: string; content: string }> = [];
+                    const scrapedUrls = new Set<string>(); // Track which URLs were already scraped
                     
                     // Check if prompt mentions scraping requirements
                     const lowerMessage = message.toLowerCase();
@@ -576,9 +553,10 @@ export async function POST(req: NextRequest) {
                     // If URLs detected or scraping mentioned, scrape them
                     if (needsScraping && urls.length > 0) {
                         for (const url of urls) {
-                            const content = await scrapeUrl(url, controller, encoder);
+                            const content = await scrapeUrl(url, controller, encoder, flowId, req);
                             if (content) {
                                 scrapedContents.push({ url, content });
+                                scrapedUrls.add(url); // Track that this URL was scraped
                             }
                         }
                     } else if (needsScraping && urls.length === 0) {
@@ -689,12 +667,8 @@ Always explain what you're doing and summarize the results for the user.`;
                                     functionArgs = {};
                                 }
 
-                                // Send a message indicating we're using a tool
-                                if (functionName === "Crawler") {
-                                    controller.enqueue(encoder.encode(`\n\n[Scraping ${functionArgs.url || 'website'}...]\n\n`));
-                                } else {
-                                    controller.enqueue(encoder.encode(`\n\n[Using ${functionName}...]\n`));
-                                }
+                                // Skip duplicate scraping message if URL was already scraped
+                                // (Don't show tool usage messages)
 
                                 const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder);
 
