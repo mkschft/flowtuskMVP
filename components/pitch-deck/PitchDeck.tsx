@@ -37,7 +37,13 @@ import {
   Clock,
   RefreshCw,
   Video,
-  Play
+  Play,
+  Sparkles,
+  PenTool,
+  Layout,
+  Palette,
+  Table,
+  Briefcase
 } from "lucide-react";
 
 // Slide wrapper component
@@ -164,7 +170,7 @@ function GapSlide() {
     <Slide slideNumber={3}>
       <div className="space-y-10">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
           2025: GenAI has transformed content creation without knowing who to sell to. Clarity layer is missing
         </h2>
 
@@ -176,13 +182,10 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
                 <Bot className="h-6 w-6 gradient-text" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">Content AI is commoditized</h3>
+              <h3 className="text-xl font-medium text-foreground">Content AI is commoditized</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Teams can spin up copy fast (Jasper, Copy.ai, ChatGPT) but it&apos;s blind to ICP and brand positioning
-            </p>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              Result: plausible content <ArrowRight className="h-4 w-4 shrink-0" /> generic funnels <ArrowRight className="h-4 w-4 shrink-0" /> poor conversion
+              Marketers use the same tools (Jasper, Copy.ai, ChatGPT). Same prompts = same generic output = invisible in market noise.
             </p>
           </div>
 
@@ -192,13 +195,10 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
                 <BarChart3 className="h-6 w-6 gradient-text" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">Data tools give numbers, not strategy</h3>
+              <h3 className="text-xl font-medium text-foreground">Data tools show what happened, not what to say</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Clearbit/Apollo surface firmographics and intent, not who to prioritize, what pains to speak to, or what to say
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Great for lists, not for message-market fit
+              Analytics tell you &quot;bounce rate is 73%&quot; but they don&apos;t explain why or tell you &quot;your value prop missed their actual pain point&quot;
             </p>
           </div>
 
@@ -208,13 +208,10 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
                 <Triangle className="h-6 w-6 gradient-text" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">The gap (what&apos;s missing)</h3>
+              <h3 className="text-xl font-medium text-foreground">The gap (what&apos;s missing)</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              There&apos;s no clarity layer that turns a URL into validated ICPs, pains/JTBD, value props, and on-brand positioning, then carries that context into execution (LP, LinkedIn, email)
-            </p>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              Teams juggle 7+ tools <ArrowRight className="h-4 w-4 shrink-0" /> context lost, output inconsistent
+              No system connects customer research → positioning → content creation. Teams waste GenAI&apos;s speed on the wrong message.
             </p>
           </div>
 
@@ -224,16 +221,11 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
                 <Rocket className="h-6 w-6 gradient-text" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">The opportunity (what the solution must do)</h3>
+              <h3 className="text-xl font-medium text-foreground">The opportunity (Flowtusk)</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              A Positioning Copilot that delivers:
+              The B2B Funnel Copilot: URL → validated ICPs → tailored messaging → multichannel funnel. Finally, GenAI that knows your buyer.
             </p>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">• URL <ArrowRight className="h-3 w-3 shrink-0" /> Clarity: ICPs, pains, brand positioning</li>
-              <li className="flex items-center gap-2">• Clarity <ArrowRight className="h-3 w-3 shrink-0" /> Assets: on-brand landing pages, LinkedIn, and email</li>
-              <li className="flex items-center gap-2">• Assets <ArrowRight className="h-3 w-3 shrink-0" /> Learning: feedback loops to improve conversion over time</li>
-            </ul>
           </div>
         </div>
 
@@ -260,27 +252,27 @@ function SolutionSlide() {
     {
       number: 1,
       title: "Input",
-      description: "Paste your website URL (or use \"Show example\"); optionally add goal, market, and region."
+      description: "Drop any URL (or competitor's). Add target market if needed."
     },
     {
       number: 2,
       title: "Analysis",
-      description: "AI crawls key pages, maps brand voice/colors, product & proof, and builds a SiteContext (sitemap, messaging, competitors)."
+      description: "AI extracts actual customer voice, maps positioning gaps, validates against competition"
     },
     {
       number: 3,
       title: "Personas",
-      description: "Generates 3 ICP cards with role, firmographics, pains/goals, triggers, and LinkedIn lookalikes—pick one to continue."
+      description: "3 data-backed ICPs with psychographics, pains, triggers, and channel preferences—pick your winner"
     },
     {
       number: 4,
       title: "Value Props",
-      description: "For the selected ICP, creates 5 on-brand options (hero hook, value props, objections handled, CTA + section outline)."
+      description: "5 angles tailored to chosen ICP: hooks, objections handled, proof points mapped"
     },
     {
       number: 5,
-      title: "Funnel",
-      description: "Auto-builds Landing Page, LinkedIn, Email, and Notion/Slides from chosen ICP & value props. Export as JSON, Notion, Slides, or code in one click."
+      title: "Assets",
+      description: "Complete funnel ready: Landing page, LinkedIn sequence, email nurture—export anywhere in one click"
     }
   ];
 
@@ -288,8 +280,8 @@ function SolutionSlide() {
     <Slide slideNumber={4}>
       <div className="space-y-10">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-          From website URL to pitch-ready positioning in under 10 minutes
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
+          From any URL to converting campaigns in under 10 minutes
         </h2>
 
         {/* Two Column Layout */}
@@ -304,7 +296,7 @@ function SolutionSlide() {
                 </div>
                 {/* Content */}
                 <div className="flex-1 space-y-1">
-                  <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
+                  <h3 className="text-lg font-medium text-foreground">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
               </div>
@@ -317,10 +309,18 @@ function SolutionSlide() {
               <Monitor className="h-16 w-16 gradient-text" />
               <div className="space-y-2">
                 <h4 className="font-semibold gradient-text">
-                  Product Screenshot
+                  Live Demo Output
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                  Interface showing beautiful persona cards with photos, pain points, goals, and objections. Below, export options panel with buttons for Google Slides, Notion, LinkedIn, Email Templates. Clean, modern UI with purple-pink gradient accents
+                  Shows actual ICP cards with:
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1 text-left max-w-md">
+                  <li>• Verified pains from real customer data</li>
+                  <li>• Message-market fit scoring</li>
+                  <li>• Export-ready templates</li>
+                </ul>
+                <p className="text-xs font-medium text-foreground pt-2 italic">
+                  Not templates. Not generic AI. Real customer intelligence.
                 </p>
               </div>
             </div>
@@ -469,42 +469,43 @@ function RoadmapSlide() {
   const phases = [
     {
       number: 1,
-      phase: "MVP Development",
-      title: "Positioning Copilot MVP",
-      timeframe: "Now – Month 3",
+      phase: "Phase 1",
+      title: "MVP Development",
+      timeframe: "Months 0-6",
       features: [
-        "Website → Personas → Value Props → Content",
-        "One-click export to Google Slides",
-        "Validate fit with 50 design-partner teams"
+        "Ship core: URL → ICPs → Value Props → Content",
+        "Onboard 2 partner agencies (from existing clients)",
+        "Land 1 enterprise pilot"
       ],
-      target: "50 customers",
-      mrr: "€7.5K MRR"
+      target: "20 early adopters",
+      mrr: "€2K MRR"
     },
     {
       number: 2,
-      phase: "Traction",
-      title: "Multi-Format Exports",
-      timeframe: "Months 4–6",
+      phase: "Phase 2",
+      title: "Product-Market Fit",
+      timeframe: "Months 6–12",
       features: [
-        "Channel assets: Landing Page, LinkedIn, Email",
-        "Export formats: Notion, Slides, JSON API",
-        "Template Registry with quality guardrails"
+        "Multi-channel platform development (mobile app, marketplace etc.",
+        "Add LinkedIn + Email sequences",
+        "Close 3 enterprise accounts (€2-5K/month each)"
       ],
-      target: "200 customers",
-      mrr: "€30K MRR"
+      target: "40 customers",
+      mrr: "€5K MRR, €60K ARR"
     },
     {
       number: 3,
-      phase: "Growth",
-      title: "Brand Intelligence Platform",
-      timeframe: "Months 7–12",
+      phase: "Phase 3",
+      title: "Scale",
+      timeframe: "Months 13–24",
       features: [
-        "Positioning Memory as living source of truth",
-        "Consistency Scanner + competitive radar",
-        "CRM integrations for closed-loop tracking"
+        "Autonomous marketing agents + orchestration",
+        "Launch certified agency partner program",
+        "10 enterprise clients on annual contracts"
       ],
-      target: "500 customers",
-      mrr: "€75K MRR"
+      target: "700 customers",
+      mrr: "€1M ARR",
+      mrrSubtitle: "40% from agencies/enterprise"
     }
   ];
 
@@ -530,15 +531,15 @@ function RoadmapSlide() {
     <Slide slideNumber={6}>
       <div className="space-y-6">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-          From MVP to brand intelligence platform in 12 months
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
+          From MVP to growth in 24 months with €1M ARR (2027)
         </h2>
 
         {/* Three Phase Cards */}
         <div className="grid grid-cols-3 gap-6">
           {phases.map((phase) => (
-            <div key={phase.number} className="space-y-6">
-              <Card className="p-6">
+            <div key={phase.number} className="flex flex-col space-y-6">
+              <Card className="p-6 flex-1">
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="space-y-2">
@@ -568,15 +569,26 @@ function RoadmapSlide() {
               {/* Target Card */}
               <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border-2 border-dashed border-purple-300 dark:border-purple-700">
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Target
-                  </p>
-                  <p className="text-2xl font-bold gradient-text">
-                    {phase.target}
-                  </p>
-                  <p className="text-2xl font-bold gradient-text">
-                    {phase.mrr}
-                  </p>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Target{(phase as any).mrrSubtitle && ` (${(phase as any).mrrSubtitle})`}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">
+                      {phase.target}
+                    </p>
+                    {(phase as any).targetSubtitle && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {(phase as any).targetSubtitle}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">
+                      {phase.mrr}
+                    </p>
+                  </div>
                 </div>
               </Card>
             </div>
@@ -584,21 +596,13 @@ function RoadmapSlide() {
         </div>
 
         {/* Vision Statement */}
-        <div className="text-center py-2">
+        <div className="text-center py-2 space-y-1">
           <p className="text-base text-muted-foreground">
-            <span className="font-semibold text-foreground">Long-term vision:</span> Every B2B brand uses Flowtusk to maintain positioning clarity as a living, breathing asset
+            <span className="font-semibold text-foreground">Year 1 goal (2026):</span> €5K MRR, 5+ agency partners, 40 customers - validated playbook
           </p>
-        </div>
-
-        {/* Illustration Placeholder */}
-        <div className="border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-lg bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 px-6 py-3 flex items-center justify-center gap-4">
-          <GitBranch className="h-6 w-6 gradient-text shrink-0" />
-          <div className="text-center">
-            <h4 className="text-xs font-semibold gradient-text inline">
-              Illustration: Roadmap Timeline
-            </h4>
-            <span className="text-xs text-muted-foreground"> — Horizontal timeline showing three phases with key milestones marked.</span>
-          </div>
+          <p className="text-base text-muted-foreground">
+            <span className="font-semibold text-foreground">Year 2 goal (2027):</span> €75K+ MRR, 20+ agency partners, 10 enterprise accounts - ready to scale Series A
+          </p>
         </div>
       </div>
     </Slide>
@@ -619,7 +623,7 @@ function MarketSizeSlide() {
           {/* Two Column Layout */}
           <div className="grid grid-cols-2 gap-12">
             {/* Left Column - Market Size */}
-            <div className="space-y-5">
+            <div className="space-y-8">
               <h3 className="text-xl font-bold gradient-text mb-4">
                 Market Size
               </h3>
@@ -649,7 +653,7 @@ function MarketSizeSlide() {
               {/* SOM */}
               <div className="space-y-1.5">
                 <p className="text-sm text-muted-foreground uppercase tracking-wide">
-                  SOM target (Beachhead — Nordics, Year 1)
+                  SOM target (Beachhead — Nordics, Year 2)
                 </p>
                 <p className="text-5xl font-semi-bold text-foreground">€1.0M ARR</p>
                 <p className="text-xs text-muted-foreground font-medium leading-tight">
@@ -659,13 +663,13 @@ function MarketSizeSlide() {
             </div>
 
             {/* Right Column - Flowtusk Playbook */}
-            <div className="space-y-3.5">
-              <h3 className="text-xl font-bold gradient-text mb-4">
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold gradient-text mb-3">
                 Flowtusk Playbook
               </h3>
 
               {/* Time to value */}
-              <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
                 <div className="flex items-start gap-4">
                   <Clock className="h-8 w-8 text-[#7c3aed] shrink-0" />
                   <div className="space-y-1">
@@ -673,44 +677,56 @@ function MarketSizeSlide() {
                     <p className="text-lg font-bold text-foreground leading-tight">
                       <span className="gradient-text">10 minutes</span> vs 4 weeks
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      From URL to complete campaign while consultants still schedule kickoffs
+                    </p>
                   </div>
                 </div>
               </Card>
 
               {/* Cost */}
-              <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
                 <div className="flex items-start gap-4">
                   <span className="text-3xl text-[#7c3aed] shrink-0 font-bold">€</span>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Fraction of agency cost</p>
                     <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">€149/month</span> vs €50K one-time
+                      <span className="gradient-text">€149/month</span> vs €50K project
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Unlimited campaigns vs one-time deliverable
                     </p>
                   </div>
                 </div>
               </Card>
 
-              {/* Partner-led distribution */}
-              <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+              {/* Built-in distribution */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
                 <div className="flex items-start gap-4">
                   <Share2 className="h-8 w-8 text-[#7c3aed] shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Partner-led distribution</p>
+                    <p className="text-sm text-muted-foreground">Built-in distribution</p>
                     <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">Marketing and creative agency</span> partnerships
+                      <span className="gradient-text">20+ agency partnerships</span> locked
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Agencies white-label us = we scale through their clients
                     </p>
                   </div>
                 </div>
               </Card>
 
-              {/* Agent integrations */}
-              <Card className="p-5 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+              {/* Unique positioning engine */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
                 <div className="flex items-start gap-4">
                   <Bot className="h-8 w-8 text-[#7c3aed] shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Agent integrations</p>
+                    <p className="text-sm text-muted-foreground">Unique positioning engine</p>
                     <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">Autonomous AI agents</span> for core GTM channels
+                      <span className="gradient-text">AI that learns what converts</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Not just content generation - we track what messaging actually works
                     </p>
                   </div>
                 </div>
@@ -736,8 +752,8 @@ function MarketSizeSlide() {
 function BusinessModelSlide() {
   const proofPoints = [
     {
-      title: "GenAI gold-rush timing",
-      description: "The clarity layer is missing in GenAI. Teams want instant positioning → assets. We're shipping now with deep domain + agency roots.",
+      title: "Shovels in the GenAI gold rush",
+      description: "B2B teams are burning millions on AI content tools - but still shooting blind. We're the missing first step: WHO to target before they write anything.",
       icon: DollarSign
     },
     {
@@ -754,9 +770,9 @@ function BusinessModelSlide() {
 
   const targets = [
     {
-      label: "Launch reach (90 days)",
-      value: "1M+ views",
-      description: "targeting marketer communities (Product Hunt, Reddit, Discords), plus niche newsletters and content-marketing circles."
+      label: "Audience building",
+      value: "100K+",
+      description: "reach targeting marketer communities (Product Hunt, Reddit, Discords), plus niche newsletters and content-marketing circles."
     },
     {
       label: "First time value",
@@ -764,13 +780,13 @@ function BusinessModelSlide() {
       description: "from demo link -> funnels -> multi-channel content (LinkedIn, Email, X, LP) all under 10 minutes—with one-click embed/share"
     },
     {
-      label: "Viral share rate",
+      label: "CONTENT SAVES + SHARES*",
       value: "20%",
       description: "Achieved via Cursor/Bolt/Base44-inspired share loops and a content flywheel on every export."
     },
     {
       label: "WAITLIST sign-ups",
-      value: "3,000+",
+      value: "1,500+",
       description: "from founders, marketers, and agency operators within the first 30 days—driven by early demo and social buzz."
     }
   ];
@@ -778,48 +794,52 @@ function BusinessModelSlide() {
   return (
     <Slide slideNumber={8}>
       <div className="space-y-8">
-        {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
-          We're building the Bolt.new for B2B marketing—riding the GenAI wave with deep GTM + agency expertise
-        </h2>
+          {/* Title */}
+          <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
+            We're building the Bolt.new for B2B marketing—riding the GenAI wave with deep GTM + agency expertise
+          </h2>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-2 gap-8">
-          {/* Left: Proof Points */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold gradient-text">Why We Win</h3>
-            {proofPoints.map((point, idx) => {
-              const IconComponent = point.icon;
-              return (
-                <Card key={idx} className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center shrink-0">
-                      <IconComponent className="h-6 w-6 gradient-text" />
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-2 gap-8">
+            {/* Left: Proof Points */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold gradient-text">Why We Win</h3>
+              {proofPoints.map((point, idx) => {
+                const IconComponent = point.icon;
+                return (
+                  <Card key={idx} className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center shrink-0">
+                        <IconComponent className="h-6 w-6 gradient-text" />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <h3 className="text-xl font-bold text-foreground">{point.title}</h3>
+                        <p className="text-sm text-muted-foreground">{point.description}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 space-y-2">
-                      <h3 className="text-xl font-bold text-foreground">{point.title}</h3>
-                      <p className="text-sm text-muted-foreground">{point.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
+                  </Card>
+                );
+              })}
+            </div>
 
-          {/* Right: Social-Driven Targets */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold gradient-text">First-90-Day GTM Targets</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {targets.map((target, idx) => (
-                <Card key={idx} className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{target.label}</p>
-                  <p className="text-3xl font-bold gradient-text mb-2">{target.value}</p>
-                  <p className="text-xs text-muted-foreground">{target.description}</p>
-                </Card>
-              ))}
+            {/* Right: Social-Driven Targets */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold gradient-text">First 6-months GTM Targets</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {targets.map((target, idx) => (
+                  <Card key={idx} className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{target.label}</p>
+                    <p className="text-3xl font-bold gradient-text mb-2">{target.value}</p>
+                    <p className="text-xs text-muted-foreground">{target.description}</p>
+                  </Card>
+                ))}
+              </div>
+              {/* Footnote */}
+              <p className="text-[8px] text-muted-foreground leading-tight mt-10">
+                * Industry avg 2-5% (Rival IQ 2024); we target 20% via "10x content" (Rand Fishkin)
+              </p>
             </div>
           </div>
-        </div>
       </div>
     </Slide>
   );
@@ -832,7 +852,7 @@ function CompetitivePositioningSlide() {
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
-          We own the sweet spot of GenAI creation: vibe → business value
+          From vibe to value: we own the sweet spot of GenAI creation
         </h2>
 
         {/* 2x2 Quadrant Grid */}
@@ -841,8 +861,26 @@ function CompetitivePositioningSlide() {
             {/* Grid Container */}
             <div className="grid grid-cols-2 gap-1">
             {/* Top Left - Fast + Generic */}
-            <Card className="p-6 bg-muted/30 min-h-[240px] flex flex-col justify-center border border-muted-foreground/20">
-              <div className="space-y-3">
+            <Card className="p-6 bg-muted/30 min-h-[240px] flex flex-col justify-center border border-muted-foreground/20 relative">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 grid grid-cols-2 gap-2">
+                {/* Placeholder for Jasper logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/jasper.svg" alt="Jasper" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Notion logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/notion.svg" alt="Notion" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Framer logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/framer.svg" alt="Framer" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Canva logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/canva.svg" alt="Canva" className="w-full h-full object-contain opacity-60" />
+                </div>
+              </div>
+              <div className="space-y-3 pr-24">
                 <div>
                   <h3 className="text-base font-semibold text-foreground">AI copy, page builders, ad tools</h3>
                 </div>
@@ -860,6 +898,7 @@ function CompetitivePositioningSlide() {
                 <img src="/logo.svg" alt="Flowtusk" className="h-12 w-auto" />
                 <h3 className="text-2xl font-bold gradient-text">Flowtusk</h3>
                 <p className="text-sm font-medium text-foreground text-center">Fast launch with tailored content that ships everywhere.</p>
+                <p className="text-xs text-muted-foreground text-center italic">Positioning-first AI that knows your ICP before writing a word</p>
               </div>
             </Card>
 
@@ -868,7 +907,25 @@ function CompetitivePositioningSlide() {
               <div className="absolute left-2 top-2 text-xs text-muted-foreground">
                 Slow, Low Personalization
               </div>
-              <div className="space-y-3">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 grid grid-cols-2 gap-2">
+                {/* Placeholder for HubSpot logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/hubspot.svg" alt="HubSpot" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Zapier logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/zapier.svg" alt="Zapier" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Mailchimp logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/mailchimp.svg" alt="Mailchimp" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for Airtable logo */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/airtable.svg" alt="Airtable" className="w-full h-full object-contain opacity-60" />
+                </div>
+              </div>
+              <div className="space-y-3 pr-24">
                 <h3 className="text-base font-semibold text-foreground">DIY & fragmented tools</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>• HubSpot,Zapier,Make</p>
@@ -883,7 +940,25 @@ function CompetitivePositioningSlide() {
               <div className="absolute right-2 top-2 text-xs text-muted-foreground">
                 Slow, High Personalization
               </div>
-              <div className="space-y-3">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 grid grid-cols-2 gap-2">
+                {/* Placeholder for agency/consultant logo 1 */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/optimizely.svg" alt="Optimizely" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for agency/consultant logo 2 */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/fibrai.svg" alt="FibrAI" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for agency/consultant logo 3 */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/dovetail.svg" alt="Dovetail" className="w-full h-full object-contain opacity-60" />
+                </div>
+                {/* Placeholder for agency/consultant logo 4 */}
+                <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 p-1">
+                  <img src="/logos/agency.svg" alt="Agency" className="w-full h-full object-contain opacity-60" />
+                </div>
+              </div>
+              <div className="space-y-3 pr-24">
                 <h3 className="text-base font-semibold text-foreground">Tailored, expensive, manual</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>• Brand and creative agencies</p>
@@ -921,83 +996,93 @@ function TeamSlide() {
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
-          Deep B2B marketing track record in the Nordics-now productized as Flowtusk
+          From Nordic consulting to scalable SaaS
         </h2>
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-5 gap-12">
           {/* Left: Founder Profile */}
           <div className="col-span-2 space-y-4">
-            {/* Photo Placeholder */}
-            <Card className="p-8 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center space-y-2">
-              <Users className="h-20 w-20 gradient-text" />
-              <div className="text-center">
-                <p className="text-xs font-semibold gradient-text">
-                  Founder Photo
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  Professional headshot
-                </p>
+            {/* Photo */}
+            <Card className="p-2 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 overflow-hidden">
+              <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                <Image
+                  src="/Founder.jpg"
+                  alt="Hasan Shahriar"
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 768px) 100vw, 200px"
+                />
               </div>
             </Card>
 
             {/* Name & Title */}
             <div className="text-center space-y-1">
-              <h3 className="text-xl font-bold text-foreground">Md Hasan Shahriar</h3>
+              <h3 className="text-xl font-bold text-foreground">Hasan Shahriar</h3>
               <p className="text-base gradient-text font-medium">Founder & CEO</p>
             </div>
 
-            {/* Brand Logos */}
-            <div className="space-y-2">
+            {/* Brand Logos - Hidden for now */}
+            {/* <div className="space-y-2">
               <h4 className="text-xs font-semibold text-foreground text-center">Clients & Partners</h4>
-              <div className="grid grid-cols-2 gap-2 text-center text-[10px] text-muted-foreground">
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">Nordea Bank</div>
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">KONE</div>
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">TietoEvry</div>
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">Zipli</div>
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">Arkken</div>
-                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20">Others</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
+                  <img src="/Nordea.svg.png" alt="Nordea" className="max-h-8 max-w-full object-contain opacity-70" />
+                </div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
+                  <img src="/kone.svg" alt="KONE" className="max-h-8 max-w-full object-contain opacity-70" />
+                </div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
+                  <img src="/tietoevry.png" alt="TietoEvry" className="max-h-8 max-w-full object-contain opacity-70" />
+                </div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
+                  <img src="/zipli.svg" alt="Zipli" className="max-h-8 max-w-full object-contain opacity-70" />
+                </div>
+                <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
+                  <img src="/netguru.png" alt="Netguru" className="max-h-8 max-w-full object-contain opacity-70" />
+                </div>
+                <div className="p-2 bg-muted/30 rounded border border-muted-foreground/20 flex items-center justify-center text-[10px] text-muted-foreground h-12">Others</div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right: Experience & Stats */}
           <div className="col-span-3 space-y-6">
             {/* Title */}
-            <h3 className="text-xl font-bold gradient-text">10+ Years of B2B Marketing and GTM Expertise—Productized</h3>
+            <h3 className="text-xl font-bold gradient-text">8+ Years of B2B Marketing and GTM Expertise—Productized</h3>
             
             {/* Experience Summary */}
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Enterprise foundation:</span> Nordea → KONE → TietoEvry — led/optimized GTM for complex B2B solutions; learned how positioning moves pipeline.
+                  <span className="font-semibold text-foreground">Enterprise foundation:</span> KONE, TietoEvry, Nordea — built MVPs that generated 300+ B2B leads. Discovered positioning drives pipeline, not features.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Independent consultant:</span> Helped B2B SaaS teams clarify ICP, value props, and messaging; €61K YTD revenue from advisory; 100+ campaigns shipped.
+                  <span className="font-semibold text-foreground">Independent consultant:</span> €61K YTD 2024. 120+ campaigns shipped. Achieved 15% boost in conversion with positioning-first approach.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Startup community:</span> Strong participation in Helsinki's startup ecosystem.
+                  <span className="font-semibold text-foreground">Startup ecosystem:</span> Co-founded Krusti (€300K ARR). Active in Helsinki tech scene. Know what early-stage founders actually need.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Founder, Flowtusk (2025–):</span> Productizing that playbook into an AI positioning copilot that turns a URL into channel-ready assets in minutes.
+                  <span className="font-semibold text-foreground">Founder, Flowtusk (2025–):</span> Turning my 7-year playbook into AI. What took weeks of consulting now takes 10 minutes.
                 </p>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-4 pt-4">
+            <div className="grid grid-cols-4 gap-4 pt-4 pb-6">
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold gradient-text">10+</div>
+                <div className="text-3xl font-bold gradient-text">8+</div>
                 <div className="text-xs text-muted-foreground">Years in B2B Marketing</div>
               </Card>
               <Card className="p-4 text-center">
@@ -1013,6 +1098,30 @@ function TeamSlide() {
                 <div className="text-xs text-muted-foreground">Enterprise Clients</div>
               </Card>
             </div>
+
+            {/* Client Logos Row */}
+            <div className="pt-2 pb-2">
+              <div className="flex items-center justify-between gap-8 flex-wrap">
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/Nordea.svg.png" alt="Nordea" className="max-h-8 max-w-20 object-contain opacity-70 grayscale" />
+                </div>
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/kone.svg" alt="KONE" className="max-h-8 max-w-20 object-contain opacity-70 grayscale" />
+                </div>
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/tietoevry.png" alt="TietoEvry" className="max-h-8 max-w-20 object-contain opacity-70 grayscale" />
+                </div>
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/netguru.png" alt="Netguru" className="max-h-8 max-w-20 object-contain opacity-70 grayscale" />
+                </div>
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/zipli.svg" alt="Zipli" className="max-h-7 max-w-16 object-contain opacity-70 grayscale" />
+                </div>
+                <div className="h-8 flex items-center justify-center">
+                  <img src="/arkken.svg" alt="Arkken" className="max-h-8 max-w-20 object-contain opacity-70 grayscale" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1026,7 +1135,7 @@ function TheAskSlide() {
     <Slide slideNumber={11}>
       <div className="space-y-12">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
           €300K business loan to build MVP and acquire first 200 customers
         </h2>
 
@@ -1146,7 +1255,7 @@ function ClosingSlide() {
 
         {/* Main Message */}
         <div className="space-y-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight max-w-4xl mx-auto">
             2025 is the year <span className="gradient-text">positioning becomes a product</span>, not a service
           </h2>
         </div>
