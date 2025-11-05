@@ -47,12 +47,19 @@ import {
 } from "lucide-react";
 
 // Slide wrapper component
-function Slide({ children, slideNumber }: { children: React.ReactNode; slideNumber: number }) {
+function Slide({ children, slideNumber, tag }: { children: React.ReactNode; slideNumber: number; tag?: string }) {
   return (
     <div className="relative w-full h-screen flex items-center justify-center p-8 md:p-16">
       {/* Slide number indicator */}
-      <div className="absolute top-8 right-8 text-sm text-muted-foreground">
-        {slideNumber.toString().padStart(2, '0')}
+      <div className="absolute top-8 right-8 flex flex-col items-end gap-1">
+        {tag && (
+          <div className="text-xs text-muted-foreground/60 uppercase tracking-wider">
+            {tag}
+          </div>
+        )}
+        <div className="text-sm text-muted-foreground">
+          {slideNumber.toString().padStart(2, '0')}
+        </div>
       </div>
       
       {/* Content */}
@@ -77,7 +84,7 @@ function CoverSlide() {
             height={56}
             className="h-14 w-14"
           />
-          <div className="text-6xl font-semibold gradient-text">
+          <div className="text-6xl font-medium gradient-text">
             Flowtusk
           </div>
         </div>
@@ -119,7 +126,7 @@ function ProblemSlide() {
   ];
 
   return (
-    <Slide slideNumber={2}>
+    <Slide slideNumber={1} tag="Problem">
       <div className="space-y-12">
         {/* Header */}
         <div className="space-y-4">
@@ -134,7 +141,7 @@ function ProblemSlide() {
           <div className="col-span-3 space-y-4">
             {problems.map((problem, idx) => (
               <div key={idx} className="space-y-2">
-                <h3 className="text-lg font-semibold gradient-text">
+                <h3 className="text-lg font-medium gradient-text">
                   {problem.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -149,7 +156,7 @@ function ProblemSlide() {
             <div className="w-full h-full min-h-[300px] border-2 border-dashed border-purple-400 dark:border-purple-600 rounded-xl bg-purple-50/30 dark:bg-purple-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
               <ImageIcon className="h-16 w-16 text-pink-500 dark:text-pink-400" />
               <div className="space-y-2">
-                <h4 className="font-semibold gradient-text">
+                <h4 className="font-medium gradient-text">
                   Illustration: Positioning Chaos
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -164,10 +171,10 @@ function ProblemSlide() {
   );
 }
 
-// Slide 3: The Gap / Why Now
+// Slide 2: Opportunity / Why Now
 function GapSlide() {
   return (
-    <Slide slideNumber={3}>
+    <Slide slideNumber={2} tag="Why Now">
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
@@ -233,7 +240,7 @@ function GapSlide() {
         <div className="border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-xl bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 p-8 flex flex-col items-center justify-center space-y-4">
           <GitBranch className="h-12 w-12 gradient-text" />
           <div className="text-center space-y-2">
-            <h4 className="font-semibold gradient-text">
+            <h4 className="font-medium gradient-text">
               Illustration: Evolution Timeline
             </h4>
             <p className="text-xs text-muted-foreground max-w-3xl">
@@ -277,7 +284,7 @@ function SolutionSlide() {
   ];
 
   return (
-    <Slide slideNumber={4}>
+    <Slide slideNumber={3} tag="Solution">
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
@@ -291,7 +298,7 @@ function SolutionSlide() {
             {steps.map((step) => (
               <div key={step.number} className="flex gap-4">
                 {/* Number badge */}
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] flex items-center justify-center text-white font-bold text-lg shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] flex items-center justify-center text-white font-medium text-lg shrink-0">
                   {step.number}
                 </div>
                 {/* Content */}
@@ -308,7 +315,7 @@ function SolutionSlide() {
             <div className="w-full h-full min-h-[400px] border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-xl bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center p-8 text-center space-y-4">
               <Monitor className="h-16 w-16 gradient-text" />
               <div className="space-y-2">
-                <h4 className="font-semibold gradient-text">
+                <h4 className="font-medium gradient-text">
                   Live Demo Output
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
@@ -331,10 +338,10 @@ function SolutionSlide() {
   );
 }
 
-// Slide 5: How it Works (Architecture)
+// Slide 4: How it Works (Architecture)
 function HowItWorksSlide() {
   return (
-    <Slide slideNumber={5}>
+    <Slide slideNumber={4} tag="How It Works">
       <div className="space-y-6">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight text-center mb-8">
@@ -345,7 +352,7 @@ function HowItWorksSlide() {
         <div className="flex items-center justify-center gap-4 mb-8">
           <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
             <User className="h-7 w-7 mx-auto mb-2" />
-            <h3 className="font-bold text-base mb-1">User Input</h3>
+            <h3 className="font-medium text-base mb-1">User Input</h3>
             <p className="text-xs opacity-90">(URL + Goal)</p>
           </Card>
           
@@ -353,7 +360,7 @@ function HowItWorksSlide() {
           
           <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
             <Workflow className="h-7 w-7 mx-auto mb-2" />
-            <h3 className="font-bold text-base">Orchestrator</h3>
+            <h3 className="font-medium text-base">Orchestrator</h3>
           </Card>
         </div>
 
@@ -362,23 +369,23 @@ function HowItWorksSlide() {
           
           {/* AGENTS LAYER */}
           <div>
-            <Badge className="mb-3 bg-orange-600 text-white font-semibold">AGENTS</Badge>
+            <Badge className="mb-3 bg-orange-600 text-white font-medium">AGENTS</Badge>
             <div className="space-y-3">
               <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
                 <Search className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Analyzer Agent</h4>
+                <h4 className="font-medium text-sm mb-1">Analyzer Agent</h4>
                 <p className="text-xs opacity-90">Crawls & analyzes</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-purple-600 to-purple-700 text-white">
                 <Users className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">ICP Agent</h4>
+                <h4 className="font-medium text-sm mb-1">ICP Agent</h4>
                 <p className="text-xs opacity-90">Builds personas</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-cyan-600 to-cyan-700 text-white">
                 <Target className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Positioning Agent</h4>
+                <h4 className="font-medium text-sm mb-1">Positioning Agent</h4>
                 <p className="text-xs opacity-90">Creates value props</p>
               </Card>
             </div>
@@ -386,23 +393,23 @@ function HowItWorksSlide() {
 
           {/* CLARITY LAYER */}
           <div>
-            <Badge className="mb-3 bg-emerald-600 text-white font-semibold">CLARITY LAYER</Badge>
+            <Badge className="mb-3 bg-emerald-600 text-white font-medium">CLARITY LAYER</Badge>
             <div className="space-y-3">
               <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
                 <Globe className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Site Context</h4>
+                <h4 className="font-medium text-sm mb-1">Site Context</h4>
                 <p className="text-xs opacity-90">Brand & messaging</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
                 <Users className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Personas</h4>
+                <h4 className="font-medium text-sm mb-1">Personas</h4>
                 <p className="text-xs opacity-90">ICP cards</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
                 <Zap className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Value Props</h4>
+                <h4 className="font-medium text-sm mb-1">Value Props</h4>
                 <p className="text-xs opacity-90">Messaging options</p>
               </Card>
             </div>
@@ -410,23 +417,23 @@ function HowItWorksSlide() {
 
           {/* CONTENT LAYER */}
           <div>
-            <Badge className="mb-3 bg-blue-600 text-white font-semibold">CONTENT LAYER</Badge>
+            <Badge className="mb-3 bg-blue-600 text-white font-medium">CONTENT LAYER</Badge>
             <div className="space-y-3">
               <Card className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white">
                 <MessageSquare className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → LinkedIn</h4>
+                <h4 className="font-medium text-sm mb-1">Content → LinkedIn</h4>
                 <p className="text-xs opacity-90">(Post • Bio • InMail)</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-red-600 to-red-700 text-white">
                 <Mail className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → Email</h4>
+                <h4 className="font-medium text-sm mb-1">Content → Email</h4>
                 <p className="text-xs opacity-90">(One-time • Sequence)</p>
               </Card>
               
               <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
                 <FileText className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → Landing Page</h4>
+                <h4 className="font-medium text-sm mb-1">Content → Landing Page</h4>
                 <p className="text-xs opacity-90">(Sections/Components)</p>
               </Card>
             </div>
@@ -441,11 +448,11 @@ function HowItWorksSlide() {
         {/* Bottom Row: Export Layer */}
         <div className="flex justify-center">
           <div>
-            <Badge className="mb-3 bg-slate-700 text-white font-semibold">EXPORT LAYER</Badge>
+            <Badge className="mb-3 bg-slate-700 text-white font-medium">EXPORT LAYER</Badge>
             <div className="flex gap-6">
               <Card className="p-5 bg-gradient-to-br from-slate-700 to-slate-800 text-white min-w-[220px] text-center">
                 <FileText className="h-7 w-7 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-2">Template Registry</h4>
+                <h4 className="font-medium text-sm mb-2">Template Registry</h4>
                 <p className="text-xs opacity-90">(Next.js • Webflow • Email)</p>
               </Card>
               
@@ -453,7 +460,7 @@ function HowItWorksSlide() {
               
               <Card className="p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white min-w-[220px] text-center">
                 <Share2 className="h-7 w-7 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-2">Publish/Share/Embed</h4>
+                <h4 className="font-medium text-sm mb-2">Publish/Share/Embed</h4>
                 <p className="text-xs opacity-90">(Webflow • Notion • Slides • API)</p>
               </Card>
             </div>
@@ -464,7 +471,126 @@ function HowItWorksSlide() {
   );
 }
 
-// Slide 6: Roadmap
+// Slide 8: Market Validation & Early Results (Advantage)
+function MarketValidationSlide() {
+  return (
+    <Slide slideNumber={8} tag="Advantage">
+      <div className="relative space-y-8 pb-8">
+        {/* Title */}
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
+          Flowtusk Playbook: speed + distribution advantage competitors can't match
+        </h2>
+
+        {/* Main Content: 2 Column Layout */}
+        <div className="grid grid-cols-5 gap-8">
+          {/* Left Column: Flowtusk Playbook - 2x2 grid */}
+          <div className="col-span-3 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Time to value */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+                <div className="space-y-2">
+                  <Clock className="h-8 w-8 text-[#7c3aed] shrink-0" />
+                  <p className="text-sm text-muted-foreground">Time to value</p>
+                  <p className="text-lg font-medium text-foreground leading-tight">
+                    <span className="gradient-text">10 minutes</span> vs 4 weeks
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 flex-wrap">
+                      <span>URL</span>
+                      <ArrowRight className="h-3 w-3 shrink-0" />
+                      <span>Personas</span>
+                      <ArrowRight className="h-3 w-3 shrink-0" />
+                      <span>Messaging</span>
+                      <ArrowRight className="h-3 w-3 shrink-0" />
+                      <span>Campaign in 10 minutes. Traditional agencies still scheduling discovery calls</span>
+                    </span>
+                  </p>
+                </div>
+              </Card>
+
+              {/* Cost */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+                <div className="space-y-2">
+                  <span className="text-3xl text-[#7c3aed] shrink-0 font-medium block">€</span>
+                  <p className="text-sm text-muted-foreground">Fraction of agency cost</p>
+                  <p className="text-lg font-medium text-foreground leading-tight">
+                    <span className="gradient-text">€49-249/mo</span> vs €30K project<span className="text-[#7c3aed]">*</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Unlimited campaigns vs one-time deliverable, saving huge time and money for agencies and startups
+                  </p>
+                </div>
+              </Card>
+
+              {/* Built-in distribution */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+                <div className="space-y-2">
+                  <Share2 className="h-8 w-8 text-[#7c3aed] shrink-0" />
+                  <p className="text-sm text-muted-foreground">Built-in distribution</p>
+                  <p className="text-lg font-medium text-foreground leading-tight">
+                    <span className="gradient-text">20+ agencies</span> <span className="text-foreground"></span> in pipeline
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Agencies white-label us = we scale through their client. We start from existing client network
+                  </p>
+                </div>
+              </Card>
+
+              {/* Unique positioning engine */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
+                <div className="space-y-2">
+                  <Bot className="h-8 w-8 text-[#7c3aed] shrink-0" />
+                  <p className="text-sm text-muted-foreground">Unique positioning engine</p>
+                  <p className="text-lg font-medium text-foreground leading-tight">
+                    <span className="gradient-text">50+ conversion points</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    tracked per campaign — building data moat competitors can't replicate  
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Right Column: Testimonials */}
+          <div className="col-span-2 space-y-4">
+            <h3 className="text-base font-medium gradient-text">
+              Early validation from agency partners
+            </h3>
+            <div className="space-y-4">
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border border-purple-200/50 dark:border-purple-800/30">
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground italic leading-relaxed">
+                    &quot;We've worked with Hasan on lead and demand generation projects before. This demo impressed us away—the same specificity and tailoring, but in 10 minutes instead of months of consulting.&quot;
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">Enterprise Agency Partner, Helsinki</p>
+                </div>
+              </Card>
+              
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border border-purple-200/50 dark:border-purple-800/30">
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground italic leading-relaxed">
+                    &quot;We've collaborated with Hasan on 30+ client projects. Flowtusk's demo showed the exact persona building methodology we've relied on for years. But the tool did the job brilliantly in minutes by just prompts.&quot;
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">Digital Agency Partner, London</p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Footnote */}
+        <div className="absolute bottom-16 left-0">
+          <p className="text-[8px] text-muted-foreground leading-tight">
+            * Based on typical Nordic agency positioning project costs (€30K-70K) for persona research, value prop development, and messaging frameworks.<br />
+          </p>
+        </div>
+      </div>
+    </Slide>
+  );
+}
+
+// Slide 7: Roadmap
 function RoadmapSlide() {
   const phases = [
     {
@@ -528,11 +654,11 @@ function RoadmapSlide() {
   };
 
   return (
-    <Slide slideNumber={6}>
+    <Slide slideNumber={9} tag="Roadmap">
       <div className="space-y-6">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
-          From MVP to growth in 24 months with €1M ARR (2027)
+          From MVP to scale in 24 months with €1M ARR (2027)
         </h2>
 
         {/* Three Phase Cards */}
@@ -543,10 +669,10 @@ function RoadmapSlide() {
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="space-y-2">
-                    <div className="text-xs font-bold gradient-text uppercase tracking-wide">
+                    <div className="text-xs font-medium gradient-text uppercase tracking-wide">
                       {phase.phase}
                     </div>
-                    <h3 className="text-xl font-bold text-foreground">
+                    <h3 className="text-xl font-medium text-foreground">
                       {phase.title}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -575,7 +701,7 @@ function RoadmapSlide() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold gradient-text">
+                    <p className="text-2xl font-medium gradient-text">
                       {phase.target}
                     </p>
                     {(phase as any).targetSubtitle && (
@@ -585,7 +711,7 @@ function RoadmapSlide() {
                     )}
                   </div>
                   <div>
-                    <p className="text-2xl font-bold gradient-text">
+                    <p className="text-2xl font-medium gradient-text">
                       {phase.mrr}
                     </p>
                   </div>
@@ -598,10 +724,10 @@ function RoadmapSlide() {
         {/* Vision Statement */}
         <div className="text-center py-2 space-y-1">
           <p className="text-base text-muted-foreground">
-            <span className="font-semibold text-foreground">Year 1 goal (2026):</span> €5K MRR, 5+ agency partners, 40 customers - validated playbook
+            <span className="font-medium text-foreground">Year 1 goal (2026):</span> €5K MRR, 5+ agency partners, 40 customers - validated playbook
           </p>
           <p className="text-base text-muted-foreground">
-            <span className="font-semibold text-foreground">Year 2 goal (2027):</span> €75K+ MRR, 20+ agency partners, 10 enterprise accounts - ready to scale Series A
+            <span className="font-medium text-foreground">Year 2 goal (2027):</span> €75K+ MRR, 20+ agency partners, 10 enterprise accounts - ready to scale Series A
           </p>
         </div>
       </div>
@@ -612,11 +738,11 @@ function RoadmapSlide() {
 // Slide 7: Market Size
 function MarketSizeSlide() {
   return (
-    <Slide slideNumber={7}>
+    <Slide slideNumber={7} tag="Market">
       <div className="relative w-full h-full flex flex-col pb-8">
         <div className="flex-1 space-y-6">
           {/* Title */}
-          <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
+          <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
             100K+ SaaS founders and B2B marketers need positioning clarity—no good tools exist
           </h2>
 
@@ -624,7 +750,7 @@ function MarketSizeSlide() {
           <div className="grid grid-cols-2 gap-12">
             {/* Left Column - Market Size */}
             <div className="space-y-8">
-              <h3 className="text-xl font-bold gradient-text mb-4">
+              <h3 className="text-xl font-medium gradient-text mb-4">
                 Market Size
               </h3>
 
@@ -633,7 +759,7 @@ function MarketSizeSlide() {
                 <p className="text-sm text-muted-foreground uppercase tracking-wide">
                   TAM (Total Addressable Market)
                 </p>
-                <p className="text-5xl font-semi-bold text-foreground">$15B</p>
+                <p className="text-5xl font-medium text-foreground">$15B</p>
                 <p className="text-xs text-muted-foreground font-medium leading-tight">
                   B2B marketing automation market (HubSpot, Salesforce, Marketo, ActiveCampaign).*
                 </p>
@@ -644,7 +770,7 @@ function MarketSizeSlide() {
                 <p className="text-sm text-muted-foreground uppercase tracking-wide">
                   SAM (Serviceable Addressable Market)
                 </p>
-                <p className="text-5xl font-semi-bold text-foreground">$2.4B</p>
+                <p className="text-5xl font-medium text-foreground">$2.4B</p>
                 <p className="text-xs text-muted-foreground font-medium leading-tight">
                   Positioning, messaging, and funnel optimization software segment — includes content AI, CRM, and conversion tools.**
                 </p>
@@ -655,79 +781,92 @@ function MarketSizeSlide() {
                 <p className="text-sm text-muted-foreground uppercase tracking-wide">
                   SOM target (Beachhead — Nordics, Year 2)
                 </p>
-                <p className="text-5xl font-semi-bold text-foreground">€1.0M ARR</p>
+                <p className="text-5xl font-medium text-foreground">€1.0M ARR</p>
                 <p className="text-xs text-muted-foreground font-medium leading-tight">
                   ICP: Nordic B2B SaaS teams (10–50 employees) with a modern CMS + CRM stack and LinkedIn/email outbound. (≈ €83k MRR)***
                 </p>
               </div>
             </div>
 
-            {/* Right Column - Flowtusk Playbook */}
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold gradient-text mb-3">
-                Flowtusk Playbook
+            {/* Right Column - Growth Chart */}
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium gradient-text mb-2">
+                Financial Trajectory
               </h3>
 
-              {/* Time to value */}
-              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
-                <div className="flex items-start gap-4">
-                  <Clock className="h-8 w-8 text-[#7c3aed] shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Time to value</p>
-                    <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">10 minutes</span> vs 4 weeks
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      From URL to complete campaign while consultants still schedule kickoffs
-                    </p>
+              {/* Bar Chart */}
+              <Card className="p-6 pt-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10 mt-4">
+                <div className="space-y-3">
+                  {/* Chart Bars */}
+                  <div className="flex items-end justify-between gap-6 h-[200px]">
+                    {/* 2026 - Foundation */}
+                    <div className="flex-1 flex flex-col items-center h-full justify-end">
+                      <div className="w-full flex flex-col items-center h-full justify-end relative">
+                        <div 
+                          className="w-full rounded-t-lg bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] mb-2 min-h-[32px]"
+                          style={{ height: '32px' }}
+                        />
+                        <p className="text-xs font-medium text-foreground mb-1">2026 (Foundation)</p>
+                        <p className="text-sm font-medium gradient-text mb-1">€60K ARR</p>
+                      </div>
+                    </div>
+
+                    {/* 2027 - Scale */}
+                    <div className="flex-1 flex flex-col items-center h-full justify-end">
+                      <div className="w-full flex flex-col items-center h-full justify-end relative">
+                        <div 
+                          className="w-full rounded-t-lg bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] mb-2 min-h-[110px]"
+                          style={{ height: '110px' }}
+                        />
+                        <p className="text-xs font-medium text-foreground mb-1">2027 (Scale)</p>
+                        <p className="text-sm font-medium gradient-text mb-1">€1M ARR</p>
+                      </div>
+                    </div>
+
+                    {/* 2030 (labeled as 2028+) - Growth */}
+                    <div className="flex-1 flex flex-col items-center h-full justify-end">
+                      <div className="w-full flex flex-col items-center h-full justify-end relative">
+                        <div 
+                          className="w-full rounded-t-lg bg-gradient-to-t from-[#7c3aed] to-[#8b5cf6] mb-2 min-h-[200px]"
+                          style={{ height: '200px' }}
+                        />
+                        <p className="text-xs font-medium text-foreground mb-1">2028+ (Growth)</p>
+                        <p className="text-sm font-medium gradient-text mb-1">€5M+ ARR</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
 
-              {/* Cost */}
-              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
-                <div className="flex items-start gap-4">
-                  <span className="text-3xl text-[#7c3aed] shrink-0 font-bold">€</span>
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Fraction of agency cost</p>
-                    <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">€149/month</span> vs €50K project
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Unlimited campaigns vs one-time deliverable
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Built-in distribution */}
-              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
-                <div className="flex items-start gap-4">
-                  <Share2 className="h-8 w-8 text-[#7c3aed] shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Built-in distribution</p>
-                    <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">20+ agency partnerships</span> locked
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Agencies white-label us = we scale through their clients
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Unique positioning engine */}
-              <Card className="p-4 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10">
-                <div className="flex items-start gap-4">
-                  <Bot className="h-8 w-8 text-[#7c3aed] shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Unique positioning engine</p>
-                    <p className="text-lg font-bold text-foreground leading-tight">
-                      <span className="gradient-text">AI that learns what converts</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Not just content generation - we track what messaging actually works
-                    </p>
+              {/* Mini Revenue Model */}
+              <Card className="p-4 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border border-purple-200/50 dark:border-purple-800/30 mt-4">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground uppercase tracking-wide mb-2">Revenue Model</p>
+                  <div className="grid grid-cols-5 gap-4">
+                    {/* Left Column - Pricing Tiers */}
+                    <div className="col-span-3 space-y-1.5 text-xs text-muted-foreground">
+                      <p>
+                        <span className="font-medium text-foreground">Basic:</span> €49/mo (indie founders, SMBs)
+                      </p>
+                      <p>
+                        <span className="font-medium text-foreground">Advanced:</span> €149/mo (agencies, growth teams)
+                      </p>
+                      <p>
+                        <span className="font-medium text-foreground">Premium:</span> €249/mo (enterprise, white-label)
+                      </p>
+                    </div>
+                    {/* Right Column - Metrics */}
+                    <div className="col-span-2 space-y-1.5 text-xs text-muted-foreground">
+                      <p>
+                        <span className="font-medium text-foreground">Avg. ARPU:</span> <span className="gradient-text font-medium">€119/mo</span>
+                      </p>
+                      <p>
+                        <span className="font-medium text-foreground">Est. Customer LTV:</span> <span className="gradient-text font-medium">€1,800</span>
+                      </p>
+                      <p>
+                        <span className="font-medium text-foreground">Target CAC:</span> <span className="gradient-text font-medium">€500-800</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -748,12 +887,12 @@ function MarketSizeSlide() {
   );
 }
 
-// Slide 8: Business Model
+// Slide 9: Business Model
 function BusinessModelSlide() {
   const proofPoints = [
     {
       title: "Shovels in the GenAI gold rush",
-      description: "B2B teams are burning millions on AI content tools - but still shooting blind. We're the missing first step: WHO to target before they write anything.",
+      description: "B2B teams are burning millions on AI content tools - but still shooting blind. We're the missing first step: WHO to target.",
       icon: DollarSign
     },
     {
@@ -772,12 +911,12 @@ function BusinessModelSlide() {
     {
       label: "Audience building",
       value: "100K+",
-      description: "reach targeting marketer communities (Product Hunt, Reddit, Discords), plus niche newsletters and content-marketing circles."
+      description: "reach targeting marketer communities (Product Hunt, Reddit, Discords), plus niche marketing circles."
     },
     {
       label: "First time value",
       value: "< 10 min",
-      description: "from demo link -> funnels -> multi-channel content (LinkedIn, Email, X, LP) all under 10 minutes—with one-click embed/share"
+      description: "from demo link -> funnels -> multi-channel content (LinkedIn, Email, X, LP) all under 10 minutes"
     },
     {
       label: "CONTENT SAVES + SHARES*",
@@ -787,15 +926,15 @@ function BusinessModelSlide() {
     {
       label: "WAITLIST sign-ups",
       value: "1,500+",
-      description: "from founders, marketers, and agency operators within the first 30 days—driven by early demo and social buzz."
+      description: "from founders, marketers, and agency operators—driven by early demo and social buzz"
     }
   ];
 
   return (
-    <Slide slideNumber={8}>
+    <Slide slideNumber={10} tag="Validation">
       <div className="space-y-8">
           {/* Title */}
-          <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
+          <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
             We're building the Bolt.new for B2B marketing—riding the GenAI wave with deep GTM + agency expertise
           </h2>
 
@@ -803,7 +942,7 @@ function BusinessModelSlide() {
           <div className="grid grid-cols-2 gap-8">
             {/* Left: Proof Points */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold gradient-text">Why We Win</h3>
+              <h3 className="text-xl font-medium gradient-text">Why We Win</h3>
               {proofPoints.map((point, idx) => {
                 const IconComponent = point.icon;
                 return (
@@ -813,7 +952,7 @@ function BusinessModelSlide() {
                         <IconComponent className="h-6 w-6 gradient-text" />
                       </div>
                       <div className="flex-1 space-y-2">
-                        <h3 className="text-xl font-bold text-foreground">{point.title}</h3>
+                        <h3 className="text-xl font-medium text-foreground">{point.title}</h3>
                         <p className="text-sm text-muted-foreground">{point.description}</p>
                       </div>
                     </div>
@@ -824,12 +963,12 @@ function BusinessModelSlide() {
 
             {/* Right: Social-Driven Targets */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold gradient-text">First 6-months GTM Targets</h3>
+              <h3 className="text-xl font-medium gradient-text">First 6-months GTM Targets</h3>
               <div className="grid grid-cols-2 gap-4">
                 {targets.map((target, idx) => (
                   <Card key={idx} className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
                     <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{target.label}</p>
-                    <p className="text-3xl font-bold gradient-text mb-2">{target.value}</p>
+                    <p className="text-3xl font-medium gradient-text mb-2">{target.value}</p>
                     <p className="text-xs text-muted-foreground">{target.description}</p>
                   </Card>
                 ))}
@@ -845,13 +984,13 @@ function BusinessModelSlide() {
   );
 }
 
-// Slide 9: Competitive Positioning
+// Slide 5: Competitive Positioning
 function CompetitivePositioningSlide() {
   return (
-    <Slide slideNumber={9}>
+    <Slide slideNumber={5} tag="Positioning">
       <div className="space-y-10">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
           From vibe to value: we own the sweet spot of GenAI creation
         </h2>
 
@@ -882,7 +1021,7 @@ function CompetitivePositioningSlide() {
               </div>
               <div className="space-y-3 pr-24">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">AI copy, page builders, ad tools</h3>
+                  <h3 className="text-base font-medium text-foreground">AI copy, page builders, ad tools</h3>
                 </div>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>• Jasper, Copy.ai, Notion AI</p>
@@ -896,7 +1035,7 @@ function CompetitivePositioningSlide() {
             <Card className="p-6 bg-gradient-to-br from-violet-200 to-purple-200 dark:from-violet-900/50 dark:to-purple-900/50 min-h-[240px] flex flex-col justify-center relative border-2 border-purple-600 dark:border-purple-500">
               <div className="space-y-4 flex flex-col items-center">
                 <img src="/logo.svg" alt="Flowtusk" className="h-12 w-auto" />
-                <h3 className="text-2xl font-bold gradient-text">Flowtusk</h3>
+                <h3 className="text-2xl font-medium gradient-text">Flowtusk</h3>
                 <p className="text-sm font-medium text-foreground text-center">Fast launch with tailored content that ships everywhere.</p>
                 <p className="text-xs text-muted-foreground text-center italic">Positioning-first AI that knows your ICP before writing a word</p>
               </div>
@@ -926,7 +1065,7 @@ function CompetitivePositioningSlide() {
                 </div>
               </div>
               <div className="space-y-3 pr-24">
-                <h3 className="text-base font-semibold text-foreground">DIY & fragmented tools</h3>
+                <h3 className="text-base font-medium text-foreground">DIY & fragmented tools</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>• HubSpot,Zapier,Make</p>
                   <p>• Mailchimp, Klaviyo</p>
@@ -959,7 +1098,7 @@ function CompetitivePositioningSlide() {
                 </div>
               </div>
               <div className="space-y-3 pr-24">
-                <h3 className="text-base font-semibold text-foreground">Tailored, expensive, manual</h3>
+                <h3 className="text-base font-medium text-foreground">Tailored, expensive, manual</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>• Brand and creative agencies</p>
                   <p>• Optimizely, FibrAI, Dovetail</p>
@@ -979,7 +1118,7 @@ function CompetitivePositioningSlide() {
           <div className="absolute left-2 top-2 text-xs text-muted-foreground">
             Fast, Low Personalization
           </div>
-          <div className="absolute right-2 top-2 text-xs gradient-text font-semibold">
+          <div className="absolute right-2 top-2 text-xs gradient-text font-medium">
             Fast, High Personalization
           </div>
           </div>
@@ -989,13 +1128,13 @@ function CompetitivePositioningSlide() {
   );
 }
 
-// Slide 10: Team
+// Slide 6: Founder
 function TeamSlide() {
   return (
-    <Slide slideNumber={10}>
+    <Slide slideNumber={6} tag="Founder">
       <div className="space-y-10">
         {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-semi-bold text-foreground leading-tight">
+        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
           From Nordic consulting to scalable SaaS
         </h2>
 
@@ -1018,13 +1157,13 @@ function TeamSlide() {
 
             {/* Name & Title */}
             <div className="text-center space-y-1">
-              <h3 className="text-xl font-bold text-foreground">Hasan Shahriar</h3>
+              <h3 className="text-xl font-medium text-foreground">Hasan Shahriar</h3>
               <p className="text-base gradient-text font-medium">Founder & CEO</p>
             </div>
 
             {/* Brand Logos - Hidden for now */}
             {/* <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-foreground text-center">Clients & Partners</h4>
+              <h4 className="text-xs font-medium text-foreground text-center">Clients & Partners</h4>
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-3 bg-white dark:bg-slate-900 rounded border border-muted-foreground/20 flex items-center justify-center h-12">
                   <img src="/Nordea.svg.png" alt="Nordea" className="max-h-8 max-w-full object-contain opacity-70" />
@@ -1049,32 +1188,32 @@ function TeamSlide() {
           {/* Right: Experience & Stats */}
           <div className="col-span-3 space-y-6">
             {/* Title */}
-            <h3 className="text-xl font-bold gradient-text">8+ Years of B2B Marketing and GTM Expertise—Productized</h3>
+            <h3 className="text-xl font-medium gradient-text">8+ Years of B2B Marketing and GTM Expertise—Productized</h3>
             
             {/* Experience Summary */}
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Enterprise foundation:</span> KONE, TietoEvry, Nordea — built MVPs that generated 300+ B2B leads. Discovered positioning drives pipeline, not features.
+                  <span className="font-medium text-foreground">Enterprise foundation:</span> KONE, TietoEvry, Nordea — built MVPs that generated 300+ B2B leads. Discovered positioning drives pipeline, not features.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Independent consultant:</span> €61K YTD 2024. 120+ campaigns shipped. Achieved 15% boost in conversion with positioning-first approach.
+                  <span className="font-medium text-foreground">Independent consultant:</span> €61K YTD 2024. 120+ campaigns shipped. Achieved 15% boost in conversion with positioning-first approach.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Startup ecosystem:</span> Co-founded Krusti (€300K ARR). Active in Helsinki tech scene. Know what early-stage founders actually need.
+                  <span className="font-medium text-foreground">Startup ecosystem:</span> Co-founded Krusti (€300K ARR). Active in Helsinki tech scene. Know what early-stage founders actually need.
                 </p>
               </div>
               <div className="flex gap-3">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-foreground">Founder, Flowtusk (2025–):</span> Turning my 7-year playbook into AI. What took weeks of consulting now takes 10 minutes.
+                  <span className="font-medium text-foreground">Founder, Flowtusk (2025–):</span> Turning my 7-year playbook into AI. What took weeks of consulting now takes 10 minutes.
                 </p>
               </div>
             </div>
@@ -1082,19 +1221,19 @@ function TeamSlide() {
             {/* Stats Grid */}
             <div className="grid grid-cols-4 gap-4 pt-4 pb-6">
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold gradient-text">8+</div>
+                <div className="text-3xl font-medium gradient-text">8+</div>
                 <div className="text-xs text-muted-foreground">Years in B2B Marketing</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold gradient-text">€61K</div>
+                <div className="text-3xl font-medium gradient-text">€61K</div>
                 <div className="text-xs text-muted-foreground">YTD Revenue</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold gradient-text">100+</div>
+                <div className="text-3xl font-medium gradient-text">100+</div>
                 <div className="text-xs text-muted-foreground">Campaigns Delivered</div>
               </Card>
               <Card className="p-4 text-center">
-                <div className="text-3xl font-bold gradient-text">4</div>
+                <div className="text-3xl font-medium gradient-text">4</div>
                 <div className="text-xs text-muted-foreground">Enterprise Clients</div>
               </Card>
             </div>
@@ -1132,108 +1271,133 @@ function TeamSlide() {
 // Slide 11: The Ask
 function TheAskSlide() {
   return (
-    <Slide slideNumber={11}>
+    <Slide slideNumber={11} tag="The Ask">
       <div className="space-y-12">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
-          €300K business loan to build MVP and acquire first 200 customers
+          Seeking startup & growth loan to build MVP and reach 1M+ ARR
         </h2>
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-5 gap-12">
           {/* Left: The Ask Amount & Use of Funds */}
-          <div className="col-span-2 space-y-6">
+          <div className="col-span-3 space-y-6">
             {/* Amount */}
             <div className="space-y-4">
-              <div className="text-6xl font-bold gradient-text">€300K</div>
+              <div className="text-6xl font-medium gradient-text">€300K</div>
               <Card className="p-4 bg-muted/30">
                 <p className="text-sm text-muted-foreground">
-                  Business loan to validate product-market fit and build foundation for Series A
+                  turning agency expertise into a GenAI positioning platform<br />
+                  in a $2.4B B2B marketing automation market
                 </p>
               </Card>
             </div>
 
             {/* Use of Funds */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-foreground">Use of Funds</h3>
+              <h3 className="text-xl font-medium text-foreground">Use of Funds</h3>
               
-              <Card className="p-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Engineering & Product</span>
-                <span className="text-lg font-bold gradient-text">€180K (60%)</span>
-              </Card>
+              <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
+                <div className="grid grid-cols-2 gap-6 items-center">
+                  {/* Pie Chart */}
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-32 h-32 rounded-full border-[24px] border-purple-500 dark:border-purple-400 relative">
+                      <div className="absolute inset-0 rounded-full" style={{
+                        background: `conic-gradient(from 0deg, #7c3aed 0% 60%, #8b5cf6 60% 85%, #7c3aed 85% 100%)`
+                      }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center mt-2">
+                      Fund allocation breakdown
+                    </p>
+                  </div>
 
-              <Card className="p-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Customer Acquisition</span>
-                <span className="text-lg font-bold gradient-text">€75K (25%)</span>
-              </Card>
+                  {/* Fund Items */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Engineering & Product</span>
+                      <span className="text-lg font-medium gradient-text">€180K (60%)</span>
+                    </div>
 
-              <Card className="p-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Operations</span>
-                <span className="text-lg font-bold gradient-text">€45K (15%)</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Customer Acquisition</span>
+                      <span className="text-lg font-medium gradient-text">€75K (25%)</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Operations</span>
+                      <span className="text-lg font-medium gradient-text">€45K (15%)</span>
+                    </div>
+                  </div>
+                </div>
               </Card>
             </div>
 
-            {/* Donut Chart Placeholder */}
-            <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 flex flex-col items-center justify-center space-y-4">
-              <div className="w-32 h-32 rounded-full border-[24px] border-purple-500 dark:border-purple-400 relative">
-                <div className="absolute inset-0 rounded-full" style={{
-                  background: `conic-gradient(from 0deg, #7c3aed 0% 60%, #8b5cf6 60% 85%, #7c3aed 85% 100%)`
-                }} />
+            {/* Team Build-Out Box */}
+            <Card className="p-4 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 border border-purple-200/50 dark:border-purple-800/30">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-foreground uppercase tracking-wide mb-2">Team Build-Out</p>
+                <div className="space-y-1.5 text-xs text-muted-foreground">
+                  <p>
+                    <span className="font-medium text-foreground">Core hires:</span> AI/LLM Engineer (€78K), Full Stack Developer (€60K), Content Marketer (€24K). Founder manages product, GTM, and agency partnerships. <span className="font-medium text-foreground">External support:</span> Development contractors (€16K), cloud (€10.5K)
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground text-center">
-                Fund allocation breakdown
-              </p>
             </Card>
           </div>
 
-          {/* Right: Key Milestones */}
-          <div className="col-span-3 space-y-6">
-            <h3 className="text-xl font-bold text-foreground">Key Milestones</h3>
+          {/* Right: Why This Partnership Works */}
+          <div className="col-span-2 space-y-4">
+            <h3 className="text-xl font-medium gradient-text">Why This Partnership Works</h3>
 
-            <div className="space-y-4">
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M3</Badge>
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold text-foreground">Month 3</h4>
+            <div className="space-y-3">
+              <Card className="p-4">
+                <div className="flex gap-3">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="text-base font-medium text-foreground">Reduced risk for Nordea</h4>
                     <p className="text-sm text-muted-foreground">
-                      50 paying customers, €7.5K MRR, validated positioning copilot concept
+                      €61K proven revenue + existing consulting business provides loan security while building SaaS
                     </p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M6</Badge>
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold text-foreground">Month 6</h4>
+              <Card className="p-4">
+                <div className="flex gap-3">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="text-base font-medium text-foreground">Strategic for Flowtusk</h4>
                     <p className="text-sm text-muted-foreground">
-                      100 customers, break-even, multi-format export features launched
+                      Preserving equity until post-PMF — only raising VC once product proves €1M ARR potential
                     </p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <Badge className="bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white shrink-0">M12</Badge>
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold text-foreground">Month 12</h4>
+              <Card className="p-4">
+                <div className="flex gap-3">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="text-base font-medium text-foreground">Mutual value creation</h4>
                     <p className="text-sm text-muted-foreground">
-                      200 customers, €30K MRR, Series A ready with proven unit economics
+                      Contributing to Helsinki startup ecosystem, participating in Nordea AI initiatives, demonstrating successful business loan model
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex gap-3">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] mt-1 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="text-base font-medium text-foreground">Personal connection</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Nordea intern (2015) → consultant → founder — 10-year relationship built on execution
                     </p>
                   </div>
                 </div>
               </Card>
             </div>
-
-            {/* Bottom Statement */}
-            <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20">
-              <p className="text-sm text-center text-muted-foreground">
-                Clear path to profitability: Break-even in 6 months, <span className="font-bold gradient-text">€10M+ ARR potential</span> in 3 years
-              </p>
-            </Card>
           </div>
         </div>
       </div>
@@ -1241,75 +1405,48 @@ function TheAskSlide() {
   );
 }
 
-// Slide 12: Closing
+// Slide 12: Thank You
 function ClosingSlide() {
   return (
-    <Slide slideNumber={12}>
-      <div className="text-center space-y-12">
-        {/* Logo/Brand */}
-        <div className="inline-block space-y-4">
-          <div className="text-5xl font-bold gradient-text">
+    <Slide slideNumber={12} tag="Contact">
+      <div className="text-center space-y-12 flex flex-col items-center justify-center h-full">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-4">
+          <Image
+            src="/logo.svg"
+            alt="Flowtusk Logo"
+            width={64}
+            height={64}
+            className="h-16 w-16"
+          />
+          <div className="text-5xl font-medium gradient-text">
             Flowtusk
           </div>
         </div>
 
-        {/* Main Message */}
-        <div className="space-y-6">
-          <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight max-w-4xl mx-auto">
-            2025 is the year <span className="gradient-text">positioning becomes a product</span>, not a service
+        {/* Thank You Message */}
+        <div className="space-y-4">
+          <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight">
+            Thank You
           </h2>
         </div>
 
-        {/* Key Points */}
-        <div className="space-y-4 max-w-2xl mx-auto">
-          <Card className="p-4 bg-muted/30">
-            <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
-              <p className="text-sm font-medium">Massive market with clear, validated pain point</p>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-muted/30">
-            <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
-              <p className="text-sm font-medium">No direct competitors in positioning intelligence</p>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-muted/30">
-            <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
-              <p className="text-sm font-medium">First platform that exports positioning everywhere</p>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-muted/30">
-            <div className="flex items-center justify-center gap-3">
-              <CheckCircle2 className="h-5 w-5 gradient-text shrink-0" />
-              <p className="text-sm font-medium">Foundation for €10M+ ARR business</p>
-            </div>
-          </Card>
-        </div>
-
-        {/* The Ask */}
-        <Card className="p-8 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 max-w-3xl mx-auto">
-          <p className="text-2xl font-bold text-foreground">
-            The Ask: <span className="gradient-text">€300K</span> to validate product-market fit and build the future of B2B positioning
-          </p>
-        </Card>
-
-        {/* Contact */}
-        <div className="pt-12 border-t max-w-2xl mx-auto space-y-3">
-          <div className="text-xl font-bold text-foreground">
-            Md Hasan Shahriar
+        {/* Contact Info */}
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <div>
+            <a href="https://flowtusk.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              flowtusk.com
+            </a>
           </div>
-          <div className="text-lg">
-            <a href="mailto:hasan@flowtusk.com" className="gradient-text hover:underline">
+          <div>
+            <a href="mailto:hasan@flowtusk.com" className="hover:text-foreground transition-colors">
               hasan@flowtusk.com
             </a>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Helsinki, Finland
+          <div>
+            <a href="tel:+358XXXXXXXXX" className="hover:text-foreground transition-colors">
+              +358 XX XXX XXXX
+            </a>
           </div>
         </div>
       </div>
@@ -1322,16 +1459,16 @@ export function PitchDeck() {
   const [currentSlide, setCurrentSlide] = useState(0);
   
   const slides = [
-    <CoverSlide key="cover" />,
     <ProblemSlide key="problem" />,
     <GapSlide key="gap" />,
     <SolutionSlide key="solution" />,
     <HowItWorksSlide key="howitworks" />,
-    <RoadmapSlide key="roadmap" />,
-    <MarketSizeSlide key="marketsize" />,
-    <BusinessModelSlide key="businessmodel" />,
     <CompetitivePositioningSlide key="competitive" />,
     <TeamSlide key="team" />,
+    <MarketSizeSlide key="marketsize" />,
+    <MarketValidationSlide key="marketvalidation" />,
+    <RoadmapSlide key="roadmap" />,
+    <BusinessModelSlide key="businessmodel" />,
     <TheAskSlide key="ask" />,
     <ClosingSlide key="closing" />,
   ];
