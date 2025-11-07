@@ -25,10 +25,10 @@ import {
   Bot,
   BarChart3,
   Triangle,
-  GitBranch,
   Monitor,
   Download,
   ArrowRight,
+  ArrowRightCircle,
   User,
   Search,
   MessageSquare,
@@ -98,7 +98,7 @@ function CoverSlide() {
 
         {/* Tagline as subheading */}
         <h2 className="text-2xl md:text-3xl text-muted-foreground">
-          Vibe create your B2B funnel in minutes not weekends
+          Vibe create your B2B marketing content in minutes not weekends
         </h2>
 
         <div className="mt-16 flex items-center justify-center gap-4 text-lg text-muted-foreground">
@@ -115,20 +115,16 @@ function CoverSlide() {
 function ProblemSlide() {
   const problems = [
     {
-      title: "No customer clarity",
-      description: "Teams launch without validated ICPs. Generic messaging → ~5% conversion rates."
+      title: "Generic AI content → wrong audience",
+      description: "Everyone uses the same tools (ChatGPT, Jasper, Copy.ai). Same prompts = same output. Result: Enterprise SaaS pitched to biology students looking for internships."
     },
     {
-      title: "Tool chaos",
-      description: "7+ unconnected tools per funnel (brief → copy → design → LP → email → outreach → tracking). Context gets lost; output is inconsistent."
+      title: "Zero targeting intelligence",
+      description: "Content AI has no ICP validation. B2B marketing automation pitched to teachers on career break instead of marketing directors."
     },
     {
-      title: "Built for speed, not fit",
-      description: "Page builders/AI writers make things fast, but not for the right audience. Consultants cost €15-50k, take 6 weeks, still miss the mark."
-    },
-    {
-      title: "Expensive & slow results",
-      description: "€15-50k consultants. 6-week timelines. Still generic messaging."
+      title: "Broken workflow → wasted spend",
+      description: "€15-50k brand consultants. 6-week strategy projects. Still produce generic frameworks. Expensive, slow, quickly outdated."
     }
   ];
 
@@ -138,7 +134,7 @@ function ProblemSlide() {
         {/* Header */}
         <div className="space-y-4">
         <h2 className="text-4xl md:text-5xl font-medium text-foreground leading-tight">
-          B2B Marketing funnels take weeks to build — and fail to convert ~95% of the time
+          95% of B2B content never reaches actual decision-makers
         </h2>
         </div>
 
@@ -179,7 +175,7 @@ function ProblemSlide() {
 // Slide 2: Opportunity / Why Now
 function GapSlide() {
   return (
-    <Slide slideNumber={2} tag="Why Now">
+    <Slide slideNumber={2} tag="Opportunity">
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
@@ -207,7 +203,7 @@ function GapSlide() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 flex items-center justify-center">
                 <BarChart3 className="h-6 w-6 gradient-text" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Data tools show what happened, not what to say</h3>
+              <h3 className="text-xl font-semibold text-foreground">Data tools show what happened, not who to sell</h3>
             </div>
             <p className="text-sm text-muted-foreground">
               Analytics tell you &quot;bounce rate is 73%&quot; but they don&apos;t explain why or tell you &quot;your value prop missed their actual pain point&quot;
@@ -236,20 +232,96 @@ function GapSlide() {
               <h3 className="text-xl font-semibold text-foreground">The opportunity (Flowtusk)</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              The B2B Funnel Copilot: URL → validated ICPs → tailored messaging → multichannel funnel. Finally, GenAI that knows your buyer.
+              The B2B Content Copilot: URL → validated ICPs → tailored messaging → multichannel funnel. Finally, GenAI that knows your buyer.
             </p>
           </div>
         </div>
 
-        {/* Bottom illustration placeholder */}
-        <div className="border-2 border-dashed border-violet-400 dark:border-violet-600 rounded-xl bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/20 p-8 flex flex-col items-center justify-center space-y-4">
-          <GitBranch className="h-12 w-12 gradient-text" />
-          <div className="text-center space-y-2">
-            <h4 className="font-semibold gradient-text">
-              Illustration: Evolution Timeline
-            </h4>
-            <p className="text-xs text-muted-foreground max-w-3xl">
-              Timeline graphic showing progression: Manual positioning with consultants (2020) → Generic AI copy tools (2023) → Positioning Copilot (2025). Use arrows and visual milestones to show the gap that Flowtusk fills
+        {/* Opportunity Box */}
+        <div>
+          {/* Timeline */}
+          <div className="relative w-full pt-6 pb-0">
+            {/* Container for timeline items */}
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute top-8 left-0 right-0 h-0.5 bg-purple-300 dark:bg-purple-700">
+                <ArrowRight className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 h-4 w-4 text-purple-500 dark:text-purple-400" />
+              </div>
+              
+              {/* Timeline Items */}
+              <div className="flex justify-between items-start w-full max-w-5xl mx-auto relative">
+                {/* 2020-22 */}
+                <div className="flex flex-col items-center flex-1 relative">
+                  <div className="text-sm font-semibold text-foreground mb-2">2020-22</div>
+                  <div className="absolute top-[calc(2rem-0.3125rem)] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-purple-500 dark:bg-purple-400 border-2 border-white dark:border-slate-900 z-10"></div>
+                  <Card className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-800 w-full max-w-[180px] mt-4">
+                    <p className="text-xs font-semibold text-foreground mb-2">Manual Positioning</p>
+                    <div className="space-y-1 text-left">
+                      <p className="text-[10px] text-muted-foreground mb-1">€30K, 6 weeks </p>
+                      <ul className="list-disc list-inside space-y-1 text-[10px] text-muted-foreground">
+                        <li>Expensive</li>
+                        <li>Slow, static output</li>
+                      </ul>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* 2023-24 */}
+                <div className="flex flex-col items-center flex-1 relative">
+                  <div className="text-sm font-semibold text-foreground mb-2">2023-24</div>
+                  <div className="absolute top-[calc(2rem-0.3125rem)] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-purple-500 dark:bg-purple-400 border-2 border-white dark:border-slate-900 z-10"></div>
+                  <Card className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-800 w-full max-w-[180px] mt-4">
+                    <p className="text-xs font-semibold text-foreground mb-2">GenAI Content</p>
+                    <div className="space-y-1 text-left">
+                      <p className="text-[10px] text-muted-foreground mb-1">88% adoption (McKinsey)</p>
+                      <ul className="list-disc list-inside space-y-1 text-[10px] text-muted-foreground">
+                        <li>Fast creation, no targeting</li>
+                        <li>70% unused</li>
+                      </ul>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* 2024-25 */}
+                <div className="flex flex-col items-center flex-1 relative">
+                  <div className="text-sm font-semibold text-foreground mb-2">2024-25</div>
+                  <div className="absolute top-[calc(2rem-0.3125rem)] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-purple-500 dark:bg-purple-400 border-2 border-white dark:border-slate-900 z-10"></div>
+                  <Card className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-800 w-full max-w-[180px] mt-4">
+                    <p className="text-xs font-semibold text-foreground mb-2">The Positioning Problem</p>
+                    <div className="space-y-1 text-left">
+                      <p className="text-[10px] text-muted-foreground mb-1">$37B wasted annually</p>
+                      <ul className="list-disc list-inside space-y-1 text-[10px] text-muted-foreground">
+                        <li>95% miss buyers</li>
+                        <li>42% audience mismatch</li>
+                      </ul>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* 2025+ (Highlighted) */}
+                <div className="flex flex-col items-center flex-1 relative">
+                  <div className="text-sm font-semibold gradient-text mb-2">2025+</div>
+                  <div className="absolute top-[calc(2rem-0.3125rem)] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 border-2 border-white dark:border-slate-900 z-10"></div>
+                  <Card className="p-3 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/40 dark:to-purple-900/40 rounded-lg border-2 border-purple-400 dark:border-purple-600 w-full max-w-[180px] mt-4">
+                    <p className="text-xs font-semibold gradient-text mb-2">Flowtusk</p>
+                    <div className="space-y-1 text-left">
+                      <p className="text-[10px] text-muted-foreground">AI agent for B2B positioning</p>
+                      <ul className="list-disc list-inside space-y-1 text-[10px] text-muted-foreground">
+                        <li>10 minutes</li>
+                        <li>ICP-validated</li>
+                        <li>Multi-channel ready</li>
+                      </ul>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sources Footer */}
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-xs text-muted-foreground/70 text-center">
+              Sources: McKinsey State of AI 2025, Gartner Top Tech Trends 2025, Amra & Elma Marketing Research
             </p>
           </div>
         </div>
@@ -293,7 +365,7 @@ function SolutionSlide() {
       <div className="space-y-10">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
-          From any URL to converting campaigns in under 10 minutes
+          From any URL to tailored persona and content under 10 minutes
         </h2>
 
         {/* Two Column Layout */}
@@ -335,139 +407,6 @@ function SolutionSlide() {
                   Not templates. Not generic AI. Real customer intelligence.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Slide>
-  );
-}
-
-// Slide 4: How it Works (Architecture)
-function HowItWorksSlide() {
-  return (
-    <Slide slideNumber={4} tag="How It Works">
-      <div className="space-y-6">
-        {/* Title */}
-        <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight text-center mb-8">
-          How it Works
-        </h2>
-
-        {/* Top Row: User Input → Orchestrator */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
-            <User className="h-7 w-7 mx-auto mb-2" />
-            <h3 className="font-semibold text-base mb-1">User Input</h3>
-            <p className="text-xs opacity-90">(URL + Goal)</p>
-          </Card>
-          
-          <ArrowRight className="h-8 w-8 text-purple-500" />
-          
-          <Card className="p-5 bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white min-w-[160px] text-center">
-            <Workflow className="h-7 w-7 mx-auto mb-2" />
-            <h3 className="font-semibold text-base">Orchestrator</h3>
-          </Card>
-        </div>
-
-        {/* Main Grid: 3 Layers */}
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          
-          {/* AGENTS LAYER */}
-          <div>
-            <Badge className="mb-3 bg-orange-600 text-white font-semibold">AGENTS</Badge>
-            <div className="space-y-3">
-              <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
-                <Search className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Analyzer Agent</h4>
-                <p className="text-xs opacity-90">Crawls & analyzes</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-purple-600 to-purple-700 text-white">
-                <Users className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">ICP Agent</h4>
-                <p className="text-xs opacity-90">Builds personas</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-cyan-600 to-cyan-700 text-white">
-                <Target className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Positioning Agent</h4>
-                <p className="text-xs opacity-90">Creates value props</p>
-              </Card>
-            </div>
-          </div>
-
-          {/* CLARITY LAYER */}
-          <div>
-            <Badge className="mb-3 bg-emerald-600 text-white font-semibold">CLARITY LAYER</Badge>
-            <div className="space-y-3">
-              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
-                <Globe className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Site Context</h4>
-                <p className="text-xs opacity-90">Brand & messaging</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
-                <Users className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Personas</h4>
-                <p className="text-xs opacity-90">ICP cards</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white">
-                <Zap className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Value Props</h4>
-                <p className="text-xs opacity-90">Messaging options</p>
-              </Card>
-            </div>
-          </div>
-
-          {/* CONTENT LAYER */}
-          <div>
-            <Badge className="mb-3 bg-blue-600 text-white font-semibold">CONTENT LAYER</Badge>
-            <div className="space-y-3">
-              <Card className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white">
-                <MessageSquare className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → LinkedIn</h4>
-                <p className="text-xs opacity-90">(Post • Bio • InMail)</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-red-600 to-red-700 text-white">
-                <Mail className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → Email</h4>
-                <p className="text-xs opacity-90">(One-time • Sequence)</p>
-              </Card>
-              
-              <Card className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
-                <FileText className="h-5 w-5 mb-2" />
-                <h4 className="font-semibold text-sm mb-1">Content → Landing Page</h4>
-                <p className="text-xs opacity-90">(Sections/Components)</p>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        {/* Arrow Down */}
-        <div className="flex justify-center my-6">
-          <ArrowRight className="h-8 w-8 text-purple-500 rotate-90" />
-        </div>
-
-        {/* Bottom Row: Export Layer */}
-        <div className="flex justify-center">
-          <div>
-            <Badge className="mb-3 bg-slate-700 text-white font-semibold">EXPORT LAYER</Badge>
-            <div className="flex gap-6">
-              <Card className="p-5 bg-gradient-to-br from-slate-700 to-slate-800 text-white min-w-[220px] text-center">
-                <FileText className="h-7 w-7 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-2">Template Registry</h4>
-                <p className="text-xs opacity-90">(Next.js • Webflow • Email)</p>
-              </Card>
-              
-              <ArrowRight className="h-8 w-8 text-slate-500 self-center" />
-              
-              <Card className="p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white min-w-[220px] text-center">
-                <Share2 className="h-7 w-7 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm mb-2">Publish/Share/Embed</h4>
-                <p className="text-xs opacity-90">(Webflow • Notion • Slides • API)</p>
-              </Card>
             </div>
           </div>
         </div>
@@ -600,39 +539,36 @@ function RoadmapSlide() {
   const phases = [
     {
       number: 1,
-      phase: "Phase 1",
-      title: "MVP Development",
-      timeframe: "Months 0-6",
+      phase: "MVP DEVELOPMENT",
+      title: "Positioning Copilot",
+      timeframe: "Months 0-6 (Q1-Q2 2026)",
       features: [
-        "Ship core: URL → ICPs → Value Props → Content",
-        "Onboard 2 partner agencies (from existing clients)",
-        "Land 1 enterprise pilot"
+        "Ship copilot MVP that turns any URL into validated ICPs and multi-channel campaigns in 10 minutes",
+        "2 agency partnerships + 1 enterprise pilot (€20K pipeline)"
       ],
       target: "20 early adopters",
       mrr: "€2K MRR"
     },
     {
       number: 2,
-      phase: "Phase 2",
-      title: "Product-Market Fit",
-      timeframe: "Months 6–12",
+      phase: "EARLY TRACTION",
+      title: "Multi-Channel Platform",
+      timeframe: "Months 6-12 (Q3-Q4 2026)",
       features: [
-        "Multi-channel platform development (mobile app, marketplace etc.",
-        "Add LinkedIn + Email sequences",
-        "Close 3 enterprise accounts (€2-5K/month each)"
+        "Channel-specific AI agents (LinkedIn, Email) that create tailored content for 5+ channels same time.",
+        "10+ agency partnerships + 2 enterprise accounts"
       ],
       target: "40 customers",
       mrr: "€5K MRR, €60K ARR"
     },
     {
       number: 3,
-      phase: "Phase 3",
-      title: "Scale",
-      timeframe: "Months 13–24",
+      phase: "SCALE",
+      title: "Autonomous Agent Layer",
+      timeframe: "Months 13-24 (2027)",
       features: [
-        "Autonomous marketing agents + orchestration",
-        "Launch certified agency partner program",
-        "10 enterprise clients on annual contracts"
+        "Launch agent orchestration (10+ coordinated agents per customer) + white-label platform enabling agencies to deploy client agents in <1 hour.",
+        "10 enterprise accounts at €10-20K/year on annual contracts"
       ],
       target: "700 customers",
       mrr: "€1M ARR",
@@ -663,7 +599,7 @@ function RoadmapSlide() {
       <div className="space-y-6">
         {/* Title */}
         <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
-          From MVP to scale in 24 months with €1M ARR (2027)
+          From MVP to €1M ARR in 24 months (by Q4 2027)
         </h2>
 
         {/* Three Phase Cards */}
@@ -689,7 +625,7 @@ function RoadmapSlide() {
                   <ul className="space-y-2">
                     {phase.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <span className="gradient-text mt-0.5">•</span>
+                        <span className="gradient-text mt-0.5 shrink-0">•</span>
                         {renderFeature(feature)}
                       </li>
                     ))}
@@ -748,7 +684,7 @@ function MarketSizeSlide() {
         <div className="flex-1 space-y-6">
           {/* Title */}
           <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
-            100K+ SaaS founders and B2B marketers need positioning clarity—no good tools exist
+            100K+ SaaS founders and B2B marketers need positioning clarity
           </h2>
 
           {/* Two Column Layout */}
@@ -796,7 +732,7 @@ function MarketSizeSlide() {
             {/* Right Column - Growth Chart */}
             <div className="space-y-3">
               <h3 className="text-xl font-semibold gradient-text mb-2">
-                Financial Trajectory
+                Flowtusk Financial Trajectory
               </h3>
 
               {/* Bar Chart */}
@@ -936,7 +872,7 @@ function BusinessModelSlide() {
   ];
 
   return (
-    <Slide slideNumber={10} tag="Validation">
+    <Slide slideNumber={10} tag="Go-to-market">
       <div className="space-y-8">
           {/* Title */}
           <h2 className="text-3xl md:text-4xl font-medium text-foreground leading-tight">
@@ -947,7 +883,6 @@ function BusinessModelSlide() {
           <div className="grid grid-cols-2 gap-8">
             {/* Left: Proof Points */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold gradient-text">Why We Win</h3>
               {proofPoints.map((point, idx) => {
                 const IconComponent = point.icon;
                 return (
@@ -1468,7 +1403,6 @@ export function PitchDeck() {
     <ProblemSlide key="problem" />,
     <GapSlide key="gap" />,
     <SolutionSlide key="solution" />,
-    <HowItWorksSlide key="howitworks" />,
     <CompetitivePositioningSlide key="competitive" />,
     <TeamSlide key="team" />,
     <MarketSizeSlide key="marketsize" />,
