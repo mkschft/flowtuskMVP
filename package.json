@@ -4,7 +4,17 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Tests coming soon\" && exit 0",
+    "test:integration": "echo \"Integration tests coming soon\" && exit 0",
+    "test:evidence": "echo \"Evidence validation tests coming soon\" && exit 0",
+    "test:e2e": "echo \"E2E tests coming soon\" && exit 0",
+    "db:migrate": "echo \"Run migrations in Supabase SQL Editor\"",
+    "db:reset": "echo \"Reset DB in Supabase Dashboard\"",
+    "prepare": "node -e \"try { require('husky') } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }\""
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
