@@ -3,58 +3,53 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const archived = searchParams.get("archived") === "true";
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const offset = parseInt(searchParams.get("offset") || "0");
-
     const supabase = await createClient();
-
-    // Get current user
+    const { searchParams } = new URL(req.url);
+    
+    // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Demo mode support
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+    if (!user && !isDemoMode) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Parse query params
+    const archived = searchParams.get('archived') === 'true';
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const offset = parseInt(searchParams.get('offset') || '0');
 
     // Build query
     let query = supabase
-      .from("flows")
-      .select("*", { count: "exact" })
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
+      .from('flows')
+      .select('*')
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
+
+    // Filter by user (or demo flows)
+    if (user) {
+      query = query.eq('user_id', user.id);
+    } else if (isDemoMode) {
+      query = query.is('user_id', null).eq('metadata->>is_demo', 'true');
+    }
 
     // Filter by archived status
     if (archived) {
-      query = query.not("archived_at", "is", null);
+      query = query.not('archived_at', 'is', null);
     } else {
-      query = query.is("archived_at", null);
+      query = query.is('archived_at', null);
     }
 
-    const { data: flows, error, count } = await query;
+    const { data: flows, error } = await query;
 
-    if (error) {
-      console.error("Error fetching flows:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch flows" },
-        { status: 500 }
-      );
-    }
+    if (error) throw error;
 
-    return NextResponse.json({
-      flows: flows || [],
-      total: count || 0,
-      limit,
-      offset,
-    });
+    return NextResponse.json({ flows: flows || [] });
   } catch (error) {
-    console.error("Error in GET /api/flows:", error);
+    console.error("Error fetching flows:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to fetch flows" },
       { status: 500 }
     );
   }
@@ -62,67 +57,65 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { title, website_url, facts_json, selected_icp, step } = body;
-
     const supabase = await createClient();
-
-    // Get current user
+    const body = await req.json();
+    
+    // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Demo mode support
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+    if (!user && !isDemoMode) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Create flow with initial metadata
+    // Prepare flow data
+    const flowData: any = {
+      title: body.title || 'New Flow',
+      website_url: body.website_url || null,
+      facts_json: body.facts_json || null,
+      selected_icp: body.selected_icp || null,
+      generated_content: body.generated_content || {},
+      step: body.step || 'initial',
+      metadata: {
+        prompt_regeneration_count: 0,
+        dropoff_step: null,
+        completion_time_ms: null,
+        prompt_version: 'v1',
+        user_feedback: null,
+        ...(isDemoMode && !user ? { is_demo: 'true' } : {}),
+      },
+    };
+
+    // Add user_id if authenticated
+    if (user) {
+      flowData.user_id = user.id;
+    }
+
+    // Insert flow
     const { data: flow, error } = await supabase
-      .from("flows")
-      .insert({
-        user_id: user.id,
-        title: title || "New Flow",
-        website_url: website_url || null,
-        facts_json: facts_json || null,
-        selected_icp: selected_icp || null,
-        step: step || "initial",
-        metadata: {
-          prompt_regeneration_count: 0,
-          dropoff_step: null,
-          completion_time_ms: null,
-          prompt_version: "v1",
-          user_feedback: null,
-        },
-      })
+      .from('flows')
+      .insert(flowData)
       .select()
       .single();
 
     if (error) {
       // Handle unique constraint violation
-      if (error.code === "23505") {
+      if (error.code === '23505') {
         return NextResponse.json(
-          { error: "A flow with this title already exists. Please choose a different title." },
+          { error: "A flow with this title already exists" },
           { status: 409 }
         );
       }
-
-      console.error("Error creating flow:", error);
-      return NextResponse.json(
-        { error: "Failed to create flow" },
-        { status: 500 }
-      );
+      throw error;
     }
-
-    console.log("✅ Created flow:", flow.id);
 
     return NextResponse.json({ flow }, { status: 201 });
   } catch (error) {
-    console.error("Error in POST /api/flows:", error);
+    console.error("Error creating flow:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to create flow" },
       { status: 500 }
     );
   }
 }
-

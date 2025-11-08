@@ -1,453 +1,515 @@
-# Testing Guide
 
-Comprehensive testing guide for Flowtusk MVP.
 
-## Testing Philosophy
+# Flowtusk Testing Guide
 
-1. **Evidence Chain is Sacred** - Never break `sourceFactIds` or `evidence` fields
-2. **User Experience First** - All existing features must work identically
-3. **DB as Source of Truth** - State must persist across sessions
-4. **Fail Gracefully** - Errors should not crash the app
+Comprehensive testing guide for evidence chain preservation, edge cases, and production readiness.
 
-## Pre-Deployment Testing Checklist
-
-Run through ALL of these before deploying:
-
-### Auth & Setup
-
-- [ ] **Sign up new user**
-  - Test email validation
-  - Verify confirmation email arrives
-  - Check user record in Supabase auth.users
-
-- [ ] **Login existing user**
-  - Test password validation
-  - Verify session persists on refresh
-  - Check session cookies are set
-
-- [ ] **Protected routes redirect to login**
-  - Visit `/app` while logged out
-  - Should redirect to `/auth/login`
-
-- [ ] **Logout clears session**
-  - Click logout
-  - Verify redirect to home
-  - Confirm cannot access `/app`
-
-- [ ] **Demo mode works** (if enabled)
-  - Set `NEXT_PUBLIC_DEMO_MODE_ENABLED=true`
-  - Visit `/app` without auth
-  - Should work without login
-
-- [ ] **Guest → signup migration**
-  - Create flows as guest
-  - Sign up
-  - Verify flows are migrated to user account
-
-### Flow Management
-
-- [ ] **Create new flow → saves to DB**
-  ```sql
-  -- Verify in Supabase
-  SELECT id, title, user_id, created_at
-  FROM public.flows
-  ORDER BY created_at DESC
-  LIMIT 1;
-  ```
-
-- [ ] **List flows → loads from DB**
-  - Refresh page
-  - All flows appear in sidebar
-  - Correct order (newest first)
-
-- [ ] **Switch flows → loads correct state**
-  - Create 2+ flows
-  - Switch between them
-  - Verify correct content loads
-
-- [ ] **Soft delete flow → moves to archived**
-  - Delete a flow
-  - Check `archived_at` is set in DB
-  - Flow disappears from active list
-
-- [ ] **Restore flow → returns to active**
-  - View archived flows
-  - Restore one
-  - Appears in active list
-
-- [ ] **Duplicate title → handled gracefully**
-  - Try creating flow with existing title
-  - Should show user-friendly error
-  - Suggest alternative title
-
-- [ ] **Auto-save works**
-  - Make changes to a flow
-  - Wait 2 seconds
-  - Refresh page
-  - Changes are persisted
-
-### Core Workflow (Evidence Chain Critical)
-
-- [ ] **Paste URL → analyze website → facts_json populated**
-  - Test with: https://stripe.com
-  - Wait for analysis to complete
-  - Check facts_json in DB:
-  ```sql
-  SELECT 
-    id, 
-    title,
-    facts_json->'facts' as facts_array,
-    jsonb_array_length(facts_json->'facts') as facts_count
-  FROM public.flows
-  WHERE website_url = 'https://stripe.com'
-  ORDER BY created_at DESC
-  LIMIT 1;
-  ```
-  - Verify facts have `id` and `evidence` fields
-
-- [ ] **Generate ICPs → all have evidence field**
-  - Generate ICPs for analyzed website
-  - Check response in DevTools → Network
-  - Verify each ICP has `evidence: ["fact-1", "fact-2"]`
-  - Check DB:
-  ```sql
-  SELECT 
-    id,
-    title,
-    selected_icp->'evidence' as icp_evidence
-  FROM public.flows
-  WHERE selected_icp IS NOT NULL
-  ORDER BY created_at DESC
-  LIMIT 1;
-  ```
-
-- [ ] **Select ICP → saves to flow**
-  - Click on an ICP card
-  - Verify `selected_icp` is saved in DB
-  - Evidence field is preserved
-
-- [ ] **Generate value props → all have sourceFactIds**
-  - Generate value propositions
-  - Check API response
-  - Each variation must have `sourceFactIds: ["fact-x", "fact-y"]`
-  - Check DB:
-  ```sql
-  SELECT 
-    id,
-    generated_content->'valueProp'->'variations'->0->'sourceFactIds' as source_facts
-  FROM public.flows
-  WHERE generated_content IS NOT NULL
-  ORDER BY created_at DESC
-  LIMIT 1;
-  ```
-
-- [ ] **Generate emails → have sourceFactIds**
-  - Generate email (one-time or sequence)
-  - Verify response has `sourceFactIds`
-  - Evidence chain is intact
-
-- [ ] **Run evidence validation test suite → all pass**
-  ```bash
-  npm run test:evidence
-  ```
-
-### Edge Cases
-
-- [ ] **Malformed URL → shows error**
-  - Try: "not-a-url"
-  - Should show friendly error
-  - App doesn't crash
-
-- [ ] **404 URL → shows error**
-  - Try: "https://thisurldoesnotexist123456.com"
-  - Should show "Unable to access" message
-  - Gracefully handled
-
-- [ ] **Timeout simulation → shows retry**
-  - Disconnect internet briefly
-  - Try analyzing a website
-  - Should show timeout error
-  - Offer retry option
-
-- [ ] **Missing evidence field → logs warning**
-  - Check browser console
-  - Should log warning, not crash
-
-- [ ] **Corrupt facts JSON → validation catches it**
-  - Validators should reject invalid schema
-  - Check lib/validators.ts is working
-
-### UI/UX
-
-- [ ] **All existing features work identically**
-  - Compare with main branch
-  - No UI regressions
-
-- [ ] **No console errors**
-  - Open DevTools → Console
-  - Should be clean (warnings OK)
-
-- [ ] **Page reloads don't lose state**
-  - Make changes
-  - Refresh page
-  - All changes persisted
-
-- [ ] **Multiple tabs sync properly**
-  - Open app in 2 tabs
-  - Make change in tab 1
-  - Refresh tab 2
-  - Changes appear (via DB)
-
-- [ ] **Export options work**
-  - Export as PDF
-  - Export to Google Slides
-  - Export to LinkedIn
-  - All formats work
-
-- [ ] **Loading states show properly**
-  - Should see skeletons during loading
-  - Not blank screens
-
-- [ ] **Error boundaries catch failures**
-  - Should show friendly error page
-  - Not white screen of death
-
-### Performance
-
-- [ ] **Initial load < 2s**
-  - Use Lighthouse or WebPageTest
-  - Time to Interactive < 2s
-
-- [ ] **Flow switch < 500ms**
-  - Switch between flows
-  - Should feel instant
-
-- [ ] **Auto-save debounced**
-  - Type rapidly
-  - Should not save on every keystroke
-  - Debounced to 2s
-
-- [ ] **Flow list pagination works for 50+ flows**
-  - Create many flows
-  - List loads efficiently
-  - No performance degradation
-
-### Migration
-
-- [ ] **localStorage backup downloads**
-  - Click migrate button
-  - Backup JSON file downloads
-  - Can open and view it
-
-- [ ] **Migration runs without errors**
-  - Click "Migrate to DB"
-  - Should complete successfully
-  - Check console for errors
-
-- [ ] **Diff report shows all successes**
-  - After migration completes
-  - Report shows: X/X successful
-  - Lists any failures
-
-- [ ] **Evidence chain intact after migration**
-  - Check migrated flows in DB
-  - Verify evidence fields present
-  - Run validation query:
-  ```sql
-  SELECT 
-    COUNT(*) as total_flows,
-    COUNT(CASE WHEN facts_json IS NOT NULL THEN 1 END) as flows_with_facts,
-    COUNT(CASE WHEN selected_icp->'evidence' IS NOT NULL THEN 1 END) as flows_with_evidence
-  FROM public.flows
-  WHERE user_id IS NOT NULL;
-  ```
-
-- [ ] **localStorage clears only after confirmation**
-  - Should prompt user
-  - Requires explicit confirmation
-
-### Analytics (Bonus)
-
-- [ ] **Metadata tracks regeneration count**
-  - Generate value props twice
-  - Check `metadata.prompt_regeneration_count`
-  - Should be > 0
-
-- [ ] **Dropoff analytics view populated**
-  ```sql
-  SELECT * FROM flow_dropoff_analytics;
-  ```
-  - Should return data
-  - Shows step distribution
-
-- [ ] **Completion time tracked**
-  - Complete a flow
-  - Check `completed_at` is set
-  - Calculate time from `created_at`
-
-## Automated Testing
-
-### Unit Tests
+## Quick Test Commands
 
 ```bash
-npm run test
-```
+# Run all tests
+npm test
 
-Tests lib functions in isolation.
-
-### Integration Tests
-
-```bash
+# Run integration tests
 npm run test:integration
-```
 
-Tests API routes with actual HTTP calls.
-
-### Evidence Chain Tests
-
-```bash
+# Run evidence chain validation
 npm run test:evidence
+
+# Type checking
+npm run typecheck
+
+# Lint
+npm run lint
 ```
 
-**CRITICAL**: These tests must pass before any deployment.
+## Critical: Evidence Chain Testing
 
-Tests:
-- Facts JSON structure
-- Evidence field presence
-- sourceFactIds in all outputs
-- DB persistence of evidence
+**The evidence chain is your competitive moat. Never skip these tests.**
 
-### End-to-End Tests
+### Manual Evidence Chain Verification
+
+1. **Test Facts Extraction**
 
 ```bash
-npm run test:e2e
+# Start dev server
+npm run dev
+
+# In browser:
+# 1. Paste URL: https://stripe.com
+# 2. Wait for analysis
+# 3. Open DevTools → Network → find analyze-website response
+# 4. Verify response has:
 ```
 
-Simulates full user journeys with Playwright.
+```json
+{
+  "factsJson": {
+    "facts": [
+      {
+        "id": "fact-1",
+        "text": "...",
+        "page": "...",
+        "evidence": "exact snippet"  // ✅ MUST be present
+      }
+    ],
+    "valueProps": [
+      {
+        "id": "v1",
+        "text": "...",
+        "evidence": ["fact-1", "fact-2"]  // ✅ MUST reference fact IDs
+      }
+    ]
+  }
+}
+```
 
-## Manual Testing Scenarios
+2. **Test ICP Generation**
 
-### Scenario 1: New User Onboarding
+```javascript
+// In browser console after ICPs generated:
+const icps = JSON.parse(sessionStorage.getItem('latest_icps'));
+console.log('Evidence check:', icps.map(icp => ({
+  title: icp.title,
+  hasEvidence: Array.isArray(icp.evidence) && icp.evidence.length > 0
+})));
+// All should show hasEvidence: true ✅
+```
 
-1. Sign up as new user
-2. Confirm email
-3. Login
-4. Create first flow
-5. Analyze website (e.g., Stripe)
-6. Generate ICPs
-7. Select ICP
-8. Generate value props
-9. Generate email
-10. Export
+3. **Test Value Props**
 
-**Success criteria:** All steps complete, evidence chain intact, data in DB.
+```javascript
+// After value props generated:
+const valueProps = JSON.parse(sessionStorage.getItem('latest_value_props'));
+console.log('SourceFacts check:', valueProps.variations.map(v => ({
+  style: v.style,
+  hasSourceFacts: Array.isArray(v.sourceFactIds) && v.sourceFactIds.length > 0
+})));
+// All should show hasSourceFacts: true ✅
+```
 
-### Scenario 2: Power User with Many Flows
-
-1. Login as existing user
-2. Create 20 flows
-3. Switch between them rapidly
-4. Archive 5 flows
-5. Restore 2 flows
-6. Search/filter flows
-
-**Success criteria:** No performance issues, all operations work.
-
-### Scenario 3: Error Recovery
-
-1. Start flow
-2. Disconnect internet mid-analysis
-3. Reconnect
-4. Retry
-5. Continue flow
-
-**Success criteria:** Graceful error handling, can recover and continue.
-
-### Scenario 4: Guest to User Migration
-
-1. Use app as guest (demo mode)
-2. Create 3 flows
-3. Sign up
-4. Verify all 3 flows migrated
-5. Check evidence intact
-
-**Success criteria:** Zero data loss, evidence preserved.
-
-## Database Integrity Checks
-
-### Check Evidence Chain
+4. **Test Database Persistence**
 
 ```sql
--- Find flows WITHOUT evidence (these are problems!)
+-- Run in Supabase SQL Editor after flow completion
 SELECT 
   id,
   title,
-  step,
-  facts_json IS NULL as missing_facts,
-  selected_icp->'evidence' IS NULL as missing_icp_evidence
-FROM public.flows
-WHERE user_id IS NOT NULL
-AND (
-  facts_json IS NULL 
-  OR (selected_icp IS NOT NULL AND selected_icp->'evidence' IS NULL)
-)
-ORDER BY created_at DESC;
+  
+  -- Check facts_json has evidence
+  jsonb_array_length(facts_json->'facts') as fact_count,
+  (
+    SELECT count(*)
+    FROM jsonb_array_elements(facts_json->'facts') as fact
+    WHERE fact->>'evidence' IS NOT NULL
+  ) as facts_with_evidence,
+  
+  -- Check selected_icp has evidence
+  jsonb_array_length(selected_icp->'evidence') as icp_evidence_count,
+  
+  -- Check value props have sourceFactIds
+  (
+    SELECT count(*)
+    FROM jsonb_array_elements(generated_content->'valueProp'->'variations') as variation
+    WHERE jsonb_array_length(variation->'sourceFactIds') > 0
+  ) as variations_with_source_facts
+
+FROM flows
+WHERE user_id = auth.uid()
+ORDER BY created_at DESC
+LIMIT 1;
 ```
 
-Expected: 0 rows (or only flows in 'initial' step)
+Expected: All counts > 0 ✅
 
-### Check RLS Policies
+### Automated Evidence Chain Tests
+
+Create `tests/evidence-chain.test.ts`:
+
+```typescript
+import { describe, test, expect } from 'vitest';
+
+describe('Evidence Chain Integrity', () => {
+  test('Facts JSON has evidence field for each fact', async () => {
+    const response = await fetch('/api/analyze-website', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: 'https://stripe.com' })
+    });
+    
+    const data = await response.json();
+    expect(data.factsJson.facts).toBeDefined();
+    
+    data.factsJson.facts.forEach((fact: any) => {
+      expect(fact.evidence).toBeDefined();
+      expect(typeof fact.evidence).toBe('string');
+      expect(fact.evidence.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('ICP generation includes evidence array', async () => {
+    // Mock or use actual API call
+    const icps = await generateICPs(mockFactsJson);
+    
+    icps.forEach((icp: any) => {
+      expect(Array.isArray(icp.evidence)).toBe(true);
+      expect(icp.evidence.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('Value prop variations have sourceFactIds', async () => {
+    const valueProps = await generateValueProps(mockFactsJson, mockICP);
+    
+    valueProps.variations.forEach((variation: any) => {
+      expect(Array.isArray(variation.sourceFactIds)).toBe(true);
+      expect(variation.sourceFactIds.length).toBeGreaterThan(0);
+    });
+  });
+});
+```
+
+## Edge Case Testing
+
+### 1. Malformed URLs
+
+```bash
+# Test in browser:
+Inputs to test:
+- "not-a-url"
+- "htp://broken.com"
+- "javascript:alert(1)"
+- "file:///etc/passwd"
+- ""
+- "   "
+
+Expected behavior:
+- Shows error message
+- Doesn't crash
+- Logs error gracefully
+```
+
+### 2. 404 / Unreachable URLs
+
+```bash
+Test URLs:
+- "https://thissitedoesnotexist12345.com"
+- "https://httpstat.us/404"
+- "https://httpstat.us/500"
+
+Expected:
+- "Unable to access website" message
+- Suggests checking URL
+- Doesn't hang forever (30s timeout)
+```
+
+### 3. Timeout Simulation
+
+```javascript
+// In lib/api-handler.ts, temporarily set timeout to 1ms
+// Then test with any URL
+// Expected: Shows timeout error, suggests retry
+```
+
+### 4. Missing/Corrupt Evidence
+
+```typescript
+// Mock API response with missing evidence
+const corruptFactsJson = {
+  facts: [
+    { id: "fact-1", text: "...", evidence: null },  // ❌ Missing
+    { id: "fact-2", text: "..." },  // ❌ Missing field
+  ]
+};
+
+// Test that validation catches this
+const validation = validateFactsJSON(corruptFactsJson);
+expect(validation.ok).toBe(false);
+expect(validation.errors).toContain('Missing evidence field');
+```
+
+## Integration Testing
+
+### Flow CRUD Operations
+
+```typescript
+describe('Flow API', () => {
+  test('Create flow persists evidence fields', async () => {
+    const flow = await flowsClient.createFlow({
+      title: 'Test Flow',
+      facts_json: mockFactsJsonWithEvidence,
+    });
+    
+    expect(flow.facts_json.facts[0].evidence).toBeDefined();
+  });
+
+  test('Update flow preserves sourceFactIds', async () => {
+    const updated = await flowsClient.updateFlow(flowId, {
+      generated_content: { valueProps: mockValuePropsWithSourceFactIds }
+    });
+    
+    expect(updated.generated_content.valueProps.variations[0].sourceFactIds).toBeDefined();
+  });
+
+  test('Soft delete does not lose data', async () => {
+    await flowsClient.softDeleteFlow(flowId);
+    const archived = await flowsClient.listFlows({ archived: true });
+    
+    expect(archived.find(f => f.id === flowId)).toBeDefined();
+  });
+
+  test('Duplicate title returns 409', async () => {
+    await flowsClient.createFlow({ title: 'Duplicate' });
+    
+    await expect(
+      flowsClient.createFlow({ title: 'Duplicate' })
+    ).rejects.toThrow('already exists');
+  });
+});
+```
+
+## Performance Testing
+
+### Load Testing
+
+```bash
+# Install Artillery
+npm install -g artillery
+
+# Create artillery.yml:
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      
+scenarios:
+  - name: 'Create and analyze flow'
+    flow:
+      - post:
+          url: '/api/flows'
+          json:
+            title: 'Test Flow'
+      - post:
+          url: '/api/analyze-website'
+          json:
+            url: 'https://stripe.com'
+
+# Run test
+artillery run artillery.yml
+```
+
+Expected:
+- P95 latency < 3s for analyze-website
+- P95 latency < 500ms for flow CRUD
+- No errors under 5 req/s load
+
+### Database Performance
 
 ```sql
--- As a test user, try to access another user's flow
--- This should return 0 rows
-SELECT * FROM public.flows
-WHERE user_id != auth.uid();
+-- Check slow queries in Supabase
+SELECT 
+  query,
+  calls,
+  total_time,
+  mean_time,
+  max_time
+FROM pg_stat_statements
+WHERE mean_time > 100  -- > 100ms
+ORDER BY mean_time DESC
+LIMIT 10;
 ```
 
-Expected: 0 rows (RLS is working)
+## UI/UX Testing Checklist
 
-### Check Orphaned Records
+### Auth Flow
+- [ ] Sign up with valid email
+- [ ] Receive confirmation email
+- [ ] Click confirmation link → redirects to login
+- [ ] Log in → redirects to /app
+- [ ] Protected routes redirect to /auth/login when not authenticated
+- [ ] Logout clears session
 
-```sql
--- Find flows with no user
-SELECT COUNT(*) as orphaned_flows
-FROM public.flows
-WHERE user_id IS NULL
-AND metadata->>'is_demo' != 'true';
+### Flow Management
+- [ ] Create new flow → appears in sidebar
+- [ ] Switch flows → loads correct state
+- [ ] Rename flow → updates immediately
+- [ ] Delete flow → moves to archived
+- [ ] Restore flow → returns to active list
+- [ ] Duplicate title → shows error, suggests alternative
+
+### Core Workflow
+- [ ] Paste URL → shows loading state
+- [ ] Analysis completes → facts_json populated
+- [ ] Generate ICPs → 3 profiles displayed
+- [ ] Select ICP → saves to DB
+- [ ] Generate value props → variations shown
+- [ ] Generate email → preview displayed
+- [ ] Export → downloads file
+- [ ] Refresh page → all state persists
+
+### Error Handling
+- [ ] Invalid URL → shows error, doesn't crash
+- [ ] API timeout → shows retry button
+- [ ] Network offline → shows offline message
+- [ ] DB error → caught by error boundary
+- [ ] Console has no errors (except expected warnings)
+
+### Performance
+- [ ] Initial load < 2s
+- [ ] Flow switch < 500ms
+- [ ] Auto-save debounced (not every keystroke)
+- [ ] Loading skeletons show during fetch
+- [ ] No layout shift (CLS)
+
+## Multi-User Testing
+
+### Concurrent Access
+
+```bash
+# Open 2 browser windows (different sessions)
+# User A: Create flow "Test"
+# User B: Create flow "Test"
+# Both should succeed (different user_id)
+
+# User A: Try to access User B's flow by ID
+# Should get 403 Forbidden (RLS working)
 ```
 
-Expected: 0 (unless demo mode is enabled)
+### Multi-Tab Sync
+
+```bash
+# Open 2 tabs, same user
+# Tab 1: Edit flow title
+# Tab 2: Refresh
+# Should see updated title (DB is source of truth)
+```
+
+## Migration Testing
+
+### localStorage → DB Migration
+
+```bash
+# Prerequisites: Have data in localStorage
+# 1. Log in
+# 2. See migration prompt
+# 3. Click "Download Backup"
+# 4. Verify flowtusk-backup-*.json downloads
+# 5. Click "Migrate Now"
+# 6. Wait for completion
+# 7. Review diff report:
+#    - Total: X
+#    - Success: X
+#    - Failed: 0
+#    - Evidence integrity: 100%
+# 8. Verify all flows appear in UI
+# 9. localStorage cleared after confirmation
+```
 
 ## Regression Testing
 
-Before each major release, run ALL checklists above.
+After any code changes, run this checklist:
 
-Focus areas:
-1. Evidence chain (use automated tests)
-2. Auth flow
-3. DB persistence
-4. UI/UX parity with main branch
-
-## Reporting Issues
-
-When reporting a bug, include:
-
-1. **Steps to reproduce**
-2. **Expected behavior**
-3. **Actual behavior**
-4. **Browser console logs**
-5. **Supabase SQL query results** (if DB-related)
-6. **Evidence chain check** (if generation-related)
+- [ ] Evidence chain tests pass
+- [ ] Integration tests pass
+- [ ] All edge case tests pass
+- [ ] Performance hasn't degraded
+- [ ] No new console errors
+- [ ] Linter passes
+- [ ] TypeScript compiles with no errors
 
 ## CI/CD Integration
 
-The GitHub Actions workflow (`.github/workflows/test.yml`) runs:
+Your `.github/workflows/test.yml` should:
 
-1. Linting
-2. Type checking
-3. Unit tests
-4. **Evidence validation tests** (CRITICAL - must pass)
+```yaml
+- name: Evidence Chain Tests
+  run: npm run test:evidence
+  # This MUST pass before merging
 
-All checks must pass before merging to main.
+- name: Integration Tests
+  run: npm run test:integration
 
+- name: Lint & Type Check
+  run: |
+    npm run lint
+    npm run typecheck
+```
+
+## Manual QA Checklist (Before Release)
+
+- [ ] Test on Chrome, Firefox, Safari
+- [ ] Test on mobile (iOS Safari, Android Chrome)
+- [ ] Test with slow 3G network
+- [ ] Test with ad blocker enabled
+- [ ] Test with JavaScript disabled (should show fallback)
+- [ ] Test with screen reader (basic accessibility)
+- [ ] Cross-browser auth flow
+- [ ] Verify no CORS errors
+- [ ] Check all environment variables set
+- [ ] Verify RLS policies active
+- [ ] Test with real OpenAI API key
+- [ ] Monitor costs (OpenAI usage)
+
+## Debugging Tips
+
+### Evidence Chain Missing
+
+```bash
+# 1. Check API response
+curl -X POST http://localhost:3000/api/analyze-website \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://stripe.com"}' | jq '.factsJson.facts[0].evidence'
+
+# Should return: "some text snippet"
+
+# 2. Check prompt templates unchanged
+git diff main lib/prompt-templates.ts
+# Should be empty
+
+# 3. Validate schema
+node -e "const v = require('./lib/validators'); console.log(v.validateFactsJSON(require('./test-facts.json')))"
+```
+
+### DB Not Persisting
+
+```bash
+# Check RLS
+# In Supabase SQL Editor:
+SELECT * FROM flows WHERE id = 'your-flow-id';
+# If returns nothing, RLS may be blocking
+
+# Disable RLS temporarily:
+ALTER TABLE flows DISABLE ROW LEVEL SECURITY;
+# Try query again
+# Re-enable after testing:
+ALTER TABLE flows ENABLE ROW LEVEL SECURITY;
+```
+
+## Continuous Monitoring
+
+Post-deployment:
+
+```bash
+# Monitor Vercel logs
+vercel logs --follow
+
+# Monitor Supabase logs
+# Dashboard → Logs → API / Postgres
+
+# Check error rate
+# Should be < 1% 
+```
+
+## Success Metrics
+
+Before considering testing complete:
+
+- ✅ 100% evidence chain integrity
+- ✅ 0 failed edge case tests
+- ✅ < 2s initial load time
+- ✅ < 1% error rate
+- ✅ All integration tests pass
+- ✅ No TypeScript errors
+- ✅ No ESLint errors
+- ✅ RLS policies verified
+- ✅ Migration tested successfully

@@ -1,17 +1,11 @@
 node_modules
 .next
 out
-build
 dist
+build
 coverage
-.turbo
-.vercel
-
-*.md
-*.json
+.env
+.env.*
+*.log
 package-lock.json
 pnpm-lock.yaml
-
-# Supabase
-supabase/.temp
-

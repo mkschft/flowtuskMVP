@@ -93,4 +93,3 @@ from public.flows
 where completed_at is null and archived_at is null
 group by step
 order by flow_count desc;
-

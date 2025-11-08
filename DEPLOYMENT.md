@@ -1,322 +1,298 @@
-# Deployment Guide
+# Flowtusk Deployment Guide
 
-This guide covers deploying Flowtusk to production with Vercel and Supabase.
+This guide walks you through deploying Flowtusk to production with Supabase + Vercel.
 
 ## Prerequisites
 
-- Supabase account and project
-- Vercel account
-- OpenAI API key
-- (Optional) Firecrawl API key
+- Supabase account ([supabase.com](https://supabase.com))
+- Vercel account ([vercel.com](https://vercel.com))
+- OpenAI API key ([platform.openai.com](https://platform.openai.com))
+- Optional: Firecrawl API key ([firecrawl.dev](https://firecrawl.dev))
 
-## Step 1: Supabase Setup
+## Step 1: Create Supabase Project
 
-### 1.1 Create Supabase Project
+1. Go to [database.new](https://database.new) or your Supabase dashboard
+2. Click "New Project"
+3. Choose organization, name project, and set database password
+4. Wait for project to finish initializing (~2 minutes)
 
-1. Go to [database.new](https://database.new/)
-2. Create a new project
-3. Wait for the project to initialize (~2 minutes)
+## Step 2: Run Database Migrations
 
-### 1.2 Run Migrations
-
-1. Go to your project's SQL Editor
-2. Copy and paste the contents of `supabase/migrations/001_flows_table.sql`
-3. Click "Run"
-4. Verify the `flows` table was created in the Table Editor
+1. Go to your Supabase project → **SQL Editor**
+2. Click "New Query"
+3. Copy and paste the contents of `supabase/migrations/001_flows_table.sql`
+4. Click "Run" to execute the migration
 5. Repeat for `supabase/migrations/002_update_existing_tables.sql`
+6. Verify tables created: Go to **Table Editor** → should see `flows`, `landing_pages`, `leads` tables
 
-### 1.3 Verify RLS Policies
+## Step 3: Verify RLS Policies
 
-In the SQL Editor, run:
+1. In Supabase, go to **Authentication** → **Policies**
+2. Verify RLS is enabled on all tables:
+   - `flows` - should have 5-6 policies
+   - `landing_pages` - should have 4-5 policies
+   - `leads` - should have 1-2 policies
+3. Test policy: Try querying flows table without auth (should fail)
 
-```sql
-SELECT schemaname, tablename, policyname
-FROM pg_policies
-WHERE tablename IN ('flows', 'landing_pages', 'leads');
+## Step 4: Get Supabase Credentials
+
+1. Go to **Project Settings** → **API**
+2. Copy:
+   - **Project URL** (`NEXT_PUBLIC_SUPABASE_URL`)
+   - **Publishable key** (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`)
+3. Save these for Step 6
+
+## Step 5: Deploy to Vercel
+
+### Option A: Deploy via Vercel Dashboard
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import your Git repository
+3. Configure project:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `./` (default)
+   - **Build Command**: `npm run build` (default)
+   - **Output Directory**: `.next` (default)
+4. Click "Deploy" (will fail initially - this is expected)
+
+### Option B: Deploy via CLI
+
+```bash
+npm install -g vercel
+vercel login
+vercel --prod
 ```
 
-You should see multiple policies for each table.
+## Step 6: Set Environment Variables
 
-### 1.4 Get API Credentials
-
-1. Go to Project Settings → API
-2. Copy your:
-   - `Project URL` (NEXT_PUBLIC_SUPABASE_URL)
-   - `anon/public` key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
-
-## Step 2: Vercel Deployment
-
-### 2.1 Connect Repository
-
-1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Click "New Project"
-3. Import your Git repository
-4. Select the repository containing Flowtusk
-
-### 2.2 Configure Environment Variables
-
-In the Vercel project settings, add these environment variables:
+In Vercel dashboard → Your Project → **Settings** → **Environment Variables**, add:
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+# Supabase (from Step 4)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # OpenAI
-OPENAI_API_KEY=your-openai-key
+OPENAI_API_KEY=sk-...
 
 # Optional: Firecrawl
-FIRECRAWL_API_KEY=your-firecrawl-key
+FIRECRAWL_API_KEY=fc-...
 FIRECRAWL_ENABLED=false
 
 # Optional: Demo Mode
 NEXT_PUBLIC_DEMO_MODE_ENABLED=false
-
-# Environment
-NODE_ENV=production
 ```
 
-### 2.3 Deploy
+**Important**: Set these for "Production", "Preview", and "Development" environments
 
-1. Click "Deploy"
-2. Wait for the build to complete (~3-5 minutes)
-3. Click on the deployment URL to test
+## Step 7: Redeploy
 
-## Step 3: Post-Deployment Verification
+After adding environment variables:
 
-### 3.1 Test Auth Flow
+1. Go to **Deployments**
+2. Find the latest deployment
+3. Click **•••** → **Redeploy**
+4. Check "Use existing Build Cache" → **Redeploy**
 
-1. Visit your deployment URL
+## Step 8: Post-Deployment Verification
+
+### Test Auth Flow
+
+1. Go to your deployed URL
 2. Click "Sign Up"
-3. Create a test account
-4. Verify you receive a confirmation email
-5. Confirm your email
-6. Log in with the test account
+3. Create new account (check email for confirmation)
+4. Verify you can log in
+5. Verify you're redirected to `/app` after login
 
-### 3.2 Test Flow Creation
+### Test Flow Creation
 
-1. Create a new flow
-2. Paste a website URL (e.g., https://stripe.com)
+1. Click "New Flow"
+2. Paste a website URL (e.g., `https://stripe.com`)
 3. Wait for analysis to complete
 4. Verify facts_json is populated
-5. Generate ICPs
-6. Check that evidence fields are present
+5. Generate ICPs → verify evidence field is present
+6. Refresh page → verify state persists (from DB, not localStorage)
 
-### 3.3 Verify Database
+### Test Evidence Chain
 
-In Supabase SQL Editor:
+Open browser console and run:
+
+```javascript
+// After generating ICPs
+console.log('ICPs:', JSON.parse(localStorage.getItem('last_icps_response')))
+// Should see evidence: ["fact-1", "fact-2", ...] in each ICP
+```
+
+Or query Supabase directly:
 
 ```sql
--- Check if flows are being created
-SELECT id, title, user_id, step, created_at
-FROM public.flows
-ORDER BY created_at DESC
-LIMIT 10;
-
--- Verify evidence chain
+-- In Supabase SQL Editor
 SELECT 
   id, 
-  title,
-  facts_json IS NOT NULL as has_facts,
-  selected_icp IS NOT NULL as has_icp,
-  step
-FROM public.flows
-WHERE user_id IS NOT NULL
-ORDER BY created_at DESC
-LIMIT 5;
+  title, 
+  jsonb_pretty(facts_json->'facts') as facts_with_evidence,
+  jsonb_pretty(selected_icp->'evidence') as icp_evidence
+FROM flows
+WHERE user_id = 'your-user-id'
+LIMIT 1;
 ```
 
-### 3.4 Test Evidence Chain
+### Test Performance
 
-1. In a flow, generate value propositions
-2. Check the API response in browser DevTools → Network
-3. Verify `sourceFactIds` are present in the response
-4. In Supabase SQL Editor:
+- Initial load: < 2s
+- Flow switch: < 500ms
+- Auto-save: Check network tab, should debounce (~2s after last change)
 
-```sql
-SELECT 
-  id,
-  title,
-  facts_json->'facts'->0->'id' as first_fact_id,
-  selected_icp->'evidence' as icp_evidence
-FROM public.flows
-WHERE facts_json IS NOT NULL
-LIMIT 5;
+## Step 9: Set Up Monitoring (Recommended)
+
+### Enable Vercel Analytics
+
+1. Go to **Analytics** in Vercel dashboard
+2. Enable **Web Analytics**
+3. Monitor Core Web Vitals
+
+### Enable Supabase Logs
+
+1. Go to Supabase → **Logs**
+2. Monitor:
+   - API logs for errors
+   - Postgres logs for slow queries
+   - Auth logs for signup/login issues
+
+### Set Up Alerts
+
+Add webhook for critical errors:
+
+```bash
+# In Vercel: Settings → Integrations → Notifications
+# Add Slack/Discord webhook for deployment failures
 ```
 
-## Step 4: Monitoring
+## Step 10: Performance Optimization
 
-### 4.1 Set Up Error Tracking
+### Enable Vercel Edge Config (Optional)
 
-In Vercel:
-1. Go to Project Settings → Integrations
-2. Add Sentry or LogRocket (recommended)
-3. Configure error tracking
+For faster API responses:
 
-### 4.2 Monitor Database Performance
-
-In Supabase:
-1. Go to Database → Performance
-2. Monitor query performance
-3. Check index usage
-
-### 4.3 Set Up Alerts
-
-Create a Vercel monitor for:
-- Deployment failures
-- High error rates
-- Slow API responses
-
-## Step 5: Scaling Considerations
-
-### 5.1 Database Optimization
-
-If you expect high traffic:
-
-```sql
--- Add additional indexes
-CREATE INDEX CONCURRENTLY flows_step_created_idx 
-ON public.flows(step, created_at DESC) 
-WHERE archived_at IS NULL;
-
--- Enable connection pooling in Supabase
--- Go to Project Settings → Database → Connection Pooling
+```bash
+vercel env add EDGE_CONFIG
+# Follow prompts to create Edge Config
 ```
 
-### 5.2 API Rate Limiting
+### Enable Database Connection Pooling
 
-Consider adding rate limiting for API routes:
-
-```typescript
-// middleware.ts
-import { rateLimit } from '@/lib/rate-limit';
-
-export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const rateLimitResult = await rateLimit(request);
-    if (!rateLimitResult.success) {
-      return new NextResponse('Too Many Requests', { status: 429 });
-    }
-  }
-  // ... rest of middleware
-}
-```
-
-### 5.3 Caching Strategy
-
-Enable caching for static assets:
-
-```typescript
-// next.config.ts
-const config = {
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, must-revalidate' },
-        ],
-      },
-    ];
-  },
-};
-```
+In Supabase → **Database** → **Connection Pooling**:
+- Enable **Transaction Mode**
+- Use pooling connection string in production
 
 ## Rollback Procedure
 
-If you need to rollback a deployment:
+If deployment fails:
 
-### Quick Rollback
+1. Go to Vercel → **Deployments**
+2. Find last working deployment
+3. Click **•••** → **Promote to Production**
 
-1. In Vercel Dashboard, go to Deployments
-2. Find the previous working deployment
-3. Click "..." → "Promote to Production"
+If database migration fails:
 
-### Database Rollback
+1. Go to Supabase → **SQL Editor**
+2. Run rollback script (if provided)
+3. Or manually revert changes
 
-If you need to rollback migrations:
+## Environment-Specific Settings
 
-```sql
--- List all migrations
-SELECT * FROM supabase_migrations.schema_migrations;
+### Production
 
--- Rollback is not automatic, you'll need to manually revert
--- Example: Drop the flows table (CAUTION: DATA LOSS)
-DROP TABLE IF EXISTS public.flows CASCADE;
+```env
+NODE_ENV=production
+NEXT_PUBLIC_DEMO_MODE_ENABLED=false
+FIRECRAWL_ENABLED=true  # If you have API key
 ```
 
-**Note:** Always backup your database before major changes!
+### Staging
 
-## Troubleshooting
+```env
+NODE_ENV=production
+NEXT_PUBLIC_DEMO_MODE_ENABLED=true  # Allow testing without auth
+FIRECRAWL_ENABLED=false  # Save costs
+```
+
+### Development
+
+```env
+NODE_ENV=development
+NEXT_PUBLIC_DEMO_MODE_ENABLED=true
+FIRECRAWL_ENABLED=false
+```
+
+## Common Issues
 
 ### Issue: "Failed to fetch flows"
 
-**Solution:**
-1. Check Vercel logs for errors
-2. Verify environment variables are set
-3. Check Supabase RLS policies
-4. Ensure user is authenticated
+**Cause**: RLS policies not set correctly
 
-### Issue: "Evidence chain missing"
+**Fix**:
+1. Verify user is authenticated
+2. Check RLS policies in Supabase
+3. Verify `user_id` column exists on flows table
 
-**Solution:**
-1. Check if facts_json is being saved:
-   ```sql
-   SELECT id, title, facts_json IS NOT NULL as has_facts
-   FROM public.flows
-   ORDER BY created_at DESC
-   LIMIT 10;
-   ```
-2. If null, check API route logs
-3. Verify OpenAI API key is valid
-4. Check prompt templates are not modified
+### Issue: "Unauthorized" errors
 
-### Issue: "Duplicate title error"
+**Cause**: Middleware not configured properly
 
-**Solution:**
-1. This is expected behavior (unique constraint)
-2. User should choose a different title
-3. Or delete/archive the existing flow with that title
+**Fix**:
+1. Check `middleware.ts` is at project root
+2. Verify `NEXT_PUBLIC_SUPABASE_URL` is set
+3. Check middleware config matcher
 
-### Issue: "Demo flows not expiring"
+### Issue: Evidence chain missing
 
-**Solution:**
-1. Set up a cron job to call `/api/demo/flows` with DELETE method
-2. Or manually run in SQL Editor:
-   ```sql
-   DELETE FROM public.flows
-   WHERE user_id IS NULL
-   AND created_at < NOW() - INTERVAL '24 hours';
-   ```
+**Cause**: Old migration or prompt templates changed
+
+**Fix**:
+1. DO NOT change `lib/prompt-templates.ts`
+2. Re-run evidence validation tests
+3. Check API responses include `evidence` and `sourceFactIds`
+
+### Issue: Slow performance
+
+**Cause**: Database queries or API timeouts
+
+**Fix**:
+1. Enable connection pooling in Supabase
+2. Check indexes are created (see migration SQL)
+3. Monitor Supabase **Database** → **Performance**
 
 ## Security Checklist
 
-- [ ] All environment variables are set correctly
-- [ ] RLS policies are enabled and tested
-- [ ] API routes require authentication
-- [ ] CORS is properly configured
-- [ ] Rate limiting is in place (recommended)
-- [ ] Error messages don't leak sensitive data
-- [ ] Supabase connection is using SSL
-- [ ] OpenAI API key is not exposed client-side
+- [ ] RLS enabled on all tables
+- [ ] Environment variables set in Vercel (not in code)
+- [ ] Supabase **Auth** → **Policies** configured
+- [ ] API routes validate user auth
+- [ ] No exposed API keys in client code
+- [ ] CORS configured properly (if needed)
 
-## Performance Benchmarks
+## Scaling Considerations
 
-Target metrics:
-- Initial page load: < 2s
-- Flow creation: < 500ms
-- Website analysis: < 30s
-- ICP generation: < 10s
-- Value prop generation: < 10s
-- Flow switching: < 300ms
+As your user base grows:
 
-Monitor these in Vercel Analytics and Supabase Performance tabs.
+1. **Database**: Upgrade Supabase plan for more connections
+2. **Vercel**: Enable **Pro** plan for better performance
+3. **OpenAI**: Monitor usage, consider caching responses
+4. **CDN**: Enable Vercel Edge Network for global performance
 
 ## Support
 
-If you encounter issues:
-1. Check Vercel deployment logs
-2. Check Supabase logs
-3. Review this guide's Troubleshooting section
-4. Check GitHub issues
+- Supabase: [supabase.com/docs](https://supabase.com/docs)
+- Vercel: [vercel.com/docs](https://vercel.com/docs)
+- Flowtusk: See README.md for local development
 
+## Next Steps
+
+After successful deployment:
+
+1. Test with real users (beta group)
+2. Monitor error rates and performance
+3. Set up feedback collection
+4. Review dropoff analytics: Query `flow_dropoff_analytics` view
+5. Iterate on high-dropoff steps

@@ -2,14 +2,15 @@ name: Test & Lint
 
 on:
   push:
-    branches: [main, feature/**]
+    branches: [main, develop, feature/*]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,56 +18,92 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
         run: npm run lint
 
-      - name: Run TypeScript type check
-        run: npm run typecheck
+      - name: Format check
+        run: npm run format:check
 
       - name: Run unit tests
         run: npm run test
-        if: false  # Disabled until tests are created
 
-      - name: Run evidence chain validation
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Run evidence chain validation tests (CRITICAL)
         run: npm run test:evidence
-        if: false  # Disabled until tests are created
+        # This step is critical - evidence chain must pass
 
-      - name: Build application
+  evidence-validation:
+    name: Evidence Chain Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify prompt templates unchanged
+        run: |
+          # Check if lib/prompt-templates.ts has changed
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "lib/prompt-templates.ts"; then
+            echo "⚠️ WARNING: lib/prompt-templates.ts was modified"
+            echo "This file should NEVER be changed as it contains the evidence chain logic"
+            exit 1
+          else
+            echo "✅ prompt-templates.ts unchanged"
+          fi
+
+      - name: Run evidence tests
+        run: npm run test:evidence
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Provide dummy env vars for build
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: dummy-key
+          OPENAI_API_KEY: sk-dummy
 
-  lint-migrations:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Verify migration files
+      - name: Check build output
         run: |
-          echo "Checking migration files..."
-          ls -la supabase/migrations/
-          echo "✅ Migration files found"
-
-  check-critical-files:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check prompt templates unchanged
-        run: |
-          echo "Verifying critical files are not modified..."
-          git diff ${{ github.event.before }} ${{ github.sha }} --name-only | grep -E "(lib/prompt-templates\.ts|lib/validators\.ts|lib/few-shot-examples\.ts)" && echo "❌ CRITICAL: Prompt templates modified!" && exit 1 || echo "✅ Critical files unchanged"
-        if: github.event_name == 'pull_request'
-
+          if [ -d ".next" ]; then
+            echo "✅ Build successful"
+          else
+            echo "❌ Build failed - .next directory not found"
+            exit 1
+          fi

@@ -3,49 +3,47 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const supabase = await createClient();
-
-    // Get current user
+    const { id } = params;
+    
+    // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Demo mode support
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+    if (!user && !isDemoMode) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: flow, error } = await supabase
-      .from("flows")
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", user.id)
+    // Build query
+    let query = supabase
+      .from('flows')
+      .select('*')
+      .eq('id', id)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Flow not found" },
-          { status: 404 }
-        );
-      }
+    const { data: flow, error } = await query;
 
-      console.error("Error fetching flow:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch flow" },
-        { status: 500 }
-      );
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+      }
+      throw error;
+    }
+
+    // Verify ownership (RLS should handle this, but double-check)
+    if (user && flow.user_id !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     return NextResponse.json({ flow });
   } catch (error) {
-    console.error("Error in GET /api/flows/[id]:", error);
+    console.error("Error fetching flow:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to fetch flow" },
       { status: 500 }
     );
   }
@@ -53,108 +51,95 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const body = await req.json();
-    const { title, website_url, facts_json, selected_icp, generated_content, step, metadata } = body;
-
     const supabase = await createClient();
-
-    // Get current user
+    const { id } = params;
+    const body = await req.json();
+    
+    // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Demo mode support
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+    if (!user && !isDemoMode) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // First, get the current flow to merge metadata
-    const { data: currentFlow, error: fetchError } = await supabase
-      .from("flows")
-      .select("metadata, step")
-      .eq("id", id)
-      .eq("user_id", user.id)
+    // Get current flow to merge metadata
+    const { data: currentFlow } = await supabase
+      .from('flows')
+      .select('metadata, step')
+      .eq('id', id)
       .single();
 
-    if (fetchError) {
-      console.error("Error fetching current flow:", fetchError);
-      return NextResponse.json(
-        { error: "Flow not found" },
-        { status: 404 }
-      );
+    // Prepare update data
+    const updateData: any = {};
+    
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.website_url !== undefined) updateData.website_url = body.website_url;
+    if (body.facts_json !== undefined) updateData.facts_json = body.facts_json;
+    if (body.selected_icp !== undefined) updateData.selected_icp = body.selected_icp;
+    if (body.generated_content !== undefined) updateData.generated_content = body.generated_content;
+    if (body.step !== undefined) {
+      updateData.step = body.step;
+      
+      // Mark as completed if reaching final step
+      if (body.step === 'completed' || body.step === 'exported') {
+        updateData.completed_at = new Date().toISOString();
+      }
     }
 
-    // Merge metadata to preserve analytics
-    const updatedMetadata = {
-      ...currentFlow.metadata,
-      ...metadata,
-    };
+    // Merge metadata
+    if (body.metadata || currentFlow) {
+      const existingMetadata = currentFlow?.metadata || {};
+      const newMetadata = body.metadata || {};
+      
+      updateData.metadata = {
+        ...existingMetadata,
+        ...newMetadata,
+      };
 
-    // Track prompt regeneration if generated_content is being updated
-    if (generated_content && currentFlow.generated_content) {
-      updatedMetadata.prompt_regeneration_count = 
-        (currentFlow.metadata?.prompt_regeneration_count || 0) + 1;
-    }
+      // Track regeneration if applicable
+      if (body.regenerated) {
+        updateData.metadata.prompt_regeneration_count = 
+          (existingMetadata.prompt_regeneration_count || 0) + 1;
+      }
 
-    // Prepare update object
-    const updates: Record<string, unknown> = {
-      updated_at: new Date().toISOString(),
-    };
-
-    if (title !== undefined) updates.title = title;
-    if (website_url !== undefined) updates.website_url = website_url;
-    if (facts_json !== undefined) updates.facts_json = facts_json;
-    if (selected_icp !== undefined) updates.selected_icp = selected_icp;
-    if (generated_content !== undefined) updates.generated_content = generated_content;
-    if (step !== undefined) {
-      updates.step = step;
       // Track dropoff if step changed
-      if (step !== currentFlow.step) {
-        updatedMetadata.dropoff_step = currentFlow.step;
-      }
-      // Mark as completed if final step
-      if (step === 'completed' || step === 'exported') {
-        updates.completed_at = new Date().toISOString();
+      if (currentFlow && body.step && body.step !== currentFlow.step && !updateData.completed_at) {
+        updateData.metadata.dropoff_step = body.step;
       }
     }
-    if (metadata !== undefined) updates.metadata = updatedMetadata;
 
     // Update flow
     const { data: flow, error } = await supabase
-      .from("flows")
-      .update(updates)
-      .eq("id", id)
-      .eq("user_id", user.id)
+      .from('flows')
+      .update(updateData)
+      .eq('id', id)
       .select()
       .single();
 
     if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+      }
       // Handle unique constraint violation
-      if (error.code === "23505") {
+      if (error.code === '23505') {
         return NextResponse.json(
-          { error: "A flow with this title already exists. Please choose a different title." },
+          { error: "A flow with this title already exists" },
           { status: 409 }
         );
       }
-
-      console.error("Error updating flow:", error);
-      return NextResponse.json(
-        { error: "Failed to update flow" },
-        { status: 500 }
-      );
+      throw error;
     }
-
-    console.log("✅ Updated flow:", flow.id);
 
     return NextResponse.json({ flow });
   } catch (error) {
-    console.error("Error in PATCH /api/flows/[id]:", error);
+    console.error("Error updating flow:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to update flow" },
       { status: 500 }
     );
   }
@@ -162,68 +147,45 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const searchParams = req.nextUrl.searchParams;
-    const hard = searchParams.get("hard") === "true";
-
     const supabase = await createClient();
-
-    // Get current user
+    const { id } = params;
+    const { searchParams } = new URL(req.url);
+    const hardDelete = searchParams.get('hard') === 'true';
+    
+    // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (hard) {
-      // Hard delete (permanent)
+    if (hardDelete) {
+      // Hard delete (permanent) - admin only or for demo cleanup
       const { error } = await supabase
-        .from("flows")
+        .from('flows')
         .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
+        .eq('id', id);
 
-      if (error) {
-        console.error("Error deleting flow:", error);
-        return NextResponse.json(
-          { error: "Failed to delete flow" },
-          { status: 500 }
-        );
-      }
-
-      console.log("🗑️ Hard deleted flow:", id);
+      if (error) throw error;
     } else {
       // Soft delete (set archived_at)
       const { error } = await supabase
-        .from("flows")
+        .from('flows')
         .update({ archived_at: new Date().toISOString() })
-        .eq("id", id)
-        .eq("user_id", user.id);
+        .eq('id', id);
 
-      if (error) {
-        console.error("Error archiving flow:", error);
-        return NextResponse.json(
-          { error: "Failed to archive flow" },
-          { status: 500 }
-        );
-      }
-
-      console.log("📦 Soft deleted (archived) flow:", id);
+      if (error) throw error;
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error in DELETE /api/flows/[id]:", error);
+    console.error("Error deleting flow:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to delete flow" },
       { status: 500 }
     );
   }
 }
-
