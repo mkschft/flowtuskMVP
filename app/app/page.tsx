@@ -24,6 +24,15 @@ import { OneTimeEmailCard } from "@/components/OneTimeEmailCard";
 import { LinkedInOutreachCard } from "@/components/LinkedInOutreachCard";
 import { LinkedInSingleContentCard } from "@/components/LinkedInSingleContentCard";
 import { nanoid } from "nanoid";
+import { flowsClient, type Flow } from "@/lib/flows-client";
+import { createClient } from "@/lib/supabase/client";
+import { 
+  migrateLocalStorageToDb, 
+  needsMigration,
+  clearLocalStorageAfterMigration 
+} from "@/lib/migrate-local-to-db";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LoadingFlowsSkeleton } from "@/components/LoadingFlowsSkeleton";
 
 type ICP = {
   id: string;
@@ -692,11 +701,61 @@ function ChatPageContent() {
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // DB Integration states
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [dbSyncEnabled, setDbSyncEnabled] = useState(true);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
-  // Load conversations from localStorage on mount
+  // Check auth and load flows from DB on mount
   useEffect(() => {
+    checkAuthAndLoadFlows();
+  }, []);
+
+  async function checkAuthAndLoadFlows() {
+    try {
+      // Check auth
+      const supabase = createClient();
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      setUser(authUser);
+      setAuthLoading(false);
+      
+      // Demo mode bypass
+      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+      
+      if (!authUser && !isDemoMode) {
+        console.log('🔒 [Auth] Not authenticated, redirecting to login');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
+      console.log('✅ [Auth] User authenticated or demo mode');
+      
+      // Check if migration needed
+      if (needsMigration()) {
+        console.log('📦 [Migration] LocalStorage data detected');
+        setShowMigrationPrompt(true);
+        // Load from localStorage temporarily
+        loadFromLocalStorage();
+        return;
+      }
+      
+      // Load flows from DB
+      await loadFlowsFromDB();
+    } catch (error) {
+      console.error('❌ [Init] Failed to initialize:', error);
+      setAuthLoading(false);
+      // Fallback to localStorage
+      loadFromLocalStorage();
+    }
+  }
+
+  function loadFromLocalStorage() {
     const savedConversations = localStorage.getItem('flowtusk_conversations');
     const savedActiveId = localStorage.getItem('flowtusk_active_conversation');
     
@@ -712,20 +771,125 @@ function ChatPageContent() {
         console.error('❌ [Storage] Failed to load conversations:', error);
       }
     }
-  }, []);
+  }
 
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    if (conversations.length > 0) {
-      try {
-        localStorage.setItem('flowtusk_conversations', JSON.stringify(conversations));
-        localStorage.setItem('flowtusk_active_conversation', activeConversationId);
-        console.log('💾 [Storage] Saved conversations to localStorage');
-      } catch (error) {
-        console.error('❌ [Storage] Failed to save conversations:', error);
+  async function loadFlowsFromDB() {
+    try {
+      setIsLoading(true);
+      console.log('🔍 [DB] Loading flows from database...');
+      
+      const flows = await flowsClient.listFlows();
+      console.log(`✅ [DB] Loaded ${flows.length} flows from database`);
+      
+      // Convert Flow to Conversation format
+      const conversations = flows.map(flowToConversation);
+      
+      setConversations(conversations);
+      
+      if (conversations.length > 0 && !activeConversationId) {
+        setActiveConversationId(conversations[0].id);
       }
+    } catch (error) {
+      console.error('❌ [DB] Failed to load flows:', error);
+      // Fallback to localStorage if DB fails
+      loadFromLocalStorage();
+    } finally {
+      setIsLoading(false);
     }
-  }, [conversations, activeConversationId]);
+  }
+
+  function flowToConversation(flow: Flow): Conversation {
+    const generatedContent = (flow.generated_content as any) || {};
+    
+    return {
+      id: flow.id,
+      title: flow.title,
+      messages: generatedContent.messages || [],
+      createdAt: new Date(flow.created_at),
+      generationState: generatedContent.generationState || {
+        currentStep: 'analysis',
+        completedSteps: [],
+        generatedContent: {},
+        isGenerating: false,
+        generationId: undefined,
+        lastGenerationTime: undefined,
+      },
+      userJourney: generatedContent.userJourney || {
+        websiteAnalyzed: false,
+        icpSelected: false,
+        valuePropGenerated: false,
+        exported: false,
+      },
+      memory: {
+        id: flow.id,
+        websiteUrl: flow.website_url || '',
+        websiteContent: undefined,
+        factsJson: flow.facts_json as any,
+        selectedIcp: flow.selected_icp as any,
+        generationHistory: generatedContent.generationHistory || [],
+        userPreferences: generatedContent.userPreferences || {
+          preferredContentType: '',
+          lastAction: '',
+        },
+      },
+    };
+  }
+
+  // Auto-save to DB whenever conversation changes (debounced)
+  useEffect(() => {
+    if (!dbSyncEnabled || !activeConversationId || conversations.length === 0) {
+      return;
+    }
+    
+    const conversation = conversations.find(c => c.id === activeConversationId);
+    if (!conversation) return;
+    
+    // Debounced save to DB
+    debouncedSaveToDb(conversation);
+    
+    // Also save to localStorage as backup
+    try {
+      localStorage.setItem('flowtusk_conversations', JSON.stringify(conversations));
+      localStorage.setItem('flowtusk_active_conversation', activeConversationId);
+    } catch (error) {
+      console.error('❌ [Storage] Failed to save to localStorage:', error);
+    }
+  }, [conversations, activeConversationId, dbSyncEnabled]);
+
+  async function debouncedSaveToDb(conversation: Conversation) {
+    try {
+      await flowsClient.debouncedUpdate(conversation.id, {
+        title: conversation.title,
+        website_url: conversation.memory.websiteUrl,
+        facts_json: conversation.memory.factsJson,
+        selected_icp: conversation.memory.selectedIcp,
+        generated_content: {
+          messages: conversation.messages,
+          generationState: conversation.generationState,
+          userJourney: conversation.userJourney,
+          generationHistory: conversation.memory.generationHistory,
+          userPreferences: conversation.memory.userPreferences,
+        },
+        step: determineCurrentStep(conversation),
+      });
+      
+      console.log('💾 [DB] Auto-saved to database');
+    } catch (error) {
+      console.error('❌ [DB] Auto-save failed:', error);
+      // Don't disrupt user experience, just log the error
+    }
+  }
+
+  function determineCurrentStep(conversation: Conversation): string {
+    const journey = conversation.userJourney;
+    
+    if (journey.exported) return 'exported';
+    if (journey.valuePropGenerated) return 'value_prop';
+    if (journey.icpSelected) return 'icp_selected';
+    if (journey.websiteAnalyzed) return 'analyzed';
+    
+    return 'initial';
+  }
 
   // Handle URL from landing page on mount
   useEffect(() => {
@@ -778,72 +942,111 @@ function ChatPageContent() {
     }
   }, [activeConversation?.messages]);
 
-  const createNewConversation = () => {
-    const newConvId = nanoid();
-    const newConv: Conversation = {
-      id: newConvId,
-      title: "New conversation",
-      messages: [],
-      createdAt: new Date(),
-      generationState: {
-        currentStep: 'analysis',
-        completedSteps: [],
-        generatedContent: {},
-        isGenerating: false,
-        generationId: undefined,
-        lastGenerationTime: undefined,
-      },
-      userJourney: {
-        websiteAnalyzed: false,
-        icpSelected: false,
-        valuePropGenerated: false,
-        exported: false,
-      },
-      memory: {
-        id: newConvId,
-        websiteUrl: "",
-        selectedIcp: null,
-        generationHistory: [],
-        userPreferences: {
-          preferredContentType: "",
-          lastAction: "",
-        },
-      },
-    };
-    setConversations(prev => [newConv, ...prev]);
-    setActiveConversationId(newConvId);
-    setSelectedIcp(null);
-    setWebsiteUrl("");
-    
-    // Initialize memory manager
-    memoryManager.updateMemory(newConvId, newConv.memory);
+  const createNewConversation = async () => {
+    try {
+      if (dbSyncEnabled) {
+        // Create in DB first
+        const flow = await flowsClient.createFlow({
+          title: `New conversation ${new Date().toLocaleDateString()}`,
+          step: 'initial',
+        });
+        
+        const newConv = flowToConversation(flow);
+        setConversations(prev => [newConv, ...prev]);
+        setActiveConversationId(newConv.id);
+        setSelectedIcp(null);
+        setWebsiteUrl("");
+        
+        // Initialize memory manager
+        memoryManager.updateMemory(newConv.id, newConv.memory);
+        
+        console.log('✅ [DB] Created new flow in database');
+      } else {
+        // Fallback to local-only mode
+        const newConvId = nanoid();
+        const newConv: Conversation = {
+          id: newConvId,
+          title: "New conversation",
+          messages: [],
+          createdAt: new Date(),
+          generationState: {
+            currentStep: 'analysis',
+            completedSteps: [],
+            generatedContent: {},
+            isGenerating: false,
+            generationId: undefined,
+            lastGenerationTime: undefined,
+          },
+          userJourney: {
+            websiteAnalyzed: false,
+            icpSelected: false,
+            valuePropGenerated: false,
+            exported: false,
+          },
+          memory: {
+            id: newConvId,
+            websiteUrl: "",
+            selectedIcp: null,
+            generationHistory: [],
+            userPreferences: {
+              preferredContentType: "",
+              lastAction: "",
+            },
+          },
+        };
+        setConversations(prev => [newConv, ...prev]);
+        setActiveConversationId(newConvId);
+        setSelectedIcp(null);
+        setWebsiteUrl("");
+        
+        // Initialize memory manager
+        memoryManager.updateMemory(newConvId, newConv.memory);
+      }
+    } catch (error) {
+      console.error('❌ [DB] Failed to create flow:', error);
+      // Show error to user but don't crash
+      alert('Failed to create new flow. Please try again.');
+    }
   };
 
-  const deleteConversation = (convId: string) => {
-    setConversations(prev => {
-      const filtered = prev.filter(c => c.id !== convId);
-      
-      // If we deleted the active conversation, switch to another one
-      if (convId === activeConversationId) {
-        // Try to switch to the next conversation, or create a new one if none exist
-        if (filtered.length > 0) {
-          const nextConv = filtered[0];
-          setActiveConversationId(nextConv.id);
-          // Update UI state to match the conversation we're switching to
-          setWebsiteUrl(nextConv.memory.websiteUrl || "");
-          setSelectedIcp(nextConv.memory.selectedIcp);
-        } else {
-          // No conversations left, create a new one
-          setTimeout(() => createNewConversation(), 0);
-        }
+  const deleteConversation = async (convId: string) => {
+    try {
+      if (dbSyncEnabled) {
+        // Soft delete in DB
+        await flowsClient.softDeleteFlow(convId);
+        console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
       }
       
-      // Clean up memory manager
-      memoryManager.clearMemory(convId);
-      
-      console.log(`🗑️ [Conversation] Deleted conversation: ${convId}`);
-      return filtered;
-    });
+      // Remove from UI
+      setConversations(prev => {
+        const filtered = prev.filter(c => c.id !== convId);
+        
+        // If we deleted the active conversation, switch to another one
+        if (convId === activeConversationId) {
+          // Try to switch to the next conversation, or create a new one if none exist
+          if (filtered.length > 0) {
+            const nextConv = filtered[0];
+            setActiveConversationId(nextConv.id);
+            // Update UI state to match the conversation we're switching to
+            setWebsiteUrl(nextConv.memory.websiteUrl || "");
+            setSelectedIcp(nextConv.memory.selectedIcp);
+          } else {
+            // No conversations left, create a new one
+            setTimeout(() => createNewConversation(), 0);
+          }
+        }
+        
+        // Clean up memory manager
+        memoryManager.clearMemory(convId);
+        
+        console.log(`🗑️ [Conversation] Deleted conversation: ${convId}`);
+        return filtered;
+      });
+    } catch (error) {
+      console.error('❌ [DB] Failed to delete flow:', error);
+      // Still remove from UI even if DB delete fails
+      setConversations(prev => prev.filter(c => c.id !== convId));
+    }
   };
 
   const addMessage = (message: ChatMessage) => {
@@ -2577,8 +2780,89 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
     </>
   );
 
+  // Show loading skeleton while checking auth
+  if (authLoading) {
+    return <LoadingFlowsSkeleton />;
+  }
+
+  // Migration UI handler
+  async function handleMigration() {
+    try {
+      setIsMigrating(true);
+      console.log('🚀 [Migration] Starting migration...');
+      const report = await migrateLocalStorageToDb();
+      
+      console.log('📊 [Migration] Report:', report);
+      
+      if (report.success > 0) {
+        alert(`✅ Migrated ${report.success}/${report.total} flows successfully!\n\n` +
+              `Evidence integrity: ${report.evidenceIntegrityCheck.withEvidence}/${report.evidenceIntegrityCheck.total} flows have evidence.`);
+        
+        // Clear localStorage after confirmation
+        if (confirm('Migration successful! Clear localStorage?')) {
+          clearLocalStorageAfterMigration();
+        }
+        
+        // Reload from DB
+        await loadFlowsFromDB();
+      }
+      
+      if (report.failed > 0) {
+        alert(`⚠️ ${report.failed} flows failed to migrate:\n` + 
+              report.failedItems.map(item => `- ${item.title}: ${item.error}`).join('\n'));
+      }
+    } catch (error) {
+      console.error('❌ [Migration] Migration failed:', error);
+      alert('Migration failed. Your data is safe in localStorage.');
+    } finally {
+      setIsMigrating(false);
+      setShowMigrationPrompt(false);
+    }
+  }
+
   return (
     <div className="flex h-screen bg-background">
+      {/* Migration Prompt */}
+      {showMigrationPrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="max-w-md p-6 space-y-4">
+            <h2 className="text-xl font-semibold">Migrate Your Data</h2>
+            <p className="text-muted-foreground">
+              We've upgraded to database storage! Your flows are currently stored locally.
+              Migrate them now to access from any device and ensure they're safely backed up.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              ✅ Evidence chain will be validated<br/>
+              ✅ Backup will be downloaded automatically<br/>
+              ✅ Your local data stays safe until you confirm
+            </p>
+            
+            <div className="flex gap-2">
+              <Button onClick={handleMigration} disabled={isMigrating}>
+                {isMigrating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Migrating...
+                  </>
+                ) : (
+                  'Migrate Now'
+                )}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowMigrationPrompt(false);
+                  setDbSyncEnabled(false); // Disable DB sync if skipped
+                }}
+                disabled={isMigrating}
+              >
+                Skip for Now
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+      
       {/* Desktop Sidebar - Hidden on mobile */}
       <div className="hidden md:flex md:w-64 border-r flex-col">
         <SidebarContent />
@@ -3112,15 +3396,13 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
   );
 }
 
-// Wrap in Suspense to handle useSearchParams() during build
+// Wrap in ErrorBoundary and Suspense
 export default function ChatPage() {
   return (
-    <Suspense fallback={
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    }>
-      <ChatPageContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFlowsSkeleton />}>
+        <ChatPageContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
