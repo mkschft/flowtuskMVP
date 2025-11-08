@@ -18,7 +18,7 @@ export async function POST(
 
     // Restore flow (set archived_at to null)
     const { data: flow, error } = await supabase
-      .from('flows')
+      .from('positioning_flows')
       .update({ archived_at: null })
       .eq('id', id)
       .select()

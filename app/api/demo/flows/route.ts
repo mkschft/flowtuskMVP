@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     // Create demo flow without user_id
     const { data: flow, error } = await supabase
-      .from("flows")
+      .from("positioning_flows")
       .insert({
         user_id: null, // Demo flows have no user_id
         title: title || "Demo Flow",
@@ -30,14 +30,29 @@ export async function POST(req: NextRequest) {
         selected_icp: selected_icp || null,
         step: step || "initial",
         metadata: {
-          prompt_regeneration_count: 0,
-          dropoff_step: null,
-          completion_time_ms: null,
-          prompt_version: "v1",
-          user_feedback: null,
-          is_demo: true,
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h expiry
+          analysis: {
+            dropoff_step: null,
+            completion_time_ms: null,
+            confidence_score: null,
+          },
+          generation: {
+            prompt_version: "v1",
+            regeneration_count: 0,
+            last_regeneration_at: null,
+          },
+          feedback: {
+            user_rating: null,
+            user_notes: null,
+            liked_icps: [],
+            disliked_icps: [],
+          },
+          feature_flags: {
+            is_demo: true,
+            is_template: false,
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h expiry
+          },
         },
+        schema_version: 1,
       })
       .select()
       .single();
@@ -78,7 +93,7 @@ export async function DELETE(req: NextRequest) {
 
     // Delete demo flows older than 24 hours
     const { error } = await supabase
-      .from("flows")
+      .from("positioning_flows")
       .delete()
       .is("user_id", null)
       .lt("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());

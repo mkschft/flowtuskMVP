@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
     // Build query
     let query = supabase
-      .from('flows')
+      .from('positioning_flows')
       .select('*')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     if (user) {
       query = query.eq('user_id', user.id);
     } else if (isDemoMode) {
-      query = query.is('user_id', null).eq('metadata->>is_demo', 'true');
+      query = query.is('user_id', null).eq('metadata->feature_flags->>is_demo', 'true');
     }
 
     // Filter by archived status
@@ -78,13 +78,28 @@ export async function POST(req: NextRequest) {
       generated_content: body.generated_content || {},
       step: body.step || 'initial',
       metadata: {
-        prompt_regeneration_count: 0,
-        dropoff_step: null,
-        completion_time_ms: null,
-        prompt_version: 'v1',
-        user_feedback: null,
-        ...(isDemoMode && !user ? { is_demo: 'true' } : {}),
+        analysis: {
+          dropoff_step: null,
+          completion_time_ms: null,
+          confidence_score: null,
+        },
+        generation: {
+          prompt_version: 'v1',
+          regeneration_count: 0,
+          last_regeneration_at: null,
+        },
+        feedback: {
+          user_rating: null,
+          user_notes: null,
+          liked_icps: [],
+          disliked_icps: [],
+        },
+        feature_flags: {
+          is_demo: isDemoMode && !user ? true : false,
+          is_template: false,
+        },
       },
+      schema_version: 1,
     };
 
     // Add user_id if authenticated
@@ -94,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     // Insert flow
     const { data: flow, error } = await supabase
-      .from('flows')
+      .from('positioning_flows')
       .insert(flowData)
       .select()
       .single();

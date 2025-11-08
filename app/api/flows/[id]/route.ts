@@ -20,7 +20,7 @@ export async function GET(
 
     // Build query
     let query = supabase
-      .from('flows')
+      .from('positioning_flows')
       .select('*')
       .eq('id', id)
       .single();
@@ -69,7 +69,7 @@ export async function PATCH(
 
     // Get current flow to merge metadata
     const { data: currentFlow } = await supabase
-      .from('flows')
+      .from('positioning_flows')
       .select('metadata, step')
       .eq('id', id)
       .single();
@@ -91,31 +91,52 @@ export async function PATCH(
       }
     }
 
-    // Merge metadata
+    // Merge metadata with nested structure
     if (body.metadata || currentFlow) {
       const existingMetadata = currentFlow?.metadata || {};
       const newMetadata = body.metadata || {};
       
+      // Handle both old flat structure and new nested structure defensively
+      const existingAnalysis = existingMetadata.analysis || {};
+      const existingGeneration = existingMetadata.generation || {};
+      const existingFeedback = existingMetadata.feedback || {};
+      const existingFeatureFlags = existingMetadata.feature_flags || {};
+      
       updateData.metadata = {
-        ...existingMetadata,
-        ...newMetadata,
+        analysis: {
+          dropoff_step: (currentFlow && body.step && body.step !== currentFlow.step && !updateData.completed_at) 
+            ? body.step 
+            : existingAnalysis?.dropoff_step || null,
+          completion_time_ms: existingAnalysis?.completion_time_ms || null,
+          confidence_score: existingAnalysis?.confidence_score || null,
+          ...(newMetadata.analysis || {}),
+        },
+        generation: {
+          prompt_version: existingGeneration?.prompt_version || 'v1',
+          regeneration_count: body.regenerated 
+            ? (existingGeneration?.regeneration_count || 0) + 1 
+            : existingGeneration?.regeneration_count || 0,
+          last_regeneration_at: body.regenerated ? new Date().toISOString() : existingGeneration?.last_regeneration_at || null,
+          ...(newMetadata.generation || {}),
+        },
+        feedback: {
+          user_rating: existingFeedback?.user_rating || null,
+          user_notes: existingFeedback?.user_notes || null,
+          liked_icps: existingFeedback?.liked_icps || [],
+          disliked_icps: existingFeedback?.disliked_icps || [],
+          ...(newMetadata.feedback || {}),
+        },
+        feature_flags: {
+          is_demo: existingFeatureFlags?.is_demo || false,
+          is_template: existingFeatureFlags?.is_template || false,
+          ...(newMetadata.feature_flags || {}),
+        },
       };
-
-      // Track regeneration if applicable
-      if (body.regenerated) {
-        updateData.metadata.prompt_regeneration_count = 
-          (existingMetadata.prompt_regeneration_count || 0) + 1;
-      }
-
-      // Track dropoff if step changed
-      if (currentFlow && body.step && body.step !== currentFlow.step && !updateData.completed_at) {
-        updateData.metadata.dropoff_step = body.step;
-      }
     }
 
     // Update flow
     const { data: flow, error } = await supabase
-      .from('flows')
+      .from('positioning_flows')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -165,7 +186,7 @@ export async function DELETE(
     if (hardDelete) {
       // Hard delete (permanent) - admin only or for demo cleanup
       const { error } = await supabase
-        .from('flows')
+        .from('positioning_flows')
         .delete()
         .eq('id', id);
 
@@ -173,7 +194,7 @@ export async function DELETE(
     } else {
       // Soft delete (set archived_at)
       const { error } = await supabase
-        .from('flows')
+        .from('positioning_flows')
         .update({ archived_at: new Date().toISOString() })
         .eq('id', id);
 

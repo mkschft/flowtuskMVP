@@ -33,6 +33,11 @@ import {
 } from "@/lib/migrate-local-to-db";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingFlowsSkeleton } from "@/components/LoadingFlowsSkeleton";
+// New Hero UI Components
+import { HeroICPCard } from "@/components/HeroICPCard";
+import { AnalysisProgress } from "@/components/AnalysisProgress";
+import { ExpandedResults } from "@/components/ExpandedResults";
+import { PromptIterator } from "@/components/PromptIterator";
 
 type ICP = {
   id: string;
@@ -707,7 +712,16 @@ function ChatPageContent() {
   const [authLoading, setAuthLoading] = useState(true);
   const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
-  const [dbSyncEnabled, setDbSyncEnabled] = useState(true);
+  const [dbSyncEnabled, setDbSyncEnabled] = useState(true); // DB sync enabled
+  const [dbConnectionHealthy, setDbConnectionHealthy] = useState<boolean | null>(null);
+  
+  // New Hero UI states
+  const useHeroUI = process.env.NEXT_PUBLIC_USE_HERO_UI === 'true';
+  const [analysisStep, setAnalysisStep] = useState<'fetching' | 'extracting' | 'generating' | 'finalizing'>('fetching');
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [showExpandedResults, setShowExpandedResults] = useState(false);
+  const [heroICP, setHeroICP] = useState<ICP | null>(null);
+  const [allICPs, setAllICPs] = useState<ICP[]>([]);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
@@ -716,6 +730,23 @@ function ChatPageContent() {
     checkAuthAndLoadFlows();
   }, []);
 
+  // Test Supabase connection health
+  async function testSupabaseConnection(): Promise<boolean> {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.from('positioning_flows').select('id').limit(1);
+      if (error) {
+        console.error('❌ [DB Health] Supabase connection FAILED:', error);
+        return false;
+      }
+      console.log('✅ [DB Health] Supabase connection OK');
+      return true;
+    } catch (err) {
+      console.error('❌ [DB Health] Supabase connection FAILED:', err);
+      return false;
+    }
+  }
+
   async function checkAuthAndLoadFlows() {
     try {
       // Check auth
@@ -723,33 +754,55 @@ function ChatPageContent() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       
       setUser(authUser);
-      setAuthLoading(false);
       
       // Demo mode bypass
       const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
       
       if (!authUser && !isDemoMode) {
         console.log('🔒 [Auth] Not authenticated, redirecting to login');
+        setAuthLoading(false);
         window.location.href = '/auth/login';
         return;
       }
       
       console.log('✅ [Auth] User authenticated or demo mode');
       
+      // Test DB connection before proceeding
+      const isHealthy = await testSupabaseConnection();
+      setDbConnectionHealthy(isHealthy);
+      
+      if (!isHealthy) {
+        console.warn('⚠️ [DB Health] Connection failed, falling back to localStorage');
+        setDbSyncEnabled(false);
+        loadFromLocalStorage();
+        setAuthLoading(false);
+        return;
+      }
+      
       // Check if migration needed
       if (needsMigration()) {
         console.log('📦 [Migration] LocalStorage data detected');
         setShowMigrationPrompt(true);
-        // Load from localStorage temporarily
+        // Load from localStorage temporarily for migration
         loadFromLocalStorage();
+        setAuthLoading(false);
         return;
       }
       
       // Load flows from DB
-      await loadFlowsFromDB();
+      if (dbSyncEnabled && authUser) {
+        console.log('🔵 [DB Sync] ENABLED - Loading from Supabase');
+        await loadFlowsFromDB();
+      } else {
+        console.log('📦 [Storage] Using localStorage');
+        loadFromLocalStorage();
+      }
+      
+      setAuthLoading(false);
     } catch (error) {
       console.error('❌ [Init] Failed to initialize:', error);
       setAuthLoading(false);
+      setDbSyncEnabled(false);
       // Fallback to localStorage
       loadFromLocalStorage();
     }
@@ -780,6 +833,15 @@ function ChatPageContent() {
       
       const flows = await flowsClient.listFlows();
       console.log(`✅ [DB] Loaded ${flows.length} flows from database`);
+      
+      // Debug: Track evidence chain in loaded flows
+      flows.forEach((flow, idx) => {
+        const facts = (flow.facts_json as any)?.facts || [];
+        const icpEvidence = (flow.selected_icp as any)?.evidence || [];
+        if (facts.length > 0 || icpEvidence.length > 0) {
+          console.log(`📎 [Evidence] Flow ${idx + 1}: ${facts.length} facts, ICP has ${icpEvidence.length} evidence links`);
+        }
+      });
       
       // Convert Flow to Conversation format
       const conversations = flows.map(flowToConversation);
@@ -858,6 +920,16 @@ function ChatPageContent() {
 
   async function debouncedSaveToDb(conversation: Conversation) {
     try {
+      // Debug: Track evidence chain integrity
+      if (conversation.memory.factsJson) {
+        const facts = (conversation.memory.factsJson as any)?.facts || [];
+        console.log(`💾 [DB Save] Flow ${conversation.id.slice(0, 8)}: ${facts.length} facts with evidence`);
+      }
+      if (conversation.memory.selectedIcp) {
+        const evidence = (conversation.memory.selectedIcp as any)?.evidence || [];
+        console.log(`💾 [DB Save] Selected ICP has ${evidence.length} evidence links`);
+      }
+      
       await flowsClient.debouncedUpdate(conversation.id, {
         title: conversation.title,
         website_url: conversation.memory.websiteUrl,
@@ -2819,6 +2891,57 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
       setShowMigrationPrompt(false);
     }
   }
+
+  // ============================================================================
+  // Hero UI Handlers (for new UI components)
+  // ============================================================================
+  
+  const handleHeroCopy = () => {
+    console.log('📋 [Hero UI] Copied ICP to clipboard');
+  };
+  
+  const handleHeroShare = () => {
+    console.log('🔗 [Hero UI] Share link generated');
+    // TODO: Implement share link generation
+  };
+  
+  const handleViewAll = () => {
+    setShowExpandedResults(true);
+    console.log('👀 [Hero UI] Expanded to view all ICPs');
+  };
+  
+  const handleRegenerateICP = async (prompt: string, currentICP: ICP) => {
+    console.log('🔄 [Hero UI] Regenerating ICP with prompt:', prompt);
+    // TODO: Implement regeneration logic using /api/chat
+    // This would call the chat API with the prompt and current ICP context
+    // then update heroICP with the new result
+  };
+  
+  const handleHeroExport = (format: string) => {
+    console.log('📥 [Hero UI] Exporting as:', format);
+    // Reuse existing export logic
+  };
+
+  // ============================================================================
+  // Hero UI Integration Point
+  // ============================================================================
+  // To enable the new Hero UI, set NEXT_PUBLIC_USE_HERO_UI=true in .env.local
+  // The Hero UI will replace the message-based flow with:
+  // 1. URL input
+  // 2. AnalysisProgress component during analysis
+  // 3. HeroICPCard for the primary result
+  // 4. PromptIterator for refinement
+  // 5. ExpandedResults when user clicks "View All"
+  //
+  // Integration example:
+  // if (useHeroUI) {
+  //   return <div>
+  //     {isLoading && <AnalysisProgress currentStep={analysisStep} progress={analysisProgress} />}
+  //     {heroICP && <HeroICPCard icp={heroICP} factsJson={activeConversation?.memory.factsJson} ... />}
+  //     {heroICP && <PromptIterator flowId={activeConversationId} currentICP={heroICP} onRegenerate={handleRegenerateICP} />}
+  //     {showExpandedResults && <ExpandedResults icps={allICPs} ... />}
+  //   </div>
+  // }
 
   return (
     <div className="flex h-screen bg-background">

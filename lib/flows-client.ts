@@ -18,13 +18,53 @@ export interface Flow {
   generated_content?: Record<string, unknown>;
   step: string;
   metadata?: {
-    prompt_regeneration_count?: number;
-    dropoff_step?: string | null;
-    completion_time_ms?: number | null;
-    prompt_version?: string;
-    user_feedback?: string | null;
-    is_demo?: string;
+    analysis?: {
+      completion_time_ms?: number | null;
+      dropoff_step?: string | null;
+      confidence_score?: number | null;
+    };
+    generation?: {
+      prompt_version?: string;
+      regeneration_count?: number;
+      last_regeneration_at?: string | null;
+    };
+    feedback?: {
+      user_rating?: number | null;
+      user_notes?: string | null;
+      liked_icps?: string[];
+      disliked_icps?: string[];
+    };
+    feature_flags?: {
+      is_demo?: boolean;
+      is_template?: boolean;
+    };
   };
+  prompt_history?: Array<{
+    iteration: number;
+    prompt_text: string;
+    result_icp_id: string;
+    user_feedback?: 'thumbs_up' | 'thumbs_down';
+    created_at: string;
+  }>;
+  api_usage_metrics?: {
+    analyze_website_calls: number;
+    generate_icps_calls: number;
+    generate_value_prop_calls: number;
+    generate_content_calls: number;
+    total_tokens_used: number;
+    estimated_cost_cents: number;
+  };
+  sharing?: {
+    public_link: string | null;
+    shared_with: Array<{
+      user_id: string;
+      email: string;
+      permission: 'view_only' | 'edit' | 'admin';
+      shared_at: string;
+    }>;
+    share_permissions: 'view_only' | 'edit' | 'admin';
+  };
+  schema_version?: number;
   archived_at?: string | null;
   created_at: string;
   updated_at: string;
