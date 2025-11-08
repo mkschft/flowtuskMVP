@@ -1,7 +1,16 @@
-import { updateSession } from "@/lib/supabase/middleware";
 import { type NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
+  // Demo mode bypass for public access
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+  
+  // Allow demo mode for /app route if enabled
+  if (isDemoMode && request.nextUrl.pathname.startsWith('/app')) {
+    // Let demo users through without auth
+    return updateSession(request);
+  }
+
   return await updateSession(request);
 }
 
