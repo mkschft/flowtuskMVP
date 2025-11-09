@@ -318,16 +318,16 @@ export function CompactPersonaCard({
                 </p>
               )}
 
-              {/* Segment Pills - Subtle and Compact */}
+              {/* Segment Pills - Enhanced but Refined */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-muted-foreground font-medium">Top Segments:</span>
                 {summary.segments.map((segment, idx) => (
                   <div
                     key={idx}
-                    className="px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30"
+                    className="px-3 py-1.5 rounded-md bg-purple-100/80 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700/50 shadow-sm"
                   >
-                    <span className="text-xs font-normal text-muted-foreground">
-                      {segment.label} <span className="font-semibold text-purple-600 dark:text-purple-400">{segment.matchScore}%</span>
+                    <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                      {segment.label}
                     </span>
                   </div>
                 ))}
