@@ -11,7 +11,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { content, factsJson } = await req.json();
+    const { content, factsJson, excludeCurrentICP } = await req.json();
 
     // Prefer factsJson if available, otherwise fall back to raw content
     if (!factsJson && !content) {
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('🧠 [Generate ICPs] Starting generation');
-    
+
     if (factsJson) {
       console.log('📊 [Generate ICPs] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
     } else {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       const result = await executeWithRetryAndTimeout(
         async () => {
           return await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "gpt-4.1",
             messages: [
               { role: "system", content: system },
               { role: "developer" as any, content: developer },
@@ -106,8 +106,18 @@ export async function POST(req: NextRequest) {
         }
       });
 
+      // Filter out excluded ICP if provided
+      let filteredICPs = parsedResult.icps || [];
+      if (excludeCurrentICP && excludeCurrentICP.title) {
+        filteredICPs = filteredICPs.filter((icp: any) => {
+          // Exclude if title matches (most reliable identifier)
+          return icp.title !== excludeCurrentICP.title;
+        });
+        console.log(`🔍 [Generate ICPs] Filtered out current ICP, ${filteredICPs.length} remaining`);
+      }
+
       return NextResponse.json({
-        icps: parsedResult.icps || [],
+        icps: filteredICPs,
         brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
         summary: parsedResult.summary || {
           businessDescription: "",
@@ -128,11 +138,11 @@ export async function POST(req: NextRequest) {
     const result = await executeWithRetryAndTimeout(
       async () => {
         return await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a B2B marketing expert. Analyze the website content and generate 3 distinct Ideal Customer Profiles (ICPs) with realistic personas.
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `You are a B2B marketing expert. Analyze the website content and generate 3 distinct Ideal Customer Profiles (ICPs) with realistic personas.
           
 Each ICP should be unique and target a different segment. Create believable persona details that represent the archetype.
 
@@ -158,7 +168,7 @@ Return ONLY valid JSON in this exact format:
     "secondary": "#666666"
   },
   "summary": {
-    "businessDescription": "2-3 sentences about what the business does and who they serve",
+    "businessDescription": "4-5 sentences (4-5 lines) describing what the business does, who they serve, and their value proposition",
     "targetMarket": "Description of their ideal market",
     "painPointsWithMetrics": [
       {
@@ -171,14 +181,14 @@ Return ONLY valid JSON in this exact format:
 }
 
 IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "Budget limits", "Manual processes"`,
-        },
-        {
-          role: "user",
-          content: `Website content:\n\n${truncatedContent}\n\nGenerate 3 ICPs in JSON format.`,
-        },
-      ],
-      temperature: 0.8,
-      response_format: { type: "json_object" },
+            },
+            {
+              role: "user",
+              content: `Website content:\n\n${truncatedContent}\n\nGenerate 3 ICPs in JSON format.`,
+            },
+          ],
+          temperature: 0.8,
+          response_format: { type: "json_object" },
         });
       },
       { timeout: 30000, maxRetries: 3 },
@@ -229,8 +239,18 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
 
     console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles');
 
+    // Filter out excluded ICP if provided
+    let filteredICPs = parsedResult.icps || [];
+    if (excludeCurrentICP && excludeCurrentICP.title) {
+      filteredICPs = filteredICPs.filter((icp: any) => {
+        // Exclude if title matches (most reliable identifier)
+        return icp.title !== excludeCurrentICP.title;
+      });
+      console.log(`🔍 [Generate ICPs] Filtered out current ICP, ${filteredICPs.length} remaining`);
+    }
+
     return NextResponse.json({
-      icps: parsedResult.icps || [],
+      icps: filteredICPs,
       brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
       summary: parsedResult.summary || {
         businessDescription: "",

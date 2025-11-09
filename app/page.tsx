@@ -1,61 +1,39 @@
-import { Header } from "@/components/landing/Header";
-import { Hero } from "@/components/landing/Hero";
-import { ProblemSection } from "@/components/landing/ProblemSection";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { CaseStudy } from "@/components/landing/CaseStudy";
-import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
-import { CompetitiveEdge } from "@/components/landing/CompetitiveEdge";
-import { Pricing } from "@/components/landing/Pricing";
-import { Testimonials } from "@/components/landing/Testimonials";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { Footer } from "@/components/landing/Footer";
-import { Varela_Round } from "next/font/google";
+"use client";
 
-const varelaRound = Varela_Round({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
+import { useState } from "react";
+import { AIComposer } from "@/components/AIComposer";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// Demo mode: Always show landing page without auth check
-export default async function RootPage() {
+export default function Page() {
+  const [hasContent, setHasContent] = useState(false);
+
   return (
-    <div className={`min-h-screen bg-white ${varelaRound.className}`}>
-      {/* Header */}
-      <Header />
-
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <Hero />
-
-        {/* Problem Section */}
-        <ProblemSection />
-
-        {/* How It Works */}
-        <HowItWorks />
-
-        {/* Case Study */}
-        <CaseStudy />
-
-        {/* Features Grid */}
-        <FeaturesGrid />
-
-        {/* Competitive Edge */}
-        <CompetitiveEdge />
-
-        {/* Pricing */}
-        <Pricing />
-
-        {/* Testimonials */}
-        <Testimonials />
-
-        {/* Final CTA */}
-        <FinalCTA />
-      </main>
-
-      {/* Footer */}
-      <Footer />
+    <div className="flex h-full flex-col overflow-hidden">
+      {!hasContent ? (
+        <div className="flex h-full items-center justify-center ">
+          <div className="mx-auto w-full max-w-md text-center space-y-6 px-4">
+            <div className="flex justify-center">
+              <Sparkles className="h-8 w-8 text-gray-600" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Your Positioning Co-Pilot
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400">
+                Enter a website URL to generate customer personas and value propositions
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : <ScrollArea className="flex-1">
+      </ScrollArea>}
+      <AIComposer
+        onNewSpeech={() => {
+          setHasContent(true);
+        }}
+      />
     </div>
   );
 }

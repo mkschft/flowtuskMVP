@@ -55,7 +55,7 @@ export function LoginForm({
         target = localStorage.getItem("postLoginRedirect");
         if (target) localStorage.removeItem("postLoginRedirect");
       } catch {}
-      router.push(target || "/app");
+      router.push(target || "/");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {

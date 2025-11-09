@@ -55,3 +55,52 @@ export interface FlowWithSpeech extends Flow {
   speech?: Speech[];
 }
 
+export interface ICP {
+  id: string;
+  parent_flow: string;
+  website_url: string | null;
+  persona_name: string;
+  persona_role: string;
+  persona_company: string;
+  location: string;
+  country: string;
+  title: string;
+  description: string;
+  pain_points: string[];
+  goals: string[];
+  fit_score: number;
+  profiles_found: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ICPInsert {
+  parent_flow: string;
+  website_url?: string | null;
+  persona_name: string;
+  persona_role: string;
+  persona_company: string;
+  location: string;
+  country: string;
+  title: string;
+  description: string;
+  pain_points: string[];
+  goals?: string[];
+  fit_score?: number;
+  profiles_found?: number;
+}
+
+export interface ICPUpdate {
+  persona_name?: string;
+  persona_role?: string;
+  persona_company?: string;
+  location?: string;
+  country?: string;
+  title?: string;
+  description?: string;
+  pain_points?: string[];
+  goals?: string[];
+  fit_score?: number;
+  profiles_found?: number;
+}
+

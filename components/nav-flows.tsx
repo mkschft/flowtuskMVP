@@ -37,7 +37,7 @@ export function NavFlows({
         if (!ok) return
         const { error } = await supabase.from("flows").delete().eq("id", flowId)
         if (!error) {
-            router.push("/app")
+            router.push("/")
             router.refresh()
         }
     }
@@ -50,7 +50,7 @@ export function NavFlows({
                     {flows.map((flow) => (
                         <SidebarMenuItem key={flow.id}>
                             <SidebarMenuButton asChild>
-                                <Link href={`/app/${flow.id}`} prefetch>
+                                <Link href={`/flow/${flow.id}`} prefetch>
                                     <span className="truncate">{flow.title}</span>
                                 </Link>
                             </SidebarMenuButton>

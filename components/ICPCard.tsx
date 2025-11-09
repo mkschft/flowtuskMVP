@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, AlertTriangle, Clock, DollarSign, Users } from "lucide-react";
+import { MapPin, AlertTriangle, Clock, DollarSign } from "lucide-react";
 
 interface ICPCardProps {
   personaName: string;
@@ -80,16 +80,11 @@ export function ICPCard({
           </Avatar>
           <div className="absolute bottom-0 right-0 size-3.5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
         </div>
-        
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-              {personaName}
-            </h3>
-            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-              {fitScore}% FIT
-            </span>
-          </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
+            {personaName}
+          </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {personaRole}
           </p>
@@ -103,15 +98,15 @@ export function ICPCard({
         </div>
       </div>
 
-      {/* Second Row: Key Challenges (Horizontal) + Profiles Found */}
+      {/* Second Row: Key Challenges (Vertical) + Profiles Found */}
       <div className="space-y-2">
-        {/* Key Challenges - Horizontal */}
+        {/* Key Challenges - Vertical */}
         {painPoints && painPoints.length > 0 && (
           <div>
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Key Challenges
             </h4>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex flex-col gap-2">
               {painPoints.map((pain, index) => (
                 <div key={index} className="flex items-center gap-1.5">
                   {getPainPointIcon(pain)}
@@ -125,18 +120,19 @@ export function ICPCard({
         )}
 
         {/* Profiles Found */}
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            <span className="font-medium">{profilesFound}+</span>{" "}
-            <span className="text-gray-600 dark:text-gray-400">LinkedIn profiles found</span>
-          </span>
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="font-medium">{profilesFound}+</span>{" "}
+              <span className="text-gray-600 dark:text-gray-400">LinkedIn profiles found</span>
+            </span>
+          </div>
           <Button
             variant="outline"
             size="sm"
-            className="bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 text-pink-900 dark:text-pink-100 hover:bg-pink-100 dark:hover:bg-pink-900/30 h-8 text-xs"
+            className="w-full bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 text-pink-900 dark:text-pink-100 hover:bg-pink-100 dark:hover:bg-pink-900/30 h-8 text-xs cursor-pointer"
           >
-            <Users className="size-3.5 mr-1.5" />
-            Show Profiles
+            Select
           </Button>
         </div>
       </div>

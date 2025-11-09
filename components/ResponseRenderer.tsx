@@ -8,7 +8,7 @@ import { ICPCard } from "@/components/ICPCard";
 import { ICPResponse } from "@/components/ICPResponse";
 
 // Component definitions that can be rendered
-type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "custom";
+type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "icp-cards" | "custom";
 
 interface ComponentData {
     type: ComponentType;
@@ -132,6 +132,62 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                     websiteUrl={component.props?.websiteUrl || websiteUrl}
                     flowId={component.props?.flowId || flowId}
                 />
+            );
+
+        case "icp-cards":
+            return (
+                <div key={index} className="space-y-4 mb-4">
+                    {/* Site Description */}
+                    {component.props?.businessDescription && (
+                        <div className="rounded-lg border bg-muted/50 p-4 space-y-4">
+                            <div>
+                                <h3 className="text-sm font-semibold mb-2 text-foreground">Company Description</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                                    {component.props.businessDescription}
+                                </p>
+                            </div>
+                            {/* Key Pain Points */}
+                            {component.props?.painPointsWithMetrics && component.props.painPointsWithMetrics.length > 0 && (
+                                <div>
+                                    <h3 className="text-sm font-semibold mb-2 text-foreground">Key Pain Points</h3>
+                                    <ul className="space-y-2">
+                                        {component.props.painPointsWithMetrics.map((item: any, i: number) => (
+                                            <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                                                <span className="text-primary mt-0.5">•</span>
+                                                <span>
+                                                    <span className="font-medium">{item.pain}</span>
+                                                    {item.metric && <span className="ml-1">({item.metric})</span>}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {/* ICP Cards Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {component.props?.icps?.map((icp: any, i: number) => (
+                            <ICPResponse
+                                key={i}
+                                icpData={{
+                                    personaName: icp.personaName || "",
+                                    personaRole: icp.personaRole || "",
+                                    personaCompany: icp.personaCompany || "",
+                                    location: icp.location || "",
+                                    country: icp.country || "",
+                                    title: icp.title || "",
+                                    description: icp.description || "",
+                                    painPoints: icp.painPoints || [],
+                                    fitScore: icp.fitScore || 90,
+                                    profilesFound: icp.profilesFound || 12,
+                                }}
+                                websiteUrl={component.props?.websiteUrl || websiteUrl}
+                                flowId={component.props?.flowId || flowId}
+                            />
+                        ))}
+                    </div>
+                </div>
             );
 
         default:

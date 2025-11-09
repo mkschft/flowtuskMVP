@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { scrapeWebsite, streamScrapeWebsite, streamCrawlWebsite, crawlWebsiteWithWebcrawler } from "@/lib/scraper";
+import { createClient } from "@/lib/supabase/server";
+import { ICPInsert } from "@/lib/types/database";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -113,8 +115,48 @@ IMPORTANT:
     }
 }
 
+// Save ICP to database
+async function saveICP(icpData: any, flowId: string, websiteUrl?: string): Promise<void> {
+    if (!flowId) {
+        return; // Can't save without flowId
+    }
+
+    try {
+        const supabase = await createClient();
+
+        const icpInsert: ICPInsert = {
+            parent_flow: flowId,
+            website_url: websiteUrl || null,
+            persona_name: icpData.personaName || "",
+            persona_role: icpData.personaRole || "",
+            persona_company: icpData.personaCompany || "",
+            location: icpData.location || "",
+            country: icpData.country || "",
+            title: icpData.title || "",
+            description: icpData.description || "",
+            pain_points: icpData.painPoints || [],
+            goals: icpData.goals || [],
+            fit_score: icpData.fitScore || 90,
+            profiles_found: icpData.profilesFound || 12,
+        };
+
+        const { error } = await supabase
+            .from("icps")
+            .insert(icpInsert);
+
+        if (error) {
+            console.error("Error saving ICP to database:", error);
+        } else {
+            console.log("✅ ICP saved to database:", icpInsert.title);
+        }
+    } catch (error) {
+        console.error("Error saving ICP:", error);
+        // Don't throw - saving ICP shouldn't break the flow
+    }
+}
+
 // Scrape URL using webcrawlerapi, analyze with OpenAI, and generate ICP
-async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, flowId?: string, req?: NextRequest): Promise<string> {
+async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, flowId?: string, req?: NextRequest, excludeICP?: any): Promise<string> {
     try {
 
         let crawledContent = "";
@@ -146,6 +188,7 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     content: crawledContent,
+                    excludeCurrentICP: excludeICP,
                 }),
             });
 
@@ -157,23 +200,40 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                 return "";
             }
 
-            // Format only the first (best) ICP as a component
-            const bestICP = icpData.icps[0];
+            // Get first 3 ICPs (or all if less than 3)
+            const icpsToShow = icpData.icps.slice(0, 3);
 
-            // Create ICP card component JSON
+            // Save all ICPs to database
+            if (flowId) {
+                for (const icp of icpsToShow) {
+                    await saveICP({
+                        ...icp,
+                        fitScore: 90,
+                        profilesFound: 12,
+                    }, flowId, url);
+                }
+            }
+
+            // Create ICP cards component JSON with multiple ICPs
             const icpComponent = {
-                type: "icp-card",
+                type: "icp-cards",
                 props: {
-                    personaName: bestICP.personaName || "",
-                    personaRole: bestICP.personaRole || "",
-                    personaCompany: bestICP.personaCompany || "",
-                    location: bestICP.location || "",
-                    country: bestICP.country || "",
-                    title: bestICP.title || "",
-                    description: bestICP.description || "",
-                    painPoints: bestICP.painPoints || [],
-                    fitScore: 90, // Default fit score
-                    profilesFound: 12, // Default profiles found
+                    icps: icpsToShow.map((icp: any) => ({
+                        personaName: icp.personaName || "",
+                        personaRole: icp.personaRole || "",
+                        personaCompany: icp.personaCompany || "",
+                        location: icp.location || "",
+                        country: icp.country || "",
+                        title: icp.title || "",
+                        description: icp.description || "",
+                        painPoints: icp.painPoints || [],
+                        fitScore: 90, // Default fit score
+                        profilesFound: 12, // Default profiles found
+                    })),
+                    websiteUrl: url,
+                    flowId: flowId,
+                    businessDescription: icpData.summary?.businessDescription || "",
+                    painPointsWithMetrics: icpData.summary?.painPointsWithMetrics || [],
                 }
             };
 
@@ -298,7 +358,7 @@ const tools = [
 ];
 
 // Execute a tool call by importing and calling route handlers directly
-async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, scrapedUrls?: Set<string>): Promise<string> {
+async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, scrapedUrls?: Set<string>, excludeICP?: any): Promise<string> {
     try {
         switch (toolName) {
             case "Crawler": {
@@ -329,6 +389,7 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             content: scrapeResult.markdown,
+                            excludeCurrentICP: excludeICP,
                         }),
                     });
 
@@ -339,23 +400,40 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         return JSON.stringify({ error: "Could not generate ICPs from website content" });
                     }
 
-                    // Format only the first (best) ICP as a component
-                    const bestICP = icpData.icps[0];
+                    // Get first 3 ICPs (or all if less than 3)
+                    const icpsToShow = icpData.icps.slice(0, 3);
 
-                    // Create ICP card component JSON
+                    // Save all ICPs to database
+                    if (flowId) {
+                        for (const icp of icpsToShow) {
+                            await saveICP({
+                                ...icp,
+                                fitScore: 90,
+                                profilesFound: 12,
+                            }, flowId, args.url);
+                        }
+                    }
+
+                    // Create ICP cards component JSON with multiple ICPs
                     const icpComponent = {
-                        type: "icp-card",
+                        type: "icp-cards",
                         props: {
-                            personaName: bestICP.personaName || "",
-                            personaRole: bestICP.personaRole || "",
-                            personaCompany: bestICP.personaCompany || "",
-                            location: bestICP.location || "",
-                            country: bestICP.country || "",
-                            title: bestICP.title || "",
-                            description: bestICP.description || "",
-                            painPoints: bestICP.painPoints || [],
-                            fitScore: 90, // Default fit score
-                            profilesFound: 12, // Default profiles found
+                            icps: icpsToShow.map((icp: any) => ({
+                                personaName: icp.personaName || "",
+                                personaRole: icp.personaRole || "",
+                                personaCompany: icp.personaCompany || "",
+                                location: icp.location || "",
+                                country: icp.country || "",
+                                title: icp.title || "",
+                                description: icp.description || "",
+                                painPoints: icp.painPoints || [],
+                                fitScore: 90, // Default fit score
+                                profilesFound: 12, // Default profiles found
+                            })),
+                            websiteUrl: args.url,
+                            flowId: flowId,
+                            businessDescription: icpData.summary?.businessDescription || "",
+                            painPointsWithMetrics: icpData.summary?.painPointsWithMetrics || [],
                         }
                     };
 
@@ -485,9 +563,22 @@ function sendStatus(controller: ReadableStreamDefaultController<Uint8Array>, enc
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, flowId } = await req.json() as { message?: string; flowId?: string };
+        const { message, flowId, excludeCurrentICP } = await req.json() as {
+            message?: string;
+            flowId?: string;
+            excludeCurrentICP?: string;
+        };
         if (!message || !message.trim()) {
             return new Response(JSON.stringify({ error: "Missing message" }), { status: 400 });
+        }
+
+        let excludeICP: any = null;
+        if (excludeCurrentICP) {
+            try {
+                excludeICP = JSON.parse(excludeCurrentICP);
+            } catch {
+                // Ignore parse errors
+            }
         }
 
         const encoder = new TextEncoder();
@@ -570,12 +661,12 @@ export async function POST(req: NextRequest) {
                     if (needsScraping && urls.length > 0) {
                         sendStatus(controller, encoder, "Scraping data");
                         for (const url of urls) {
-                            const content = await scrapeUrl(url, controller, encoder, flowId, req);
+                            const content = await scrapeUrl(url, controller, encoder, flowId, req, excludeICP);
                             if (content) {
                                 scrapedContents.push({ url, content });
                                 scrapedUrls.add(url);
                                 // Check if ICP component was generated
-                                if (content.includes("<component>") && content.includes('"type":"icp-card"')) {
+                                if (content.includes("<component>") && (content.includes('"type":"icp-card"') || content.includes('"type":"icp-cards"'))) {
                                     hasICPComponent = true;
                                 }
                             }
@@ -638,7 +729,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                     if (scrapedContents.length > 0) {
                         systemContent += `\n\n**IMPORTANT CONTEXT:**\nThe following URLs have been scraped and Ideal Customer Profiles (ICPs) have ALREADY been generated and displayed as card components above:\n`;
                         scrapedContents.forEach(({ url, content }) => {
-                            const hasICPs = content.includes("<component>") && content.includes('"type":"icp-card"');
+                            const hasICPs = content.includes("<component>") && (content.includes('"type":"icp-card"') || content.includes('"type":"icp-cards"'));
                             if (hasICPs) {
                                 systemContent += `\n- ${url}: ICPs have been generated and are shown as interactive card components above. The cards include action buttons. DO NOT add any text, explanations, or summaries - the component is complete.\n`;
                             } else {
@@ -665,7 +756,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                     while (iteration < maxIterations) {
                         // If we already have ICP components in scraped content, use strict format to prevent extra text
                         const hasICPsInContext = scrapedContents.some(({ content }) =>
-                            content.includes("<component>") && content.includes('"type":"icp-card"')
+                            content.includes("<component>") && (content.includes('"type":"icp-card"') || content.includes('"type":"icp-cards"'))
                         );
 
                         const stream = await openai.chat.completions.create({
@@ -711,7 +802,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                             if (accumulatedContent) {
                                 // Check if we have ICP components in context - if so, suppress any additional text
                                 const hasICPsInContext = scrapedContents.some(({ content }) =>
-                                    content.includes("<component>") && content.includes('"type":"icp-card"')
+                                    content.includes("<component>") && (content.includes('"type":"icp-card"') || content.includes('"type":"icp-cards"'))
                                 );
 
                                 // If ICP components exist, don't stream any additional text
@@ -754,7 +845,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                     sendStatus(controller, encoder, "Generating content");
                                 }
 
-                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls);
+                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls, excludeICP);
 
                                 // Clear status after tool execution
                                 sendStatus(controller, encoder, "");

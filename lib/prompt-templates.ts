@@ -234,7 +234,7 @@ SCHEMA:
     }
   ],
   "summary": {
-    "businessDescription": "2-3 sentences",
+    "businessDescription": "4-5 sentences (4-5 lines) describing what the business does, who they serve, and their value proposition",
     "targetMarket": "Market description",
     "painPointsWithMetrics": [
       {

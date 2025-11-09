@@ -9,6 +9,7 @@ import { CircularLoader } from "@/components/ui/loader";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Bot } from "lucide-react";
 import { ResponseRenderer } from "@/components/ResponseRenderer";
+import { ICPSkeleton, CompanyDescriptionSkeleton } from "@/components/ICPSkeleton";
 
 type SpeechRow = {
   id: string;
@@ -32,8 +33,21 @@ export function FlowConversation({
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [aiStatus, setAiStatus] = useState<string>(""); // Status message like "thinking", "scraping data..."
   const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [showSkeletons, setShowSkeletons] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Detect if last user message contains a URL (to show ICP skeletons)
+  useEffect(() => {
+    const lastUserSpeech = [...speeches].reverse().find(s => s.author);
+    if (lastUserSpeech && isAILoading && !streamingContent) {
+      const urlRegex = /https?:\/\/[^\s\)\]\"\'<>]+/gi;
+      const hasUrl = urlRegex.test(lastUserSpeech.content);
+      setShowSkeletons(hasUrl);
+    } else if (streamingContent) {
+      setShowSkeletons(false);
+    }
+  }, [speeches, isAILoading, streamingContent]);
 
   // Track elapsed time when AI is loading
   useEffect(() => {
@@ -65,7 +79,7 @@ export function FlowConversation({
   // Auto-scroll to bottom when speeches, loading state, streaming content, or status changes
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [speeches, isAILoading, streamingContent, aiStatus]);
+  }, [speeches, isAILoading, streamingContent, aiStatus, showSkeletons]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -136,9 +150,28 @@ export function FlowConversation({
                   <Bot className="size-4" />
                 </AvatarFallback>
               </Avatar>
-              <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-full ${streamingContent ? "" : "flex items-center gap-2"}`}>
+              <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-full ${streamingContent ? "" : streamingContent || showSkeletons ? "" : "flex items-center gap-2"}`}>
                 {streamingContent ? (
                   <ResponseRenderer content={streamingContent} flowId={flowId} />
+                ) : showSkeletons ? (
+                  <div className="space-y-4">
+                    {/* Activity indicator */}
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <CircularLoader size="sm" />
+                      <span className="text-sm text-muted-foreground">{aiStatus || "Thinking"}</span>
+                      {elapsedTime > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {elapsedTime}s
+                        </span>
+                      )}
+                    </div>
+                    <CompanyDescriptionSkeleton />
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <ICPSkeleton />
+                      <ICPSkeleton />
+                      <ICPSkeleton />
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <CircularLoader size="sm" />
@@ -175,13 +208,13 @@ export function FlowConversation({
             }
 
             // For real speeches, check if we need to replace a temp one
-            // For user messages: match by author
+            // For user messages: match by author and content (to handle new flows)
             // For AI messages: match by model_id (AI messages don't have author)
             const tempIndex = prev.findIndex((s) => {
               if (!s.id.startsWith("temp-")) return false;
               if (speechRow.author) {
-                // User message: match by author
-                return s.author === speechRow.author;
+                // User message: match by author and content (for new flows where parent_flow might differ)
+                return s.author === speechRow.author && s.content === speechRow.content;
               } else {
                 // AI message: match by model_id (both should have it)
                 return s.model_id && speechRow.model_id && s.model_id === speechRow.model_id;
