@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
-import { scrapeWebsite, streamScrapeWebsite } from "@/lib/scraper";
+import { scrapeWebsite, streamScrapeWebsite, streamCrawlWebsite, crawlWebsiteWithWebcrawler } from "@/lib/scraper";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -11,7 +11,7 @@ const URL_REGEX = /https?:\/\/[^\s\)\]\"\'<>]+/gi;
 function detectUrls(text: string): string[] {
     const matches = text.match(URL_REGEX);
     if (!matches) return [];
-    
+
     // Clean URLs (remove trailing punctuation, brackets, quotes)
     const cleanedUrls = matches.map(url => {
         // Remove trailing punctuation that might be part of sentence
@@ -20,7 +20,7 @@ function detectUrls(text: string): string[] {
         cleaned = cleaned.replace(/[\)\]\"\']+$/, '');
         return cleaned;
     });
-    
+
     // Return unique URLs
     return [...new Set(cleanedUrls)];
 }
@@ -79,17 +79,17 @@ IMPORTANT:
         });
 
         const result = JSON.parse(response.choices[0]?.message?.content || "{}");
-        
+
         if (result.painPoints && result.growthOpportunity && flowId) {
             // Format the analysis as markdown
             let analysisText = `**Key Pain Points & Impact:**\n\n`;
-            
+
             result.painPoints.forEach((point: string) => {
                 analysisText += `${point}\n\n`;
             });
-            
+
             analysisText += `**Growth Opportunity:** ${result.growthOpportunity}`;
-            
+
             // Save as a separate speech
             try {
                 const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
@@ -113,72 +113,144 @@ IMPORTANT:
     }
 }
 
-// Scrape URL using internal scrape service and stream OpenAI-formatted content
+// Scrape URL using webcrawlerapi, analyze with OpenAI, and generate ICP
 async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, flowId?: string, req?: NextRequest): Promise<string> {
     try {
-        // Output bold "Crawling URL" and preview card with link
-        const previewHtml = `<div class="my-4 border rounded-lg p-4 bg-muted/50">
-<strong>Crawling URL</strong>
-<div class="mt-3 flex items-center gap-3">
-  <div class="flex-1">
-    <p class="text-sm font-medium text-foreground">${url}</p>
-    <p class="text-xs text-muted-foreground mt-1">Website preview unavailable (CSP restrictions)</p>
-  </div>
-  <a href="${url}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
-    Open Site →
-  </a>
-</div>
-</div>\n\n`;
-        controller.enqueue(encoder.encode(`\n\n${previewHtml}`));
 
-        let markdown = "";
+        let crawledContent = "";
         let hasContent = false;
 
         try {
-            // Stream OpenAI-formatted markdown from scrape service
-            for await (const formattedChunk of streamScrapeWebsite(url, {
-                include_text: true,
-                include_links: true,
-                include_images: false,
-                timeout: 30,
+            // Collect crawled content (don't stream progress updates)
+            for await (const chunk of streamCrawlWebsite(url, {
+                items_limit: 10,
+                allow_subdomains: false,
+                respect_robots_txt: false,
             })) {
-                markdown += formattedChunk;
+                crawledContent += chunk;
                 hasContent = true;
-                // Stream the formatted content as it comes from OpenAI
-                controller.enqueue(encoder.encode(formattedChunk));
+                // Don't stream progress updates - only show final ICP results
             }
 
-            if (hasContent && markdown) {
-                // Add separator
-                controller.enqueue(encoder.encode(`\n\n---\n\n`));
-                
-                // Generate pain points analysis asynchronously and save as separate speech
-                if (flowId && req) {
-                    generatePainPointsAnalysis(markdown, url, flowId, req).catch((err) => {
-                        console.error("Failed to generate pain points analysis:", err);
-                    });
-                }
-                
-                return markdown;
-            } else {
+            if (!hasContent || !crawledContent.trim()) {
                 controller.enqueue(encoder.encode(`\n[No content extracted from ${url}]\n\n`));
                 return "";
             }
+
+            // Don't show analysis message - just generate ICPs silently
+
+            // Generate ICPs from crawled content
+            const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
+            const icpReq = new NextRequest(req?.url || "http://localhost", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: crawledContent,
+                }),
+            });
+
+            const icpResp = await generateICPs(icpReq);
+            const icpData = await icpResp.json();
+
+            if (!icpData.icps || icpData.icps.length === 0) {
+                controller.enqueue(encoder.encode(`\n[Error: Could not generate ICPs from website content]\n\n`));
+                return "";
+            }
+
+            // Format only the first (best) ICP as markdown
+            const bestICP = icpData.icps[0];
+            let icpMarkdown = `# Ideal Customer Profile (ICP)\n\n`;
+
+            // Add summary
+            if (icpData.summary) {
+                icpMarkdown += `## Business Overview\n\n`;
+                if (icpData.summary.businessDescription) {
+                    icpMarkdown += `${icpData.summary.businessDescription}\n\n`;
+                }
+                if (icpData.summary.targetMarket) {
+                    icpMarkdown += `**Target Market:** ${icpData.summary.targetMarket}\n\n`;
+                }
+                if (icpData.summary.painPointsWithMetrics && icpData.summary.painPointsWithMetrics.length > 0) {
+                    icpMarkdown += `### Key Pain Points\n\n`;
+                    icpData.summary.painPointsWithMetrics.forEach((pp: any) => {
+                        icpMarkdown += `- **${pp.pain}** — ${pp.metric}\n`;
+                    });
+                    icpMarkdown += `\n`;
+                }
+                if (icpData.summary.opportunityMultiplier) {
+                    icpMarkdown += `**Growth Opportunity:** ${icpData.summary.opportunityMultiplier}x multiplier when targeting the right customer profile\n\n`;
+                }
+                icpMarkdown += `---\n\n`;
+            }
+
+            // Add the best ICP
+            icpMarkdown += `## ${bestICP.title}\n\n`;
+            icpMarkdown += `${bestICP.description}\n\n`;
+
+            icpMarkdown += `### Persona\n\n`;
+            icpMarkdown += `- **Name:** ${bestICP.personaName}\n`;
+            icpMarkdown += `- **Role:** ${bestICP.personaRole}\n`;
+            icpMarkdown += `- **Company:** ${bestICP.personaCompany}\n`;
+            icpMarkdown += `- **Location:** ${bestICP.location}, ${bestICP.country}\n\n`;
+
+            if (bestICP.painPoints && bestICP.painPoints.length > 0) {
+                icpMarkdown += `### Pain Points\n\n`;
+                bestICP.painPoints.forEach((pain: string) => {
+                    icpMarkdown += `- ${pain}\n`;
+                });
+                icpMarkdown += `\n`;
+            }
+
+            if (bestICP.goals && bestICP.goals.length > 0) {
+                icpMarkdown += `### Goals\n\n`;
+                bestICP.goals.forEach((goal: string) => {
+                    icpMarkdown += `- ${goal}\n`;
+                });
+                icpMarkdown += `\n`;
+            }
+
+            if (bestICP.demographics) {
+                icpMarkdown += `### Demographics\n\n${bestICP.demographics}\n\n`;
+            }
+
+            // Stream the ICP markdown
+            controller.enqueue(encoder.encode(icpMarkdown));
+
+            // Save ICP markdown as speech if flowId is provided
+            if (flowId && req) {
+                try {
+                    const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
+                    const createReq = new NextRequest(req.url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            content: icpMarkdown,
+                            flowId: flowId,
+                            modelCode: "gpt-4o-mini",
+                        }),
+                    });
+                    await createSpeech(createReq);
+                } catch (saveError) {
+                    console.error("Error saving ICP markdown:", saveError);
+                }
+            }
+
+            return icpMarkdown;
         } catch (streamError) {
             if (streamError instanceof Error) {
                 if (streamError.message.includes('timeout') || streamError.name === 'AbortError') {
-                    const errorMsg = `\n\n[Timeout: ${url} took too long to respond (30s limit)]\n` +
+                    const errorMsg = `\n\n[Timeout: ${url} took too long to respond]\n` +
                         "The website may be blocking automated access or responding slowly.\n\n";
                     controller.enqueue(encoder.encode(errorMsg));
                 } else {
-                    const errorMsg = `\n\n[Error scraping ${url}: ${streamError.message}]\n\n`;
+                    const errorMsg = `\n\n[Error crawling ${url}: ${streamError.message}]\n\n`;
                     controller.enqueue(encoder.encode(errorMsg));
                 }
             }
             return "";
         }
     } catch (error) {
-        const errorMsg = `\n\n[Error scraping ${url}: ${error instanceof Error ? error.message : String(error)}]\n\n`;
+        const errorMsg = `\n\n[Error crawling ${url}: ${error instanceof Error ? error.message : String(error)}]\n\n`;
         controller.enqueue(encoder.encode(errorMsg));
         return "";
     }
@@ -327,74 +399,109 @@ const tools = [
 ];
 
 // Execute a tool call by importing and calling route handlers directly
-async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder): Promise<string> {
+async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, scrapedUrls?: Set<string>): Promise<string> {
     try {
         switch (toolName) {
             case "Crawler": {
+                // Skip if URL was already scraped
+                if (scrapedUrls && scrapedUrls.has(args.url)) {
+                    return JSON.stringify({
+                        success: true,
+                        url: args.url,
+                        note: "This URL was already analyzed and ICPs have been generated above. No need to analyze again."
+                    });
+                }
                 try {
-                    // Use internal scrape service
-                    const scrapeResult = await scrapeWebsite(args.url, {
-                        include_text: true,
-                        include_links: true,
-                        include_images: false,
+                    // Use webcrawlerapi to crawl website
+                    const scrapeResult = await crawlWebsiteWithWebcrawler(args.url, {
+                        items_limit: 10,
+                        allow_subdomains: false,
+                        respect_robots_txt: false,
                     });
 
-                    const title = scrapeResult.metadata.title || new URL(args.url).hostname;
-                    const favicon = `${new URL(args.url).origin}/favicon.ico`;
-                    const description = scrapeResult.metadata.description || "No description available.";
-
-                    // Build formatted content
-                    let formattedContent = "";
-
-                    // Row 1: favicon + bold site name
-                    formattedContent += `![Favicon](${favicon}) **${title}**\n\n`;
-
-                    // Row 2: Social media preview (if hero image available)
-                    const ogImage = scrapeResult.metadata.heroImage;
-                    if (ogImage) {
-                        formattedContent += `![Social Preview](${ogImage})\n`;
-                        formattedContent += `**${title}**\n`;
-                        formattedContent += `${description}\n\n`;
-                    } else {
-                        formattedContent += `*Social media preview not available*\n\n`;
+                    if (!scrapeResult.markdown || !scrapeResult.markdown.trim()) {
+                        return JSON.stringify({ error: "No content extracted from website" });
                     }
 
-                    // Row 3: Description
-                    formattedContent += `## Description\n\n${description}\n\n`;
+                    // Generate ICPs from crawled content
+                    const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
+                    const icpReq = new NextRequest(req.url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            content: scrapeResult.markdown,
+                        }),
+                    });
 
-                    // Extract basic page structure from markdown (headings)
-                    const headingRegex = /^(#{1,6})\s+(.+)$/gm;
-                    const headings: Array<{ level: number; text: string }> = [];
-                    let match;
-                    while ((match = headingRegex.exec(scrapeResult.markdown)) !== null) {
-                        headings.push({
-                            level: match[1].length,
-                            text: match[2],
+                    const icpResp = await generateICPs(icpReq);
+                    const icpData = await icpResp.json();
+
+                    if (!icpData.icps || icpData.icps.length === 0) {
+                        return JSON.stringify({ error: "Could not generate ICPs from website content" });
+                    }
+
+                    // Format only the first (best) ICP as markdown
+                    const bestICP = icpData.icps[0];
+                    let icpMarkdown = `# Ideal Customer Profile (ICP)\n\n`;
+
+                    // Add summary
+                    if (icpData.summary) {
+                        icpMarkdown += `## Business Overview\n\n`;
+                        if (icpData.summary.businessDescription) {
+                            icpMarkdown += `${icpData.summary.businessDescription}\n\n`;
+                        }
+                        if (icpData.summary.targetMarket) {
+                            icpMarkdown += `**Target Market:** ${icpData.summary.targetMarket}\n\n`;
+                        }
+                        if (icpData.summary.painPointsWithMetrics && icpData.summary.painPointsWithMetrics.length > 0) {
+                            icpMarkdown += `### Key Pain Points\n\n`;
+                            icpData.summary.painPointsWithMetrics.forEach((pp: any) => {
+                                icpMarkdown += `- **${pp.pain}** — ${pp.metric}\n`;
+                            });
+                            icpMarkdown += `\n`;
+                        }
+                        if (icpData.summary.opportunityMultiplier) {
+                            icpMarkdown += `**Growth Opportunity:** ${icpData.summary.opportunityMultiplier}x multiplier when targeting the right customer profile\n\n`;
+                        }
+                        icpMarkdown += `---\n\n`;
+                    }
+
+                    // Add the best ICP
+                    icpMarkdown += `## ${bestICP.title}\n\n`;
+                    icpMarkdown += `${bestICP.description}\n\n`;
+
+                    icpMarkdown += `### Persona\n\n`;
+                    icpMarkdown += `- **Name:** ${bestICP.personaName}\n`;
+                    icpMarkdown += `- **Role:** ${bestICP.personaRole}\n`;
+                    icpMarkdown += `- **Company:** ${bestICP.personaCompany}\n`;
+                    icpMarkdown += `- **Location:** ${bestICP.location}, ${bestICP.country}\n\n`;
+
+                    if (bestICP.painPoints && bestICP.painPoints.length > 0) {
+                        icpMarkdown += `### Pain Points\n\n`;
+                        bestICP.painPoints.forEach((pain: string) => {
+                            icpMarkdown += `- ${pain}\n`;
                         });
+                        icpMarkdown += `\n`;
                     }
 
-                    // Row 4: Page structure with headings
-                    if (headings.length > 0) {
-                        formattedContent += `## Page Structure\n\n`;
-                        headings.slice(0, 10).forEach((heading) => {
-                            const prefix = '#'.repeat(heading.level + 2);
-                            formattedContent += `${prefix} ${heading.text}\n\n`;
+                    if (bestICP.goals && bestICP.goals.length > 0) {
+                        icpMarkdown += `### Goals\n\n`;
+                        bestICP.goals.forEach((goal: string) => {
+                            icpMarkdown += `- ${goal}\n`;
                         });
-                    } else {
-                        formattedContent += `## Page Structure\n\n*Structure analysis not available*\n\n`;
+                        icpMarkdown += `\n`;
                     }
 
-                    formattedContent += `---\n\n`;
+                    if (bestICP.demographics) {
+                        icpMarkdown += `### Demographics\n\n${bestICP.demographics}\n\n`;
+                    }
 
-                    // Stream formatted content if controller and encoder are provided
+                    // Stream ICP markdown if controller and encoder are provided
                     if (controller && encoder) {
-                        controller.enqueue(encoder.encode(formattedContent));
+                        controller.enqueue(encoder.encode(icpMarkdown));
                     }
 
-                    // Build full markdown content
-                    const fullMarkdown = formattedContent + `\n\n## Full Content\n\n${scrapeResult.markdown}`;
-
-                    // Save formatted content as speech if flowId is provided
+                    // Save ICP markdown as speech if flowId is provided
                     if (flowId) {
                         try {
                             const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
@@ -402,14 +509,14 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
-                                    content: fullMarkdown,
+                                    content: icpMarkdown,
                                     flowId: flowId,
                                     modelCode: "gpt-4o-mini",
                                 }),
                             });
                             await createSpeech(createReq);
                         } catch (saveError) {
-                            console.error("Error saving scraped content:", saveError);
+                            console.error("Error saving ICP markdown:", saveError);
                         }
                     }
 
@@ -417,16 +524,13 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                     const summary = {
                         success: true,
                         url: args.url,
-                        title,
-                        description,
-                        hasSocialPreview: !!ogImage,
-                        structureSections: headings.length,
-                        note: "Complete website information has been extracted and saved to the flow.",
+                        icpsGenerated: icpData.icps?.length || 0,
+                        note: "Ideal Customer Profiles have been generated and saved to the flow using webcrawlerapi.",
                     };
                     return JSON.stringify(summary);
                 } catch (error) {
                     const errorMsg = error instanceof Error ? error.message : String(error);
-                    return JSON.stringify({ error: `Scrape service error: ${errorMsg}` });
+                    return JSON.stringify({ error: `Webcrawlerapi error: ${errorMsg}` });
                 }
             }
             case "analyze_website": {
@@ -538,12 +642,12 @@ export async function POST(req: NextRequest) {
                     const urls = detectUrls(message);
                     const scrapedContents: Array<{ url: string; content: string }> = [];
                     const scrapedUrls = new Set<string>(); // Track which URLs were already scraped
-                    
+
                     // Check if prompt mentions scraping requirements
                     const lowerMessage = message.toLowerCase();
-                    const needsScraping = 
-                        urls.length > 0 || 
-                        lowerMessage.includes('scrape') || 
+                    const needsScraping =
+                        urls.length > 0 ||
+                        lowerMessage.includes('scrape') ||
                         lowerMessage.includes('scraping') ||
                         lowerMessage.includes('get content from') ||
                         lowerMessage.includes('fetch from url') ||
@@ -568,27 +672,37 @@ export async function POST(req: NextRequest) {
                     let systemContent = `You are a helpful AI assistant with access to tools for analyzing websites and generating content.
 
 Available tools:
-- Crawler: Analyze a website URL to extract content, facts, and metadata
+- Crawler: Analyze a website URL to extract content, facts, and metadata (ICPs are automatically generated)
 - Analyst: Generate Ideal Customer Profiles from website content
 - generate_value_prop: Generate value propositions based on ICP and website
 - generate_email_sequence: Generate email sequences for outreach
 - generate_one_time_email: Generate a single email
 - generate_linkedin_outreach: Generate LinkedIn outreach content
 
-When a user asks you to analyze a website or generate content, use the appropriate tools. Work step by step:
-1. If given a URL, use Crawler first
-2. Then generate ICPs from the analysis
-3. Then generate value props, emails, or LinkedIn content as requested
+IMPORTANT: When a URL is provided and scraped, Ideal Customer Profiles (ICPs) are AUTOMATICALLY generated and displayed in the response above. You do NOT need to generate ICPs again - they are already available in the conversation.
 
-Always explain what you're doing and summarize the results for the user.`;
+CRITICAL: Do NOT call the Crawler tool if URLs have already been scraped. The ICPs are already generated and displayed above.
+
+When a user asks you to analyze a website or generate content:
+1. If URLs were already scraped (you'll see ICPs displayed above), DO NOT call the Crawler tool - just acknowledge the ICPs
+2. If ICPs are already displayed above, acknowledge them and offer to generate value props, emails, or LinkedIn content
+3. Only use tools if the user explicitly asks for something that hasn't been generated yet
+
+Always acknowledge what has already been generated and offer next steps based on the available ICPs.`;
 
                     // Add scraped content to context if available
                     if (scrapedContents.length > 0) {
-                        systemContent += `\n\n**Scraped Content Context:**\nThe following URLs have been scraped and their content is available:\n`;
+                        systemContent += `\n\n**IMPORTANT CONTEXT:**\nThe following URLs have been scraped and Ideal Customer Profiles (ICPs) have ALREADY been generated and displayed above:\n`;
                         scrapedContents.forEach(({ url, content }) => {
-                            systemContent += `\n- ${url}: ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}\n`;
+                            // Check if content contains ICPs (starts with "# Ideal Customer Profiles")
+                            const hasICPs = content.includes("# Ideal Customer Profiles") || content.includes("Ideal Customer Profile");
+                            if (hasICPs) {
+                                systemContent += `\n- ${url}: ICPs have been generated and are shown in the response above. Do NOT try to generate ICPs again.\n`;
+                            } else {
+                                systemContent += `\n- ${url}: Content scraped (${content.substring(0, 200)}${content.length > 200 ? '...' : ''})\n`;
+                            }
                         });
-                        systemContent += `\nUse this scraped content to answer the user's questions. The full content has been streamed to the user above.`;
+                        systemContent += `\nThe ICPs are already displayed in the conversation above. Acknowledge them and offer to help with next steps like generating value propositions, email sequences, or LinkedIn content.`;
                     }
 
                     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -670,7 +784,7 @@ Always explain what you're doing and summarize the results for the user.`;
                                 // Skip duplicate scraping message if URL was already scraped
                                 // (Don't show tool usage messages)
 
-                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder);
+                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls);
 
                                 messages.push({
                                     role: "tool",

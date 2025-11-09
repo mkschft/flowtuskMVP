@@ -10,6 +10,7 @@ import {
   Waypoints,
   FilePlus,
   SquareTerminal,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -49,6 +50,7 @@ const data = {
   navMain: [
     { title: "New Flow", url: "/app", icon: FilePlus, isActive: true },
     { title: "Search Flow", url: "#", icon: Search },
+    { title: "Saved Profiles (ICP)", url: "#", icon: Users },
     { title: "Connectors", url: "#", icon: Waypoints },
     { title: "Trash", url: "#", icon: Trash2 },
   ],

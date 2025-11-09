@@ -3,6 +3,7 @@
  */
 
 import OpenAI from "openai";
+import webcrawlerapi from "webcrawlerapi-js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -355,5 +356,201 @@ function convertChunksToRawText(chunks: ScrapeChunk[]): string {
   }
 
   return text.trim();
+}
+
+/**
+ * Crawl a website using webcrawlerapi
+ */
+export async function crawlWebsiteWithWebcrawler(url: string, options?: {
+  items_limit?: number;
+  allow_subdomains?: boolean;
+  respect_robots_txt?: boolean;
+}): Promise<ScrapeResult> {
+  try {
+    const apiKey = process.env.WEBCRAWLER_API_KEY || "dc30cffa71d79742b2d4";
+    const client = new webcrawlerapi.WebcrawlerClient(apiKey);
+
+    // Start crawl job
+    const response = await client.crawl({
+      url: url,
+      scrape_type: "markdown",
+      items_limit: options?.items_limit || 10,
+      allow_subdomains: options?.allow_subdomains ?? false,
+      respect_robots_txt: options?.respect_robots_txt ?? false,
+    });
+
+    // Wait for job to complete
+    let jobStatus = response.status;
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes max (5 second intervals)
+    let currentResponse = response;
+
+    while (jobStatus !== "done" && jobStatus !== "failed" && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+      
+      // Check job status - try getJob if available
+      try {
+        if (typeof (client as any).getJob === 'function') {
+          currentResponse = await (client as any).getJob(response.id);
+          jobStatus = currentResponse.status;
+        } else {
+          // If getJob doesn't exist, check if response already has job_items (might be done)
+          if (response.job_items && response.job_items.length > 0) {
+            // Check if all items are done
+            const allDone = response.job_items.every((item: any) => item.status === "done");
+            if (allDone) {
+              jobStatus = "done";
+              currentResponse = response;
+              break;
+            }
+          }
+          // If we can't check status, wait a bit more
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      } catch (err) {
+        // If status check fails, check if we have job_items already
+        if (response.job_items && response.job_items.length > 0) {
+          const allDone = response.job_items.every((item: any) => item.status === "done");
+          if (allDone) {
+            jobStatus = "done";
+            currentResponse = response;
+            break;
+          }
+        }
+        console.warn("Could not check job status:", err);
+      }
+      attempts++;
+    }
+
+    if (jobStatus !== "done") {
+      throw new Error(`Crawl job failed or timed out. Status: ${jobStatus}`);
+    }
+
+    // Get content from all job items
+    const markdownParts: string[] = [];
+    const metadata: {
+      title?: string;
+      description?: string;
+      url: string;
+      heroImage?: string | null;
+    } = {
+      url: url,
+    };
+
+    for (const item of currentResponse.job_items || []) {
+      if (item.status === "done" && item.getContent) {
+        try {
+          const content = await item.getContent();
+          if (content) {
+            markdownParts.push(`## ${item.title || item.original_url}\n\n${content}\n\n`);
+            
+            // Use first item's title as metadata
+            if (!metadata.title && item.title) {
+              metadata.title = item.title;
+            }
+          }
+        } catch (err) {
+          console.error(`Error getting content for ${item.original_url}:`, err);
+        }
+      }
+    }
+
+    const markdown = markdownParts.length > 0 
+      ? markdownParts.join("\n---\n\n")
+      : `# ${url}\n\nNo content extracted from this URL.`;
+
+    return {
+      markdown,
+      metadata,
+    };
+  } catch (error) {
+    console.error('Error crawling website with webcrawlerapi:', error);
+    throw error;
+  }
+}
+
+/**
+ * Stream crawl results from webcrawlerapi
+ */
+export async function* streamCrawlWebsite(url: string, options?: {
+  items_limit?: number;
+  allow_subdomains?: boolean;
+  respect_robots_txt?: boolean;
+}): AsyncGenerator<string> {
+  try {
+    const apiKey = process.env.WEBCRAWLER_API_KEY || "dc30cffa71d79742b2d4";
+    const client = new webcrawlerapi.WebcrawlerClient(apiKey);
+
+    // Start crawl job
+    const response = await client.crawl({
+      url: url,
+      scrape_type: "markdown",
+      items_limit: options?.items_limit || 10,
+      allow_subdomains: options?.allow_subdomains ?? false,
+      respect_robots_txt: options?.respect_robots_txt ?? false,
+    });
+
+    // Stream status update
+    yield `\n\n**Crawling ${url}...**\n\n`;
+    yield `Job ID: ${response.id}\n`;
+    yield `Status: ${response.status}\n\n`;
+
+    // Wait for job to complete
+    let jobStatus = response.status;
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes max
+
+    let currentResponse = response;
+    while (jobStatus !== "done" && jobStatus !== "failed" && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      try {
+        if (typeof (client as any).getJob === 'function') {
+          currentResponse = await (client as any).getJob(response.id);
+        } else {
+          // Fallback: assume done if we can't check status
+          break;
+        }
+        jobStatus = currentResponse.status;
+      } catch (err) {
+        console.warn("Could not check job status:", err);
+        break;
+      }
+      attempts++;
+      
+      yield `Waiting for crawl to complete... (${attempts * 5}s)\n`;
+    }
+
+    if (jobStatus !== "done") {
+      yield `\n\n**Error:** Crawl job failed or timed out. Status: ${jobStatus}\n\n`;
+      return;
+    }
+
+    yield `\n**Crawl completed!** Extracting content from ${currentResponse.job_items?.length || 0} pages...\n\n`;
+
+    // Stream content from each job item
+    for (const item of currentResponse.job_items || []) {
+      if (item.status === "done" && item.getContent) {
+        try {
+          yield `\n### ${item.title || item.original_url}\n\n`;
+          
+          const content = await item.getContent();
+          if (content) {
+            // Stream content in chunks
+            const chunkSize = 500;
+            for (let i = 0; i < content.length; i += chunkSize) {
+              yield content.substring(i, i + chunkSize);
+            }
+            yield "\n\n---\n\n";
+          }
+        } catch (err) {
+          yield `\n**Error:** Failed to get content from ${item.original_url}\n\n`;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error streaming crawl with webcrawlerapi:', error);
+    yield `\n\n**Error:** ${error instanceof Error ? error.message : String(error)}\n\n`;
+  }
 }
 
