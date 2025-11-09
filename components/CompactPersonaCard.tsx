@@ -296,22 +296,42 @@ export function CompactPersonaCard({
                   </div>
                 </div>
 
-                {/* ICP Badge */}
+                {/* ICP Score Circle Badge */}
                 <div className="shrink-0">
-                  <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-800">
-                    <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap">
-                      {summary.subtitle}
-                    </p>
+                  <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-1 shadow-lg">
+                    <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex flex-col items-center justify-center">
+                      <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {summary.icpScore}%
+                      </div>
+                      <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                        Match
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
               {summary.personaDescription && (
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {summary.personaDescription}
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Mid-sized accounting firm owners seeking automation to scale their practice
                 </p>
               )}
+
+              {/* Segment Pills - Subtle and Compact */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground font-medium">Top Segments:</span>
+                {summary.segments.map((segment, idx) => (
+                  <div
+                    key={idx}
+                    className="px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30"
+                  >
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {segment.label} <span className="font-semibold text-purple-600 dark:text-purple-400">{segment.matchScore}%</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Value Proposition Card */}
@@ -328,66 +348,6 @@ export function CompactPersonaCard({
                 </p>
               </div>
             )}
-
-            {/* Segment Cards */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {summary.segments.map((segment, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white/60 dark:bg-white/5 backdrop-blur-sm border border-purple-200/50 dark:border-purple-700/50 rounded-lg p-4 hover:bg-white/80 dark:hover:bg-white/10 transition-colors shadow-sm"
-                >
-                  <p className="text-xs text-muted-foreground mb-1">
-                    {segment.label}
-                  </p>
-                  <div className="flex items-end gap-1">
-                    <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {segment.matchScore}%
-                    </p>
-                  </div>
-                  {/* Progress bar */}
-                  <div className="mt-2 h-1 bg-purple-100 dark:bg-purple-900/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                      style={{ width: `${segment.matchScore}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* ICP Score */}
-            <div className="mb-4">
-              <p className="text-xl font-bold text-foreground">
-                ICP Score: <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{summary.icpScore}%</span>
-              </p>
-            </div>
-
-            {/* Action Buttons - 3 Primary Actions */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <Button
-                onClick={onEmailClick}
-                className="flex flex-col items-center gap-2 h-auto py-4 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-              >
-                <Mail className="w-5 h-5" />
-                <span className="text-sm font-medium">Email</span>
-              </Button>
-              
-              <Button
-                onClick={onLinkedInClick}
-                className="flex flex-col items-center gap-2 h-auto py-4 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
-              >
-                <Linkedin className="w-5 h-5" />
-                <span className="text-sm font-medium">LinkedIn</span>
-              </Button>
-              
-              <Button
-                onClick={onLandingClick}
-                className="flex flex-col items-center gap-2 h-auto py-4 bg-gradient-to-br from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
-              >
-                <Globe className="w-5 h-5" />
-                <span className="text-sm font-medium">Landing</span>
-              </Button>
-            </div>
 
             {/* More Details Button */}
             <Button
@@ -409,6 +369,53 @@ export function CompactPersonaCard({
             </Button>
           </div>
         </Card>
+      </div>
+
+      {/* CTA Section - Generate Marketing Assets */}
+      <div className="mt-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Generate Marketing Assets</h3>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4">
+          <Button
+            onClick={onEmailClick}
+            className="flex flex-col items-center gap-2 h-auto py-6 bg-gradient-to-br from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg hover:shadow-xl transition-all"
+          >
+            <Mail className="w-6 h-6" />
+            <div className="text-center">
+              <div className="text-sm font-semibold">Email Sequences</div>
+              <div className="text-xs opacity-90">3 ready-to-send</div>
+            </div>
+          </Button>
+          
+          <Button
+            onClick={onLinkedInClick}
+            className="flex flex-col items-center gap-2 h-auto py-6 bg-gradient-to-br from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all"
+          >
+            <Linkedin className="w-6 h-6" />
+            <div className="text-center">
+              <div className="text-sm font-semibold">LinkedIn Posts</div>
+              <div className="text-xs opacity-90">5 posts ready</div>
+            </div>
+          </Button>
+          
+          <Button
+            onClick={onLandingClick}
+            className="flex flex-col items-center gap-2 h-auto py-6 bg-gradient-to-br from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg hover:shadow-xl transition-all"
+          >
+            <Globe className="w-6 h-6" />
+            <div className="text-center">
+              <div className="text-sm font-semibold">Landing Page</div>
+              <div className="text-xs opacity-90">Complete copy</div>
+            </div>
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">
+          Click to generate ready-to-use content personalized for this ICP
+        </p>
       </div>
 
       {/* Layer 1: Expandable Details with Tabs */}
