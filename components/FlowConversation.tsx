@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Bot } from "lucide-react";
 import { ResponseRenderer } from "@/components/ResponseRenderer";
 import { ICPSkeleton, CompanyDescriptionSkeleton } from "@/components/ICPSkeleton";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 type SpeechRow = {
   id: string;
@@ -34,8 +36,10 @@ export function FlowConversation({
   const [aiStatus, setAiStatus] = useState<string>(""); // Status message like "thinking", "scraping data..."
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [showSkeletons, setShowSkeletons] = useState(false);
+  const [hideComposer, setHideComposer] = useState(false);
   const startTimeRef = useRef<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Detect if last user message contains a URL (to show ICP skeletons)
   useEffect(() => {
@@ -80,6 +84,115 @@ export function FlowConversation({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [speeches, isAILoading, streamingContent, aiStatus, showSkeletons]);
+
+  // Handle ICP selection
+  const handleICPSelect = async (icpData: { personaName: string; title: string; [key: string]: any }) => {
+    setHideComposer(true);
+
+    // Find or get the ICP id from database
+    let personaId: string | null = null;
+    try {
+      const supabase = createClient();
+      const { data: icps, error } = await supabase
+        .from("icps")
+        .select("id")
+        .eq("parent_flow", flowId)
+        .eq("persona_name", icpData.personaName)
+        .eq("title", icpData.title)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (!error && icps && icps.length > 0) {
+        personaId = icps[0].id;
+      }
+    } catch (error) {
+      console.error("Failed to find ICP:", error);
+    }
+
+    // Create the card content as a component JSON
+    const cardContent = `<component>${JSON.stringify({
+      type: "persona-created-card",
+      props: {
+        personaName: icpData.personaName,
+        personaId: personaId,
+      },
+    })}</component>`;
+
+    // Save as speech
+    try {
+      const createResp = await fetch("/api/create-ai-speech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: cardContent,
+          flowId: flowId,
+          modelCode: "gpt-4o-mini",
+        }),
+      });
+      if (createResp.ok) {
+        const aiSpeech = await createResp.json();
+        setSpeeches((prev) => [...prev, {
+          id: aiSpeech.id,
+          content: aiSpeech.content,
+          author: null,
+          model_id: aiSpeech.model_id,
+          created_at: aiSpeech.created_at,
+        }]);
+      }
+    } catch (error) {
+      console.error("Failed to save persona card:", error);
+    }
+  };
+
+  // Check if there's a persona card in speeches to hide composer
+  useEffect(() => {
+    const hasPersonaCard = speeches.some(s => 
+      s.content.includes('persona-created-card') && !s.author
+    );
+    setHideComposer(hasPersonaCard);
+  }, [speeches]);
+
+  const handlePersonaWorkflows = (personaId?: string) => {
+    if (personaId) {
+      // Store the current flowId in localStorage so we can navigate back
+      if (flowId) {
+        localStorage.setItem("workflows_source_flow", flowId);
+      }
+      router.push(`/w/${personaId}`);
+    } else {
+      console.error("No persona ID available for navigation");
+    }
+  };
+
+  const handlePersonaRestart = async () => {
+    // Find the persona card speech
+    const personaCardSpeech = speeches.find(s => 
+      s.content.includes('persona-created-card') && !s.author
+    );
+
+    if (personaCardSpeech) {
+      // Delete from database
+      try {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("speech")
+          .delete()
+          .eq("id", personaCardSpeech.id);
+
+        if (error) {
+          console.error("Failed to delete persona card speech:", error);
+        }
+      } catch (error) {
+        console.error("Error deleting persona card speech:", error);
+      }
+
+      // Remove from local state
+      setSpeeches((prev) => prev.filter(s => s.id !== personaCardSpeech.id));
+    }
+
+    // Show composer again
+    setHideComposer(false);
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -137,7 +250,13 @@ export function FlowConversation({
                       {s.content}
                     </ReactMarkdown>
                   ) : (
-                    <ResponseRenderer content={s.content} flowId={flowId} />
+                    <ResponseRenderer 
+                      content={s.content} 
+                      flowId={flowId}
+                      onICPSelect={handleICPSelect}
+                      onPersonaWorkflows={handlePersonaWorkflows}
+                      onPersonaRestart={handlePersonaRestart}
+                    />
                   )}
                 </div>
               </div>
@@ -152,7 +271,13 @@ export function FlowConversation({
               </Avatar>
               <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-full ${streamingContent ? "" : streamingContent || showSkeletons ? "" : "flex items-center gap-2"}`}>
                 {streamingContent ? (
-                  <ResponseRenderer content={streamingContent} flowId={flowId} />
+                  <ResponseRenderer 
+                    content={streamingContent} 
+                    flowId={flowId}
+                    onICPSelect={handleICPSelect}
+                    onPersonaWorkflows={handlePersonaWorkflows}
+                    onPersonaRestart={handlePersonaRestart}
+                  />
                 ) : showSkeletons ? (
                   <div className="space-y-4">
                     {/* Activity indicator */}
@@ -189,7 +314,8 @@ export function FlowConversation({
           <div ref={bottomRef} />
         </div>
       </ScrollArea>
-      <AIComposer
+      {!hideComposer && (
+        <AIComposer
         flowId={flowId}
         onNewSpeech={(row) => {
           if (!row) return;
@@ -248,7 +374,8 @@ export function FlowConversation({
         }}
         onStreamingContent={setStreamingContent}
         onStatusChange={setAiStatus}
-      />
+        />
+      )}
     </div>
   );
 }

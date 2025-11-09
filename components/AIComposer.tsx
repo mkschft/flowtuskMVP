@@ -147,7 +147,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                     onLoadingChange?.(false);
                 }
 
-                router.push(`/flow/${newFlow.id}`);
+                router.push(`/u/flows/${newFlow.id}`);
                 return;
             }
 

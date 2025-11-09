@@ -6,9 +6,10 @@ import rehypeRaw from "rehype-raw";
 import { Button } from "@/components/ui/button";
 import { ICPCard } from "@/components/ICPCard";
 import { ICPResponse } from "@/components/ICPResponse";
+import { PersonaCreatedCard } from "@/components/PersonaCreatedCard";
 
 // Component definitions that can be rendered
-type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "icp-cards" | "custom";
+type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "icp-cards" | "persona-created-card" | "custom";
 
 interface ComponentData {
     type: ComponentType;
@@ -18,7 +19,7 @@ interface ComponentData {
 
 // Parse component JSON from content
 function parseComponents(content: string): { markdown: string; components: ComponentData[] } {
-    const componentRegex = /<component>(.*?)<\/component>/gs;
+    const componentRegex = /<component>([\s\S]*?)<\/component>/g;
     const components: ComponentData[] = [];
     let markdown = content;
     let match;
@@ -40,7 +41,7 @@ function parseComponents(content: string): { markdown: string; components: Compo
 }
 
 // Render a single component
-function renderComponent(component: ComponentData, index: number, flowId?: string, websiteUrl?: string): React.ReactNode {
+function renderComponent(component: ComponentData, index: number, flowId?: string, websiteUrl?: string, onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void, onPersonaWorkflows?: (personaId?: string) => void, onPersonaRestart?: () => void): React.ReactNode {
     switch (component.type) {
         case "button":
             return (
@@ -77,7 +78,7 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                         </p>
                     )}
                     {Array.isArray(component.children)
-                        ? component.children.map((child, i) => renderComponent(child, i, flowId, websiteUrl))
+                        ? component.children.map((child, i) => renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart))
                         : component.children}
                 </div>
             );
@@ -109,7 +110,13 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                         : "bg-primary text-primary-foreground"
                         }`}
                 >
-                    {component.children}
+                    {Array.isArray(component.children)
+                        ? component.children.map((child, i) => 
+                            typeof child === "string" ? child : renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart)
+                          )
+                        : typeof component.children === "string" 
+                        ? component.children 
+                        : component.children}
                 </span>
             );
 
@@ -131,6 +138,7 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                     }}
                     websiteUrl={component.props?.websiteUrl || websiteUrl}
                     flowId={component.props?.flowId || flowId}
+                    onICPSelect={(icpData) => onICPSelect?.(icpData)}
                 />
             );
 
@@ -184,10 +192,22 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                                 }}
                                 websiteUrl={component.props?.websiteUrl || websiteUrl}
                                 flowId={component.props?.flowId || flowId}
+                                onICPSelect={(icpData) => onICPSelect?.(icpData)}
                             />
                         ))}
                     </div>
                 </div>
+            );
+
+        case "persona-created-card":
+            return (
+                <PersonaCreatedCard
+                    key={index}
+                    personaName={component.props?.personaName || ""}
+                    personaId={component.props?.personaId}
+                    onWorkflows={() => onPersonaWorkflows?.(component.props?.personaId)}
+                    onRestart={onPersonaRestart}
+                />
             );
 
         default:
@@ -199,9 +219,12 @@ interface ResponseRendererProps {
     content: string;
     flowId?: string;
     websiteUrl?: string;
+    onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void;
+    onPersonaWorkflows?: (personaId?: string) => void;
+    onPersonaRestart?: () => void;
 }
 
-export function ResponseRenderer({ content, flowId, websiteUrl }: ResponseRendererProps) {
+export function ResponseRenderer({ content, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart }: ResponseRendererProps) {
     const { markdown, components } = parseComponents(content);
 
     // Split markdown by component placeholders and render accordingly
@@ -263,7 +286,7 @@ export function ResponseRenderer({ content, flowId, websiteUrl }: ResponseRender
         // Add component
         const compIndex = parseInt(match[1]);
         if (components[compIndex]) {
-            parts.push(renderComponent(components[compIndex], compIndex, flowId, websiteUrl));
+            parts.push(renderComponent(components[compIndex], compIndex, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart));
         }
 
         lastIndex = match.index + match[0].length;

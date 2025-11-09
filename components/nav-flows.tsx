@@ -50,7 +50,7 @@ export function NavFlows({
                     {flows.map((flow) => (
                         <SidebarMenuItem key={flow.id}>
                             <SidebarMenuButton asChild>
-                                <Link href={`/flow/${flow.id}`} prefetch>
+                                <Link href={`/u/flows/${flow.id}`} prefetch>
                                     <span className="truncate">{flow.title}</span>
                                 </Link>
                             </SidebarMenuButton>

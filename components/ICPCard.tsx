@@ -16,6 +16,7 @@ interface ICPCardProps {
   painPoints: string[];
   fitScore?: number;
   profilesFound?: number;
+  onSelect?: () => void;
 }
 
 // Icon mapping for pain points
@@ -60,6 +61,7 @@ export function ICPCard({
   painPoints,
   fitScore = 90,
   profilesFound = 12,
+  onSelect,
 }: ICPCardProps) {
   return (
     <div className="rounded-lg border bg-gradient-to-br from-pink-50 to-pink-100/50 dark:from-pink-950/20 dark:to-pink-900/10 p-4 space-y-3">
@@ -131,6 +133,7 @@ export function ICPCard({
             variant="outline"
             size="sm"
             className="w-full bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 text-pink-900 dark:text-pink-100 hover:bg-pink-100 dark:hover:bg-pink-900/30 h-8 text-xs cursor-pointer"
+            onClick={() => onSelect?.()}
           >
             Select
           </Button>

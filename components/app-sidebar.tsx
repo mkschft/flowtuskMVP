@@ -48,9 +48,9 @@ const data = {
     },
   ],
   navMain: [
-    { title: "New Flow", url: "/", icon: FilePlus, isActive: true },
+    { title: "New Flow", url: "/u/", icon: FilePlus, isActive: true },
     { title: "Search Flow", url: "#", icon: Search },
-    { title: "Prospects", url: "/prospects", icon: Users },
+    { title: "Prospects", url: "/u/prospects", icon: Users },
     { title: "Connectors", url: "#", icon: Waypoints },
     { title: "Trash", url: "#", icon: Trash2 },
   ],

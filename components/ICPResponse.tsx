@@ -19,12 +19,14 @@ interface ICPResponseProps {
   };
   websiteUrl?: string;
   flowId?: string;
+  onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void;
 }
 
-export function ICPResponse({ icpData, websiteUrl, flowId }: ICPResponseProps) {
+export function ICPResponse({ icpData, websiteUrl, flowId, onICPSelect }: ICPResponseProps) {
   return (
     <ICPCard 
-      {...icpData} 
+      {...icpData}
+      onSelect={() => onICPSelect?.(icpData)}
     />
   );
 }
