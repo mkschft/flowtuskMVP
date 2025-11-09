@@ -13,9 +13,10 @@ type AIComposerProps = {
     onLoadingChange?: (loading: boolean) => void;
     onInputChange?: (hasValue: boolean) => void;
     onStreamingContent?: (content: string) => void;
+    onStatusChange?: (status: string) => void;
 };
 
-export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange, onStreamingContent }: AIComposerProps) {
+export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange, onStreamingContent, onStatusChange }: AIComposerProps) {
     const [value, setValue] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
@@ -124,7 +125,18 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                 return;
             }
 
-            // Existing flow: just create a speech under it
+            // Existing flow: show user message first, then save, then generate AI response
+            // Step 1: Show user message optimistically (temporary ID)
+            const tempUserSpeech = {
+                id: `temp-${Date.now()}`,
+                content,
+                author: userId,
+                parent_flow: flowId,
+                created_at: new Date().toISOString(),
+            };
+            onNewSpeech?.(tempUserSpeech as any);
+
+            // Step 2: Save user speech to database
             const { data: createdSpeech, error: speechErr } = await supabase
                 .from("speech")
                 .insert({ content, parent_flow: flowId, author: userId, context: {} })
@@ -132,10 +144,13 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                 .single();
 
             if (speechErr) throw speechErr;
+
+            // Step 3: Replace temp speech with real one
             onNewSpeech?.(createdSpeech as any);
             onLoadingChange?.(true);
+            onStatusChange?.("Thinking");
 
-            // Generate AI response and stream it
+            // Step 4: Generate AI response with status updates
             try {
                 const aiResp = await fetch("/api/generate-ai-response", {
                     method: "POST",
@@ -150,31 +165,78 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                 const reader = aiResp.body.getReader();
                 const decoder = new TextDecoder();
                 let fullResponse = "";
+                let tempAiSpeechId: string | null = null;
 
+                let buffer = "";
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
                     const chunk = decoder.decode(value, { stream: true });
-                    fullResponse += chunk;
+                    buffer += chunk;
+
+                    // Remove ALL STATUS: lines from buffer (handle multiple in one chunk)
+                    let statusFound = false;
+                    while (true) {
+                        const statusMatch = buffer.match(/STATUS:([^\n]*)/);
+                        if (!statusMatch) break;
+
+                        const status = statusMatch[1].trim();
+                        if (status) {
+                            onStatusChange?.(status);
+                            statusFound = true;
+                        }
+                        // Remove the status line from buffer (including newline if present)
+                        buffer = buffer.replace(/STATUS:[^\n]*\n?/, "");
+                    }
+
+                    // If we found a status, continue to process remaining buffer
+                    if (statusFound) {
+                        continue;
+                    }
+
+                    // If buffer has newline, process content up to newline
+                    const newlineIndex = buffer.indexOf("\n");
+                    if (newlineIndex !== -1) {
+                        const line = buffer.substring(0, newlineIndex);
+                        buffer = buffer.substring(newlineIndex + 1);
+
+                        // Skip status lines (including empty STATUS:)
+                        if (!line.startsWith("STATUS:")) {
+                            fullResponse += line + "\n";
+                            onStreamingContent?.(fullResponse);
+                        }
+                    }
+                }
+
+                // Process any remaining buffer content (make sure to filter out ALL STATUS: lines)
+                // Remove any remaining STATUS: lines
+                buffer = buffer.replace(/STATUS:[^\n]*\n?/g, "");
+                const remainingBuffer = buffer.trim();
+                if (remainingBuffer) {
+                    fullResponse += remainingBuffer;
                     onStreamingContent?.(fullResponse);
                 }
 
-                // Save to database only after streaming is complete
-                if (fullResponse.trim()) {
+                // Step 5: Save AI response to database after it's been shown
+                // Final cleanup: remove any STATUS: lines that might have slipped through
+                const cleanedResponse = fullResponse.replace(/STATUS:[^\n]*\n?/g, "").trim();
+                if (cleanedResponse) {
                     const createResp = await fetch("/api/create-ai-speech", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            content: fullResponse.trim(),
+                            content: cleanedResponse,
                             flowId: flowId,
                             modelCode: "gpt-4o-mini",
                         }),
                     });
                     if (createResp.ok) {
                         const aiSpeech = await createResp.json();
+                        // Add real AI speech to chat (replaces streaming content)
                         onNewSpeech?.(aiSpeech as any);
                         onStreamingContent?.("");
+                        onStatusChange?.("");
                     } else {
                         const errorData = await createResp.json();
                         console.error("Failed to create AI speech:", errorData);
@@ -182,8 +244,10 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                 }
             } catch (aiError) {
                 console.error("Failed to generate AI response:", aiError);
+                onStatusChange?.("");
             } finally {
                 onLoadingChange?.(false);
+                onStatusChange?.("");
             }
 
             setValue("");

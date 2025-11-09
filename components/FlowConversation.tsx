@@ -8,6 +8,7 @@ import { AIComposer } from "@/components/AIComposer";
 import { CircularLoader } from "@/components/ui/loader";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Bot } from "lucide-react";
+import { ResponseRenderer } from "@/components/ResponseRenderer";
 
 type SpeechRow = {
   id: string;
@@ -29,12 +30,42 @@ export function FlowConversation({
   const [speeches, setSpeeches] = useState<SpeechRow[]>(initialSpeeches || []);
   const [isAILoading, setIsAILoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState<string>("");
+  const [aiStatus, setAiStatus] = useState<string>(""); // Status message like "thinking", "scraping data..."
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const startTimeRef = useRef<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when speeches, loading state, or streaming content changes
+  // Track elapsed time when AI is loading
+  useEffect(() => {
+    if (isAILoading && !startTimeRef.current) {
+      // Start tracking
+      startTimeRef.current = Date.now();
+      setElapsedTime(0);
+    } else if (!isAILoading && startTimeRef.current) {
+      // Stop tracking
+      startTimeRef.current = null;
+      setElapsedTime(0);
+    }
+  }, [isAILoading]);
+
+  // Update elapsed time every second
+  useEffect(() => {
+    if (!startTimeRef.current) return;
+
+    const interval = setInterval(() => {
+      if (startTimeRef.current) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setElapsedTime(elapsed);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isAILoading]);
+
+  // Auto-scroll to bottom when speeches, loading state, streaming content, or status changes
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [speeches, isAILoading, streamingContent]);
+  }, [speeches, isAILoading, streamingContent, aiStatus]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -54,56 +85,8 @@ export function FlowConversation({
                     {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
                   </AvatarFallback>
                 </Avatar>
-                <div className="rounded-md border p-3 text-sm w-fit max-w-2xl [&_*]:break-words">
-                  <ReactMarkdown
-                    rehypePlugins={[rehypeRaw]}
-                    components={{
-                      p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
-                      ul: ({ children }) => <ul className="my-2 ml-4 list-disc">{children}</ul>,
-                      ol: ({ children }) => <ol className="my-2 ml-4 list-decimal">{children}</ol>,
-                      li: ({ children }) => <li className="my-0.5">{children}</li>,
-                      h1: ({ children }) => <h1 className="text-lg font-semibold my-2 first:mt-0">{children}</h1>,
-                      h2: ({ children }) => <h2 className="text-base font-semibold my-2 first:mt-0">{children}</h2>,
-                      h3: ({ children }) => <h3 className="text-sm font-semibold my-2 first:mt-0">{children}</h3>,
-                      code: ({ children, className }) => {
-                        const isInline = !className;
-                        return isInline ? (
-                          <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>
-                        ) : (
-                          <code className={className}>{children}</code>
-                        );
-                      },
-                      pre: ({ children }) => (
-                        <pre className="bg-muted p-2 rounded text-xs overflow-x-auto my-2">{children}</pre>
-                      ),
-                      blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-muted pl-2 my-2 italic">{children}</blockquote>
-                      ),
-                      a: ({ href, children }) => (
-                        <a href={href} className="text-primary underline hover:text-primary/80" target="_blank" rel="noopener noreferrer">
-                          {children}
-                        </a>
-                      ),
-                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                      em: ({ children }) => <em className="italic">{children}</em>,
-                    }}
-                  >
-                    {s.content}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            );
-          })}
-          {(isAILoading || streamingContent) && (
-            <div className="flex items-start gap-3 w-full">
-              <Avatar className="size-8 shrink-0">
-                <AvatarFallback className="bg-muted">
-                  <Bot className="size-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-fit max-w-2xl ${streamingContent ? "" : "flex items-center gap-2"}`}>
-                {streamingContent ? (
-                  <>
+                <div className={`rounded-md border p-3 text-sm [&_*]:break-words ${isUser ? "w-fit max-w-2xl" : "w-full"}`}>
+                  {isUser ? (
                     <ReactMarkdown
                       rehypePlugins={[rehypeRaw]}
                       components={{
@@ -137,14 +120,35 @@ export function FlowConversation({
                         em: ({ children }) => <em className="italic">{children}</em>,
                       }}
                     >
-                      {streamingContent}
+                      {s.content}
                     </ReactMarkdown>
-                  </>
+                  ) : (
+                    <ResponseRenderer content={s.content} flowId={flowId} />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {(isAILoading || streamingContent || aiStatus) && (
+            <div className="flex items-start gap-3 w-full">
+              <Avatar className="size-8 shrink-0">
+                <AvatarFallback className="bg-muted">
+                  <Bot className="size-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-full ${streamingContent ? "" : "flex items-center gap-2"}`}>
+                {streamingContent ? (
+                  <ResponseRenderer content={streamingContent} flowId={flowId} />
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2">
                     <CircularLoader size="sm" />
-                    <span className="text-sm text-muted-foreground">Thinking...</span>
-                  </>
+                    <span className="text-sm text-muted-foreground">{aiStatus || "Thinking"}</span>
+                    {elapsedTime > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {elapsedTime}s
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -164,7 +168,44 @@ export function FlowConversation({
             model_id: (row as any).model_id || null,
             created_at: row.created_at || new Date().toISOString(),
           };
-          setSpeeches((prev) => [...prev, speechRow]);
+          setSpeeches((prev) => {
+            // If this is a temp speech, just add it
+            if (row.id.startsWith("temp-")) {
+              return [...prev, speechRow];
+            }
+
+            // For real speeches, check if we need to replace a temp one
+            // For user messages: match by author
+            // For AI messages: match by model_id (AI messages don't have author)
+            const tempIndex = prev.findIndex((s) => {
+              if (!s.id.startsWith("temp-")) return false;
+              if (speechRow.author) {
+                // User message: match by author
+                return s.author === speechRow.author;
+              } else {
+                // AI message: match by model_id (both should have it)
+                return s.model_id && speechRow.model_id && s.model_id === speechRow.model_id;
+              }
+            });
+
+            if (tempIndex !== -1) {
+              // Replace temp speech with real one
+              const updated = [...prev];
+              updated[tempIndex] = speechRow;
+              return updated;
+            }
+
+            // Check if speech already exists (by ID) - update it instead of adding duplicate
+            const existingIndex = prev.findIndex((s) => s.id === speechRow.id);
+            if (existingIndex !== -1) {
+              const updated = [...prev];
+              updated[existingIndex] = speechRow;
+              return updated;
+            }
+
+            // New speech, add it
+            return [...prev, speechRow];
+          });
         }}
         onLoadingChange={(loading) => {
           setIsAILoading(loading);
@@ -173,6 +214,7 @@ export function FlowConversation({
           }
         }}
         onStreamingContent={setStreamingContent}
+        onStatusChange={setAiStatus}
       />
     </div>
   );

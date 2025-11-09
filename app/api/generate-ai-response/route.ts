@@ -157,85 +157,34 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                 return "";
             }
 
-            // Format only the first (best) ICP as markdown
+            // Format only the first (best) ICP as a component
             const bestICP = icpData.icps[0];
-            let icpMarkdown = `# Ideal Customer Profile (ICP)\n\n`;
 
-            // Add summary
-            if (icpData.summary) {
-                icpMarkdown += `## Business Overview\n\n`;
-                if (icpData.summary.businessDescription) {
-                    icpMarkdown += `${icpData.summary.businessDescription}\n\n`;
+            // Create ICP card component JSON
+            const icpComponent = {
+                type: "icp-card",
+                props: {
+                    personaName: bestICP.personaName || "",
+                    personaRole: bestICP.personaRole || "",
+                    personaCompany: bestICP.personaCompany || "",
+                    location: bestICP.location || "",
+                    country: bestICP.country || "",
+                    title: bestICP.title || "",
+                    description: bestICP.description || "",
+                    painPoints: bestICP.painPoints || [],
+                    fitScore: 90, // Default fit score
+                    profilesFound: 12, // Default profiles found
                 }
-                if (icpData.summary.targetMarket) {
-                    icpMarkdown += `**Target Market:** ${icpData.summary.targetMarket}\n\n`;
-                }
-                if (icpData.summary.painPointsWithMetrics && icpData.summary.painPointsWithMetrics.length > 0) {
-                    icpMarkdown += `### Key Pain Points\n\n`;
-                    icpData.summary.painPointsWithMetrics.forEach((pp: any) => {
-                        icpMarkdown += `- **${pp.pain}** — ${pp.metric}\n`;
-                    });
-                    icpMarkdown += `\n`;
-                }
-                if (icpData.summary.opportunityMultiplier) {
-                    icpMarkdown += `**Growth Opportunity:** ${icpData.summary.opportunityMultiplier}x multiplier when targeting the right customer profile\n\n`;
-                }
-                icpMarkdown += `---\n\n`;
-            }
+            };
 
-            // Add the best ICP
-            icpMarkdown += `## ${bestICP.title}\n\n`;
-            icpMarkdown += `${bestICP.description}\n\n`;
+            // Format as component tag
+            const icpContent = `<component>${JSON.stringify(icpComponent)}</component>`;
 
-            icpMarkdown += `### Persona\n\n`;
-            icpMarkdown += `- **Name:** ${bestICP.personaName}\n`;
-            icpMarkdown += `- **Role:** ${bestICP.personaRole}\n`;
-            icpMarkdown += `- **Company:** ${bestICP.personaCompany}\n`;
-            icpMarkdown += `- **Location:** ${bestICP.location}, ${bestICP.country}\n\n`;
+            // Stream the ICP component
+            // Note: Don't save here - AIComposer.tsx will save the full response after streaming
+            controller.enqueue(encoder.encode(icpContent));
 
-            if (bestICP.painPoints && bestICP.painPoints.length > 0) {
-                icpMarkdown += `### Pain Points\n\n`;
-                bestICP.painPoints.forEach((pain: string) => {
-                    icpMarkdown += `- ${pain}\n`;
-                });
-                icpMarkdown += `\n`;
-            }
-
-            if (bestICP.goals && bestICP.goals.length > 0) {
-                icpMarkdown += `### Goals\n\n`;
-                bestICP.goals.forEach((goal: string) => {
-                    icpMarkdown += `- ${goal}\n`;
-                });
-                icpMarkdown += `\n`;
-            }
-
-            if (bestICP.demographics) {
-                icpMarkdown += `### Demographics\n\n${bestICP.demographics}\n\n`;
-            }
-
-            // Stream the ICP markdown
-            controller.enqueue(encoder.encode(icpMarkdown));
-
-            // Save ICP markdown as speech if flowId is provided
-            if (flowId && req) {
-                try {
-                    const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
-                    const createReq = new NextRequest(req.url, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            content: icpMarkdown,
-                            flowId: flowId,
-                            modelCode: "gpt-4o-mini",
-                        }),
-                    });
-                    await createSpeech(createReq);
-                } catch (saveError) {
-                    console.error("Error saving ICP markdown:", saveError);
-                }
-            }
-
-            return icpMarkdown;
+            return icpContent;
         } catch (streamError) {
             if (streamError instanceof Error) {
                 if (streamError.message.includes('timeout') || streamError.name === 'AbortError') {
@@ -293,56 +242,6 @@ const tools = [
                     },
                 },
                 required: ["content"],
-            },
-        },
-    },
-    {
-        type: "function" as const,
-        function: {
-            name: "generate_value_prop",
-            description: "Generate value propositions based on ICP and website info. Use after generating ICPs.",
-            parameters: {
-                type: "object",
-                properties: {
-                    icp: {
-                        type: "object",
-                        description: "ICP object with title, description, painPoints, goals, demographics",
-                    },
-                    websiteUrl: {
-                        type: "string",
-                        description: "The website URL being analyzed",
-                    },
-                    factsJson: {
-                        type: "object",
-                        description: "Optional structured facts JSON from website analysis",
-                    },
-                },
-                required: ["icp", "websiteUrl"],
-            },
-        },
-    },
-    {
-        type: "function" as const,
-        function: {
-            name: "generate_email_sequence",
-            description: "Generate an email sequence for outreach. Use when user asks for email campaigns or sequences.",
-            parameters: {
-                type: "object",
-                properties: {
-                    icp: {
-                        type: "object",
-                        description: "ICP object",
-                    },
-                    websiteUrl: {
-                        type: "string",
-                        description: "The website URL",
-                    },
-                    factsJson: {
-                        type: "object",
-                        description: "Optional structured facts JSON",
-                    },
-                },
-                required: ["icp", "websiteUrl"],
             },
         },
     },
@@ -440,84 +339,33 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         return JSON.stringify({ error: "Could not generate ICPs from website content" });
                     }
 
-                    // Format only the first (best) ICP as markdown
+                    // Format only the first (best) ICP as a component
                     const bestICP = icpData.icps[0];
-                    let icpMarkdown = `# Ideal Customer Profile (ICP)\n\n`;
 
-                    // Add summary
-                    if (icpData.summary) {
-                        icpMarkdown += `## Business Overview\n\n`;
-                        if (icpData.summary.businessDescription) {
-                            icpMarkdown += `${icpData.summary.businessDescription}\n\n`;
+                    // Create ICP card component JSON
+                    const icpComponent = {
+                        type: "icp-card",
+                        props: {
+                            personaName: bestICP.personaName || "",
+                            personaRole: bestICP.personaRole || "",
+                            personaCompany: bestICP.personaCompany || "",
+                            location: bestICP.location || "",
+                            country: bestICP.country || "",
+                            title: bestICP.title || "",
+                            description: bestICP.description || "",
+                            painPoints: bestICP.painPoints || [],
+                            fitScore: 90, // Default fit score
+                            profilesFound: 12, // Default profiles found
                         }
-                        if (icpData.summary.targetMarket) {
-                            icpMarkdown += `**Target Market:** ${icpData.summary.targetMarket}\n\n`;
-                        }
-                        if (icpData.summary.painPointsWithMetrics && icpData.summary.painPointsWithMetrics.length > 0) {
-                            icpMarkdown += `### Key Pain Points\n\n`;
-                            icpData.summary.painPointsWithMetrics.forEach((pp: any) => {
-                                icpMarkdown += `- **${pp.pain}** — ${pp.metric}\n`;
-                            });
-                            icpMarkdown += `\n`;
-                        }
-                        if (icpData.summary.opportunityMultiplier) {
-                            icpMarkdown += `**Growth Opportunity:** ${icpData.summary.opportunityMultiplier}x multiplier when targeting the right customer profile\n\n`;
-                        }
-                        icpMarkdown += `---\n\n`;
-                    }
+                    };
 
-                    // Add the best ICP
-                    icpMarkdown += `## ${bestICP.title}\n\n`;
-                    icpMarkdown += `${bestICP.description}\n\n`;
+                    // Format as component tag
+                    const icpContent = `<component>${JSON.stringify(icpComponent)}</component>`;
 
-                    icpMarkdown += `### Persona\n\n`;
-                    icpMarkdown += `- **Name:** ${bestICP.personaName}\n`;
-                    icpMarkdown += `- **Role:** ${bestICP.personaRole}\n`;
-                    icpMarkdown += `- **Company:** ${bestICP.personaCompany}\n`;
-                    icpMarkdown += `- **Location:** ${bestICP.location}, ${bestICP.country}\n\n`;
-
-                    if (bestICP.painPoints && bestICP.painPoints.length > 0) {
-                        icpMarkdown += `### Pain Points\n\n`;
-                        bestICP.painPoints.forEach((pain: string) => {
-                            icpMarkdown += `- ${pain}\n`;
-                        });
-                        icpMarkdown += `\n`;
-                    }
-
-                    if (bestICP.goals && bestICP.goals.length > 0) {
-                        icpMarkdown += `### Goals\n\n`;
-                        bestICP.goals.forEach((goal: string) => {
-                            icpMarkdown += `- ${goal}\n`;
-                        });
-                        icpMarkdown += `\n`;
-                    }
-
-                    if (bestICP.demographics) {
-                        icpMarkdown += `### Demographics\n\n${bestICP.demographics}\n\n`;
-                    }
-
-                    // Stream ICP markdown if controller and encoder are provided
+                    // Stream ICP component if controller and encoder are provided
+                    // Note: Don't save here - AIComposer.tsx will save the full response after streaming
                     if (controller && encoder) {
-                        controller.enqueue(encoder.encode(icpMarkdown));
-                    }
-
-                    // Save ICP markdown as speech if flowId is provided
-                    if (flowId) {
-                        try {
-                            const { POST: createSpeech } = await import("@/app/api/create-ai-speech/route");
-                            const createReq = new NextRequest(req.url, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    content: icpMarkdown,
-                                    flowId: flowId,
-                                    modelCode: "gpt-4o-mini",
-                                }),
-                            });
-                            await createSpeech(createReq);
-                        } catch (saveError) {
-                            console.error("Error saving ICP markdown:", saveError);
-                        }
+                        controller.enqueue(encoder.encode(icpContent));
                     }
 
                     // Return structured summary for AI processing
@@ -627,6 +475,14 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
     }
 }
 
+// Helper function to send status updates
+function sendStatus(controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, status: string) {
+    // Only send status if it's not empty - empty status means clear/remove status
+    if (status.trim()) {
+        controller.enqueue(encoder.encode(`STATUS:${status}\n`));
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
         const { message, flowId } = await req.json() as { message?: string; flowId?: string };
@@ -638,13 +494,14 @@ export async function POST(req: NextRequest) {
         const readableStream = new ReadableStream({
             async start(controller) {
                 try {
+                    // Step 1: Analyze user prompt to see what it's asking for
+                    sendStatus(controller, encoder, "Thinking");
+
                     // Detect URLs in the message
                     const urls = detectUrls(message);
-                    const scrapedContents: Array<{ url: string; content: string }> = [];
-                    const scrapedUrls = new Set<string>(); // Track which URLs were already scraped
-
-                    // Check if prompt mentions scraping requirements
                     const lowerMessage = message.toLowerCase();
+
+                    // Analyze what tools might be needed
                     const needsScraping =
                         urls.length > 0 ||
                         lowerMessage.includes('scrape') ||
@@ -652,21 +509,102 @@ export async function POST(req: NextRequest) {
                         lowerMessage.includes('get content from') ||
                         lowerMessage.includes('fetch from url') ||
                         lowerMessage.includes('read from url') ||
-                        lowerMessage.includes('extract from url');
+                        lowerMessage.includes('extract from url') ||
+                        lowerMessage.includes('analyze website') ||
+                        lowerMessage.includes('website url');
+
+                    const needsICP =
+                        lowerMessage.includes('icp') ||
+                        lowerMessage.includes('ideal customer') ||
+                        lowerMessage.includes('customer profile');
+
+                    const needsValueProp =
+                        lowerMessage.includes('value prop') ||
+                        lowerMessage.includes('value proposition');
+
+                    const needsEmail =
+                        lowerMessage.includes('email') ||
+                        lowerMessage.includes('outreach');
+
+                    const needsLinkedIn =
+                        lowerMessage.includes('linkedin') ||
+                        lowerMessage.includes('linked in');
+
+                    // Step 2: Check if required tools exist
+                    const requiredTools: string[] = [];
+                    if (needsScraping && urls.length > 0) {
+                        requiredTools.push("Crawler");
+                    }
+                    if (needsICP) {
+                        requiredTools.push("Analyst");
+                    }
+                    if (needsValueProp) {
+                        requiredTools.push("generate_value_prop");
+                    }
+                    if (needsEmail) {
+                        requiredTools.push("generate_email_sequence");
+                    }
+                    if (needsLinkedIn) {
+                        requiredTools.push("generate_linkedin_outreach");
+                    }
+
+                    // Check if tools exist
+                    const availableToolNames = tools.map(t => t.function.name);
+                    const missingTools = requiredTools.filter(tool => !availableToolNames.includes(tool));
+
+                    if (missingTools.length > 0) {
+                        // Tool doesn't exist - show apology
+                        sendStatus(controller, encoder, "");
+                        const apology = `I apologize, but I don't have access to the following tools: ${missingTools.join(", ")}. Please try a different request or contact support if you need these features.`;
+                        controller.enqueue(encoder.encode(apology));
+                        controller.close();
+                        return;
+                    }
+
+                    // Step 3: Execute tools if needed
+                    const scrapedContents: Array<{ url: string; content: string }> = [];
+                    const scrapedUrls = new Set<string>();
 
                     // If URLs detected or scraping mentioned, scrape them
+                    let hasICPComponent = false;
                     if (needsScraping && urls.length > 0) {
+                        sendStatus(controller, encoder, "Scraping data");
                         for (const url of urls) {
                             const content = await scrapeUrl(url, controller, encoder, flowId, req);
                             if (content) {
                                 scrapedContents.push({ url, content });
-                                scrapedUrls.add(url); // Track that this URL was scraped
+                                scrapedUrls.add(url);
+                                // Check if ICP component was generated
+                                if (content.includes("<component>") && content.includes('"type":"icp-card"')) {
+                                    hasICPComponent = true;
+                                }
                             }
+                        }
+
+                        // If ICP component was generated, close stream immediately (no additional AI text needed)
+                        if (hasICPComponent) {
+                            sendStatus(controller, encoder, "");
+                            controller.close();
+                            return;
                         }
                     } else if (needsScraping && urls.length === 0) {
                         // User wants scraping but no URL provided
+                        sendStatus(controller, encoder, "");
                         controller.enqueue(encoder.encode("\n[Please provide a URL to scrape]\n\n"));
+                        controller.close();
+                        return;
                     }
+
+                    // Step 4: Generate AI response (only if we haven't already closed the stream)
+                    // Skip AI call entirely if ICP component was already generated to save tokens
+                    if (hasICPComponent) {
+                        // Already closed stream above, but double-check
+                        sendStatus(controller, encoder, "");
+                        controller.close();
+                        return;
+                    }
+
+                    sendStatus(controller, encoder, "Generating response");
 
                     // Build system message with scraped content context
                     let systemContent = `You are a helpful AI assistant with access to tools for analyzing websites and generating content.
@@ -679,30 +617,35 @@ Available tools:
 - generate_one_time_email: Generate a single email
 - generate_linkedin_outreach: Generate LinkedIn outreach content
 
-IMPORTANT: When a URL is provided and scraped, Ideal Customer Profiles (ICPs) are AUTOMATICALLY generated and displayed in the response above. You do NOT need to generate ICPs again - they are already available in the conversation.
+IMPORTANT: When a URL is provided and scraped, Ideal Customer Profiles (ICPs) are AUTOMATICALLY generated and displayed as interactive card components.
+
+CRITICAL RULES FOR ICP RESPONSES:
+1. When ICPs are generated and displayed as card components, DO NOT add any additional text, explanations, or summaries after the component
+2. The ICP card component is self-contained and includes action buttons - no additional commentary is needed
+3. If you see an ICP component in the conversation, DO NOT add text like "Here are the details:" or "The ICPs have been generated" - the component speaks for itself
+4. Only generate the ICP component and stop - do not add any follow-up text
 
 CRITICAL: Do NOT call the Crawler tool if URLs have already been scraped. The ICPs are already generated and displayed above.
 
 When a user asks you to analyze a website or generate content:
-1. If URLs were already scraped (you'll see ICPs displayed above), DO NOT call the Crawler tool - just acknowledge the ICPs
-2. If ICPs are already displayed above, acknowledge them and offer to generate value props, emails, or LinkedIn content
+1. If URLs were already scraped (you'll see ICPs displayed above), DO NOT call the Crawler tool
+2. If ICPs are already displayed as components, DO NOT add any text - just let the component be displayed
 3. Only use tools if the user explicitly asks for something that hasn't been generated yet
 
-Always acknowledge what has already been generated and offer next steps based on the available ICPs.`;
+Remember: ICP components are complete and self-explanatory - no additional text is needed.`;
 
                     // Add scraped content to context if available
                     if (scrapedContents.length > 0) {
-                        systemContent += `\n\n**IMPORTANT CONTEXT:**\nThe following URLs have been scraped and Ideal Customer Profiles (ICPs) have ALREADY been generated and displayed above:\n`;
+                        systemContent += `\n\n**IMPORTANT CONTEXT:**\nThe following URLs have been scraped and Ideal Customer Profiles (ICPs) have ALREADY been generated and displayed as card components above:\n`;
                         scrapedContents.forEach(({ url, content }) => {
-                            // Check if content contains ICPs (starts with "# Ideal Customer Profiles")
-                            const hasICPs = content.includes("# Ideal Customer Profiles") || content.includes("Ideal Customer Profile");
+                            const hasICPs = content.includes("<component>") && content.includes('"type":"icp-card"');
                             if (hasICPs) {
-                                systemContent += `\n- ${url}: ICPs have been generated and are shown in the response above. Do NOT try to generate ICPs again.\n`;
+                                systemContent += `\n- ${url}: ICPs have been generated and are shown as interactive card components above. The cards include action buttons. DO NOT add any text, explanations, or summaries - the component is complete.\n`;
                             } else {
                                 systemContent += `\n- ${url}: Content scraped (${content.substring(0, 200)}${content.length > 200 ? '...' : ''})\n`;
                             }
                         });
-                        systemContent += `\nThe ICPs are already displayed in the conversation above. Acknowledge them and offer to help with next steps like generating value propositions, email sequences, or LinkedIn content.`;
+                        systemContent += `\nCRITICAL: When ICP components are displayed, DO NOT add any follow-up text. The component is self-contained with action buttons. Just let it be displayed without any additional commentary.`;
                     }
 
                     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -714,16 +657,24 @@ Always acknowledge what has already been generated and offer next steps based on
                     ];
 
                     let iteration = 0;
-                    const maxIterations = 5; // Prevent infinite loops
+                    const maxIterations = 5;
+
+                    // Clear status before streaming content
+                    sendStatus(controller, encoder, "");
 
                     while (iteration < maxIterations) {
+                        // If we already have ICP components in scraped content, use strict format to prevent extra text
+                        const hasICPsInContext = scrapedContents.some(({ content }) =>
+                            content.includes("<component>") && content.includes('"type":"icp-card"')
+                        );
+
                         const stream = await openai.chat.completions.create({
                             model: "gpt-4o-mini",
                             messages,
                             tools,
                             tool_choice: "auto",
-                            temperature: 0.7,
-                            max_tokens: 1000,
+                            temperature: 0.3, // Lower temperature for more deterministic output
+                            max_tokens: hasICPsInContext ? 50 : 1000, // Very low token limit if ICPs already exist
                             stream: true,
                         });
 
@@ -755,10 +706,23 @@ Always acknowledge what has already been generated and offer next steps based on
                             }
                         }
 
-                        // If we got content but no tool calls, we're done
+                        // If we got content but no tool calls, check if we should suppress it
                         if (toolCalls.length === 0) {
                             if (accumulatedContent) {
-                                // Final response, we're done
+                                // Check if we have ICP components in context - if so, suppress any additional text
+                                const hasICPsInContext = scrapedContents.some(({ content }) =>
+                                    content.includes("<component>") && content.includes('"type":"icp-card"')
+                                );
+
+                                // If ICP components exist, don't stream any additional text
+                                if (hasICPsInContext) {
+                                    // Suppress the content - ICP component is already displayed
+                                    controller.close();
+                                    return;
+                                }
+
+                                // Regular content without ICPs, stream it
+                                controller.enqueue(encoder.encode(accumulatedContent));
                                 controller.close();
                                 return;
                             }
@@ -781,10 +745,19 @@ Always acknowledge what has already been generated and offer next steps based on
                                     functionArgs = {};
                                 }
 
-                                // Skip duplicate scraping message if URL was already scraped
-                                // (Don't show tool usage messages)
+                                // Update status based on tool being used
+                                if (functionName === "Crawler") {
+                                    sendStatus(controller, encoder, "Scraping data");
+                                } else if (functionName === "Analyst") {
+                                    sendStatus(controller, encoder, "Analyzing content");
+                                } else if (functionName.startsWith("generate_")) {
+                                    sendStatus(controller, encoder, "Generating content");
+                                }
 
                                 const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls);
+
+                                // Clear status after tool execution
+                                sendStatus(controller, encoder, "");
 
                                 messages.push({
                                     role: "tool",
@@ -793,13 +766,9 @@ Always acknowledge what has already been generated and offer next steps based on
                                 } as any);
                             }
 
-                            // Reset accumulated content for next iteration
                             accumulatedContent = "";
-
-                            // Continue the loop to get the final response with tool results
                             iteration++;
                         } else {
-                            // No tool calls and no content means stream ended
                             controller.close();
                             return;
                         }
