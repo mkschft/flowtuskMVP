@@ -5,6 +5,12 @@ export async function proxy(request: NextRequest) {
   // Demo mode bypass for public access
   const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
   
+  // Allow demo routes without authentication
+  if (request.nextUrl.pathname.startsWith('/demo')) {
+    const { NextResponse } = await import("next/server");
+    return NextResponse.next();
+  }
+  
   // Allow demo mode for /app route if enabled
   if (isDemoMode && request.nextUrl.pathname.startsWith('/app')) {
     // Let demo users through without auth
