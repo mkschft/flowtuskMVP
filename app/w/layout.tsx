@@ -1,11 +1,21 @@
 import { WorkflowsNavbar } from "@/components/workflows-navbar";
 import { WorkflowsChat } from "@/components/WorkflowsChat";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function WLayout({
+export default async function WLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Redirect to login if not authenticated
+    if (!user) {
+        redirect("/auth/login");
+    }
+
     return (
         <div className="flex h-screen w-full overflow-hidden flex-col">
             <WorkflowsNavbar />
