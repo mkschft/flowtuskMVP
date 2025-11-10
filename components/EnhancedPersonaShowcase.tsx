@@ -76,7 +76,7 @@ type EnhancedPersona = {
 };
 
 type EnhancedPersonaShowcaseProps = {
-  persona: EnhancedPersona;
+  persona?: EnhancedPersona;
   onPersonalityChange?: (traitId: string, value: number) => void;
   onMotivationChange?: (motivationId: string, weight: number) => void;
   onRegenerate?: (persona: EnhancedPersona) => void;
