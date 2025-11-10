@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowUp, User, Bot } from "lucide-react";
+import { ArrowUp, User, Bot, ArrowLeft } from "lucide-react";
 
 type Message = {
   id: string;
@@ -18,12 +19,28 @@ export function WorkflowsChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sourceFlowId, setSourceFlowId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    // Read the flowId from localStorage
+    const storedFlowId = localStorage.getItem("workflows_source_flow");
+    setSourceFlowId(storedFlowId);
+  }, []);
+
+  const handleBack = () => {
+    if (sourceFlowId) {
+      router.push(`/u/flows/${sourceFlowId}`);
+    } else {
+      router.push("/u/prospects");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,29 +73,35 @@ export function WorkflowsChat() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Chat header */}
-      <div className="border-b p-4 shrink-0">
-        <h2 className="text-lg font-semibold">Chat</h2>
-        <p className="text-sm text-muted-foreground">Ask questions about this persona</p>
+      {/* Workspace header */}
+      <div className="border-b p-4 shrink-0 h-14 flex items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBack}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Flows</span>
+        </Button>
       </div>
 
       {/* Messages area */}
       <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+        <div className={messages.length === 0 ? "flex items-center justify-center h-full min-h-[400px]" : "space-y-4"}>
           {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+            <div className="flex items-center justify-center text-center text-muted-foreground">
               <div className="space-y-2">
-                <p className="text-sm">No messages yet</p>
-                <p className="text-xs">Start a conversation about this persona</p>
+                <p className="text-sm">No Activity yet</p>
+                {/* <p className="text-xs">Create Persona targeted campaigns, run analysis, etc.</p> */}
               </div>
             </div>
           ) : (
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex items-start gap-3 ${
-                  message.role === "user" ? "flex-row-reverse" : "flex-row"
-                }`}
+                className={`flex items-start gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"
+                  }`}
               >
                 <Avatar className="size-8 shrink-0">
                   <AvatarFallback
@@ -96,11 +119,10 @@ export function WorkflowsChat() {
                   </AvatarFallback>
                 </Avatar>
                 <div
-                  className={`rounded-lg border p-3 max-w-[80%] ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
+                  className={`rounded-lg border p-3 max-w-[80%] ${message.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted"
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-wrap break-words">
                     {message.content}
@@ -133,7 +155,7 @@ export function WorkflowsChat() {
       <div className="border-t p-4 shrink-0">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Textarea
-            placeholder="Ask a question..."
+            placeholder="Create a style guide . . ."
             className="h-[60px] resize-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}

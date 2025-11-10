@@ -2,15 +2,59 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Bell, CreditCard, LogOut, Sparkles, Sun, Moon, Laptop, Share2, Download } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { createClient } from "@/lib/supabase/client";
+import { useWorkflowTab } from "@/app/w/context";
 
-export function WorkflowsNavbar() {
+function getInitials(text: string): string {
+  if (!text) return "?";
+  const cleaned = text.trim();
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  const letters = cleaned.replace(/[^a-zA-Z]/g, "");
+  return (letters.slice(0, 2) || cleaned.slice(0, 2)).toUpperCase();
+}
+
+export function WorkflowsNavbar({
+  user,
+}: {
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+}) {
   const [sourceFlowId, setSourceFlowId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
+  const { activeTab, setActiveTab } = useWorkflowTab();
+  const initials = getInitials(user?.name || user?.email);
+  const ICON_SIZE = 16;
 
   useEffect(() => {
-    // Read the flowId from localStorage
+    setMounted(true);
     const storedFlowId = localStorage.getItem("workflows_source_flow");
     setSourceFlowId(storedFlowId);
   }, []);
@@ -19,23 +63,146 @@ export function WorkflowsNavbar() {
     if (sourceFlowId) {
       router.push(`/u/flows/${sourceFlowId}`);
     } else {
-      // Fallback to dashboard or home if no flowId stored
       router.push("/u/prospects");
     }
   };
 
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between px-4 gap-4">
+        <h2 className="text-lg font-semibold">Workspace</h2>
+
+        <ToggleGroup
+          type="single"
+          value={activeTab}
+          onValueChange={(value) => {
+            if (value) setActiveTab(value as typeof activeTab);
+          }}
+          className="flex-1 justify-end"
+          variant="outline"
+          size="default"
+        >
+          <ToggleGroupItem value="value-proposition" aria-label="Value Proposition" className="text-xs px-2 h-7">
+            Value Proposition
+          </ToggleGroupItem>
+          <ToggleGroupItem value="brand-dna" aria-label="Brand DNA" className="text-xs px-2 h-7">
+            Brand DNA
+          </ToggleGroupItem>
+          <ToggleGroupItem value="suggested-campaigns" aria-label="Suggested Campaigns" className="text-xs px-2 h-7">
+            Suggested Campaigns
+          </ToggleGroupItem>
+          <ToggleGroupItem value="design" aria-label="Design" className="text-xs px-2 h-7">
+            Design
+          </ToggleGroupItem>
+        </ToggleGroup>
+
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleBack}
-          className="flex items-center gap-2"
+          className="h-7 px-2 gap-1.5"
+          aria-label="Share"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Flows</span>
+          <Share2 className="h-4 w-4" />
+          <span className="text-xs">Share</span>
         </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 gap-1.5"
+          aria-label="Export"
+        >
+          <Download className="h-4 w-4" />
+          <span className="text-xs">Export</span>
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-9 w-9 p-0"
+            >
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-56 rounded-lg"
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate text-xs">{user.email}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Sparkles />
+                Upgrade to Pro
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <BadgeCheck />
+                Account
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCard />
+                Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            {mounted && (
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={theme}
+                  onValueChange={(value) => setTheme(value)}
+                >
+                  <DropdownMenuRadioItem value="light" className="gap-2">
+                    <Sun size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>Light</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark" className="gap-2">
+                    <Moon size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>Dark</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system" className="gap-2">
+                    <Laptop size={ICON_SIZE} className="text-muted-foreground" />
+                    <span>System</span>
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );
