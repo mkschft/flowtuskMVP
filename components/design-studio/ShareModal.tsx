@@ -17,7 +17,7 @@ import { Link, Code, FileDown, Copy, Check, CheckCircle2 } from "lucide-react";
 type ShareModalProps = {
   open: boolean;
   onClose: () => void;
-  onCopy: (message: string, type: "success" | "info") => void;
+  onCopy: (message: string, type?: "success" | "info" | "download" | "link") => void;
   projectName: string;
 };
 
