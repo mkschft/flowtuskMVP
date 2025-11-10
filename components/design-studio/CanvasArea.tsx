@@ -8,7 +8,7 @@ import { StyleGuideCanvas } from "./StyleGuideCanvas";
 import { LandingCanvas } from "./LandingCanvas";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Sparkles, Palette, Layout, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
