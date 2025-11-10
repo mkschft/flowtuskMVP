@@ -934,7 +934,7 @@ function ChatPageContent() {
         title: conversation.title,
         website_url: conversation.memory.websiteUrl,
         facts_json: conversation.memory.factsJson,
-        selected_icp: conversation.memory.selectedIcp,
+        selected_icp: conversation.memory.selectedIcp ?? undefined,
         generated_content: {
           messages: conversation.messages,
           generationState: conversation.generationState,
