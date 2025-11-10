@@ -16,18 +16,23 @@ type CanvasAreaProps = {
   project: DesignProject;
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
+  onExport: (format: string, message: string) => void;
+  onShare: () => void;
 };
 
 export function CanvasArea({
   project,
   activeTab,
   onTabChange,
+  onExport,
+  onShare,
 }: CanvasAreaProps) {
   return (
     <div className="flex-1 flex flex-col bg-muted/30">
-      {/* Main Navigation - Segmented Control Style */}
-      <div className="flex items-center justify-center gap-3 p-4 border-b bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <div className="flex items-center gap-1 bg-background rounded-lg p-1 border">
+      {/* Top Navigation Bar */}
+      <div className="flex items-center justify-between gap-3 px-6 py-3 border-b bg-background">
+        {/* Left: Tab Navigation - Segmented Control Style */}
+        <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
           <Button
             variant="ghost"
             size="sm"
@@ -35,8 +40,8 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "value-prop"
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                : ""
+                ? "bg-background text-purple-600 shadow-sm"
+                : "text-muted-foreground"
             )}
           >
             <Sparkles className="w-3 h-3" />
@@ -49,8 +54,8 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "brand"
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                : ""
+                ? "bg-background text-purple-600 shadow-sm"
+                : "text-muted-foreground"
             )}
           >
             <Palette className="w-3 h-3" />
@@ -63,8 +68,8 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "style"
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                : ""
+                ? "bg-background text-purple-600 shadow-sm"
+                : "text-muted-foreground"
             )}
           >
             <Layout className="w-3 h-3" />
@@ -77,14 +82,17 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "landing"
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                : ""
+                ? "bg-background text-purple-600 shadow-sm"
+                : "text-muted-foreground"
             )}
           >
             <Globe className="w-3 h-3" />
             Landing
           </Button>
         </div>
+
+        {/* Right: Toolbar with Team & Actions */}
+        <ToolBar activeTab={activeTab} onExport={onExport} onShare={onShare} />
       </div>
 
       {/* Canvas Content - Scrollable */}
@@ -106,9 +114,6 @@ export function CanvasArea({
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Tool Bar */}
-      <ToolBar />
     </div>
   );
 }

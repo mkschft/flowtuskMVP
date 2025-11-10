@@ -3,16 +3,16 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ValuePropTable } from "./ValuePropTable";
 import { 
-  AlertCircle, 
-  CheckCircle, 
-  TrendingUp, 
-  Target, 
   Check, 
   Copy,
-  ArrowRight,
   MapPin,
-  Sparkles
+  Sparkles,
+  Target,
+  Zap,
+  CheckCircle,
+  Rocket
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import { useState } from "react";
@@ -123,203 +123,66 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
         </div>
       </Card>
 
-      {/* Pains & Gains */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Pains */}
-        <Card className="p-6 border-2 border-red-200 dark:border-red-800 bg-background">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <h3 className="font-bold text-xl">Pains</h3>
-          </div>
-          
-          <div className="space-y-4">
-            {/* Problem Statement */}
-            <div className="group relative p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-              <p className="text-sm text-foreground leading-relaxed font-medium mb-2">
-                Current State
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {valueProp.problem}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleCopy(valueProp.problem, "problem")}
-              >
-                {copiedId === "problem" ? (
-                  <Check className="w-3 h-3" />
-                ) : (
-                  <Copy className="w-3 h-3" />
-                )}
-              </Button>
-            </div>
-
-            {/* Pain Points List */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Specific Pain Points
-              </p>
-              {[
-                "15+ hours weekly on manual tasks",
-                "Difficulty hiring qualified staff",
-                "Manual data entry leading to errors",
-                "Scattered client communication"
-              ].map((pain, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
-                >
-                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm flex-1">{pain}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                    onClick={() => handleCopy(pain, `pain-${idx}`)}
-                  >
-                    {copiedId === `pain-${idx}` ? (
-                      <Check className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Gains */}
-        <Card className="p-6 border-2 border-green-200 dark:border-green-800 bg-background">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            <h3 className="font-bold text-xl">Gains</h3>
-          </div>
-          
-          <div className="space-y-4">
-            {/* Outcome Statement */}
-            <div className="group relative p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
-              <p className="text-sm text-foreground leading-relaxed font-medium mb-2">
-                Desired Outcome
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {valueProp.outcome}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleCopy(valueProp.outcome, "outcome")}
-              >
-                {copiedId === "outcome" ? (
-                  <Check className="w-3 h-3" />
-                ) : (
-                  <Copy className="w-3 h-3" />
-                )}
-              </Button>
-            </div>
-
-            {/* Benefits List */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Key Benefits
-              </p>
-              {valueProp.benefits.map((benefit, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
-                >
-                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm flex-1">{benefit}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                    onClick={() => handleCopy(benefit, `benefit-${idx}`)}
-                  >
-                    {copiedId === `benefit-${idx}` ? (
-                      <Check className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Solution How */}
-      <Card className="p-6 border-2 border-blue-200 dark:border-blue-800 bg-background group relative">
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle className="w-5 h-5 text-blue-600" />
-          <h3 className="font-bold text-lg">How It Works</h3>
-        </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {valueProp.solution}
-        </p>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={() => handleCopy(valueProp.solution, "solution")}
-        >
-          {copiedId === "solution" ? (
-            <Check className="w-3 h-3" />
-          ) : (
-            <Copy className="w-3 h-3" />
-          )}
-        </Button>
-      </Card>
-
-      {/* Target Audience */}
+      {/* Value Prop Table */}
       <Card className="p-6 bg-background border-2">
-        <div className="flex items-center gap-2 mb-4">
-          <Target className="w-5 h-5 text-pink-600" />
-          <h3 className="font-bold text-lg">Target Audience</h3>
-        </div>
-        <div className="group relative">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {valueProp.targetAudience}
+        <div className="mb-4">
+          <h3 className="text-lg font-bold mb-1">Value Proposition Framework</h3>
+          <p className="text-sm text-muted-foreground">
+            Click any row to copy the content
           </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => handleCopy(valueProp.targetAudience, "audience")}
-          >
-            {copiedId === "audience" ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Copy className="w-4 h-4" />
-            )}
-          </Button>
         </div>
+        <ValuePropTable
+          rows={[
+            {
+              icon: <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              label: "Who",
+              content: valueProp.targetAudience,
+            },
+            {
+              icon: <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              label: "Pain",
+              content: valueProp.problem,
+            },
+            {
+              icon: <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              label: "Solution",
+              content: valueProp.solution,
+            },
+            {
+              icon: <Rocket className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              label: "Why Us",
+              content: valueProp.outcome,
+            },
+          ]}
+        />
       </Card>
 
-      {/* CTA Suggestions */}
-      <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2">
-        <div className="flex items-center gap-2 mb-4">
-          <ArrowRight className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-lg">Suggested CTAs</h3>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {valueProp.ctaSuggestions.map((cta, idx) => (
-            <Button
+      {/* Key Benefits */}
+      <Card className="p-6 bg-background border-2">
+        <h3 className="font-bold text-lg mb-4">Key Benefits</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {valueProp.benefits.map((benefit, idx) => (
+            <div
               key={idx}
-              variant="outline"
-              className="gap-2"
-              onClick={() => handleCopy(cta, `cta-${idx}`)}
+              className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border group relative hover:bg-muted transition-colors"
             >
-              {cta}
-              {copiedId === `cta-${idx}` ? (
-                <Check className="w-3 h-3" />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
-            </Button>
+              <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Check className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+              </div>
+              <p className="text-sm flex-1">{benefit}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                onClick={() => handleCopy(benefit, `benefit-${idx}`)}
+              >
+                {copiedId === `benefit-${idx}` ? (
+                  <Check className="w-3 h-3" />
+                ) : (
+                  <Copy className="w-3 h-3" />
+                )}
+              </Button>
+            </div>
           ))}
         </div>
       </Card>

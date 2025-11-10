@@ -83,20 +83,31 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               {brandGuide.colors.primary.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-${idx}`)}
+                    title="Click to copy hex code"
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    {/* Hover tooltip */}
+                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold text-white drop-shadow px-2 py-1 rounded bg-black/40">
+                        Click to copy
+                      </span>
+                    </div>
+                    {/* Copy icon */}
                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {copiedId === `color-${idx}` ? (
-                        <Check className="w-4 h-4 text-white drop-shadow" />
+                        <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs">
+                          <Check className="w-3 h-3" />
+                          Copied!
+                        </div>
                       ) : (
                         <Copy className="w-4 h-4 text-white drop-shadow" />
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold">{color.hex}</p>
+                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               ))}
@@ -112,20 +123,29 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               {brandGuide.colors.secondary.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}
+                    title="Click to copy hex code"
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold text-white drop-shadow px-2 py-1 rounded bg-black/40">
+                        Click to copy
+                      </span>
+                    </div>
                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {copiedId === `color-sec-${idx}` ? (
-                        <Check className="w-4 h-4 text-white drop-shadow" />
+                        <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs">
+                          <Check className="w-3 h-3" />
+                          Copied!
+                        </div>
                       ) : (
                         <Copy className="w-4 h-4 text-white drop-shadow" />
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold">{color.hex}</p>
+                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               ))}
@@ -141,20 +161,29 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               {brandGuide.colors.accent.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}
+                    title="Click to copy hex code"
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold text-white drop-shadow px-2 py-1 rounded bg-black/40">
+                        Click to copy
+                      </span>
+                    </div>
                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {copiedId === `color-acc-${idx}` ? (
-                        <Check className="w-4 h-4 text-white drop-shadow" />
+                        <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs">
+                          <Check className="w-3 h-3" />
+                          Copied!
+                        </div>
                       ) : (
                         <Copy className="w-4 h-4 text-white drop-shadow" />
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold">{color.hex}</p>
+                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               ))}

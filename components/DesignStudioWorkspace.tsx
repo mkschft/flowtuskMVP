@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { ChatPanel } from "@/components/design-studio/ChatPanel";
 import { CanvasArea } from "@/components/design-studio/CanvasArea";
+import { ToastContainer } from "@/components/design-studio/Toast";
+import { ShareModal } from "@/components/design-studio/ShareModal";
 import type { ChatMessage } from "@/lib/design-studio-mock-data";
 import { mockProjects } from "@/lib/design-studio-mock-data";
+import type { ToastProps } from "@/components/design-studio/Toast";
 
 export type TabType = "value-prop" | "brand" | "style" | "landing";
 
@@ -13,9 +16,31 @@ export function DesignStudioWorkspace() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
     mockProjects.saas.chatHistory
   );
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Using SaaS project as default
   const currentProject = mockProjects.saas;
+
+  const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, message, type, onClose: removeToast }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  const handleExport = (format: string, message: string) => {
+    addToast(message, "download");
+    setTimeout(() => {
+      addToast(`✓ ${format} export completed`, "success");
+    }, 1500);
+  };
+
+  const handleShare = () => {
+    setShareModalOpen(true);
+  };
 
   const handleSendMessage = (message: string) => {
     // Add user message
@@ -66,21 +91,36 @@ export function DesignStudioWorkspace() {
   };
 
   return (
-    <div className="flex h-screen w-full">
-      {/* Left: Chat Panel - Fixed Width */}
-      <ChatPanel
-        messages={chatMessages}
-        onSendMessage={handleSendMessage}
+    <>
+      <div className="flex h-screen w-full">
+        {/* Left: Chat Panel - Fixed Width */}
+        <ChatPanel
+          messages={chatMessages}
+          onSendMessage={handleSendMessage}
+          projectName={currentProject.name}
+        />
+
+        {/* Right: Canvas Area - Takes remaining space */}
+        <CanvasArea
+          project={currentProject}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onExport={handleExport}
+          onShare={handleShare}
+        />
+      </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
+      {/* Share Modal */}
+      <ShareModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        onCopy={addToast}
         projectName={currentProject.name}
       />
-
-      {/* Right: Canvas Area - Takes remaining space */}
-      <CanvasArea
-        project={currentProject}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
-    </div>
+    </>
   );
 }
 
