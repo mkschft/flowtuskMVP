@@ -24,7 +24,8 @@ import {
   Presentation,
   Share2,
   Download,
-  FileImage
+  FileImage,
+  Sparkles
 } from "lucide-react";
 
 type ICP = {
@@ -73,6 +74,7 @@ type PersonaShowcaseProps = {
   onContinue?: (persona: ICP) => void;
   onGenerateLinkedIn?: (persona: ICP) => void;
   onGenerateEmail?: (persona: ICP) => void;
+  onLaunchCopilot?: (persona: ICP) => void;
   readOnly?: boolean;
 };
 
@@ -85,6 +87,7 @@ export function PersonaShowcase({
   onContinue,
   onGenerateLinkedIn,
   onGenerateEmail,
+  onLaunchCopilot,
   readOnly = false
 }: PersonaShowcaseProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -321,6 +324,20 @@ export function PersonaShowcase({
 
                         {/* Action Buttons */}
                         <div className="pt-3 space-y-3">
+                          {/* Launch Copilot Button - Primary CTA */}
+                          {onLaunchCopilot && (
+                            <Button
+                              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onLaunchCopilot(persona);
+                              }}
+                            >
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              Launch Copilot
+                            </Button>
+                          )}
+
                           <div className="flex gap-2">
                             {/* Export Dropdown */}
                             <DropdownMenu>

@@ -17,14 +17,19 @@ import {
 
 type LinkedInMessage = {
   id: string;
-  step: number;
-  type: 'connection' | 'follow-up-1' | 'follow-up-2';
-  title: string;
-  timing: string;
-  characterCount: number;
-  message: string;
-  personalizationTips: string[];
-  expectedResponse: string;
+  step?: number; // legacy
+  dayNumber?: number; // new schema
+  type?: 'connection' | 'follow-up-1' | 'follow-up-2'; // legacy
+  messageType?: 'connection_request' | 'follow_up' | 'value_share'; // new schema
+  title?: string; // legacy
+  timing?: string; // legacy
+  characterCount?: number;
+  message?: string; // legacy
+  body?: string; // new schema
+  personalizationTips?: string[]; // legacy
+  tips?: string[]; // new schema
+  expectedResponse?: string; // legacy
+  sourceFactIds?: string[]; // new schema
 };
 
 type LinkedInOutreachData = {
@@ -53,13 +58,24 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const messageIcons = {
+  const getMessageTypeKey = (message: LinkedInMessage): string => {
+    // New schema uses messageType
+    if (message.messageType) {
+      if (message.messageType === 'connection_request') return 'connection';
+      if (message.messageType === 'follow_up') return 'follow-up-1';
+      if (message.messageType === 'value_share') return 'follow-up-2';
+    }
+    // Legacy schema uses type
+    return message.type || 'connection';
+  };
+
+  const messageIcons: Record<string, React.ReactNode> = {
     connection: <User className="h-4 w-4" />,
     'follow-up-1': <MessageSquare className="h-4 w-4" />,
     'follow-up-2': <TrendingUp className="h-4 w-4" />
   };
 
-  const messageColors = {
+  const messageColors: Record<string, { gradient: string; bg: string; text: string; border: string }> = {
     connection: {
       gradient: 'from-blue-500 to-cyan-500',
       bg: 'bg-blue-100 dark:bg-blue-950',
@@ -122,8 +138,16 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
         {/* Messages */}
         <div className="p-4 space-y-3">
           {messages.map((message, idx) => {
-            const colors = messageColors[message.type];
+            const typeKey = getMessageTypeKey(message);
+            const colors = messageColors[typeKey] || messageColors['connection'];
             const isExpanded = expandedId === message.id;
+            
+            // Support both schemas
+            const messageText = message.body || message.message || '';
+            const tips = message.tips || message.personalizationTips || [];
+            const step = message.step || (message.dayNumber ? idx + 1 : idx + 1);
+            const timing = message.timing || (message.dayNumber ? `Day ${message.dayNumber}` : '');
+            const title = message.title || (message.messageType === 'connection_request' ? 'Connection Request' : message.messageType === 'follow_up' ? 'Follow-up Message' : 'Value Share');
 
             return (
               <Card
@@ -138,24 +162,28 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${colors.bg}`}>
                       <div className={colors.text}>
-                        {messageIcons[message.type]}
+                        {messageIcons[typeKey]}
                       </div>
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">
-                          Step {message.step}
+                          Step {step}
                         </Badge>
-                        <h4 className="font-semibold text-sm">{message.title}</h4>
+                        <h4 className="font-semibold text-sm">{title}</h4>
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {message.timing}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {message.characterCount} characters
-                        </span>
+                        {timing && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {timing}
+                          </span>
+                        )}
+                        {message.characterCount && (
+                          <span className="text-xs text-muted-foreground">
+                            {message.characterCount} characters
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -164,7 +192,7 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
                     variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCopy(message.message, message.id);
+                      handleCopy(messageText, message.id);
                     }}
                   >
                     {copiedId === message.id ? (
@@ -191,35 +219,48 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
                       </p>
                       <div className="p-3 rounded-lg border bg-background">
                         <p className="text-sm leading-relaxed whitespace-pre-line">
-                          {message.message}
+                          {messageText}
                         </p>
                       </div>
                     </div>
 
                     {/* Personalization Tips */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-2">
-                        💡 Personalization Tips:
-                      </p>
-                      <div className="space-y-1">
-                        {message.personalizationTips.map((tip, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs">
-                            <span className="mt-0.5">→</span>
-                            <span className="text-muted-foreground">{tip}</span>
-                          </div>
-                        ))}
+                    {tips.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-2">
+                          💡 Personalization Tips:
+                        </p>
+                        <div className="space-y-1">
+                          {tips.map((tip, idx) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs">
+                              <span className="mt-0.5">→</span>
+                              <span className="text-muted-foreground">{tip}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Expected Response */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1">
-                        Expected Response Rate:
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {message.expectedResponse}
-                      </p>
-                    </div>
+                    {/* Expected Response (legacy only) */}
+                    {message.expectedResponse && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">
+                          Expected Response Rate:
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {message.expectedResponse}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Evidence tracking (new schema) */}
+                    {message.sourceFactIds && message.sourceFactIds.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <Badge variant="outline" className="text-xs">
+                          ✓ {message.sourceFactIds.length} fact{message.sourceFactIds.length > 1 ? 's' : ''} cited
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>

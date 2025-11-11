@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
             model: modelConfig.model,
             messages: [
               { role: "system", content: system },
-              { role: "user", content: `${developer}\n\n${user}` },
+              { role: "developer" as any, content: developer },
+              { role: "user", content: user },
             ],
             response_format: { type: "json_object" },
             temperature: modelConfig.temperature,
@@ -143,46 +144,40 @@ ${valueProp ? `- Value Proposition: ${JSON.stringify(valueProp)}` : ''}
 
 Task: Create a 3-message LinkedIn outreach sequence that feels human and personalized.
 
-Return a JSON object with this structure:
+Return a JSON object with this EXACT structure (no extra fields, valid JSON only):
 {
   "overallStrategy": "2-3 sentence explanation of the approach and why it works",
   "messages": [
     {
       "id": "connection",
-      "step": 1,
-      "type": "connection",
-      "title": "Connection Request",
-      "timing": "Day 1",
+      "dayNumber": 1,
+      "messageType": "connection_request",
+      "body": "<=300 characters connection request message",
       "characterCount": 250,
-      "message": "300 characters max - LinkedIn connection request message",
-      "personalizationTips": [
+      "tips": [
         "Tip 1: specific thing to personalize",
         "Tip 2: where to find info",
         "Tip 3: what to avoid"
       ],
-      "expectedResponse": "realistic acceptance rate and why"
+      "sourceFactIds": []
     },
     {
       "id": "follow-up-1",
-      "step": 2,
-      "type": "follow-up-1",
-      "title": "First Follow-up (After Connection)",
-      "timing": "2-3 days after acceptance",
+      "dayNumber": 3,
+      "messageType": "follow_up",
+      "body": "conversational message, not salesy, ~400 characters",
       "characterCount": 500,
-      "message": "conversational message, not salesy, 400-600 characters",
-      "personalizationTips": ["3-4 specific tips"],
-      "expectedResponse": "realistic reply rate and indicators of interest"
+      "tips": ["3-4 specific tips"],
+      "sourceFactIds": []
     },
     {
       "id": "follow-up-2",
-      "step": 3,
-      "type": "follow-up-2",
-      "title": "Value-Add Follow-up",
-      "timing": "4-5 days after first message",
+      "dayNumber": 7,
+      "messageType": "value_share",
+      "body": "share valuable resource or insight, soft CTA, ~400 characters",
       "characterCount": 500,
-      "message": "share valuable resource or insight, soft CTA, 400-600 characters",
-      "personalizationTips": ["3-4 specific tips"],
-      "expectedResponse": "expected engagement and next steps"
+      "tips": ["3-4 specific tips"],
+      "sourceFactIds": []
     }
   ],
   "keyTakeaways": [

@@ -159,8 +159,10 @@ export async function PATCH(
     return NextResponse.json({ flow });
   } catch (error) {
     console.error("Error updating flow:", error);
+    console.error("Update data size:", JSON.stringify(updateData).length, "bytes");
+    console.error("Error details:", error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: "Failed to update flow" },
+      { error: "Failed to update flow", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

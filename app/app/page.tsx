@@ -906,8 +906,11 @@ function ChatPageContent() {
     const conversation = conversations.find(c => c.id === activeConversationId);
     if (!conversation) return;
     
-    // Debounced save to DB
-    debouncedSaveToDb(conversation);
+    // Only auto-save if conversation has messages (meaning it's been initialized)
+    // This prevents trying to update flows that don't exist in DB yet
+    if (conversation.messages.length > 0) {
+      debouncedSaveToDb(conversation);
+    }
     
     // Also save to localStorage as backup
     try {
@@ -930,25 +933,45 @@ function ChatPageContent() {
         console.log(`💾 [DB Save] Selected ICP has ${evidence.length} evidence links`);
       }
       
+      // Sanitize data before saving to avoid size issues
+      const sanitizedGeneratedContent = {
+        // Only save essential message data (exclude large content if needed)
+        messages: conversation.messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          component: msg.component,
+          // Exclude heavy data from message.data to reduce payload
+          data: msg.data ? (typeof msg.data === 'object' ? { _ref: msg.id } : msg.data) : undefined
+        })),
+        generationState: {
+          ...conversation.generationState,
+          // Remove heavy nested content from generatedContent
+          generatedContent: conversation.generationState.generatedContent ? {
+            icps: conversation.generationState.generatedContent.icps ? { _count: (conversation.generationState.generatedContent.icps as any[]).length } : undefined,
+            valueProp: conversation.generationState.generatedContent.valueProp ? { _exists: true } : undefined,
+          } : {}
+        },
+        userJourney: conversation.userJourney,
+        generationHistory: conversation.memory.generationHistory.slice(-10), // Keep only last 10
+        userPreferences: conversation.memory.userPreferences,
+      };
+      
       await flowsClient.debouncedUpdate(conversation.id, {
         title: conversation.title,
         website_url: conversation.memory.websiteUrl,
         facts_json: conversation.memory.factsJson,
         selected_icp: conversation.memory.selectedIcp ?? undefined,
-        generated_content: {
-          messages: conversation.messages,
-          generationState: conversation.generationState,
-          userJourney: conversation.userJourney,
-          generationHistory: conversation.memory.generationHistory,
-          userPreferences: conversation.memory.userPreferences,
-        },
+        generated_content: sanitizedGeneratedContent,
         step: determineCurrentStep(conversation),
       });
       
       console.log('💾 [DB] Auto-saved to database');
     } catch (error) {
       console.error('❌ [DB] Auto-save failed:', error);
+      console.warn('⚠️ Continuing without DB sync - data is safe in browser localStorage');
       // Don't disrupt user experience, just log the error
+      // Consider disabling DB sync if repeated failures
     }
   }
 
@@ -2031,6 +2054,12 @@ Choose your channel:`;
     }
   };
 
+  // Handler for Launch Copilot button
+  const handleLaunchCopilot = (persona: ICP) => {
+    console.log('🚀 [Launch Copilot] Navigating to design studio for:', persona.personaName);
+    window.location.href = '/design-studio';
+  };
+
   // Email sequence handlers
   const handleContinueToEmail = (icp: ICP) => {
     // Show email strategy summary message
@@ -2594,12 +2623,12 @@ What would you like to create?`;
       content: `Create value proposition for: ${icp.title}`,
     });
 
-    // Add text-based conversational messages instead of thinking block
-    const analyzeMsg = nanoid();
+    // Single loading message
+    const loadingMsgId = nanoid();
     addMessage({
-      id: analyzeMsg,
+      id: loadingMsgId,
       role: "assistant",
-      content: "Analyzing your customer insights...",
+      content: "Generating your positioning package...",
     });
 
     try {
@@ -2608,72 +2637,50 @@ What would you like to create?`;
         'value-prop',
         { icp: icp.id, websiteUrl },
         async () => {
-          // Step 1: Analyze
-          await new Promise(resolve => setTimeout(resolve, 400));
-
-          // Update to show progress
-          setTimeout(() => {
-            addMessage({
-              id: nanoid(),
-              role: "assistant",
-              content: `Found ${icp.painPoints.length} key pain points and ${icp.goals.length} goals. Crafting your positioning...`,
-            });
-          }, 500);
-
-          // Step 2: Generate value prop
-          await new Promise(resolve => setTimeout(resolve, 300));
-
+          // Generate value prop (all backend processing happens here)
           const valuePropRes = await fetch("/api/generate-value-prop", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               icp,
               websiteUrl,
-              factsJson: activeConversation?.memory.factsJson // NEW: Pass structured facts
+              factsJson: activeConversation?.memory.factsJson
             }),
           });
 
-          if (!valuePropRes.ok) throw new Error("Failed to generate value prop");
+          if (!valuePropRes.ok) {
+            const errorData = await valuePropRes.json().catch(() => ({}));
+            console.error('❌ [Generate Value Prop] API error:', errorData);
+            throw new Error(errorData.error || errorData.details || "Failed to generate value prop");
+          }
           const data = await valuePropRes.json();
-
-          // Step 3: Show variations message
-          setTimeout(() => {
-            addMessage({
-              id: nanoid(),
-              role: "assistant",
-              content: "Creating variations tailored to different use cases...",
-            });
-          }, 800);
-
-          await new Promise(resolve => setTimeout(resolve, 300));
 
           return data;
         }
       );
 
-      // Format summary for display
-      const summary = valuePropData.summary;
-      const summaryText = `**Key Insight:**
-${summary.mainInsight}
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
 
-**Pain Points Addressed:**
-${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).join('\n')}
-
-**Positioning Strategy:** ${summary.approachStrategy}
-
-**Expected Impact:** ${summary.expectedImpact}`;
-
-      // Show summary with approval step
+      // Show persona showcase directly
       addMessage({
         id: nanoid(),
         role: "assistant",
         content: "",
-        component: "value-prop-summary",
+        component: "persona-showcase",
         data: {
-          summary: summaryText,
-          valuePropData,
-          icp
-        },
+          personas: [icp],
+          selectedPersonaId: icp.id,
+          valuePropData: {
+            [icp.id]: valuePropData
+          }
+        }
       });
 
       // Update state with generated content (include ICP for export functionality)
@@ -2694,11 +2701,24 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
 
     } catch (error) {
       console.error("Error:", error);
+      
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
+      
+      // Show error message with more details
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       addMessage({
         id: nanoid(),
         role: "assistant",
-        content: "Sorry, something went wrong generating the value proposition. Please try again.",
+        content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
       });
+      
       memoryManager.addGenerationRecord(activeConversationId, 'value-prop', { error: true }, false);
     } finally {
       updateGenerationState({ 
@@ -3342,6 +3362,7 @@ ${summary.painPointsAddressed.map((p: string, i: number) => `${i + 1}. ${p}`).jo
                           onContinue={(persona) => handleContinueToOutreach(persona)}
                           onGenerateLinkedIn={(persona) => handleContinueToLinkedIn(persona)}
                           onGenerateEmail={(persona) => handleContinueToEmail(persona)}
+                          onLaunchCopilot={handleLaunchCopilot}
                           readOnly={false}
                         />
                       );
