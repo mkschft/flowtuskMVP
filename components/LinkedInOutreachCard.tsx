@@ -290,7 +290,7 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
             className="flex-1"
             onClick={() => {
               const allMessages = messages
-                .map(m => `=== ${m.title} (${m.timing}) ===\n\n${m.message}`)
+                .map(m => `=== ${m.title} (${m.timing}) ===\n\n${m.message || ''}`)
                 .join('\n\n---\n\n');
               handleCopy(allMessages, 'all');
             }}
@@ -313,7 +313,7 @@ export function LinkedInOutreachCard({ data, personaTitle }: LinkedInOutreachCar
               const csv = [
                 'Step,Type,Timing,Message,Tips',
                 ...messages.map(m => 
-                  `${m.step},"${m.title}","${m.timing}","${m.message.replace(/"/g, '""')}","${m.personalizationTips.join('; ')}"`
+                  `${m.step},"${m.title}","${m.timing}","${(m.message || '').replace(/"/g, '""')}","${(m.personalizationTips || []).join('; ')}"`
                 )
               ].join('\n');
               const blob = new Blob([csv], { type: 'text/csv' });

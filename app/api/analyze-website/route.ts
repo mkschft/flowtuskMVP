@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     // ========================================================================
     let rawContent = "";
     let source = "jina";
-    let metadata = {
+    const metadata = {
       heroImage: null as string | null,
       faviconUrl: `${new URL(url).origin}/favicon.ico`,
     };

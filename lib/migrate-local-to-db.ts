@@ -187,7 +187,7 @@ export async function migrateLocalStorageToDb(): Promise<MigrationReport> {
 
   const conversations: LocalStorageConversation[] = JSON.parse(conversationsJson);
   const results: MigrationResult[] = [];
-  let evidenceCount = { total: 0, withEvidence: 0, missingEvidence: 0 };
+  const evidenceCount = { total: 0, withEvidence: 0, missingEvidence: 0 };
 
   // Step 3: Migrate each conversation
   console.log(`🚀 [Migration] Migrating ${conversations.length} conversations...`);

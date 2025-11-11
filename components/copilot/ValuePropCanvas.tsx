@@ -37,6 +37,9 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
   const personaCompany = "Chen & Associates CPAs (12 employees)";
   const personaLocation = "Austin, Texas, United States";
 
+  // One-line value proposition tailored to this profile
+  const personaValueProp = "Cut admin time in half with AI-powered automation built for CPAs";
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Persona Card with Avatar */}
@@ -84,16 +87,16 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
 
           {/* Value Prop Messaging */}
           <div className="space-y-4 pt-4 border-t">
-            <Badge className="mb-2">Hero Messaging</Badge>
+            <Badge className="mb-2">Key Pain Point</Badge>
             <div className="group relative">
               <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                {valueProp.headline}
+                {personaValueProp}
               </h1>
               <Button
                 variant="ghost"
                 size="sm"
                 className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleCopy(valueProp.headline, "headline")}
+                onClick={() => handleCopy(personaValueProp, "headline")}
               >
                 {copiedId === "headline" ? (
                   <Check className="w-4 h-4" />

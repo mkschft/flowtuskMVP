@@ -19,7 +19,7 @@ export async function GET(
     }
 
     // Build query
-    let query = supabase
+    const query = supabase
       .from('positioning_flows')
       .select('*')
       .eq('id', id)
@@ -53,6 +53,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let updateData: any = {}; // Declare outside try block for error logging
   try {
     const supabase = await createClient();
     const { id } = await params;
@@ -75,7 +76,7 @@ export async function PATCH(
       .single();
 
     // Prepare update data
-    const updateData: any = {};
+    updateData = {};
     
     if (body.title !== undefined) updateData.title = body.title;
     if (body.website_url !== undefined) updateData.website_url = body.website_url;

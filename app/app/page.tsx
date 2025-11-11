@@ -2056,8 +2056,8 @@ Choose your channel:`;
 
   // Handler for Launch Copilot button
   const handleLaunchCopilot = (persona: ICP) => {
-    console.log('🚀 [Launch Copilot] Navigating to design studio for:', persona.personaName);
-    window.location.href = '/design-studio';
+    console.log('🚀 [Launch Copilot] Navigating to copilot for:', persona.personaName);
+    window.location.href = '/copilot';
   };
 
   // Email sequence handlers

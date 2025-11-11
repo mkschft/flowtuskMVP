@@ -56,7 +56,7 @@ Only include fields that need updating. Be conversational in your message.`;
 
     // Create a ReadableStream with timeout
     const encoder = new TextEncoder();
-    let streamStartTime = Date.now();
+    const streamStartTime = Date.now();
 
     const readableStream = new ReadableStream({
       async start(controller) {

@@ -30,8 +30,8 @@ export function CanvasArea({
   return (
     <div className="flex-1 flex flex-col bg-muted/30">
       {/* Top Navigation Bar */}
-      <div className="flex items-center justify-between gap-3 px-6 py-3 border-b bg-background">
-        {/* Left: Tab Navigation - Segmented Control Style */}
+      <div className="flex items-center gap-3 px-6 py-3 border-b bg-background">
+        {/* Tab Navigation - Segmented Control Style */}
         <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
           <Button
             variant="ghost"
@@ -90,8 +90,10 @@ export function CanvasArea({
             Landing
           </Button>
         </div>
-
-        {/* Right: Toolbar with Team & Actions */}
+        
+        <div className="flex-1" />
+        
+        {/* Toolbar with Team & Actions */}
         <ToolBar activeTab={activeTab} onExport={onExport} onShare={onShare} />
       </div>
 
