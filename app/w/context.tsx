@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type TabType = "value-proposition" | "brand-dna" | "suggested-campaigns" | "design";
+type TabType = "value-prop" | "mood-board" | "style" | "campaigns" | "design";
 
 interface WorkflowTabContextType {
   activeTab: TabType;
@@ -12,7 +12,7 @@ interface WorkflowTabContextType {
 const WorkflowTabContext = createContext<WorkflowTabContextType | undefined>(undefined);
 
 export function WorkflowTabProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<TabType>("value-proposition");
+  const [activeTab, setActiveTab] = useState<TabType>("value-prop");
 
   return (
     <WorkflowTabContext.Provider value={{ activeTab, setActiveTab }}>

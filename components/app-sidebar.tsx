@@ -50,7 +50,7 @@ const data = {
   navMain: [
     { title: "New Flow", url: "/u/", icon: FilePlus, isActive: true },
     { title: "Search Flow", url: "#", icon: Search },
-    { title: "Prospects", url: "/u/prospects", icon: Users },
+    { title: "Personas", url: "/u/prospects", icon: Users },
     { title: "Connectors", url: "/u/connectors", icon: Waypoints },
     { title: "Trash", url: "#", icon: Trash2 },
   ],

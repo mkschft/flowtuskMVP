@@ -21,8 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { createClient } from "@/lib/supabase/client";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useWorkflowTab } from "@/app/w/context";
 
 function getInitials(text: string): string {
@@ -76,133 +76,136 @@ export function WorkflowsNavbar({
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center justify-between px-4 gap-4">
-        <h2 className="text-lg font-semibold">Workspace</h2>
-
         <ToggleGroup
           type="single"
           value={activeTab}
           onValueChange={(value) => {
             if (value) setActiveTab(value as typeof activeTab);
           }}
-          className="flex-1 justify-end"
-          variant="outline"
+          className="justify-start"
+          variant="default"
           size="default"
         >
-          <ToggleGroupItem value="value-proposition" aria-label="Value Proposition" className="text-xs px-2 h-7">
-            Value Proposition
+          <ToggleGroupItem value="value-prop" aria-label="Value Prop" className="text-xs px-3 h-7">
+            Value Prop
           </ToggleGroupItem>
-          <ToggleGroupItem value="brand-dna" aria-label="Brand DNA" className="text-xs px-2 h-7">
-            Brand DNA
+          <ToggleGroupItem value="mood-board" aria-label="Mood board" className="text-xs px-3 h-7">
+            Mood board
           </ToggleGroupItem>
-          <ToggleGroupItem value="suggested-campaigns" aria-label="Suggested Campaigns" className="text-xs px-2 h-7">
-            Suggested Campaigns
+          <ToggleGroupItem value="style" aria-label="Style" className="text-xs px-3 h-7">
+            Style
           </ToggleGroupItem>
-          <ToggleGroupItem value="design" aria-label="Design" className="text-xs px-2 h-7">
+          <ToggleGroupItem value="campaigns" aria-label="Campaigns" className="text-xs px-3 h-7">
+            Campaigns
+          </ToggleGroupItem>
+          <ToggleGroupItem value="design" aria-label="Design" className="text-xs px-3 h-7">
             Design
           </ToggleGroupItem>
         </ToggleGroup>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 gap-1.5"
-          aria-label="Share"
-        >
-          <Share2 className="h-4 w-4" />
-          <span className="text-xs">Share</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 gap-1.5"
-          aria-label="Export"
-        >
-          <Download className="h-4 w-4" />
-          <span className="text-xs">Export</span>
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-9 w-9 p-0"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-56 rounded-lg"
-            align="end"
-            sideOffset={4}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1.5"
+            aria-label="Share"
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Share2 className="h-4 w-4" />
+            <span className="text-xs">Share</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1.5"
+            aria-label="Export"
+          >
+            <Download className="h-4 w-4" />
+            <span className="text-xs">Export</span>
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-9 w-9 p-0"
+              >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-56 rounded-lg"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user.name}</span>
+                    <span className="truncate text-xs">{user.email}</span>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            {mounted && (
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  value={theme}
-                  onValueChange={(value) => setTheme(value)}
-                >
-                  <DropdownMenuRadioItem value="light" className="gap-2">
-                    <Sun size={ICON_SIZE} className="text-muted-foreground" />
-                    <span>Light</span>
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dark" className="gap-2">
-                    <Moon size={ICON_SIZE} className="text-muted-foreground" />
-                    <span>Dark</span>
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="system" className="gap-2">
-                    <Laptop size={ICON_SIZE} className="text-muted-foreground" />
-                    <span>System</span>
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
+                <DropdownMenuItem>
+                  <Sparkles />
+                  Upgrade to Pro
+                </DropdownMenuItem>
               </DropdownMenuGroup>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  Account
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCard />
+                  Billing
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Bell />
+                  Notifications
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              {mounted && (
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup
+                    value={theme}
+                    onValueChange={(value) => setTheme(value)}
+                  >
+                    <DropdownMenuRadioItem value="light" className="gap-2">
+                      <Sun size={ICON_SIZE} className="text-muted-foreground" />
+                      <span>Light</span>
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="dark" className="gap-2">
+                      <Moon size={ICON_SIZE} className="text-muted-foreground" />
+                      <span>Dark</span>
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="system" className="gap-2">
+                      <Laptop size={ICON_SIZE} className="text-muted-foreground" />
+                      <span>System</span>
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </nav>
   );

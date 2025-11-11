@@ -35,14 +35,16 @@ export default function ICPsPage() {
   if (loading) {
     return (
       <div className="flex h-full flex-col overflow-hidden">
-        <div className="border-b p-4">
-          <h1 className="text-2xl font-bold">Prospects</h1>
+        <div className="border-b p-4 shrink-0">
+          <h1 className="text-2xl font-bold">Personas</h1>
         </div>
-        <ScrollArea className="flex-1">
-          <div className="mx-auto w-full max-w-5xl p-4 space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-48 w-full" />
-            ))}
+        <ScrollArea className="flex-1 overflow-auto">
+          <div className="mx-auto w-full max-w-5xl p-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-64 w-full" />
+              ))}
+            </div>
           </div>
         </ScrollArea>
       </div>
@@ -51,18 +53,18 @@ export default function ICPsPage() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b p-4">
-        <h1 className="text-2xl font-bold">Prospects</h1>
+      <div className="border-b p-4 shrink-0">
+        <h1 className="text-2xl font-bold">Personas</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {icps.length} {icps.length === 1 ? "prospect" : "prospects"} saved
+          {icps.length} {icps.length === 1 ? "persona" : "personas"} saved
         </p>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 overflow-auto">
         <div className="mx-auto w-full max-w-5xl p-4">
           {icps.length === 0 ? (
-            <div className="flex h-full items-center justify-center py-12">
+            <div className="flex h-full items-center justify-center py-12 min-h-[400px]">
               <div className="text-center space-y-2">
-                <p className="text-muted-foreground">No prospects saved yet.</p>
+                <p className="text-muted-foreground">No personas saved yet.</p>
                 <p className="text-sm text-muted-foreground">
                   Generate ICPs by analyzing a website URL.
                 </p>
