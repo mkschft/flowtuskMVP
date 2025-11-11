@@ -31,7 +31,7 @@ export function PersonaCreatedCard({ personaName, personaId, onWorkflows, onRest
             onClick={onWorkflows}
             className="w-full bg-green-600 hover:bg-green-700 text-white"
           >
-            Workflows
+            Launch workspace
           </Button>
           <Button
             onClick={onRestart}
