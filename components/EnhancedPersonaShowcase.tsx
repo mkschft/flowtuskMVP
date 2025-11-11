@@ -141,7 +141,7 @@ const mockPersona: EnhancedPersona = {
       id: "quality",
       label: "Service Quality",
       weight: 20,
-      description: "Maintain accuracy and client satisfaction"
+      description: "Maintain accuracy as well as client satisfaction"
     },
     {
       id: "compliance",
