@@ -45,7 +45,7 @@ export default async function WLayout({
                 <div className="flex-1 h-full overflow-hidden bg-background flex flex-col">
                     <WorkflowsNavbar user={userData} />
                     <div className="flex-1 overflow-hidden">
-                        {children}
+                    {children}
                     </div>
                 </div>
             </div>
