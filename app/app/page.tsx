@@ -3042,7 +3042,10 @@ What would you like to create?`;
                   Your Positioning Co-Pilot
                 </h2>
                 <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
-                  Enter a website URL to generate customer personas and value propositions
+                  Enter any website URL to generate customer personas and value propositions instantly
+                </p>
+                <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
+                  Try these examples or paste any public website URL:
                 </p>
                 <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center max-w-sm sm:max-w-none mx-auto">
                   {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
@@ -3499,7 +3502,7 @@ What would you like to create?`;
               onChange={(e) => setInput(e.target.value)}
               placeholder={
                 !websiteUrl
-                  ? "Enter a website URL to analyze..."
+                  ? "Paste any website URL (e.g., https://yoursite.com)..."
                   : selectedIcp
                   ? "Ask me to refine the page..."
                   : "What would you like to do?"
