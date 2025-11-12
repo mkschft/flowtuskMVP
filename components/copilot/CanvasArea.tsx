@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ToolBar } from "./ToolBar";
 import { ValuePropCanvas } from "./ValuePropCanvas";
 import { BrandGuideCanvas } from "./BrandGuideCanvas";
 import { StyleGuideCanvas } from "./StyleGuideCanvas";
@@ -16,21 +15,17 @@ type CanvasAreaProps = {
   project: DesignProject;
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onExport: (format: string, message: string) => void;
-  onShare: () => void;
 };
 
 export function CanvasArea({
   project,
   activeTab,
   onTabChange,
-  onExport,
-  onShare,
 }: CanvasAreaProps) {
   return (
-    <div className="flex-1 flex flex-col bg-muted/30">
+    <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       {/* Top Navigation Bar */}
-      <div className="flex items-center gap-3 px-6 py-3 border-b bg-background">
+      <div className="flex items-center justify-center gap-3 px-6 py-3">
         {/* Tab Navigation - Segmented Control Style */}
         <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
           <Button
@@ -90,15 +85,10 @@ export function CanvasArea({
             Landing
           </Button>
         </div>
-        
-        <div className="flex-1" />
-        
-        {/* Toolbar with Team & Actions */}
-        <ToolBar activeTab={activeTab} onExport={onExport} onShare={onShare} />
       </div>
 
       {/* Canvas Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-6">
           <AnimatePresence mode="wait">
             <motion.div

@@ -8,6 +8,7 @@ import { ChatPanel } from "@/components/copilot/ChatPanel";
 import { CanvasArea } from "@/components/copilot/CanvasArea";
 import { ToastContainer } from "@/components/copilot/Toast";
 import { ShareModal } from "@/components/copilot/ShareModal";
+import { ToolBar } from "@/components/copilot/ToolBar";
 import type { ChatMessage, DesignProject } from "@/lib/design-studio-mock-data";
 import { mockProjects } from "@/lib/design-studio-mock-data";
 import type { ToastProps } from "@/components/copilot/Toast";
@@ -228,6 +229,9 @@ export function DesignStudioWorkspace() {
             Back to Conversations
           </Button>
           <div className="flex-1" />
+          
+          {/* Toolbar with Team & Actions */}
+          <ToolBar activeTab={activeTab} onExport={handleExport} onShare={handleShare} />
         </div>
 
         {/* Main Content Area */}
@@ -253,8 +257,6 @@ export function DesignStudioWorkspace() {
             project={currentProject}
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            onExport={handleExport}
-            onShare={handleShare}
           />
 
         </div>
