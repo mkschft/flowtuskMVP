@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       const result = await executeWithRetryAndTimeout(
         async () => {
           return await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "gpt-4o", // Using gpt-4o for better ICP quality
             messages: [
               { role: "system", content: system },
               { role: "developer" as any, content: developer },
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     const result = await executeWithRetryAndTimeout(
       async () => {
         return await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o", // Using gpt-4o for better ICP quality (legacy fallback)
       messages: [
         {
           role: "system",
