@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,39 +10,138 @@ import { ToastContainer } from "@/components/copilot/Toast";
 import { ShareModal } from "@/components/copilot/ShareModal";
 import { ToolBar } from "@/components/copilot/ToolBar";
 import type { ChatMessage, DesignProject } from "@/lib/design-studio-mock-data";
-import { mockProjects } from "@/lib/design-studio-mock-data";
 import type { ToastProps } from "@/components/copilot/Toast";
+import type {
+  PositioningValueProp,
+  PositioningDesignAssets,
+  CopilotWorkspaceData,
+} from "@/lib/types/design-assets";
 
 export type TabType = "value-prop" | "brand" | "style" | "landing";
 
 const MAX_REGENERATIONS = 4;
 
-export function DesignStudioWorkspace() {
+type DesignStudioWorkspaceProps = {
+  icpId: string;
+  flowId: string;
+};
+
+export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspaceProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("value-prop");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Data from database
+  const [workspaceData, setWorkspaceData] = useState<CopilotWorkspaceData | null>(null);
+  const [designAssets, setDesignAssets] = useState<PositioningDesignAssets | null>(null);
   
   const handleBackToConversations = () => {
-    // Navigate to /app and scroll to bottom after navigation
-    router.push('/app');
-    // Use setTimeout to ensure navigation completes before scrolling
+    router.push(`/app?flowId=${flowId}`);
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     }, 100);
   };
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
-    mockProjects.saas.chatHistory
-  );
+  
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      role: "ai",
+      content: "Welcome to the Design Studio! I can help you customize your brand, style guide, and landing page design.",
+    },
+  ]);
   const [toasts, setToasts] = useState<ToastProps[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [regenerationCount, setRegenerationCount] = useState(0);
-  const [project, setProject] = useState<DesignProject>(mockProjects.saas);
   const [isChatVisible, setIsChatVisible] = useState(true);
 
-  // Using SaaS project as default
-  const currentProject = project;
+  // Load data on mount
+  useEffect(() => {
+    loadWorkspaceData();
+  }, [icpId, flowId]);
+
+  const loadWorkspaceData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch ICP data
+      const icpResponse = await fetch(`/api/positioning-icps?id=${icpId}&flowId=${flowId}`);
+      if (!icpResponse.ok) {
+        throw new Error("Failed to load persona data");
+      }
+      const { icp } = await icpResponse.json();
+
+      if (!icp) {
+        throw new Error("Persona not found");
+      }
+
+      // Fetch value prop
+      const valuePropResponse = await fetch(`/api/value-props?icpId=${icpId}&flowId=${flowId}`);
+      const { valueProp } = await valuePropResponse.json();
+
+      // Fetch design assets
+      const designAssetsResponse = await fetch(`/api/design-assets?icpId=${icpId}&flowId=${flowId}`);
+      const { designAssets: assets } = await designAssetsResponse.json();
+
+      setWorkspaceData({
+        persona: icp,
+        valueProp: valueProp || null,
+        designAssets: assets || null,
+      });
+      
+      setDesignAssets(assets || null);
+      setLoading(false);
+    } catch (err) {
+      console.error("❌ [Design Studio] Error loading data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
+      setLoading(false);
+    }
+  };
+
+  // Build a DesignProject-like object for compatibility with existing components
+  const currentProject: DesignProject | null = workspaceData ? {
+    id: workspaceData.persona.id,
+    name: workspaceData.persona.persona_company.split('(')[0].trim(),
+    type: "saas",
+    description: workspaceData.persona.description,
+    chatHistory: chatMessages,
+    valueProp: {
+      headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text || 
+                workspaceData.persona.description,
+      subheadline: workspaceData.valueProp?.summary?.mainInsight || "",
+      problem: workspaceData.persona.pain_points.join(", "),
+      solution: workspaceData.valueProp?.summary?.approachStrategy || "",
+      outcome: workspaceData.valueProp?.summary?.expectedImpact || "",
+      benefits: workspaceData.valueProp?.variations?.map(v => v.text) || [],
+      targetAudience: workspaceData.persona.title,
+      ctaSuggestions: ["Get Started", "Learn More", "Try Free"],
+    },
+    brandGuide: designAssets?.brand_guide || {
+      colors: { primary: [], secondary: [], accent: [], neutral: [] },
+      typography: [],
+      logoVariations: [],
+      toneOfVoice: [],
+      personalityTraits: [],
+    },
+    styleGuide: designAssets?.style_guide || {
+      buttons: [],
+      cards: [],
+      formElements: [],
+      spacing: [],
+      borderRadius: [],
+      shadows: [],
+    },
+    landingPage: designAssets?.landing_page || {
+      navigation: { logo: "", links: [] },
+      hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
+      features: [],
+      socialProof: [],
+      footer: { sections: [] },
+    },
+  } : null;
 
   const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -204,6 +303,34 @@ export function DesignStudioWorkspace() {
       console.log("No structured updates found in response");
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground">Loading Design Studio...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !currentProject) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-4 max-w-md">
+          <h2 className="text-2xl font-bold">Failed to Load</h2>
+          <p className="text-muted-foreground">{error || "Could not load workspace data"}</p>
+          <Button onClick={handleBackToConversations} className="gap-2">
+            <ChevronLeft className="w-4 h-4" />
+            Back to Conversations
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

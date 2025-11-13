@@ -4,6 +4,7 @@ import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateValuePropResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildValuePropPrompt, type FactsJSON, type ICP } from "@/lib/prompt-templates";
+import { createClient } from "@/lib/supabase/server";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -89,6 +90,38 @@ export async function POST(req: NextRequest) {
           console.log(`📎 [${variation.id}] Evidence: ${variation.sourceFactIds.join(', ')}`);
         }
       });
+
+      // Save to positioning_value_props table
+      if (icp.id && icp.parent_flow) {
+        try {
+          const supabase = await createClient();
+          const { error: saveError } = await supabase
+            .from('positioning_value_props')
+            .upsert({
+              icp_id: icp.id,
+              parent_flow: icp.parent_flow,
+              summary: parsedResult.summary || {},
+              variables: parsedResult.variables || [],
+              variations: parsedResult.variations || [],
+              generation_metadata: {
+                model: 'gpt-4o-mini',
+                prompt_version: 'v1-facts-json',
+                timestamp: new Date().toISOString(),
+                regeneration_count: 0,
+              },
+            }, {
+              onConflict: 'icp_id',
+            });
+
+          if (saveError) {
+            console.error('⚠️ [Generate Value Prop] Failed to save to DB:', saveError);
+          } else {
+            console.log('💾 [Generate Value Prop] Saved to positioning_value_props table');
+          }
+        } catch (dbError) {
+          console.error('⚠️ [Generate Value Prop] DB save error:', dbError);
+        }
+      }
 
       return NextResponse.json(parsedResult);
     }
@@ -282,6 +315,38 @@ Important:
     }
 
     console.log('✅ [Generate Value Prop] Generated successfully');
+
+    // Save to positioning_value_props table (legacy flow)
+    if (icp.id && icp.parent_flow) {
+      try {
+        const supabase = await createClient();
+        const { error: saveError } = await supabase
+          .from('positioning_value_props')
+          .upsert({
+            icp_id: icp.id,
+            parent_flow: icp.parent_flow,
+            summary: parsedResult.summary || {},
+            variables: parsedResult.variables || [],
+            variations: parsedResult.variations || [],
+            generation_metadata: {
+              model: 'gpt-4o',
+              prompt_version: 'v1-legacy',
+              timestamp: new Date().toISOString(),
+              regeneration_count: 0,
+            },
+          }, {
+            onConflict: 'icp_id',
+          });
+
+        if (saveError) {
+          console.error('⚠️ [Generate Value Prop] Failed to save to DB:', saveError);
+        } else {
+          console.log('💾 [Generate Value Prop] Saved to positioning_value_props table');
+        }
+      } catch (dbError) {
+        console.error('⚠️ [Generate Value Prop] DB save error:', dbError);
+      }
+    }
 
     return NextResponse.json(parsedResult);
   } catch (error) {

@@ -2065,7 +2065,12 @@ Choose your channel:`;
   // Handler for Launch Copilot button
   const handleLaunchCopilot = (persona: ICP) => {
     console.log('🚀 [Launch Copilot] Navigating to copilot for:', persona.personaName);
-    window.location.href = '/copilot';
+    const flowId = activeConversation?.id;
+    if (!flowId) {
+      console.error('❌ [Launch Copilot] No active conversation found');
+      return;
+    }
+    router.push(`/copilot?icpId=${persona.id}&flowId=${flowId}`);
   };
 
   // Email sequence handlers
