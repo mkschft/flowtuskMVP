@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import FirecrawlApp from "@mendable/firecrawl-js";
 import OpenAI from "openai";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
@@ -7,6 +6,7 @@ import { buildAnalyzePrompt } from "@/lib/prompt-templates";
 import { validateFactsJSON } from "@/lib/validators";
 import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
+import { scrapeWebsite } from "@/lib/scraper";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -23,123 +23,46 @@ export async function POST(req: NextRequest) {
     console.log('🔍 [Analyze] Starting analysis for:', url);
 
     // ========================================================================
-    // STEP 1: Fetch website content (Firecrawl or Jina)
+    // STEP 1: Fetch website content (Webcrawler → Jina → Direct fallback)
     // ========================================================================
     let rawContent = "";
     let source = "jina";
-    const metadata = {
+    let metadata = {
       heroImage: null as string | null,
       faviconUrl: `${new URL(url).origin}/favicon.ico`,
     };
 
-    // Use Firecrawl only if explicitly enabled (it's slower but more comprehensive)
-    if (process.env.FIRECRAWL_API_KEY && process.env.FIRECRAWL_ENABLED === 'true') {
-      console.log('🔥 [Analyze] Using Firecrawl');
-      const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
-
-      // Crawl only homepage for fastest results
-      const crawlResult = await firecrawl.crawlUrl(url, {
-        limit: 1, // Only homepage for speed
-        scrapeOptions: {
-          formats: ["markdown"],
-        },
+    // Try webcrawler scraper (includes fallbacks to Jina and direct fetch)
+    try {
+      const scrapeStartTime = Date.now();
+      const scrapeResult = await scrapeWebsite(url, {
+        include_text: true,
+        include_links: true,
+        include_images: false,
+        timeout: 30,
       });
+
+      rawContent = scrapeResult.markdown;
+      metadata.heroImage = scrapeResult.metadata.heroImage || null;
       
-      console.log('✅ [Analyze] Firecrawl complete, pages:', 'data' in crawlResult ? crawlResult.data?.length || 0 : 0);
-
-      if (crawlResult.success && 'data' in crawlResult) {
-        // Combine all pages into one markdown
-        let fullMarkdown = `# Website Crawl: ${url}\n\n`;
-        
-        for (const page of crawlResult.data || []) {
-          fullMarkdown += `## Page: ${page.metadata?.title || page.url}\n`;
-          fullMarkdown += `URL: ${page.url}\n\n`;
-          fullMarkdown += page.markdown || "";
-          fullMarkdown += "\n\n---\n\n";
-        }
-
-        rawContent = fullMarkdown;
-        source = "firecrawl";
-
-        // Extract metadata from Firecrawl
-        const firstPage = crawlResult.data?.[0];
-        metadata.heroImage = firstPage?.metadata?.ogImage || null;
+      // Determine source based on result quality
+      if (scrapeResult.metadata.title) {
+        source = "webcrawler";
+      } else {
+        source = "jina";
       }
-    }
 
-    // Fallback to Jina AI Reader if Firecrawl not used or failed
-    if (!rawContent) {
-      console.log('🌐 [Analyze] Using Jina AI Reader');
-      const jinaUrl = `https://r.jina.ai/${url}`;
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // Increased to 30s
-      
-      try {
-        const startTime = Date.now();
-        const response = await fetch(jinaUrl, {
-          headers: {
-            Accept: "application/json",
-            "X-Return-Format": "markdown",
-          },
-          signal: controller.signal,
-        });
-        clearTimeout(timeout);
-
-        const fetchTime = Date.now() - startTime;
-        console.log(`⚡ [Analyze] Jina fetch completed in ${fetchTime}ms`);
-
-        if (response.ok) {
-          const data = await response.json();
-          rawContent = data.data?.content || "";
-
-          // Extract visual metadata from Jina response
-          metadata.heroImage = data.data?.images?.[0] || null;
-
-          // Try to extract Open Graph image from content
-          const ogImageMatch = rawContent.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/);
-          if (ogImageMatch && ogImageMatch[1]) {
-            metadata.heroImage = ogImageMatch[1];
-          }
-        }
-      } catch (jinaError) {
-        console.warn('⚠️ [Analyze] Jina failed, trying direct fetch:', jinaError);
-        clearTimeout(timeout);
-      }
-    }
-
-    // Final fallback: direct fetch if Jina failed
-    if (!rawContent) {
-      console.log('🌐 [Analyze] Using direct fetch fallback');
-      try {
-        const response = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; FlowtuskBot/1.0)',
-          },
-          signal: AbortSignal.timeout(15000),
-        });
-        
-        if (response.ok) {
-          const html = await response.text();
-          // Basic HTML to markdown conversion (strip tags, keep text)
-          rawContent = html
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          
-          console.log('✅ [Analyze] Direct fetch successful');
-        }
-      } catch (fetchError) {
-        console.error('❌ [Analyze] All fetch methods failed:', fetchError);
-        return NextResponse.json(
-          { 
-            error: "Unable to access website. Please check the URL and try again.",
-            details: "The website may be blocking automated access or taking too long to respond."
-          }, 
-          { status: 500 }
-        );
-      }
+      const scrapeTime = Date.now() - scrapeStartTime;
+      console.log(`✅ [Analyze] Scraping complete in ${scrapeTime}ms, source: ${source}, length: ${rawContent.length} chars`);
+    } catch (scrapeError) {
+      console.error('❌ [Analyze] All scraping methods failed:', scrapeError);
+      return NextResponse.json(
+        { 
+          error: "Unable to access website. Please check the URL and try again.",
+          details: "The website may be blocking automated access or taking too long to respond."
+        }, 
+        { status: 500 }
+      );
     }
 
     // Aggressive truncation for speed (prioritize fast results over comprehensiveness)
@@ -255,9 +178,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       content: rawContent, // Keep for fallback
       source,
-      pages: source === "firecrawl" ? 3 : 1,
+      pages: 1,
       metadata,
-      factsJson, // NEW: Structured facts for reuse
+      factsJson, // Structured facts for reuse
     });
 
   } catch (error) {
