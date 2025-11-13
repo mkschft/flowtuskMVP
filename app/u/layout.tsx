@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppNavbar } from "@/components/app-navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AutoAcceptInvitations } from "@/components/AutoAcceptInvitations";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -38,6 +39,7 @@ export default async function ULayout({
 
     return (
         <SidebarProvider>
+            <AutoAcceptInvitations />
             <AppSidebar user={userData} flows={(flowsRows || []) as { id: string; title: string }[]} />
             <main className="flex-1 h-screen overflow-hidden flex flex-col">
                 <AppNavbar />

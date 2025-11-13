@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ICPCard } from "@/components/ICPCard";
 import { ICPResponse } from "@/components/ICPResponse";
 import { PersonaCreatedCard } from "@/components/PersonaCreatedCard";
+import { SiteAlreadyScrapedCard } from "@/components/SiteAlreadyScrapedCard";
 
 // Component definitions that can be rendered
-type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "icp-cards" | "persona-created-card" | "custom";
+type ComponentType = "button" | "card" | "progress" | "badge" | "icp-card" | "icp-cards" | "persona-created-card" | "site-already-scraped" | "custom";
 
 interface ComponentData {
     type: ComponentType;
@@ -22,18 +23,31 @@ function parseComponents(content: string): { markdown: string; components: Compo
     const componentRegex = /<component>([\s\S]*?)<\/component>/g;
     const components: ComponentData[] = [];
     let markdown = content;
+    const matches: Array<{ fullMatch: string; jsonContent: string; index: number }> = [];
     let match;
-    let componentIndex = 0;
 
+    // First pass: collect all component matches
+    componentRegex.lastIndex = 0;
     while ((match = componentRegex.exec(content)) !== null) {
+        matches.push({
+            fullMatch: match[0],
+            jsonContent: match[1],
+            index: match.index,
+        });
+    }
+
+    // Second pass: parse components and replace in reverse order to preserve indices
+    for (let i = matches.length - 1; i >= 0; i--) {
+        const m = matches[i];
         try {
-            const componentData = JSON.parse(match[1]);
-            components.push(componentData);
-            // Replace component tag with placeholder
-            markdown = markdown.replace(match[0], `[COMPONENT_${componentIndex}]`);
-            componentIndex++;
+            const componentData = JSON.parse(m.jsonContent);
+            components.unshift(componentData);
+            // Replace component tag with placeholder (working backwards preserves string indices)
+            markdown = markdown.substring(0, m.index) + `[COMPONENT_${i}]` + markdown.substring(m.index + m.fullMatch.length);
         } catch (e) {
             console.error("Failed to parse component:", e);
+            // Even if parsing fails, remove the component tag to prevent it from showing as text
+            markdown = markdown.substring(0, m.index) + markdown.substring(m.index + m.fullMatch.length);
         }
     }
 
@@ -41,7 +55,7 @@ function parseComponents(content: string): { markdown: string; components: Compo
 }
 
 // Render a single component
-function renderComponent(component: ComponentData, index: number, flowId?: string, websiteUrl?: string, onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void, onPersonaWorkflows?: (personaId?: string) => void, onPersonaRestart?: () => void): React.ReactNode {
+function renderComponent(component: ComponentData, index: number, flowId?: string, websiteUrl?: string, onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void, onPersonaWorkflows?: (personaId?: string) => void, onPersonaRestart?: () => void, onSiteProceed?: (url: string, siteId: string, flowId?: string) => void, onSiteUseSaved?: (siteId: string, flowId?: string) => void): React.ReactNode {
     switch (component.type) {
         case "button":
             return (
@@ -78,7 +92,7 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                         </p>
                     )}
                     {Array.isArray(component.children)
-                        ? component.children.map((child, i) => renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart))
+                        ? component.children.map((child, i) => renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart, onSiteProceed, onSiteUseSaved))
                         : component.children}
                 </div>
             );
@@ -112,7 +126,7 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                 >
                     {Array.isArray(component.children)
                         ? component.children.map((child, i) => 
-                            typeof child === "string" ? child : renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart)
+                            typeof child === "string" ? child : renderComponent(child, i, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart, onSiteProceed, onSiteUseSaved)
                           )
                         : typeof component.children === "string" 
                         ? component.children 
@@ -210,6 +224,21 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                 />
             );
 
+        case "site-already-scraped":
+            return (
+                <SiteAlreadyScrapedCard
+                    key={index}
+                    url={component.props?.url || ""}
+                    siteId={component.props?.siteId || ""}
+                    title={component.props?.title || component.props?.url || ""}
+                    summary={component.props?.summary || "This site has already been scraped."}
+                    createdAt={component.props?.createdAt || ""}
+                    flowId={component.props?.flowId || flowId}
+                    onProceed={() => onSiteProceed?.(component.props?.url || "", component.props?.siteId || "", component.props?.flowId || flowId)}
+                    onUseSaved={() => onSiteUseSaved?.(component.props?.siteId || "", component.props?.flowId || flowId)}
+                />
+            );
+
         default:
             return <div key={index}>{JSON.stringify(component)}</div>;
     }
@@ -222,9 +251,11 @@ interface ResponseRendererProps {
     onICPSelect?: (icpData: { personaName: string; title: string; [key: string]: any }) => void;
     onPersonaWorkflows?: (personaId?: string) => void;
     onPersonaRestart?: () => void;
+    onSiteProceed?: (url: string, siteId: string, flowId?: string) => void;
+    onSiteUseSaved?: (siteId: string, flowId?: string) => void;
 }
 
-export function ResponseRenderer({ content, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart }: ResponseRendererProps) {
+export function ResponseRenderer({ content, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart, onSiteProceed, onSiteUseSaved }: ResponseRendererProps) {
     const { markdown, components } = parseComponents(content);
 
     // Split markdown by component placeholders and render accordingly
@@ -286,7 +317,7 @@ export function ResponseRenderer({ content, flowId, websiteUrl, onICPSelect, onP
         // Add component
         const compIndex = parseInt(match[1]);
         if (components[compIndex]) {
-            parts.push(renderComponent(components[compIndex], compIndex, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart));
+            parts.push(renderComponent(components[compIndex], compIndex, flowId, websiteUrl, onICPSelect, onPersonaWorkflows, onPersonaRestart, onSiteProceed, onSiteUseSaved));
         }
 
         lastIndex = match.index + match[0].length;

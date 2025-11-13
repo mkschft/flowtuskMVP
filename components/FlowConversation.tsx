@@ -194,6 +194,272 @@ export function FlowConversation({
     setHideComposer(false);
   };
 
+  const handleSiteProceed = async (url: string, siteId: string, flowId?: string) => {
+    setIsAILoading(true);
+    setStreamingContent("");
+    setAiStatus("Scraping website...");
+
+    try {
+      // Re-scrape the website and update the site entry
+      const scrapeResp = await fetch("/api/analyze-website", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          url,
+          flowId: flowId || undefined,
+          forceRescrape: true,
+          siteId // Pass siteId to update existing entry
+        }),
+      });
+
+      if (!scrapeResp.ok) {
+        throw new Error("Failed to scrape website");
+      }
+
+      // After scraping, trigger AI response generation
+      setAiStatus("Generating response...");
+      const aiResp = await fetch("/api/generate-ai-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Analyze this website and generate ICPs: ${url}`,
+          flowId: flowId || undefined,
+        }),
+      });
+
+      if (!aiResp.ok) {
+        throw new Error("Failed to generate AI response");
+      }
+
+      // Stream the response
+      const reader = aiResp.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = "";
+      let buffer = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          buffer += chunk;
+
+          // Filter out STATUS: lines
+          while (true) {
+            const statusMatch = buffer.match(/STATUS:([^\n]*)/);
+            if (!statusMatch) break;
+
+            const status = statusMatch[1].trim();
+            if (status) {
+              setAiStatus(status);
+            }
+            buffer = buffer.replace(/STATUS:[^\n]*\n?/, "");
+          }
+
+          // Process remaining buffer content (excluding STATUS: lines)
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith("STATUS:") && !line.includes("STATUS:")) {
+              accumulatedContent += line + "\n";
+            }
+          }
+
+          // Update streaming content (filtered)
+          const filteredContent = accumulatedContent
+            .replace(/STATUS:[^\n]*\n?/g, "")
+            .replace(/STATUS:[^\n]*/g, "")
+            .replace(/STATUS:/g, "");
+          setStreamingContent(filteredContent);
+        }
+
+        // Process remaining buffer
+        const remainingBuffer = buffer
+          .replace(/STATUS:[^\n]*\n?/g, "")
+          .replace(/STATUS:[^\n]*/g, "")
+          .trim();
+        if (remainingBuffer && !remainingBuffer.includes("STATUS:")) {
+          accumulatedContent += remainingBuffer;
+        }
+      }
+
+      // Save final response (clean STATUS: messages)
+      const cleanedContent = accumulatedContent
+        .replace(/STATUS:[^\n]*\n?/g, "")
+        .replace(/STATUS:[^\n]*/g, "")
+        .replace(/STATUS:/g, "")
+        .trim();
+
+      if (cleanedContent && flowId) {
+        const createResp = await fetch("/api/create-ai-speech", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: cleanedContent,
+            flowId: flowId,
+            modelCode: "gpt-4o-mini",
+          }),
+        });
+
+        if (createResp.ok) {
+          const aiSpeech = await createResp.json();
+          setSpeeches((prev) => [...prev, {
+            id: aiSpeech.id,
+            content: aiSpeech.content,
+            author: null,
+            model_id: aiSpeech.model_id,
+            created_at: aiSpeech.created_at,
+          }]);
+        }
+      }
+
+      setStreamingContent("");
+    } catch (error) {
+      console.error("Failed to proceed with scraping:", error);
+      setStreamingContent("Failed to scrape website. Please try again.");
+    } finally {
+      setIsAILoading(false);
+      setAiStatus("");
+    }
+  };
+
+  const handleSiteUseSaved = async (siteId: string, flowId?: string) => {
+    setIsAILoading(true);
+    setStreamingContent("");
+    setAiStatus("Loading saved data...");
+
+    try {
+      // Fetch saved site data from Supabase
+      const supabase = createClient();
+      const { data: site, error: siteError } = await supabase
+        .from("sites")
+        .select("*")
+        .eq("id", siteId)
+        .single();
+
+      if (siteError || !site) {
+        throw new Error("Failed to fetch saved site data");
+      }
+
+      // Generate AI response using saved site data
+      setAiStatus("Generating response from saved data...");
+      const aiResp = await fetch("/api/generate-ai-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Generate company overview and ICPs from this saved website data: ${site.url}`,
+          flowId: flowId || undefined,
+          savedSiteData: {
+            content: site.content || "",
+            facts_json: site.facts_json || {},
+            title: site.title || null,
+            description: site.description || null,
+            summary: site.summary || null,
+            url: site.url,
+          },
+        }),
+      });
+
+      if (!aiResp.ok) {
+        throw new Error("Failed to generate AI response");
+      }
+
+      // Stream the response
+      const reader = aiResp.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = "";
+      let buffer = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          buffer += chunk;
+
+          // Filter out STATUS: lines
+          while (true) {
+            const statusMatch = buffer.match(/STATUS:([^\n]*)/);
+            if (!statusMatch) break;
+
+            const status = statusMatch[1].trim();
+            if (status) {
+              setAiStatus(status);
+            }
+            buffer = buffer.replace(/STATUS:[^\n]*\n?/, "");
+          }
+
+          // Process remaining buffer content (excluding STATUS: lines)
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith("STATUS:") && !line.includes("STATUS:")) {
+              accumulatedContent += line + "\n";
+            }
+          }
+
+          // Update streaming content (filtered)
+          const filteredContent = accumulatedContent
+            .replace(/STATUS:[^\n]*\n?/g, "")
+            .replace(/STATUS:[^\n]*/g, "")
+            .replace(/STATUS:/g, "");
+          setStreamingContent(filteredContent);
+        }
+
+        // Process remaining buffer
+        const remainingBuffer = buffer
+          .replace(/STATUS:[^\n]*\n?/g, "")
+          .replace(/STATUS:[^\n]*/g, "")
+          .trim();
+        if (remainingBuffer && !remainingBuffer.includes("STATUS:")) {
+          accumulatedContent += remainingBuffer;
+        }
+      }
+
+      // Save final response (clean STATUS: messages)
+      const cleanedContent = accumulatedContent
+        .replace(/STATUS:[^\n]*\n?/g, "")
+        .replace(/STATUS:[^\n]*/g, "")
+        .replace(/STATUS:/g, "")
+        .trim();
+
+      if (cleanedContent && flowId) {
+        const createResp = await fetch("/api/create-ai-speech", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: cleanedContent,
+            flowId: flowId,
+            modelCode: "gpt-4o-mini",
+          }),
+        });
+
+        if (createResp.ok) {
+          const aiSpeech = await createResp.json();
+          setSpeeches((prev) => [...prev, {
+            id: aiSpeech.id,
+            content: aiSpeech.content,
+            author: null,
+            model_id: aiSpeech.model_id,
+            created_at: aiSpeech.created_at,
+          }]);
+        }
+      }
+
+      setStreamingContent("");
+    } catch (error) {
+      console.error("Failed to use saved data:", error);
+      setStreamingContent("Failed to load saved data. Please try again.");
+    } finally {
+      setIsAILoading(false);
+      setAiStatus("");
+    }
+  };
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <ScrollArea className="flex-1 min-h-0">
@@ -256,6 +522,8 @@ export function FlowConversation({
                       onICPSelect={handleICPSelect}
                       onPersonaWorkflows={handlePersonaWorkflows}
                       onPersonaRestart={handlePersonaRestart}
+                      onSiteProceed={handleSiteProceed}
+                      onSiteUseSaved={handleSiteUseSaved}
                     />
                   )}
                 </div>
@@ -277,6 +545,8 @@ export function FlowConversation({
                     onICPSelect={handleICPSelect}
                     onPersonaWorkflows={handlePersonaWorkflows}
                     onPersonaRestart={handlePersonaRestart}
+                    onSiteProceed={handleSiteProceed}
+                    onSiteUseSaved={handleSiteUseSaved}
                   />
                 ) : showSkeletons ? (
                   <div className="space-y-4">

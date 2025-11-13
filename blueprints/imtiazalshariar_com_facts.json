@@ -1,0 +1,168 @@
+{
+  "brand": {
+    "name": "Imtiaz Al Shariar",
+    "tones": [
+      "design-forward",
+      "innovative",
+      "technical"
+    ],
+    "primaryCTA": "Consult"
+  },
+  "structure": {
+    "nav": [
+      "Im.",
+      "Projects",
+      "Case Study",
+      "Gallery"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Imtiaz Al Shariar - Design-forward Product Engineer"
+      },
+      {
+        "path": "/#",
+        "title": "Projects"
+      },
+      {
+        "path": "/#",
+        "title": "Case Study"
+      },
+      {
+        "path": "/#",
+        "title": "Gallery"
+      }
+    ],
+    "footer": [
+      "Blog",
+      "Case Studies and Op-Eds"
+    ]
+  },
+  "audienceSignals": [
+    "startups",
+    "enterprises",
+    "innovative teams across Europe and Asia"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Builds end-to-end web applications and MVPs",
+      "evidence": [
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Focus on design and technical execution",
+      "evidence": [
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Architects scalable, user-centric systems",
+      "evidence": [
+        "fact-5"
+      ]
+    }
+  ],
+  "pains": [
+    "complex business challenges"
+  ],
+  "proof": [
+    "Trusted by innovative teams across Europe and Asia",
+    "Logos of companies like KONE, Kahf, Zipli, Ource, ZeltaTech"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Imtiaz Al Shariar is a design-forward product engineer.",
+      "page": "/",
+      "evidence": "Design-forward Product Engineer."
+    },
+    {
+      "id": "fact-2",
+      "text": "Primary call to action is 'Consult'.",
+      "page": "/",
+      "evidence": "Consult"
+    },
+    {
+      "id": "fact-3",
+      "text": "Imtiaz builds end-to-end web applications and MVPs.",
+      "page": "/",
+      "evidence": "I, Imtiaz Al Shariar, build end-to-end web applications and MVPs"
+    },
+    {
+      "id": "fact-4",
+      "text": "Focus on design and technical execution.",
+      "page": "/",
+      "evidence": "With a focus on design and technical execution"
+    },
+    {
+      "id": "fact-5",
+      "text": "Architects scalable, user-centric systems.",
+      "page": "/",
+      "evidence": "Architecting scalable, user-centric systems."
+    },
+    {
+      "id": "fact-6",
+      "text": "Helps startups and enterprises bring innovative products to market.",
+      "page": "/",
+      "evidence": "I help startups and enterprises bring innovative products to market."
+    },
+    {
+      "id": "fact-7",
+      "text": "Trusted by innovative teams across Europe and Asia.",
+      "page": "/",
+      "evidence": "Trusted by innovative teams across Europe and Asia"
+    },
+    {
+      "id": "fact-8",
+      "text": "Companies like KONE, Kahf, Zipli, Ource, ZeltaTech are associated.",
+      "page": "/",
+      "evidence": "Logos of companies like KONE, Kahf, Zipli, Ource, ZeltaTech"
+    },
+    {
+      "id": "fact-9",
+      "text": "Website includes a blog section.",
+      "page": "/",
+      "evidence": "Blog"
+    },
+    {
+      "id": "fact-10",
+      "text": "Website includes case studies and op-eds.",
+      "page": "/",
+      "evidence": "Case Studies and Op-Eds"
+    },
+    {
+      "id": "fact-11",
+      "text": "Articles and writings are published on-site and across different spaces.",
+      "page": "/",
+      "evidence": "Articles and writings published on-site and across different spaces for discussion."
+    },
+    {
+      "id": "fact-12",
+      "text": "Case study on building scalable systems is available.",
+      "page": "/",
+      "evidence": "Building Scalable Systems: A Case Study"
+    },
+    {
+      "id": "fact-13",
+      "text": "Design thinking process in product development is discussed.",
+      "page": "/",
+      "evidence": "The Design Thinking Process in Product Development"
+    },
+    {
+      "id": "fact-14",
+      "text": "Complex business challenges are addressed.",
+      "page": "/",
+      "evidence": "solve complex business challenges"
+    },
+    {
+      "id": "fact-15",
+      "text": "The website has a section for viewing all posts.",
+      "page": "/",
+      "evidence": "View All Posts"
+    }
+  ]
+}

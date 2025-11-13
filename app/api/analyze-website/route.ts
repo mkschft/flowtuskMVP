@@ -6,6 +6,8 @@ import { buildAnalyzePrompt } from "@/lib/prompt-templates";
 import { validateFactsJSON } from "@/lib/validators";
 import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
+import { createClient } from "@/lib/supabase/server";
+import { SiteInsert, SiteUpdate } from "@/lib/types/database";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +15,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { url } = await req.json();
+    const { url, flowId, forceRescrape, siteId } = await req.json();
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
@@ -238,7 +240,75 @@ export async function POST(req: NextRequest) {
     console.log('✅ [Analyze] Analysis complete with Facts JSON');
 
     // ========================================================================
-    // STEP 4: Return both Facts JSON and raw content
+    // STEP 4: Save or update site data in database (if flowId provided)
+    // ========================================================================
+    if (flowId) {
+      try {
+        const supabase = await createClient();
+        const title = factsJson?.brand?.name || factsJson?.companyName || new URL(url).hostname;
+        const description = factsJson?.summary?.businessDescription || factsJson?.description || null;
+        const summary = factsJson?.summary?.businessDescription || description || null;
+
+        if (siteId) {
+          // Update existing site
+          const siteUpdate: SiteUpdate = {
+            content: rawContent,
+            source: source,
+            title: title,
+            description: description,
+            summary: summary,
+            hero_image: metadata.heroImage,
+            favicon_url: metadata.faviconUrl,
+            language: factsJson?.language || null,
+            facts_json: factsJson,
+            pages: 1,
+          };
+
+          const { error: updateError } = await supabase
+            .from("sites")
+            .update(siteUpdate)
+            .eq("id", siteId);
+
+          if (updateError) {
+            console.error("Error updating site:", updateError);
+          } else {
+            console.log("✅ Site updated in database:", siteId);
+          }
+        } else {
+          // Insert new site
+          const siteInsert: SiteInsert = {
+            parent_flow: flowId,
+            url: url,
+            content: rawContent,
+            source: source,
+            title: title,
+            description: description,
+            summary: summary,
+            hero_image: metadata.heroImage,
+            favicon_url: metadata.faviconUrl,
+            language: factsJson?.language || null,
+            facts_json: factsJson,
+            pages: 1,
+          };
+
+          const { error: insertError } = await supabase
+            .from("sites")
+            .insert(siteInsert);
+
+          if (insertError) {
+            console.error("Error saving site:", insertError);
+          } else {
+            console.log("✅ Site saved to database");
+          }
+        }
+      } catch (dbError) {
+        console.error("Error saving/updating site:", dbError);
+        // Don't fail the request if DB save fails
+      }
+    }
+
+    // ========================================================================
+    // STEP 5: Return both Facts JSON and raw content
     // ========================================================================
     return NextResponse.json({
       content: rawContent, // Keep for fallback

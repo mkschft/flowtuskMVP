@@ -10,6 +10,7 @@ import {
   Sun,
   Moon,
   Laptop,
+  Mail,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
@@ -36,6 +37,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useRouter } from "next/navigation"
 
 function getInitials(text: string): string {
   if (!text) return "?"
@@ -62,6 +64,7 @@ export function NavUser({
   const initials = getInitials(user?.name || user?.email)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -127,6 +130,10 @@ export function NavUser({
               <DropdownMenuItem>
                 <Bell />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/u/invitations")}>
+                <Mail />
+                Invitations
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

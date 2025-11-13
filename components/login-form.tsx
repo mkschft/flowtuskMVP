@@ -49,13 +49,31 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
+
+      // Auto-accept any pending invitations for this user's email
+      try {
+        await fetch("/api/invitations/auto-accept", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (acceptError) {
+        // Don't fail login if auto-accept fails
+        console.error("Error auto-accepting invitation:", acceptError);
+      }
+
       // Prefer post-login redirect target if present
       let target: string | null = null;
       try {
         target = localStorage.getItem("postLoginRedirect");
         if (target) localStorage.removeItem("postLoginRedirect");
       } catch {}
-      router.push(target || "/");
+      
+      // If redirect is to accept-invite, go there; otherwise go to dashboard
+      if (target && target.includes("/auth/accept-invite")) {
+        router.push(target);
+      } else {
+        router.push(target || "/u");
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {

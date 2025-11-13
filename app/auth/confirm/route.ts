@@ -17,6 +17,39 @@ export async function GET(request: NextRequest) {
       token_hash,
     });
     if (!error) {
+      // Auto-accept any pending invitations for this user's email after email confirmation
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.email) {
+          // Find and accept pending invitation directly
+          const { data: invitations } = await supabase
+            .from("invitations")
+            .select("*")
+            .eq("email", user.email.toLowerCase())
+            .eq("status", "pending")
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          if (invitations && invitations.length > 0) {
+            const invitation = invitations[0];
+            // Check if not expired
+            if (new Date(invitation.expires_at) >= new Date()) {
+              await supabase
+                .from("invitations")
+                .update({
+                  status: "accepted",
+                  accepted_at: new Date().toISOString(),
+                  accepted_by: user.id,
+                })
+                .eq("id", invitation.id);
+            }
+          }
+        }
+      } catch (acceptError) {
+        // Don't fail email confirmation if auto-accept fails
+        console.error("Error auto-accepting invitation after email confirmation:", acceptError);
+      }
+
       // redirect user to specified redirect URL or root of app
       redirect(next);
     } else {

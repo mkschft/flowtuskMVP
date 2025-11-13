@@ -82,7 +82,7 @@ export function WorkflowsChat() {
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Flows</span>
+          <span>Back to Conversations</span>
         </Button>
       </div>
 

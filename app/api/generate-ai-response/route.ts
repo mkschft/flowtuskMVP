@@ -115,6 +115,29 @@ IMPORTANT:
     }
 }
 
+// Check if site already exists
+async function checkExistingSite(url: string, flowId?: string): Promise<any | null> {
+    if (!flowId) return null;
+    
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("sites")
+            .select("*")
+            .eq("url", url)
+            .eq("parent_flow", flowId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        
+        if (error || !data) return null;
+        return data;
+    } catch (error) {
+        console.error("Error checking existing site:", error);
+        return null;
+    }
+}
+
 // Save ICP to database
 async function saveICP(icpData: any, flowId: string, websiteUrl?: string): Promise<void> {
     if (!flowId) {
@@ -158,6 +181,26 @@ async function saveICP(icpData: any, flowId: string, websiteUrl?: string): Promi
 // Scrape URL using webcrawlerapi, analyze with OpenAI, and generate ICP
 async function scrapeUrl(url: string, controller: ReadableStreamDefaultController<Uint8Array>, encoder: TextEncoder, flowId?: string, req?: NextRequest, excludeICP?: any): Promise<string> {
     try {
+        // Check if site already exists
+        const existingSite = await checkExistingSite(url, flowId);
+        if (existingSite) {
+            // Stream the card component
+            const siteCardComponent = {
+                type: "site-already-scraped",
+                props: {
+                    url: url,
+                    siteId: existingSite.id,
+                    title: existingSite.title || url,
+                    summary: existingSite.summary || existingSite.description || "This site has already been scraped.",
+                    createdAt: existingSite.created_at,
+                    flowId: flowId,
+                }
+            };
+            const cardContent = `<component>${JSON.stringify(siteCardComponent)}</component>`;
+            controller.enqueue(encoder.encode(cardContent));
+            // Return empty string to avoid adding component data to context
+            return "";
+        }
 
         let crawledContent = "";
         let hasContent = false;
@@ -370,6 +413,35 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         note: "This URL was already analyzed and ICPs have been generated above. No need to analyze again."
                     });
                 }
+                
+                // Check if site already exists
+                const existingSite = await checkExistingSite(args.url, flowId);
+                if (existingSite) {
+                    // Stream the card component if controller is available
+                    if (controller && encoder) {
+                        const siteCardComponent = {
+                            type: "site-already-scraped",
+                            props: {
+                                url: args.url,
+                                siteId: existingSite.id,
+                                title: existingSite.title || args.url,
+                                summary: existingSite.summary || existingSite.description || "This site has already been scraped.",
+                                createdAt: existingSite.created_at,
+                                flowId: flowId,
+                            }
+                        };
+                        const cardContent = `<component>${JSON.stringify(siteCardComponent)}</component>`;
+                        controller.enqueue(encoder.encode(cardContent));
+                    }
+                    
+                    // Return simple message without component data
+                    return JSON.stringify({
+                        success: true,
+                        url: args.url,
+                        note: "Site already scraped."
+                    });
+                }
+                
                 try {
                     // Use webcrawlerapi to crawl website
                     const scrapeResult = await crawlWebsiteWithWebcrawler(args.url, {
@@ -563,10 +635,18 @@ function sendStatus(controller: ReadableStreamDefaultController<Uint8Array>, enc
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, flowId, excludeCurrentICP } = await req.json() as {
+        const { message, flowId, excludeCurrentICP, savedSiteData } = await req.json() as {
             message?: string;
             flowId?: string;
             excludeCurrentICP?: string;
+            savedSiteData?: {
+                content: string;
+                facts_json: any;
+                title?: string;
+                description?: string;
+                summary?: string;
+                url?: string;
+            };
         };
         if (!message || !message.trim()) {
             return new Response(JSON.stringify({ error: "Missing message" }), { status: 400 });
@@ -656,9 +736,84 @@ export async function POST(req: NextRequest) {
                     const scrapedContents: Array<{ url: string; content: string }> = [];
                     const scrapedUrls = new Set<string>();
 
-                    // If URLs detected or scraping mentioned, scrape them
+                    // If savedSiteData is provided, use it instead of scraping
                     let hasICPComponent = false;
-                    if (needsScraping && urls.length > 0) {
+                    let hasSiteAlreadyScrapedComponent = false;
+                    if (savedSiteData) {
+                        sendStatus(controller, encoder, "Generating ICPs from saved data...");
+                        
+                        try {
+                            // Generate ICPs from saved content
+                            const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
+                            const icpReq = new NextRequest(req?.url || "http://localhost", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    content: savedSiteData.content,
+                                    excludeCurrentICP: excludeICP,
+                                }),
+                            });
+
+                            const icpResp = await generateICPs(icpReq);
+                            const icpData = await icpResp.json();
+
+                            if (icpData.icps && icpData.icps.length > 0) {
+                                // Get first 3 ICPs
+                                const icpsToShow = icpData.icps.slice(0, 3);
+
+                                // Save all ICPs to database
+                                if (flowId) {
+                                    for (const icp of icpsToShow) {
+                                        await saveICP({
+                                            ...icp,
+                                            fitScore: 90,
+                                            profilesFound: 12,
+                                        }, flowId, savedSiteData.url || savedSiteData.facts_json?.websiteUrl || "");
+                                    }
+                                }
+
+                                // Create ICP cards component with company overview
+                                const icpComponent = {
+                                    type: "icp-cards",
+                                    props: {
+                                        icps: icpsToShow.map((icp: any) => ({
+                                            personaName: icp.personaName || "",
+                                            personaRole: icp.personaRole || "",
+                                            personaCompany: icp.personaCompany || "",
+                                            location: icp.location || "",
+                                            country: icp.country || "",
+                                            title: icp.title || "",
+                                            description: icp.description || "",
+                                            painPoints: icp.painPoints || [],
+                                            fitScore: 90,
+                                            profilesFound: 12,
+                                        })),
+                                        websiteUrl: savedSiteData.url || savedSiteData.facts_json?.websiteUrl || "",
+                                        flowId: flowId,
+                                        businessDescription: savedSiteData.summary || savedSiteData.description || savedSiteData.facts_json?.summary?.businessDescription || "",
+                                        painPointsWithMetrics: savedSiteData.facts_json?.summary?.painPointsWithMetrics || [],
+                                    }
+                                };
+
+                                const icpContent = `<component>${JSON.stringify(icpComponent)}</component>`;
+                                controller.enqueue(encoder.encode(icpContent));
+                                hasICPComponent = true;
+                            }
+                        } catch (error) {
+                            console.error("Error generating ICPs from saved data:", error);
+                            controller.enqueue(encoder.encode("\n[Error generating ICPs from saved data]\n\n"));
+                        }
+
+                        // Close stream after generating ICPs
+                        if (hasICPComponent) {
+                            sendStatus(controller, encoder, "");
+                            controller.close();
+                            return;
+                        }
+                    }
+
+                    // If URLs detected or scraping mentioned, scrape them
+                    if (needsScraping && urls.length > 0 && !savedSiteData) {
                         sendStatus(controller, encoder, "Scraping data");
                         for (const url of urls) {
                             const content = await scrapeUrl(url, controller, encoder, flowId, req, excludeICP);
@@ -669,11 +824,14 @@ export async function POST(req: NextRequest) {
                                 if (content.includes("<component>") && (content.includes('"type":"icp-card"') || content.includes('"type":"icp-cards"'))) {
                                     hasICPComponent = true;
                                 }
+                            } else {
+                                // Empty content means site-already-scraped component was displayed
+                                hasSiteAlreadyScrapedComponent = true;
                             }
                         }
 
-                        // If ICP component was generated, close stream immediately (no additional AI text needed)
-                        if (hasICPComponent) {
+                        // If component was generated, close stream immediately (no additional AI text needed)
+                        if (hasICPComponent || hasSiteAlreadyScrapedComponent) {
                             sendStatus(controller, encoder, "");
                             controller.close();
                             return;
@@ -687,8 +845,8 @@ export async function POST(req: NextRequest) {
                     }
 
                     // Step 4: Generate AI response (only if we haven't already closed the stream)
-                    // Skip AI call entirely if ICP component was already generated to save tokens
-                    if (hasICPComponent) {
+                    // Skip AI call entirely if component was already generated to save tokens
+                    if (hasICPComponent || hasSiteAlreadyScrapedComponent) {
                         // Already closed stream above, but double-check
                         sendStatus(controller, encoder, "");
                         controller.close();
@@ -775,8 +933,17 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                         for await (const chunk of stream) {
                             const delta = chunk.choices[0]?.delta;
                             if (delta?.content) {
-                                accumulatedContent += delta.content;
-                                controller.enqueue(encoder.encode(delta.content));
+                                // Filter out any component tags that might be echoed by AI
+                                let filteredContent = delta.content;
+                                // Remove component tags from AI's text response
+                                filteredContent = filteredContent.replace(/<component>[\s\S]*?<\/component>/g, '');
+                                // Remove any raw JSON that looks like component data
+                                filteredContent = filteredContent.replace(/\{"type":"site-already-scraped"[\s\S]*?\}/g, '');
+                                
+                                if (filteredContent) {
+                                    accumulatedContent += filteredContent;
+                                    controller.enqueue(encoder.encode(filteredContent));
+                                }
                             }
                             if (delta?.tool_calls) {
                                 for (const toolCall of delta.tool_calls) {
@@ -812,8 +979,15 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                     return;
                                 }
 
-                                // Regular content without ICPs, stream it
-                                controller.enqueue(encoder.encode(accumulatedContent));
+                                // Regular content without ICPs, stream it (filter out component tags and JSON)
+                                const filteredAccumulated = accumulatedContent
+                                    .replace(/<component>[\s\S]*?<\/component>/g, '')
+                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?\}/g, '')
+                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?\}\}/g, '') // Handle duplicate closing braces
+                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?"\}/g, ''); // Handle various JSON formats
+                                if (filteredAccumulated.trim()) {
+                                    controller.enqueue(encoder.encode(filteredAccumulated));
+                                }
                                 controller.close();
                                 return;
                             }
@@ -850,6 +1024,22 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                 // Clear status after tool execution
                                 sendStatus(controller, encoder, "");
 
+                                // Check if result indicates a component was displayed (site-already-scraped)
+                                let resultData;
+                                try {
+                                    resultData = JSON.parse(result);
+                                } catch {
+                                    resultData = null;
+                                }
+
+                                // If site-already-scraped component was displayed, close stream immediately
+                                // Don't add tool result to messages to prevent AI from echoing it
+                                if (resultData?.note?.includes("Site already scraped") || resultData?.note?.includes("card has been displayed")) {
+                                    controller.close();
+                                    return;
+                                }
+
+                                // Only add tool result if component wasn't displayed
                                 messages.push({
                                     role: "tool",
                                     tool_call_id: toolCall.id,

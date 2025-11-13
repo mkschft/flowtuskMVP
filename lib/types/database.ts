@@ -104,3 +104,77 @@ export interface ICPUpdate {
   profiles_found?: number;
 }
 
+export interface Site {
+  id: string;
+  parent_flow: string;
+  url: string;
+  content: string | null;
+  source: string | null;
+  title: string | null;
+  description: string | null;
+  summary: string | null;
+  hero_image: string | null;
+  favicon_url: string | null;
+  language: string | null;
+  facts_json: Record<string, any> | null;
+  pages: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SiteInsert {
+  parent_flow: string;
+  url: string;
+  content?: string | null;
+  source?: string | null;
+  title?: string | null;
+  description?: string | null;
+  summary?: string | null;
+  hero_image?: string | null;
+  favicon_url?: string | null;
+  language?: string | null;
+  facts_json?: Record<string, any> | null;
+  pages?: number;
+}
+
+export interface SiteUpdate {
+  url?: string;
+  content?: string | null;
+  source?: string | null;
+  title?: string | null;
+  description?: string | null;
+  summary?: string | null;
+  hero_image?: string | null;
+  favicon_url?: string | null;
+  language?: string | null;
+  facts_json?: Record<string, any> | null;
+  pages?: number;
+}
+
+export interface Invitation {
+  id: string;
+  email: string;
+  token: string;
+  invited_by: string;
+  status: "pending" | "accepted" | "expired" | "cancelled";
+  expires_at: string;
+  accepted_at: string | null;
+  accepted_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvitationInsert {
+  email: string;
+  token: string;
+  invited_by: string;
+  status?: "pending" | "accepted" | "expired" | "cancelled";
+  expires_at?: string;
+}
+
+export interface InvitationUpdate {
+  status?: "pending" | "accepted" | "expired" | "cancelled";
+  accepted_at?: string | null;
+  accepted_by?: string | null;
+}
+

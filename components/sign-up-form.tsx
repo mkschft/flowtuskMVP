@@ -13,10 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 
-export function SignUpForm({
+function SignUpFormContent({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
@@ -28,6 +28,16 @@ export function SignUpForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams?.get("token");
+  const inviteEmail = searchParams?.get("email");
+
+  // Pre-fill email if coming from invitation
+  useEffect(() => {
+    if (inviteEmail) {
+      setEmail(decodeURIComponent(inviteEmail));
+    }
+  }, [inviteEmail]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +64,34 @@ export function SignUpForm({
         },
       });
       if (error) throw error;
+
+      // If signing up with an invitation token, accept the invitation after sign-up
+      if (inviteToken) {
+        // Wait a moment for the session to be established
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        try {
+          const acceptResponse = await fetch("/api/invitations/accept", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: inviteToken }),
+          });
+
+          if (acceptResponse.ok) {
+            // Invitation accepted, redirect to dashboard
+            router.push("/u");
+            return;
+          } else {
+            // If accept fails, still redirect but show message
+            console.error("Failed to accept invitation:", await acceptResponse.json());
+          }
+        } catch (acceptError) {
+          console.error("Error accepting invitation:", acceptError);
+          // Continue to sign-up-success even if invitation accept fails
+        }
+      }
+
+      // If no invitation token or accept failed, go to success page
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -67,7 +105,9 @@ export function SignUpForm({
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardDescription>
+            {inviteToken ? "Create your account to accept the invitation" : "Create a new account"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
@@ -81,6 +121,7 @@ export function SignUpForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={!!inviteEmail} // Disable if email is pre-filled from invitation
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -138,7 +179,10 @@ export function SignUpForm({
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
+              <Link 
+                href={inviteToken ? `/auth/login?redirect=/auth/accept-invite?token=${inviteToken}` : "/auth/login"} 
+                className="underline underline-offset-4"
+              >
                 Login
               </Link>
             </div>
@@ -146,5 +190,32 @@ export function SignUpForm({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function SignUpForm({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  return (
+    <Suspense
+      fallback={
+        <div className={cn("flex flex-col gap-6", className)} {...props}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">Sign up</CardTitle>
+              <CardDescription>Loading...</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center py-8">
+                <p className="text-sm text-muted-foreground">Please wait...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <SignUpFormContent className={className} {...props} />
+    </Suspense>
   );
 }
