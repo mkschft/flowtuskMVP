@@ -1,0 +1,185 @@
+{
+  "brand": {
+    "name": "Stripe",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Visit the Stripe pricing page"
+  },
+  "structure": {
+    "nav": [
+      "Overview",
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions",
+      "Pricing/Business Model"
+    ],
+    "keyPages": [
+      {
+        "path": "/overview",
+        "title": "Stripe Overview"
+      },
+      {
+        "path": "/core-offering",
+        "title": "Core Offering"
+      },
+      {
+        "path": "/features-benefits",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
+      },
+      {
+        "path": "/pricing",
+        "title": "Pricing/Business Model"
+      }
+    ],
+    "footer": [
+      "Stripe pricing page"
+    ]
+  },
+  "audienceSignals": [
+    "Enterprises and Startups",
+    "Ecommerce businesses",
+    "Marketplaces and Platforms",
+    "SaaS companies",
+    "Global Businesses",
+    "Specific Industries such as AI, media, travel, insurance, and nonprofits"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Ease of Use",
+      "evidence": [
+        "fact-9",
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Flexibility",
+      "evidence": [
+        "fact-11"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Security",
+      "evidence": [
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Scalability",
+      "evidence": [
+        "fact-13"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for comprehensive financial infrastructure",
+    "Requirement for global payment methods",
+    "Necessity for fraud prevention",
+    "Demand for financial automation"
+  ],
+  "proof": [
+    "Stripe Radar for fraud detection",
+    "Stripe Sigma for custom reporting",
+    "Extensive API documentation and SDKs"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Stripe provides a comprehensive financial infrastructure.",
+      "page": "Core Offering",
+      "evidence": "Stripe provides a comprehensive financial infrastructure designed to facilitate online payments and manage business finances."
+    },
+    {
+      "id": "fact-2",
+      "text": "Stripe supports over 100 payment methods worldwide.",
+      "page": "Key Features and Benefits",
+      "evidence": "Supports online payments, in-person transactions, and access to over 100 payment methods worldwide."
+    },
+    {
+      "id": "fact-3",
+      "text": "Stripe offers financial accounts and card issuance.",
+      "page": "Key Features and Benefits",
+      "evidence": "Includes features like financial accounts, issuing physical and virtual cards, and global payouts."
+    },
+    {
+      "id": "fact-4",
+      "text": "Stripe provides subscription management and invoicing tools.",
+      "page": "Key Features and Benefits",
+      "evidence": "Offers subscription management, invoicing, tax automation, and revenue recognition tools."
+    },
+    {
+      "id": "fact-5",
+      "text": "Stripe uses Stripe Radar for fraud detection.",
+      "page": "Key Features and Benefits",
+      "evidence": "Utilizes Stripe Radar for fraud detection and prevention."
+    },
+    {
+      "id": "fact-6",
+      "text": "Stripe provides custom reporting through Stripe Sigma.",
+      "page": "Key Features and Benefits",
+      "evidence": "Provides Stripe Sigma for generating custom reports and data insights."
+    },
+    {
+      "id": "fact-7",
+      "text": "Stripe is developer-friendly with extensive API documentation.",
+      "page": "Key Features and Benefits",
+      "evidence": "Extensive API documentation and SDKs for easy integration into applications."
+    },
+    {
+      "id": "fact-8",
+      "text": "Stripe serves enterprises and startups.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Tailored solutions for businesses of all sizes, from startups to large enterprises."
+    },
+    {
+      "id": "fact-9",
+      "text": "Stripe offers no-code payment solutions.",
+      "page": "Value Propositions",
+      "evidence": "No-code payment solutions and prebuilt forms simplify the payment process for businesses."
+    },
+    {
+      "id": "fact-10",
+      "text": "Stripe provides prebuilt forms for payment processing.",
+      "page": "Value Propositions",
+      "evidence": "No-code payment solutions and prebuilt forms simplify the payment process for businesses."
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe offers customizable payment solutions.",
+      "page": "Value Propositions",
+      "evidence": "Customizable payment solutions that can be tailored to specific business needs."
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe has robust fraud prevention measures.",
+      "page": "Value Propositions",
+      "evidence": "Robust fraud prevention measures and compliance with financial regulations."
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe's infrastructure accommodates increasing transaction volumes.",
+      "page": "Value Propositions",
+      "evidence": "Infrastructure that grows with the business, accommodating increasing transaction volumes."
+    },
+    {
+      "id": "fact-14",
+      "text": "Stripe's pricing model is based on transaction fees.",
+      "page": "Pricing/Business Model",
+      "evidence": "Stripe typically operates on a transaction fee model, charging a percentage of each transaction processed through its platform."
+    }
+  ]
+}

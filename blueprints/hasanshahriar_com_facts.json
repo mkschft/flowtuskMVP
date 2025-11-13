@@ -1,0 +1,139 @@
+{
+  "brand": {
+    "name": "Hasan Shahriar",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "reach out for collaboration or inquiries"
+  },
+  "structure": {
+    "nav": [
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions"
+    ],
+    "keyPages": [
+      {
+        "path": "/core-offering",
+        "title": "Core Offering"
+      },
+      {
+        "path": "/features-benefits",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
+      }
+    ],
+    "footer": []
+  },
+  "audienceSignals": [
+    "B2B companies looking to improve digital presence",
+    "Startups needing scalable web solutions",
+    "Enterprises seeking digital transformation"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Scalability of solutions",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Expertise in B2B sector",
+      "evidence": [
+        "fact-4",
+        "fact-8"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Customer-centric approach",
+      "evidence": [
+        "fact-5",
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for scalable digital solutions",
+    "Challenges in digital transformation and customer engagement"
+  ],
+  "proof": [
+    "Over 7 years of experience",
+    "Portfolio includes websites for more than 100 startups, agencies, and enterprises",
+    "Generated over 10,000 impactful leads"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Hasan Shahriar specializes in B2B digital transformation.",
+      "page": "Core Offering",
+      "evidence": "Hasan Shahriar specializes in B2B digital transformation, providing scalable digital solutions."
+    },
+    {
+      "id": "fact-2",
+      "text": "The company employs a technology-first approach.",
+      "page": "Core Offering",
+      "evidence": "The company employs a technology-first approach that integrates strategic innovation with proven execution."
+    },
+    {
+      "id": "fact-3",
+      "text": "Solutions are designed to grow with the client's business needs.",
+      "page": "Value Propositions",
+      "evidence": "Solutions designed to grow with the client's business needs."
+    },
+    {
+      "id": "fact-4",
+      "text": "Hasan Shahriar has over 7 years of experience.",
+      "page": "Key Features and Benefits",
+      "evidence": "Over 7 years of experience with a portfolio that includes websites for more than 100 startups, agencies, and enterprises."
+    },
+    {
+      "id": "fact-5",
+      "text": "Focus on understanding and addressing unique challenges faced by B2B companies.",
+      "page": "Value Propositions",
+      "evidence": "Focus on understanding and addressing the unique challenges faced by B2B companies."
+    },
+    {
+      "id": "fact-6",
+      "text": "Development of comprehensive web solutions tailored for B2B companies.",
+      "page": "Key Features and Benefits",
+      "evidence": "Development of comprehensive web solutions tailored for B2B companies."
+    },
+    {
+      "id": "fact-7",
+      "text": "Utilizes platforms like Webflow and React.",
+      "page": "Key Features and Benefits",
+      "evidence": "Utilizes platforms like Webflow and React to enhance digital marketing and content creation."
+    },
+    {
+      "id": "fact-8",
+      "text": "Portfolio includes websites for more than 100 startups, agencies, and enterprises across 8 countries.",
+      "page": "Key Features and Benefits",
+      "evidence": "Portfolio that includes websites for more than 100 startups, agencies, and enterprises across 8 countries."
+    },
+    {
+      "id": "fact-9",
+      "text": "Successfully generated over 10,000 impactful leads for clients.",
+      "page": "Key Features and Benefits",
+      "evidence": "Successfully generated over 10,000 impactful leads for clients."
+    },
+    {
+      "id": "fact-10",
+      "text": "Services cater to a wide range of clients, from startups to established enterprises.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Services cater to a wide range of clients, from startups to established enterprises, needing scalable web solutions."
+    }
+  ]
+}
