@@ -20,7 +20,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    console.log('🔍 [Analyze] Starting analysis for:', url);
+    // Normalize URL to ensure it has a protocol
+    let normalizedUrl = url.trim();
+    if (!/^https?:\/\//i.test(normalizedUrl)) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+
+    console.log('🔍 [Analyze] Starting analysis for:', normalizedUrl);
 
     // ========================================================================
     // STEP 1: Fetch website content (Webcrawler → Jina → Direct fallback)
@@ -29,13 +35,13 @@ export async function POST(req: NextRequest) {
     let source = "jina";
     let metadata = {
       heroImage: null as string | null,
-      faviconUrl: `${new URL(url).origin}/favicon.ico`,
+      faviconUrl: `${new URL(normalizedUrl).origin}/favicon.ico`,
     };
 
     // Try webcrawler scraper (includes fallbacks to Jina and direct fetch)
     try {
       const scrapeStartTime = Date.now();
-      const scrapeResult = await scrapeWebsite(url, {
+      const scrapeResult = await scrapeWebsite(normalizedUrl, {
         include_text: true,
         include_links: true,
         include_images: false,
@@ -154,7 +160,7 @@ export async function POST(req: NextRequest) {
         const blueprintsDir = join(process.cwd(), "blueprints");
         await mkdir(blueprintsDir, { recursive: true });
         
-        const hostname = new URL(url).hostname.replace(/\./g, "_");
+        const hostname = new URL(normalizedUrl).hostname.replace(/\./g, "_");
         
         // Save raw content
         const contentFilepath = join(blueprintsDir, `${hostname}_content.md`);
