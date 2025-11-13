@@ -37,7 +37,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
 
             // Create flow (if needed) then create speech
             if (!flowId) {
-                // Step 1: Show user message instantly (optimistic update)
+                // Step 1: Show user message instantly (optimistic update) and clear input
                 const tempUserSpeech = {
                     id: `temp-${Date.now()}`,
                     content,
@@ -46,20 +46,22 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                     created_at: new Date().toISOString(),
                 };
                 onNewSpeech?.(tempUserSpeech as any);
+                setValue(""); // Clear input immediately so user sees message in chat
 
-                // Step 2: Generate inexpensive title via API (fallback to first line)
-                let title = content.split("\n")[0].slice(0, 60) || "New Flow";
-                try {
-                    const resp = await fetch("/api/generate-title", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ content }),
-                    });
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (data?.title) title = data.title;
-                    }
-                } catch { }
+                // Step 2: Generate title - use generic format for URLs, otherwise use first line
+                const URL_REGEX = /https?:\/\/[^\s\)\]\"\'<>]+/gi;
+                const urlMatch = content.match(URL_REGEX);
+                let title: string;
+
+                if (urlMatch && urlMatch.length > 0) {
+                    // Clean URL (remove trailing punctuation)
+                    const url = urlMatch[0].replace(/[.,;:!?]+$/, '').replace(/[\)\]\"\']+$/, '');
+                    // Add code marker to indicate title needs generation on refresh
+                    title = `[TEMP] Site Inquiry: ${url}`;
+                } else {
+                    // Fallback to first line (truncated)
+                    title = content.split("\n")[0].slice(0, 60) || "New Flow";
+                }
 
                 // Step 3: Create flow
                 const { data: newFlow, error: flowErr } = await supabase
@@ -81,7 +83,6 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
 
                 // Step 5: Replace temp speech with real one
                 onNewSpeech?.(createdSpeech as any);
-                setValue("");
                 onLoadingChange?.(true);
 
                 // Generate AI response and stream it

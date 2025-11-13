@@ -11,9 +11,9 @@ const openai = new OpenAI({
 
 // Scraper service URL - can be configured via environment variable
 // Defaults to localhost:5001 (where the Flask scraper service runs)
-const SCRAPER_SERVICE_URL = 
-  process.env.SCRAPER_SERVICE_URL || 
-  process.env.NEXT_PUBLIC_SCRAPER_SERVICE_URL || 
+const SCRAPER_SERVICE_URL =
+  process.env.SCRAPER_SERVICE_URL ||
+  process.env.NEXT_PUBLIC_SCRAPER_SERVICE_URL ||
   'http://localhost:5001';
 
 export interface ScrapeResult {
@@ -70,7 +70,7 @@ export async function scrapeWebsite(url: string, options?: {
     }
 
     const result = await response.json();
-    
+
     if (result.status !== 'success' || !result.data) {
       throw new Error('Invalid response from scrape service');
     }
@@ -145,7 +145,7 @@ Write in third person perspective. Avoid using "I", "we", "our", "us", or "my". 
  */
 function convertChunksToMarkdown(chunks: ScrapeChunk[]): string {
   let markdown = '';
-  
+
   // Extract metadata
   const metadataChunk = chunks.find(chunk => chunk.type === 'metadata');
   if (metadataChunk?.data) {
@@ -163,7 +163,7 @@ function convertChunksToMarkdown(chunks: ScrapeChunk[]): string {
     .filter(chunk => chunk.type === 'text')
     .sort((a, b) => (a.index || 0) - (b.index || 0))
     .map(chunk => chunk.chunk || '');
-  
+
   if (textChunks.length > 0) {
     markdown += textChunks.join(' ') + '\n\n';
   }
@@ -239,7 +239,7 @@ export async function* streamScrapeWebsite(url: string, options?: {
     }
 
     const result = await response.json();
-    
+
     if (result.status !== 'success' || !result.data) {
       throw new Error('Invalid response from scrape service');
     }
@@ -308,7 +308,7 @@ Write in third person perspective. Avoid using "I", "we", "our", "us", or "my". 
  */
 function convertChunksToRawText(chunks: ScrapeChunk[]): string {
   let text = '';
-  
+
   // Extract metadata
   const metadataChunk = chunks.find(chunk => chunk.type === 'metadata');
   if (metadataChunk?.data) {
@@ -320,7 +320,7 @@ function convertChunksToRawText(chunks: ScrapeChunk[]): string {
     .filter(chunk => chunk.type === 'text')
     .sort((a, b) => (a.index || 0) - (b.index || 0))
     .map(chunk => chunk.chunk || '');
-  
+
   if (textChunks.length > 0) {
     text += `Content:\n${textChunks.join(' ')}\n\n`;
   }
@@ -367,8 +367,8 @@ export async function crawlWebsiteWithWebcrawler(url: string, options?: {
   respect_robots_txt?: boolean;
 }): Promise<ScrapeResult> {
   try {
-    const apiKey = process.env.WEBCRAWLER_API_KEY || "dc30cffa71d79742b2d4";
-    const client = new webcrawlerapi.WebcrawlerClient(apiKey);
+    const apiKey = process.env.WEBCRAWLER_API_KEY;
+    const client = new webcrawlerapi.WebcrawlerClient(apiKey as string);
 
     // Start crawl job
     const response = await client.crawl({
@@ -387,7 +387,7 @@ export async function crawlWebsiteWithWebcrawler(url: string, options?: {
 
     while (jobStatus !== "done" && jobStatus !== "failed" && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-      
+
       // Check job status - try getJob if available
       try {
         if (typeof (client as any).getJob === 'function') {
@@ -443,7 +443,7 @@ export async function crawlWebsiteWithWebcrawler(url: string, options?: {
           const content = await item.getContent();
           if (content) {
             markdownParts.push(`## ${item.title || item.original_url}\n\n${content}\n\n`);
-            
+
             // Use first item's title as metadata
             if (!metadata.title && item.title) {
               metadata.title = item.title;
@@ -455,7 +455,7 @@ export async function crawlWebsiteWithWebcrawler(url: string, options?: {
       }
     }
 
-    const markdown = markdownParts.length > 0 
+    const markdown = markdownParts.length > 0
       ? markdownParts.join("\n---\n\n")
       : `# ${url}\n\nNo content extracted from this URL.`;
 
@@ -503,7 +503,7 @@ export async function* streamCrawlWebsite(url: string, options?: {
     let currentResponse = response;
     while (jobStatus !== "done" && jobStatus !== "failed" && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000));
-      
+
       try {
         if (typeof (client as any).getJob === 'function') {
           currentResponse = await (client as any).getJob(response.id);
@@ -517,7 +517,7 @@ export async function* streamCrawlWebsite(url: string, options?: {
         break;
       }
       attempts++;
-      
+
       yield `Waiting for crawl to complete... (${attempts * 5}s)\n`;
     }
 
@@ -533,7 +533,7 @@ export async function* streamCrawlWebsite(url: string, options?: {
       if (item.status === "done" && item.getContent) {
         try {
           yield `\n### ${item.title || item.original_url}\n\n`;
-          
+
           const content = await item.getContent();
           if (content) {
             // Stream content in chunks

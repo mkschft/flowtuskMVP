@@ -30,7 +30,10 @@ export function FlowConversation({
   initialSpeeches: SpeechRow[];
   currentUserId?: string;
 }) {
-  const [speeches, setSpeeches] = useState<SpeechRow[]>(initialSpeeches || []);
+  // Only load speeches from initialSpeeches on mount, not on prop updates
+  // After mount, speeches are only updated via onNewSpeech callback (no refetch)
+  // Using lazy initializer to ensure initialSpeeches is only used once
+  const [speeches, setSpeeches] = useState<SpeechRow[]>(() => initialSpeeches || []);
   const [isAILoading, setIsAILoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [aiStatus, setAiStatus] = useState<string>(""); // Status message like "thinking", "scraping data..."
@@ -598,19 +601,20 @@ export function FlowConversation({
             created_at: row.created_at || new Date().toISOString(),
           };
           setSpeeches((prev) => {
-            // If this is a temp speech, just add it
+            // If this is a temp speech, just add it (optimistic update)
             if (row.id.startsWith("temp-")) {
               return [...prev, speechRow];
             }
 
-            // For real speeches, check if we need to replace a temp one
-            // For user messages: match by author and content (to handle new flows)
+            // For real speeches (saved to DB), check if we need to replace a temp one
+            // For user messages: match by author and content (exact match)
             // For AI messages: match by model_id (AI messages don't have author)
             const tempIndex = prev.findIndex((s) => {
               if (!s.id.startsWith("temp-")) return false;
               if (speechRow.author) {
-                // User message: match by author and content (for new flows where parent_flow might differ)
-                return s.author === speechRow.author && s.content === speechRow.content;
+                // User message: match by author and exact content
+                return s.author === speechRow.author && 
+                       s.content.trim() === speechRow.content.trim();
               } else {
                 // AI message: match by model_id (both should have it)
                 return s.model_id && speechRow.model_id && s.model_id === speechRow.model_id;
@@ -618,7 +622,7 @@ export function FlowConversation({
             });
 
             if (tempIndex !== -1) {
-              // Replace temp speech with real one
+              // Replace temp speech with real one (this prevents duplicates)
               const updated = [...prev];
               updated[tempIndex] = speechRow;
               return updated;
@@ -632,7 +636,19 @@ export function FlowConversation({
               return updated;
             }
 
-            // New speech, add it
+            // Check if content already exists (to prevent duplicates from DB refetch)
+            // Only for non-temp speeches that might have been loaded from DB
+            const contentExists = prev.some((s) => 
+              !s.id.startsWith("temp-") && 
+              s.content.trim() === speechRow.content.trim() &&
+              s.author === speechRow.author
+            );
+            if (contentExists) {
+              // Don't add duplicate - it's already in the list
+              return prev;
+            }
+
+            // New speech, add it (this is for AI responses that don't have a temp version)
             return [...prev, speechRow];
           });
         }}
