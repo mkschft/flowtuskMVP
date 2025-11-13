@@ -5,216 +5,136 @@
       "professional",
       "informative"
     ],
-    "primaryCTA": "book a demo or start a free trial"
+    "primaryCTA": "Explore the free trial"
   },
   "structure": {
     "nav": [
-      "Core Offering",
-      "Key Features and Benefits",
-      "Target Customers and Use Cases",
-      "Value Propositions",
-      "Pricing/Business Model",
-      "Additional Tools",
-      "Conclusion"
+      "Overview",
+      "Features",
+      "Pricing",
+      "Contact"
     ],
     "keyPages": [
       {
-        "path": "/core-offering",
-        "title": "Core Offering"
+        "path": "/overview",
+        "title": "Tax Star Overview"
       },
       {
-        "path": "/features-benefits",
+        "path": "/features",
         "title": "Key Features and Benefits"
-      },
-      {
-        "path": "/target-customers",
-        "title": "Target Customers and Use Cases"
-      },
-      {
-        "path": "/value-propositions",
-        "title": "Value Propositions"
       },
       {
         "path": "/pricing",
         "title": "Pricing/Business Model"
-      },
-      {
-        "path": "/additional-tools",
-        "title": "Additional Tools"
-      },
-      {
-        "path": "/conclusion",
-        "title": "Conclusion"
       }
     ],
     "footer": [
-      "Contact Us",
       "Privacy Policy",
-      "Terms of Service"
+      "Terms of Service",
+      "Contact Us"
     ]
   },
   "audienceSignals": [
-    "businesses in the UAE",
-    "accounting practice owners",
-    "tax advisors",
+    "Accounting practice owners",
+    "Tax advisors",
     "ERP resellers"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Compliance Made Easy",
+      "text": "Automates time-consuming tax processes, allowing firms to handle more clients without increasing staff.",
       "evidence": [
-        "fact-3",
-        "fact-7"
+        "fact-5",
+        "fact-8"
       ]
     },
     {
       "id": "v2",
-      "text": "Efficiency Gains",
+      "text": "Helps businesses stay compliant with local tax laws, reducing the risk of penalties.",
       "evidence": [
-        "fact-10",
-        "fact-11"
+        "fact-6",
+        "fact-9"
       ]
     },
     {
       "id": "v3",
-      "text": "Cost Savings",
+      "text": "Enables firms to grow their client base while maintaining operational efficiency through automation.",
       "evidence": [
-        "fact-12",
-        "fact-13"
+        "fact-7",
+        "fact-10"
       ]
     }
   ],
   "pains": [
-    "stress associated with tax compliance",
-    "manual processes leading to errors",
-    "time-consuming tax calculations"
+    "Manual tax calculations",
+    "Compliance with local tax laws",
+    "Administrative burden of tax processes"
   ],
   "proof": [
-    "AI-powered automation",
+    "Increases efficiency by up to 40%",
     "IFRS-compliant financial statements",
-    "ERP integrations"
+    "FTA regulations compliance"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star provides AI-powered corporate tax software.",
-      "page": "Core Offering",
-      "evidence": "Tax Star provides an AI-powered corporate tax software designed specifically for businesses in the UAE."
+      "text": "Tax Star is an AI-powered corporate tax software designed for businesses in the UAE.",
+      "page": "Tax Star Overview",
+      "evidence": "Tax Star is an AI-powered corporate tax software designed for businesses in the UAE."
     },
     {
       "id": "fact-2",
-      "text": "The software simplifies compliance with corporate tax regulations.",
-      "page": "Core Offering",
-      "evidence": "It aims to simplify compliance with corporate tax regulations."
+      "text": "Tax Star provides a comprehensive suite of compliance solutions.",
+      "page": "Tax Star Overview",
+      "evidence": "It provides a comprehensive suite of compliance solutions, including corporate tax calculations, financial statement production, e-invoicing, and Zakat calculations for businesses in KSA."
     },
     {
       "id": "fact-3",
-      "text": "The software offers tools for e-invoicing and Zakat calculations.",
-      "page": "Core Offering",
-      "evidence": "alongside offering tools for e-invoicing and Zakat calculations for businesses in KSA."
+      "text": "Automates tax returns and generates IFRS-compliant financial statements.",
+      "page": "Key Features and Benefits",
+      "evidence": "Automates tax returns, generates IFRS-compliant financial statements, and sends smart reminders."
     },
     {
       "id": "fact-4",
-      "text": "Automates tax returns and generates IFRS-compliant financial statements.",
+      "text": "Ensures timely and accurate tax return submissions.",
       "page": "Key Features and Benefits",
-      "evidence": "Automates tax returns, generates IFRS-compliant financial statements."
+      "evidence": "Corporate Tax Calculator: Ensures timely and accurate tax return submissions."
     },
     {
       "id": "fact-5",
-      "text": "Sends smart reminders to ensure timely compliance.",
+      "text": "Simplifies the creation of financial statements, reducing reliance on manual tools like Word and Excel.",
       "page": "Key Features and Benefits",
-      "evidence": "sends smart reminders to ensure timely compliance."
+      "evidence": "Simplifies the creation of financial statements, reducing reliance on manual tools like Word and Excel."
     },
     {
       "id": "fact-6",
-      "text": "Facilitates accurate and timely tax return completion.",
+      "text": "Alerts users to update registration documents to avoid penalties.",
       "page": "Key Features and Benefits",
-      "evidence": "Facilitates accurate and timely tax return completion."
+      "evidence": "Document Expiry Reminders: Alerts users to update registration documents to avoid penalties."
     },
     {
       "id": "fact-7",
-      "text": "Streamlines the creation of financial statements.",
+      "text": "E-Invoicing ensures invoices are compliant with FTA regulations.",
       "page": "Key Features and Benefits",
-      "evidence": "Streamlines the creation of financial statements, reducing reliance on manual processes."
+      "evidence": "E-Invoicing: Ensures invoices are compliant with FTA regulations and integrates seamlessly with corporate tax filings."
     },
     {
       "id": "fact-8",
-      "text": "Alerts users about upcoming document expirations.",
+      "text": "Reduces manual tax calculations, allowing teams to focus on higher-value tasks.",
       "page": "Key Features and Benefits",
-      "evidence": "Alerts users about upcoming document expirations to avoid penalties."
+      "evidence": "Automated Workflow: Reduces manual tax calculations, allowing teams to focus on higher-value tasks and increasing efficiency by up to 40%."
     },
     {
       "id": "fact-9",
-      "text": "Saves up to 40% of time on tax calculations.",
+      "text": "Centralizes client information and communication, streamlining corporate tax processes.",
       "page": "Key Features and Benefits",
-      "evidence": "Saves up to 40% of time on tax calculations."
+      "evidence": "Practice Management Tools: Centralizes client information and communication, streamlining corporate tax processes."
     },
     {
       "id": "fact-10",
-      "text": "Enables teams to concentrate on higher-value tasks.",
-      "page": "Key Features and Benefits",
-      "evidence": "enabling teams to concentrate on higher-value tasks."
-    },
-    {
-      "id": "fact-11",
-      "text": "Users can manage 30-40% more clients without increasing staff.",
-      "page": "Value Propositions",
-      "evidence": "Users can manage 30-40% more clients without increasing staff."
-    },
-    {
-      "id": "fact-12",
-      "text": "Eliminates manual calculations and potential penalties.",
-      "page": "Value Propositions",
-      "evidence": "By eliminating manual calculations and potential penalties."
-    },
-    {
-      "id": "fact-13",
-      "text": "Businesses can save both time and money.",
-      "page": "Value Propositions",
-      "evidence": "businesses can save both time and money."
-    },
-    {
-      "id": "fact-14",
-      "text": "Seamlessly integrates with existing ERP systems.",
-      "page": "Key Features and Benefits",
-      "evidence": "Seamlessly integrates with existing ERP systems for enhanced workflow."
-    },
-    {
-      "id": "fact-15",
-      "text": "Provides comprehensive tracking of changes and compliance activities.",
-      "page": "Key Features and Benefits",
-      "evidence": "Provides comprehensive tracking of changes and compliance activities."
-    },
-    {
-      "id": "fact-16",
-      "text": "Target customers include accounting practice owners, tax advisors, and ERP resellers.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Target Customers: Accounting practice owners, Tax advisors, ERP resellers."
-    },
-    {
-      "id": "fact-17",
-      "text": "Use cases include corporate tax calculations and practice management.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Use Cases: Corporate tax calculations, Internal and client approvals, Financial statement production, Practice management and deadline tracking."
-    },
-    {
-      "id": "fact-18",
-      "text": "E-Invoicing ensures compliance with FTA regulations.",
-      "page": "Additional Tools",
-      "evidence": "E-Invoicing (UAE): Ensures invoices are compliant with FTA regulations."
-    },
-    {
-      "id": "fact-19",
-      "text": "Zakat calculations are aligned with compliance reporting.",
-      "page": "Additional Tools",
-      "evidence": "Zakat for Business (KSA): Facilitates Zakat calculations aligned with compliance reporting."
-    },
-    {
-      "id": "fact-20",
-      "text": "Tax Star is tailored for businesses in the UAE and KSA.",
-      "page": "Conclusion",
-      "evidence": "particularly tailored for businesses operating in the UAE and KSA."
+      "text": "Offers a free trial for potential users to explore the software.",
+      "page": "Pricing/Business Model",
+      "evidence": "It offers a free trial for potential users to explore the software before committing to a purchase."
     }
   ]
 }

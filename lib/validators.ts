@@ -8,6 +8,29 @@
 import { z } from 'zod';
 
 // ============================================================================
+// Quality Score Schema (NEW - Quality System)
+// ============================================================================
+
+export const QualityScoreSchema = z.object({
+  totalScore: z.number().min(0).max(1),
+  grade: z.enum(['A', 'B', 'C', 'F']),
+  breakdown: z.object({
+    hasEvidence: z.number().min(0).max(1),
+    evidenceCount: z.number().min(0).max(1),
+    noGenerics: z.number().min(0).max(1),
+    hasMetrics: z.number().min(0).max(1),
+    evidenceValid: z.number().min(0).max(1),
+  }),
+  issues: z.array(z.string()),
+  details: z.object({
+    citationCount: z.number(),
+    genericPhrasesFound: z.array(z.string()),
+    metricsFound: z.boolean(),
+    invalidFactIds: z.array(z.string()),
+  }),
+}).optional();
+
+// ============================================================================
 // Facts JSON Schema (NEW - Phase 2)
 // ============================================================================
 
@@ -113,6 +136,7 @@ export const ValuePropResponseSchema = z.object({
   variables: z.array(ValuePropVariableSchema).min(1).max(20),
   variations: z.array(ValuePropVariationSchema).min(1).max(10),
   summary: ValuePropSummarySchema.optional(),
+  qualityScore: QualityScoreSchema, // NEW: Quality evaluation
 });
 
 // ============================================================================
@@ -138,6 +162,7 @@ export const OneTimeEmailSchema = z.object({
   }).optional(),
   tips: z.array(z.string()).optional(),
   sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts inform this email
+  qualityScore: QualityScoreSchema, // NEW: Quality evaluation
 });
 
 export const EmailMessageSchema = z.object({
@@ -156,6 +181,7 @@ export const EmailSequenceSchema = z.object({
   sequenceGoal: z.string().min(1).max(1000).optional(),
   bestPractices: z.array(z.string()).optional(),
   expectedOutcome: z.string().min(1).max(1000).optional(),
+  qualityScore: QualityScoreSchema, // NEW: Quality evaluation
 });
 
 // ============================================================================
@@ -183,6 +209,7 @@ export const LinkedInOutreachSchema = z.object({
   messages: z.array(LinkedInMessageSchema).optional(),
   keyTakeaways: z.array(z.string()).optional(),
   sourceFactIds: z.array(z.string()).optional(), // NEW: Track which facts inform this content
+  qualityScore: QualityScoreSchema, // NEW: Quality evaluation
 });
 
 // ============================================================================

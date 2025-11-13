@@ -14,6 +14,10 @@ import {
   Clock,
   TrendingUp
 } from "lucide-react";
+import { QualityBadge } from "@/components/QualityBadge";
+import { EvidenceViewer } from "@/components/EvidenceViewer";
+import type { QualityScore } from "@/lib/quality-scorer";
+import type { FactsJSON } from "@/lib/prompt-templates";
 
 type OneTimeEmailData = {
   subjectLines: {
@@ -29,14 +33,17 @@ type OneTimeEmailData = {
     replyRate: string;
     conversionRate: string;
   };
+  sourceFactIds?: string[];
+  qualityScore?: QualityScore;
 };
 
 type OneTimeEmailCardProps = {
   data: OneTimeEmailData;
   personaTitle: string;
+  facts?: FactsJSON['facts'];
 };
 
-export function OneTimeEmailCard({ data, personaTitle }: OneTimeEmailCardProps) {
+export function OneTimeEmailCard({ data, personaTitle, facts }: OneTimeEmailCardProps) {
   const [copiedSubject, setCopiedSubject] = useState<string | null>(null);
   const [copiedBody, setCopiedBody] = useState(false);
 

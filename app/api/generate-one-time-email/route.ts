@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { executeWithRetryAndTimeout, truncateInput } from "@/lib/api-handler";
+import { callWithQualityCheck, truncateInput } from "@/lib/api-handler";
 import { validateOneTimeEmailResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildEmailPrompt, type FactsJSON, type ICP, type ValueProp, type EmailUserChoices } from "@/lib/prompt-templates";
+import { scoreOutput } from "@/lib/quality-scorer";
+import { evalTracker } from "@/lib/eval-tracker";
+import { logQuality, createLogEntry } from "@/lib/quality-logger";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,34 +25,30 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
 
     // ========================================================================
-    // NEW FLOW: Use Facts JSON + ICP + Value Prop with 3-layer prompt
+    // NEW FLOW: Use Facts JSON + ICP + Value Prop with 3-layer prompt + Quality Check
     // ========================================================================
     if (factsJson && valueProp) {
       console.log('📊 [Generate One-Time Email] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
       console.log('💎 [Generate One-Time Email] Using Value Prop with', valueProp.variations?.length || 0, 'variations');
 
-      const { system, developer, user } = buildEmailPrompt(
-        factsJson as FactsJSON,
-        icp as ICP,
-        valueProp as ValueProp,
-        userChoices as EmailUserChoices || {}
-      );
-
-      const result = await executeWithRetryAndTimeout(
-        async () => {
-          return await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-              { role: "system", content: system },
-              { role: "developer" as any, content: developer },
-              { role: "user", content: user },
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0.7, // Moderate creativity for email copy
-          });
+      const result = await callWithQualityCheck(
+        () => buildEmailPrompt(
+          factsJson as FactsJSON,
+          icp as ICP,
+          valueProp as ValueProp,
+          userChoices as EmailUserChoices || {}
+        ),
+        validateOneTimeEmailResponse,
+        (data, facts) => scoreOutput(data, facts),
+        factsJson,
+        {
+          model: "gpt-4o-mini",
+          temperature: 0.7,
+          timeout: 30000,
+          maxRetries: 3,
         },
-        { timeout: 30000, maxRetries: 3 },
-        ErrorContext.EMAIL_GENERATION
+        openai,
+        'one-time-email'
       );
 
       const genTime = Date.now() - startTime;
@@ -65,48 +64,32 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(errorResponse.body, { status: errorResponse.status });
       }
 
-      const completion = result.data;
-      const responseText = completion.choices[0]?.message?.content;
+      const emailData = result.data;
 
-      if (!responseText) {
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      // Track metrics
+      if (emailData.qualityScore) {
+        evalTracker.track({
+          timestamp: Date.now(),
+          operation: 'one-time-email',
+          validationPassed: true,
+          repairAttempted: emailData.qualityScore.totalScore < 0.6,
+          qualityScore: emailData.qualityScore,
+          evidenceCount: emailData.qualityScore.details.citationCount,
+          model: 'gpt-4o-mini',
+        });
+
+        // Log to database (async, non-blocking)
+        logQuality(createLogEntry(
+          'one-time-email',
+          'gpt-4o-mini',
+          emailData.qualityScore,
+          true,
+          emailData.qualityScore.totalScore < 0.6,
+          { icp_title: icp.title }
+        ));
       }
 
-      let emailData;
-      try {
-        emailData = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Failed to parse OpenAI response:", responseText);
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
-      }
-
-      // Validate response structure
-      const validation = validateOneTimeEmailResponse(emailData);
-
-      if (!validation.ok) {
-        console.error('❌ [Generate One-Time Email] Validation failed:', validation.errors);
-        const errorResponse = createErrorResponse(
-          'VALIDATION_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json({
-          ...errorResponse.body,
-          validationErrors: validation.errors,
-        }, { status: errorResponse.status });
-      }
-
-      console.log('✅ [Generate One-Time Email] Generated successfully with evidence tracking');
+      console.log('✅ [Generate One-Time Email] Generated successfully with quality evaluation');
 
       // Log evidence tracking
       if (emailData.sourceFactIds && emailData.sourceFactIds.length > 0) {

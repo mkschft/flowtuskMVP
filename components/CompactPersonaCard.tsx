@@ -20,12 +20,8 @@ import {
   Mail,
   Linkedin,
   Globe,
-  Share2,
-  Twitter,
-  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import html2canvas from "html2canvas";
 
 // Compact summary data type
 type PersonaSegment = {
@@ -236,42 +232,6 @@ export function CompactPersonaCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleShare = async (platform: 'twitter' | 'linkedin') => {
-    const text = `I analyzed ${summary.personaCompany || 'a company'} with @flowtusk - here's their ICP 👇`;
-    const url = window.location.href;
-    
-    if (platform === 'twitter') {
-      window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-        '_blank'
-      );
-    } else {
-      window.open(
-        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-        '_blank'
-      );
-    }
-  };
-
-  const handleDownloadCard = async () => {
-    const cardElement = document.getElementById('persona-card-export');
-    if (!cardElement) return;
-    
-    try {
-      const canvas = await html2canvas(cardElement, {
-        background: '#ffffff',
-        scale: 2,
-      });
-      
-      const link = document.createElement('a');
-      link.download = `${summary.personaName || 'persona'}-icp-card.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    } catch (error) {
-      console.error('Error downloading card:', error);
-    }
-  };
-
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
@@ -299,7 +259,7 @@ export function CompactPersonaCard({
         />
         
         {/* Content container with light pink/purple gradient */}
-        <Card id="persona-card-export" className="relative overflow-hidden border-2 border-purple-200/50 dark:border-purple-800/50 bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
+        <Card className="relative overflow-hidden border-2 border-purple-200/50 dark:border-purple-800/50 bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
           <div className="p-6 sm:p-8">
             {/* Persona Header Card */}
             <div className="bg-white/60 dark:bg-white/5 backdrop-blur-sm border border-purple-200/50 dark:border-purple-700/50 rounded-xl p-6 mb-6">
@@ -426,39 +386,6 @@ export function CompactPersonaCard({
               >
                 <Globe className="w-5 h-5" />
                 <span className="text-sm font-medium">Landing</span>
-              </Button>
-            </div>
-
-            {/* Share & Download Buttons */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleShare('twitter')}
-                className="border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
-              >
-                <Twitter className="w-4 h-4 mr-1" />
-                Tweet
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleShare('linkedin')}
-                className="border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-950"
-              >
-                <Linkedin className="w-4 h-4 mr-1" />
-                Share
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownloadCard}
-                className="border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950"
-              >
-                <Download className="w-4 h-4 mr-1" />
-                PNG
               </Button>
             </div>
 

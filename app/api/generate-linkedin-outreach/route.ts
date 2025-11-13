@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { callWithQualityCheck } from "@/lib/api-handler";
 import { validateLinkedInResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildLinkedInPrompt, type FactsJSON, type ICP, type ValueProp, type LinkedInOptions } from "@/lib/prompt-templates";
 import { MODEL_CONFIGS } from "@/lib/models";
+import { scoreOutput, scoreMultipleOutputs } from "@/lib/quality-scorer";
+import { evalTracker } from "@/lib/eval-tracker";
+import { logQuality, createLogEntry } from "@/lib/quality-logger";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -32,28 +35,29 @@ export async function POST(req: NextRequest) {
     if (factsJson && valueProp) {
       console.log('📊 [Generate LinkedIn Outreach] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
 
-      const { system, developer, user } = buildLinkedInPrompt(
-        factsJson as FactsJSON,
-        icp as ICP,
-        valueProp as ValueProp,
-        { type: type as 'post' | 'profile_bio' | 'inmail' | 'sequence' } as LinkedInOptions
-      );
-
-      const result = await executeWithRetryAndTimeout(
-        async () => {
-          return await openai.chat.completions.create({
-            model: modelConfig.model,
-            messages: [
-              { role: "system", content: system },
-              { role: "developer" as any, content: developer },
-              { role: "user", content: user },
-            ],
-            response_format: { type: "json_object" },
-            temperature: modelConfig.temperature,
-          });
+      const result = await callWithQualityCheck(
+        () => buildLinkedInPrompt(
+          factsJson as FactsJSON,
+          icp as ICP,
+          valueProp as ValueProp,
+          { type: type as 'post' | 'profile_bio' | 'inmail' | 'sequence' } as LinkedInOptions
+        ),
+        validateLinkedInResponse,
+        (data, facts) => {
+          // Score messages if it's a sequence, otherwise score the whole content
+          return data.messages 
+            ? scoreMultipleOutputs(data.messages, facts)
+            : scoreOutput(data, facts);
         },
-        { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
-        ErrorContext.LINKEDIN_GENERATION
+        factsJson,
+        {
+          model: modelConfig.model,
+          temperature: modelConfig.temperature,
+          timeout: modelConfig.timeout,
+          maxRetries: modelConfig.maxRetries,
+        },
+        openai,
+        'linkedin-outreach'
       );
 
       const genTime = Date.now() - startTime;
@@ -69,48 +73,32 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(errorResponse.body, { status: errorResponse.status });
       }
 
-      const completion = result.data;
-      const responseText = completion.choices[0]?.message?.content;
+      const linkedInData = result.data;
 
-      if (!responseText) {
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.LINKEDIN_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      // Track metrics
+      if (linkedInData.qualityScore) {
+        evalTracker.track({
+          timestamp: Date.now(),
+          operation: 'linkedin-outreach',
+          validationPassed: true,
+          repairAttempted: linkedInData.qualityScore.totalScore < 0.6,
+          qualityScore: linkedInData.qualityScore,
+          evidenceCount: linkedInData.qualityScore.details.citationCount,
+          model: modelConfig.model,
+        });
+
+        // Log to database (async, non-blocking)
+        logQuality(createLogEntry(
+          'linkedin-outreach',
+          modelConfig.model,
+          linkedInData.qualityScore,
+          true,
+          linkedInData.qualityScore.totalScore < 0.6,
+          { icp_title: icp.title, type }
+        ));
       }
 
-      let linkedInData;
-      try {
-        linkedInData = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Failed to parse OpenAI response:", responseText);
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.LINKEDIN_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
-      }
-
-      // Validate response structure
-      const validation = validateLinkedInResponse(linkedInData);
-
-      if (!validation.ok) {
-        console.error('❌ [Generate LinkedIn Outreach] Validation failed:', validation.errors);
-        const errorResponse = createErrorResponse(
-          'VALIDATION_ERROR',
-          ErrorContext.LINKEDIN_GENERATION,
-          500
-        );
-        return NextResponse.json({
-          ...errorResponse.body,
-          validationErrors: validation.errors,
-        }, { status: errorResponse.status });
-      }
-
-      console.log('✅ [Generate LinkedIn Outreach] Generated successfully with evidence tracking');
+      console.log('✅ [Generate LinkedIn Outreach] Generated successfully with quality evaluation');
 
       // Log evidence tracking
       if (linkedInData.messages) {

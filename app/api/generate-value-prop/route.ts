@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { callWithQualityCheck } from "@/lib/api-handler";
 import { validateValuePropResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildValuePropPrompt, type FactsJSON, type ICP } from "@/lib/prompt-templates";
 import { createClient } from "@/lib/supabase/server";
+import { scoreOutput } from "@/lib/quality-scorer";
+import { evalTracker } from "@/lib/eval-tracker";
+import { logQuality, createLogEntry } from "@/lib/quality-logger";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,28 +29,24 @@ export async function POST(req: NextRequest) {
     const startTime = Date.now();
 
     // ========================================================================
-    // NEW FLOW: Use Facts JSON + ICP with 3-layer prompt
+    // NEW FLOW: Use Facts JSON + ICP with 3-layer prompt + Quality Check
     // ========================================================================
     if (factsJson) {
       console.log('📊 [Generate Value Prop] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
 
-      const { system, developer, user } = buildValuePropPrompt(factsJson as FactsJSON, icp as ICP);
-
-      const result = await executeWithRetryAndTimeout(
-        async () => {
-          return await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-              { role: "system", content: system },
-              { role: "developer" as any, content: developer },
-              { role: "user", content: user },
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0.7, // Moderate creativity for copy
-          });
+      const result = await callWithQualityCheck(
+        () => buildValuePropPrompt(factsJson as FactsJSON, icp as ICP),
+        validateValuePropResponse,
+        (data, facts) => scoreOutput(data, facts),
+        factsJson,
+        {
+          model: "gpt-4o-mini",
+          temperature: 0.7,
+          timeout: 30000,
+          maxRetries: 3,
         },
-        { timeout: 30000, maxRetries: 3 },
-        ErrorContext.VALUE_PROP_GENERATION
+        openai,
+        'value-prop'
       );
 
       const genTime = Date.now() - startTime;
@@ -63,26 +62,32 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(errorResponse.body, { status: errorResponse.status });
       }
 
-      const completion = result.data;
-      const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+      const parsedResult = result.data;
 
-      // Validate response structure
-      const validation = validateValuePropResponse(parsedResult);
+      // Track metrics
+      if (parsedResult.qualityScore) {
+        evalTracker.track({
+          timestamp: Date.now(),
+          operation: 'value-prop',
+          validationPassed: true,
+          repairAttempted: parsedResult.qualityScore.totalScore < 0.6,
+          qualityScore: parsedResult.qualityScore,
+          evidenceCount: parsedResult.qualityScore.details.citationCount,
+          model: 'gpt-4o-mini',
+        });
 
-      if (!validation.ok) {
-        console.error('❌ [Generate Value Prop] Validation failed:', validation.errors);
-        const errorResponse = createErrorResponse(
-          'VALIDATION_ERROR',
-          ErrorContext.VALUE_PROP_GENERATION,
-          500
-        );
-        return NextResponse.json({
-          ...errorResponse.body,
-          validationErrors: validation.errors,
-        }, { status: errorResponse.status });
+        // Log to database (async, non-blocking)
+        logQuality(createLogEntry(
+          'value-prop',
+          'gpt-4o-mini',
+          parsedResult.qualityScore,
+          true,
+          parsedResult.qualityScore.totalScore < 0.6,
+          { icp_title: icp.title, icp_id: icp.id }
+        ));
       }
 
-      console.log('✅ [Generate Value Prop] Generated successfully with evidence tracking');
+      console.log('✅ [Generate Value Prop] Generated successfully with quality evaluation');
 
       // Log evidence tracking for each variation
       parsedResult.variations?.forEach((variation: any) => {

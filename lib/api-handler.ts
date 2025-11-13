@@ -412,6 +412,243 @@ export async function callWithAutoRepair<T>(
 }
 
 /**
+ * Enhanced Auto-Repair with Quality Check
+ * 
+ * Extends callWithAutoRepair with quality scoring and improvement retry.
+ * If quality score < 0.6, attempts to improve the output with targeted feedback.
+ */
+export async function callWithQualityCheck<T>(
+  promptFn: () => PromptTemplate,
+  validateFn: (data: unknown) => ValidationResult<T>,
+  qualityFn: (data: T, facts: any) => any, // QualityScore from quality-scorer
+  facts: any, // FactsJSON
+  modelConfig: ModelConfig,
+  openai: any,
+  operation: string = 'Generation'
+): Promise<APIResult<T & { qualityScore?: any }>> {
+  console.log(`🎯 [Quality Check] ${operation} - Starting with quality evaluation`);
+
+  // First attempt with validation
+  const { system, developer, user } = promptFn();
+  
+  const firstAttempt = await executeWithRetryAndTimeout(
+    async () => {
+      return await openai.chat.completions.create({
+        model: modelConfig.model,
+        messages: [
+          { role: "system", content: system },
+          { role: "developer" as any, content: developer },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: modelConfig.temperature,
+      });
+    },
+    { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
+    operation
+  );
+
+  if (!firstAttempt.success || !firstAttempt.data) {
+    console.error(`❌ [Quality Check] ${operation} - API call failed`);
+    return {
+      success: false,
+      error: firstAttempt.error,
+    };
+  }
+
+  // Parse first attempt
+  const firstContent = firstAttempt.data.choices[0]?.message?.content;
+  if (!firstContent) {
+    return {
+      success: false,
+      error: {
+        code: 'EMPTY_RESPONSE',
+        message: 'Empty response from API',
+        retryable: false,
+      },
+    };
+  }
+
+  let firstData: unknown;
+  try {
+    firstData = JSON.parse(firstContent);
+  } catch (parseError) {
+    console.error(`❌ [Quality Check] ${operation} - JSON parse failed`);
+    return {
+      success: false,
+      error: {
+        code: 'PARSE_ERROR',
+        message: 'Invalid JSON response',
+        retryable: false,
+      },
+    };
+  }
+
+  // Validate first attempt
+  const validation = validateFn(firstData);
+
+  if (!validation.ok) {
+    // If validation fails, try standard repair
+    console.warn(`⚠️ [Quality Check] ${operation} - Validation failed, attempting repair`);
+    
+    const repairPrompt = {
+      system,
+      developer: developer + `\n\nIMPORTANT: The previous response had validation errors. Fix these specific issues:\n${validation.errors?.slice(0, 5).map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nReturn STRICTLY valid JSON matching the schema. No commentary, no markdown.`,
+      user,
+    };
+
+    const repairAttempt = await executeWithRetryAndTimeout(
+      async () => {
+        return await openai.chat.completions.create({
+          model: modelConfig.model,
+          messages: [
+            { role: "system", content: repairPrompt.system },
+            { role: "developer" as any, content: repairPrompt.developer },
+            { role: "user", content: repairPrompt.user },
+          ],
+          response_format: { type: "json_object" },
+          temperature: Math.max(modelConfig.temperature - 0.1, 0.2),
+        });
+      },
+      { timeout: modelConfig.timeout, maxRetries: 2 },
+      `${operation} (validation repair)`
+    );
+
+    if (repairAttempt.success && repairAttempt.data) {
+      const repairContent = repairAttempt.data.choices[0]?.message?.content;
+      if (repairContent) {
+        try {
+          firstData = JSON.parse(repairContent);
+          const repairValidation = validateFn(firstData);
+          if (repairValidation.ok && repairValidation.data) {
+            console.log(`✅ [Quality Check] ${operation} - Validation passed after repair`);
+            firstData = repairValidation.data;
+          }
+        } catch (e) {
+          // Keep original firstData
+        }
+      }
+    }
+  }
+
+  // At this point, firstData should be validated (or best attempt)
+  const validatedData = validation.ok ? validation.data : firstData as T;
+
+  // Run quality scoring
+  let qualityScore;
+  try {
+    qualityScore = qualityFn(validatedData, facts);
+    console.log(`📊 [Quality Check] ${operation} - Quality: ${qualityScore.grade} (${(qualityScore.totalScore * 100).toFixed(0)}%)`);
+  } catch (error) {
+    console.warn(`⚠️ [Quality Check] ${operation} - Quality scoring failed, continuing without score`, error);
+    return {
+      success: true,
+      data: validatedData,
+    };
+  }
+
+  // If quality is acceptable (>= 0.6), return immediately
+  if (qualityScore.totalScore >= 0.6) {
+    console.log(`✅ [Quality Check] ${operation} - Quality acceptable, no improvement needed`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  // Quality is low (< 0.6), attempt improvement
+  console.warn(`⚠️ [Quality Check] ${operation} - Low quality (${(qualityScore.totalScore * 100).toFixed(0)}%), attempting improvement`);
+  
+  const improvementPrompt = {
+    system,
+    developer: developer + `\n\n🎯 QUALITY IMPROVEMENTS NEEDED:\n${qualityScore.issues.map((issue: string, i: number) => `${i + 1}. ${issue}`).join('\n')}\n\nREQUIREMENTS:\n- Cite 3+ sourceFactIds from the provided facts\n- Include specific metrics (percentages, time savings, quantified results)\n- Avoid generic phrases like "leverage", "streamline", "best practices"\n- Ground every claim in the provided facts\n- Be specific and actionable\n\nReturn STRICTLY valid JSON with improved content.`,
+    user,
+  };
+
+  const improvementAttempt = await executeWithRetryAndTimeout(
+    async () => {
+      return await openai.chat.completions.create({
+        model: modelConfig.model,
+        messages: [
+          { role: "system", content: improvementPrompt.system },
+          { role: "developer" as any, content: improvementPrompt.developer },
+          { role: "user", content: improvementPrompt.user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: Math.max(modelConfig.temperature - 0.1, 0.2), // Lower temp for focused improvement
+      });
+    },
+    { timeout: modelConfig.timeout, maxRetries: 2 },
+    `${operation} (quality improvement)`
+  );
+
+  if (!improvementAttempt.success || !improvementAttempt.data) {
+    console.warn(`⚠️ [Quality Check] ${operation} - Improvement attempt failed, using original`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  const improvementContent = improvementAttempt.data.choices[0]?.message?.content;
+  if (!improvementContent) {
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  let improvedData: unknown;
+  try {
+    improvedData = JSON.parse(improvementContent);
+  } catch (parseError) {
+    console.error(`❌ [Quality Check] ${operation} - Improvement JSON parse failed, using original`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  // Validate improved data
+  const improvedValidation = validateFn(improvedData);
+  if (!improvedValidation.ok || !improvedValidation.data) {
+    console.warn(`⚠️ [Quality Check] ${operation} - Improved data failed validation, using original`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  // Score improved data
+  let improvedQuality;
+  try {
+    improvedQuality = qualityFn(improvedValidation.data, facts);
+    console.log(`📊 [Quality Check] ${operation} - Improved Quality: ${improvedQuality.grade} (${(improvedQuality.totalScore * 100).toFixed(0)}%)`);
+  } catch (error) {
+    console.warn(`⚠️ [Quality Check] ${operation} - Failed to score improved data, using original`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+
+  // Compare scores and use better one
+  if (improvedQuality.totalScore > qualityScore.totalScore) {
+    console.log(`✅ [Quality Check] ${operation} - Improvement successful (+${((improvedQuality.totalScore - qualityScore.totalScore) * 100).toFixed(0)}%)`);
+    return {
+      success: true,
+      data: { ...improvedValidation.data, qualityScore: improvedQuality } as T & { qualityScore?: any },
+    };
+  } else {
+    console.log(`ℹ️ [Quality Check] ${operation} - Original was better, keeping original`);
+    return {
+      success: true,
+      data: { ...validatedData, qualityScore } as T & { qualityScore?: any },
+    };
+  }
+}
+
+/**
  * APIHandler - Main export with all utilities
  */
 export const APIHandler = {
@@ -422,6 +659,7 @@ export const APIHandler = {
   isRetryableError,
   getErrorCode,
   callWithAutoRepair,
+  callWithQualityCheck,
 };
 
 export default APIHandler;

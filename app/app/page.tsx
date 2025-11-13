@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -704,7 +704,6 @@ function ChatPageContent() {
   const [currentAbortController, setCurrentAbortController] = useState<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);

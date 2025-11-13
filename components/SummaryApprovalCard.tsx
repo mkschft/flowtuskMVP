@@ -4,6 +4,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Sparkles, RefreshCw } from "lucide-react";
+import { QualityBadge } from "@/components/QualityBadge";
+import { EvidenceViewer } from "@/components/EvidenceViewer";
+import type { QualityScore } from "@/lib/quality-scorer";
+import type { FactsJSON } from "@/lib/prompt-templates";
 
 interface SummaryApprovalCardProps {
   summary: string;
@@ -14,6 +18,9 @@ interface SummaryApprovalCardProps {
   regenerateButtonText?: string;
   isLoading?: boolean;
   showRegenerateButton?: boolean;
+  qualityScore?: QualityScore;
+  sourceFactIds?: string[];
+  facts?: FactsJSON['facts'];
 }
 
 export function SummaryApprovalCard({
@@ -25,6 +32,9 @@ export function SummaryApprovalCard({
   regenerateButtonText = "Regenerate",
   isLoading = false,
   showRegenerateButton = true,
+  qualityScore,
+  sourceFactIds,
+  facts,
 }: SummaryApprovalCardProps) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -35,12 +45,15 @@ export function SummaryApprovalCard({
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5" />
 
         <div className="relative p-6 space-y-4">
-          {/* Icon */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-white" />
+          {/* Icon and Quality Badge */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="font-semibold text-lg">Analysis Complete</h3>
             </div>
-            <h3 className="font-semibold text-lg">Analysis Complete</h3>
+            {qualityScore && <QualityBadge qualityScore={qualityScore} />}
           </div>
 
           {/* Summary Text with markdown support */}
@@ -53,6 +66,11 @@ export function SummaryApprovalCard({
               )
             )}
           </div>
+
+          {/* Evidence Viewer */}
+          {sourceFactIds && facts && (
+            <EvidenceViewer sourceFactIds={sourceFactIds} facts={facts} />
+          )}
 
           {/* Optional expandable details */}
           {details && (

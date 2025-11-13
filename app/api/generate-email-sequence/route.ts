@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { executeWithRetryAndTimeout } from "@/lib/api-handler";
+import { callWithQualityCheck } from "@/lib/api-handler";
 import { validateEmailSequenceResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildEmailSequencePrompt, type FactsJSON, type ICP, type ValueProp, type EmailSequenceOptions } from "@/lib/prompt-templates";
+import { scoreMultipleOutputs } from "@/lib/quality-scorer";
+import { evalTracker } from "@/lib/eval-tracker";
+import { logQuality, createLogEntry } from "@/lib/quality-logger";
 import { MODEL_CONFIGS } from "@/lib/models";
 
 const openai = new OpenAI({
@@ -36,28 +39,24 @@ export async function POST(req: NextRequest) {
     if (factsJson && valueProp) {
       console.log('📊 [Generate Email Sequence] Using Facts JSON with', factsJson.facts?.length || 0, 'facts');
 
-      const { system, developer, user } = buildEmailSequencePrompt(
-        factsJson as FactsJSON,
-        icp as ICP,
-        valueProp as ValueProp,
-        { length } as EmailSequenceOptions
-      );
-
-      const result = await executeWithRetryAndTimeout(
-        async () => {
-          return await openai.chat.completions.create({
-            model: modelConfig.model,
-            messages: [
-              { role: "system", content: system },
-              { role: "developer" as any, content: developer },
-              { role: "user", content: user },
-            ],
-            response_format: { type: "json_object" },
-            temperature: modelConfig.temperature,
-          });
+      const result = await callWithQualityCheck(
+        () => buildEmailSequencePrompt(
+          factsJson as FactsJSON,
+          icp as ICP,
+          valueProp as ValueProp,
+          { length } as EmailSequenceOptions
+        ),
+        validateEmailSequenceResponse,
+        (data, facts) => scoreMultipleOutputs(data.emails || [], facts),
+        factsJson,
+        {
+          model: modelConfig.model,
+          temperature: modelConfig.temperature,
+          timeout: modelConfig.timeout,
+          maxRetries: modelConfig.maxRetries,
         },
-        { timeout: modelConfig.timeout, maxRetries: modelConfig.maxRetries },
-        ErrorContext.EMAIL_GENERATION
+        openai,
+        'email-sequence'
       );
 
       const genTime = Date.now() - startTime;
@@ -73,48 +72,32 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(errorResponse.body, { status: errorResponse.status });
       }
 
-      const completion = result.data;
-      const responseText = completion.choices[0]?.message?.content;
+      const sequenceData = result.data;
 
-      if (!responseText) {
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      // Track metrics
+      if (sequenceData.qualityScore) {
+        evalTracker.track({
+          timestamp: Date.now(),
+          operation: 'email-sequence',
+          validationPassed: true,
+          repairAttempted: sequenceData.qualityScore.totalScore < 0.6,
+          qualityScore: sequenceData.qualityScore,
+          evidenceCount: sequenceData.qualityScore.details.citationCount,
+          model: modelConfig.model,
+        });
+
+        // Log to database (async, non-blocking)
+        logQuality(createLogEntry(
+          'email-sequence',
+          modelConfig.model,
+          sequenceData.qualityScore,
+          true,
+          sequenceData.qualityScore.totalScore < 0.6,
+          { icp_title: icp.title, sequence_length: length }
+        ));
       }
 
-      let sequenceData;
-      try {
-        sequenceData = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Failed to parse OpenAI response:", responseText);
-        const errorResponse = createErrorResponse(
-          'PARSE_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
-      }
-
-      // Validate response structure
-      const validation = validateEmailSequenceResponse(sequenceData);
-
-      if (!validation.ok) {
-        console.error('❌ [Generate Email Sequence] Validation failed:', validation.errors);
-        const errorResponse = createErrorResponse(
-          'VALIDATION_ERROR',
-          ErrorContext.EMAIL_GENERATION,
-          500
-        );
-        return NextResponse.json({
-          ...errorResponse.body,
-          validationErrors: validation.errors,
-        }, { status: errorResponse.status });
-      }
-
-      console.log('✅ [Generate Email Sequence] Generated', sequenceData.emails?.length || 0, 'emails with evidence tracking');
+      console.log('✅ [Generate Email Sequence] Generated', sequenceData.emails?.length || 0, 'emails with quality evaluation');
 
       // Log evidence tracking
       sequenceData.emails?.forEach((email: any) => {
