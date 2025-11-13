@@ -1,0 +1,12 @@
+{
+  "name": "Flowtusk Persona Filler",
+  "id": "flowtusk-persona-filler",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["https://flowtusk.vercel.app"]
+  }
+}
+
