@@ -3269,7 +3269,7 @@ What would you like to create?`;
                                   </div>
                                 </div>
 
-                                {/* LinkedIn Profiles CTA */}
+                                {/* Select Profile CTA */}
                                 <div className="pt-2 border-t border-border/50 space-y-2">
                                   <div className="flex items-center justify-between">
                                     <p className="text-xs text-muted-foreground">
@@ -3278,20 +3278,16 @@ What would you like to create?`;
                                   </div>
                                   <Button 
                                     size="sm"
-                                    variant="outline"
-                                    className={`w-full h-8 text-xs ${color.badge} border-2 ${color.border} hover:shadow-md transition-all`}
-                                    onClick={(e) => handleShowProfiles(e, icp)}
+                                    variant="default"
+                                    className={`w-full h-8 text-xs hover:shadow-lg transition-all font-semibold`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSelectIcp(icp);
+                                    }}
                                   >
-                                    <Users className="h-3 w-3 mr-1.5" />
-                                    Show Profiles
+                                    <CheckCircle2 className="h-3 w-3 mr-1.5" />
+                                    Select Profile
                                   </Button>
-                                </div>
-
-                                {/* Hover CTA */}
-                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <div className="w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-bold">
-                                    →
-                                  </div>
                                 </div>
                               </div>
                             </Card>

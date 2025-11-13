@@ -89,7 +89,7 @@ export const ValuePropVariableSchema = z.object({
   label: z.string().min(1).max(100),
   type: z.enum(['dropdown', 'input', 'text', 'select', 'number']).optional(), // Added dropdown and input
   options: z.array(z.string()).optional(),
-  selectedValue: z.string().min(1).max(500), // OpenAI returns "selectedValue" not "value"
+  selectedValue: z.string().max(500).optional(), // Made optional - OpenAI doesn't always provide it
   placeholder: z.string().optional(), // OpenAI includes placeholder
 });
 
