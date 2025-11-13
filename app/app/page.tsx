@@ -1295,9 +1295,16 @@ function ChatPageContent() {
 
     try {
       // Check if it's a URL - analyze website
-      const urlPattern = /https?:\/\/[^\s]+/;
+      // Match URLs with or without protocol
+      const urlPattern = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&\/=]*/;
       if (urlPattern.test(userInput)) {
-        const url = userInput.match(urlPattern)?.[0] || "";
+        let url = userInput.match(urlPattern)?.[0] || "";
+        
+        // Normalize URL to ensure it has a protocol
+        if (!/^https?:\/\//i.test(url)) {
+          url = `https://${url}`;
+        }
+        
         setWebsiteUrl(url);
         updateConversationTitle(new URL(url).hostname);
 
@@ -1407,7 +1414,7 @@ function ChatPageContent() {
           status: 'complete',
           duration: Date.now() - extractStart,
           substeps: [
-            metadata?.heroImage ? `Hero image: ${new URL(metadata.heroImage).hostname}` : 'Using gradient fallback',
+            metadata?.heroImage ? `Hero image: ${metadata.heroImage.split('/')[2] || 'found'}` : 'Using gradient fallback',
             'Visual metadata ready'
           ]
         });
@@ -1446,7 +1453,7 @@ function ChatPageContent() {
         });
 
         // Build summary message
-        const hostname = new URL(url).hostname.replace('www.', '');
+        const hostname = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
         const businessDesc = summary?.businessDescription || "your business";
         const targetMarket = summary?.targetMarket || "";
         const painPoints = summary?.painPointsWithMetrics || [];
