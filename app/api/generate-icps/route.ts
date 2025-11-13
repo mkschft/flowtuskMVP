@@ -9,6 +9,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// CORS headers for Figma plugin
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle OPTIONS preflight request
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { content, factsJson } = await req.json();
@@ -17,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (!factsJson && !content) {
       return NextResponse.json(
         { error: "Either factsJson or content is required" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -64,7 +76,7 @@ export async function POST(req: NextRequest) {
           ErrorContext.ICP_GENERATION,
           500
         );
-        return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+        return NextResponse.json(errorResponse.body, { status: errorResponse.status, headers: corsHeaders });
       }
 
       const completion = result.data;
@@ -94,7 +106,7 @@ export async function POST(req: NextRequest) {
             painPointsWithMetrics: [],
             opportunityMultiplier: "3"
           }
-        }, { status: errorResponse.status });
+        }, { status: errorResponse.status, headers: corsHeaders });
       }
 
       console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles with evidence tracking');
@@ -115,7 +127,7 @@ export async function POST(req: NextRequest) {
           painPointsWithMetrics: [],
           opportunityMultiplier: "3"
         }
-      });
+      }, { headers: corsHeaders });
     }
 
     // ========================================================================
@@ -195,7 +207,7 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
         ErrorContext.ICP_GENERATION,
         500
       );
-      return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+      return NextResponse.json(errorResponse.body, { status: errorResponse.status, headers: corsHeaders });
     }
 
     const completion = result.data;
@@ -224,7 +236,7 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
           painPointsWithMetrics: [],
           opportunityMultiplier: "3"
         }
-      }, { status: errorResponse.status });
+      }, { status: errorResponse.status, headers: corsHeaders });
     }
 
     console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles');
@@ -238,7 +250,7 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
         painPointsWithMetrics: [],
         opportunityMultiplier: "3"
       }
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error generating ICPs:", error);
     const errorResponse = createErrorResponse(
@@ -246,6 +258,6 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
       ErrorContext.ICP_GENERATION,
       500
     );
-    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status, headers: corsHeaders });
   }
 }

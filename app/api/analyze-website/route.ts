@@ -12,12 +12,24 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// CORS headers for Figma plugin
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle OPTIONS preflight request
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
 
     if (!url) {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+      return NextResponse.json({ error: "URL is required" }, { status: 400, headers: corsHeaders });
     }
 
     // Normalize URL to ensure it has a protocol
@@ -67,7 +79,7 @@ export async function POST(req: NextRequest) {
           error: "Unable to access website. Please check the URL and try again.",
           details: "The website may be blocking automated access or taking too long to respond."
         }, 
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -121,7 +133,7 @@ export async function POST(req: NextRequest) {
         metadata,
         factsJson: null,
         extractionError: result.error?.message || "Failed to extract facts",
-      });
+      }, { headers: corsHeaders });
     }
 
     // Parse Facts JSON response
@@ -142,7 +154,7 @@ export async function POST(req: NextRequest) {
         metadata,
         factsJson: null,
         validationErrors: validation.errors,
-      });
+      }, { headers: corsHeaders });
     }
 
     console.log('✅ [Analyze] Facts JSON extracted:', {
@@ -187,7 +199,7 @@ export async function POST(req: NextRequest) {
       pages: 1,
       metadata,
       factsJson, // Structured facts for reuse
-    });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error("Error analyzing website:", error);
@@ -210,6 +222,6 @@ export async function POST(req: NextRequest) {
       ErrorContext.WEBSITE_ANALYSIS,
       500
     );
-    return NextResponse.json(errorResponse.body, { status: errorResponse.status });
+    return NextResponse.json(errorResponse.body, { status: errorResponse.status, headers: corsHeaders });
   }
 }
