@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { scrapeWebsite, streamScrapeWebsite, streamCrawlWebsite, crawlWebsiteWithWebcrawler } from "@/lib/scraper";
 import { createClient } from "@/lib/supabase/server";
-import { ICPInsert } from "@/lib/types/database";
+import { ICPInsert, SiteInsert } from "@/lib/types/database";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -118,7 +118,7 @@ IMPORTANT:
 // Check if site already exists
 async function checkExistingSite(url: string, flowId?: string): Promise<any | null> {
     if (!flowId) return null;
-    
+
     try {
         const supabase = await createClient();
         const { data, error } = await supabase
@@ -129,7 +129,7 @@ async function checkExistingSite(url: string, flowId?: string): Promise<any | nu
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
-        
+
         if (error || !data) return null;
         return data;
     } catch (error) {
@@ -175,6 +175,272 @@ async function saveICP(icpData: any, flowId: string, websiteUrl?: string): Promi
     } catch (error) {
         console.error("Error saving ICP:", error);
         // Don't throw - saving ICP shouldn't break the flow
+    }
+}
+
+// Store or update ICP requirements
+async function storeICPRequirements(args: any, flowId: string): Promise<any> {
+    if (!flowId) {
+        return { error: "Flow ID is required" };
+    }
+
+    try {
+        const supabase = await createClient();
+
+        // Check if requirements already exist for this flow
+        const { data: existing } = await supabase
+            .from("icp_requirements")
+            .select("*")
+            .eq("parent_flow", flowId)
+            .maybeSingle();
+
+        const requirementsData: any = {
+            parent_flow: flowId,
+        };
+
+        // Only update fields that are provided
+        if (args.business_description !== undefined) requirementsData.business_description = args.business_description;
+        if (args.core_value_prop !== undefined) requirementsData.core_value_prop = args.core_value_prop;
+        if (args.industry !== undefined) requirementsData.industry = args.industry;
+        if (args.customer_size !== undefined) requirementsData.customer_size = args.customer_size;
+        if (args.existing_customers !== undefined) requirementsData.existing_customers = args.existing_customers;
+        if (args.target_geography !== undefined) requirementsData.target_geography = args.target_geography;
+        if (args.buyer_roles !== undefined) requirementsData.buyer_roles = args.buyer_roles;
+        if (args.competitors !== undefined) requirementsData.competitors = args.competitors;
+        if (args.unique_selling_point !== undefined) requirementsData.unique_selling_point = args.unique_selling_point;
+        if (args.product_description !== undefined) requirementsData.product_description = args.product_description;
+        if (args.target_user !== undefined) requirementsData.target_user = args.target_user;
+        if (args.primary_pain_point !== undefined) requirementsData.primary_pain_point = args.primary_pain_point;
+
+        let result;
+        if (existing) {
+            // Update existing requirements (merge with existing data)
+            const mergedData = {
+                ...existing,
+                ...requirementsData,
+            };
+            const { data, error } = await supabase
+                .from("icp_requirements")
+                .update(mergedData)
+                .eq("id", existing.id)
+                .select()
+                .single();
+            result = { data, error };
+        } else {
+            // Insert new requirements
+            const { data, error } = await supabase
+                .from("icp_requirements")
+                .insert(requirementsData)
+                .select()
+                .single();
+            result = { data, error };
+        }
+
+        if (result.error) {
+            console.error("Error storing ICP requirements:", result.error);
+            return { error: result.error.message };
+        }
+
+        return { success: true, data: result.data };
+    } catch (error) {
+        console.error("Error storing ICP requirements:", error);
+        return { error: error instanceof Error ? error.message : String(error) };
+    }
+}
+
+// Check if minimum requirements are met
+function checkMinimumRequirements(requirements: any): { met: boolean; missing: string[] } {
+    const missing: string[] = [];
+
+    // Check minimum required inputs
+    if (!requirements.business_description && !requirements.product_description) {
+        missing.push("business_description or product_description");
+    }
+    if (!requirements.core_value_prop && !requirements.primary_pain_point) {
+        missing.push("core_value_prop or primary_pain_point");
+    }
+    if (!requirements.industry) {
+        missing.push("industry");
+    }
+    if (!requirements.customer_size && !requirements.target_user) {
+        missing.push("customer_size or target_user");
+    }
+
+    // If we have fallback mode inputs, that's acceptable
+    const hasFallback = requirements.product_description && requirements.target_user && requirements.primary_pain_point;
+
+    if (missing.length === 0 || hasFallback) {
+        return { met: true, missing: [] };
+    }
+
+    return { met: false, missing };
+}
+
+// Generate ICPs from stored requirements
+async function generateICPsFromRequirements(requirements: any, flowId: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, excludeExisting?: boolean): Promise<any> {
+    try {
+        // First, try to get scraped content if available (more comprehensive)
+        let content = "";
+        let useScrapedContent = false;
+
+        if (flowId) {
+            try {
+                const supabase = await createClient();
+                const { data: existingSites } = await supabase
+                    .from("sites")
+                    .select("content, facts_json")
+                    .eq("parent_flow", flowId)
+                    .order("created_at", { ascending: false })
+                    .limit(1);
+
+                if (existingSites && existingSites.length > 0 && existingSites[0].content) {
+                    // Use scraped content if available (more comprehensive than requirements)
+                    content = existingSites[0].content;
+                    useScrapedContent = true;
+                }
+            } catch (error) {
+                console.error("Error fetching scraped content:", error);
+                // Fall back to requirements
+            }
+        }
+
+        // If no scraped content, build from requirements
+        if (!useScrapedContent) {
+            if (requirements.business_description) {
+                content += `Business Description: ${requirements.business_description}\n\n`;
+            }
+            if (requirements.product_description) {
+                content += `Product Description: ${requirements.product_description}\n\n`;
+            }
+            if (requirements.core_value_prop) {
+                content += `Core Value Proposition: ${requirements.core_value_prop}\n\n`;
+            }
+            if (requirements.primary_pain_point) {
+                content += `Primary Pain Point: ${requirements.primary_pain_point}\n\n`;
+            }
+            if (requirements.industry) {
+                content += `Industry: ${requirements.industry}\n\n`;
+            }
+            if (requirements.customer_size) {
+                content += `Customer Size: ${requirements.customer_size}\n\n`;
+            }
+            if (requirements.target_user) {
+                content += `Target User: ${requirements.target_user}\n\n`;
+            }
+            if (requirements.existing_customers && Array.isArray(requirements.existing_customers) && requirements.existing_customers.length > 0) {
+                content += `Existing Customers: ${requirements.existing_customers.join(", ")}\n\n`;
+            }
+            if (requirements.target_geography) {
+                content += `Target Geography: ${requirements.target_geography}\n\n`;
+            }
+            if (requirements.buyer_roles && Array.isArray(requirements.buyer_roles) && requirements.buyer_roles.length > 0) {
+                content += `Buyer Roles: ${requirements.buyer_roles.join(", ")}\n\n`;
+            }
+            if (requirements.competitors && Array.isArray(requirements.competitors) && requirements.competitors.length > 0) {
+                content += `Competitors: ${requirements.competitors.join(", ")}\n\n`;
+            }
+            if (requirements.unique_selling_point) {
+                content += `Unique Selling Point: ${requirements.unique_selling_point}\n\n`;
+            }
+        }
+
+        // Get existing ICPs to exclude if regenerating
+        let excludeCurrentICP: any = null;
+        if (excludeExisting && flowId) {
+            try {
+                const supabase = await createClient();
+                const { data: existingICPs } = await supabase
+                    .from("icps")
+                    .select("title, persona_name, persona_role")
+                    .eq("parent_flow", flowId)
+                    .order("created_at", { ascending: false })
+                    .limit(10); // Get recent ICPs to exclude
+
+                if (existingICPs && existingICPs.length > 0) {
+                    // Use the most recent ICP as the exclusion reference
+                    excludeCurrentICP = {
+                        title: existingICPs[0].title,
+                        personaName: existingICPs[0].persona_name,
+                        personaRole: existingICPs[0].persona_role,
+                    };
+                }
+            } catch (error) {
+                console.error("Error fetching existing ICPs for exclusion:", error);
+                // Continue without exclusion if fetch fails
+            }
+        }
+
+        // Generate ICPs using the existing generate-icps endpoint
+        const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
+        const icpReq = new NextRequest("http://localhost/api/generate-icps", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                content: content,
+                excludeCurrentICP: excludeCurrentICP,
+            }),
+        });
+
+        const icpResp = await generateICPs(icpReq);
+        const icpData = await icpResp.json();
+
+        if (!icpData.icps || icpData.icps.length === 0) {
+            return { error: "Could not generate ICPs from requirements" };
+        }
+
+        // Get first 3 ICPs
+        const icpsToShow = icpData.icps.slice(0, 3);
+
+        // Save all ICPs to database
+        for (const icp of icpsToShow) {
+            await saveICP({
+                ...icp,
+                fitScore: 90,
+                profilesFound: 12,
+            }, flowId);
+        }
+
+        // Create ICP cards component JSON
+        const icpComponent = {
+            type: "icp-cards",
+            props: {
+                icps: icpsToShow.map((icp: any) => ({
+                    personaName: icp.personaName || "",
+                    personaRole: icp.personaRole || "",
+                    personaCompany: icp.personaCompany || "",
+                    location: icp.location || "",
+                    country: icp.country || "",
+                    title: icp.title || "",
+                    description: icp.description || "",
+                    painPoints: icp.painPoints || [],
+                    fitScore: 90,
+                    profilesFound: 12,
+                })),
+                websiteUrl: null,
+                flowId: flowId,
+                businessDescription: requirements.business_description || requirements.product_description || "",
+                painPointsWithMetrics: [],
+            }
+        };
+
+        // Format as component tag
+        const icpContent = `<component>${JSON.stringify(icpComponent)}</component>`;
+
+        // Stream ICP component if controller and encoder are provided
+        if (controller && encoder) {
+            controller.enqueue(encoder.encode(icpContent));
+        }
+
+        return {
+            success: true,
+            icpsGenerated: icpsToShow.length,
+            note: excludeExisting
+                ? "New Ideal Customer Profiles have been generated from stored requirements."
+                : "Ideal Customer Profiles have been generated from stored requirements.",
+        };
+    } catch (error) {
+        console.error("Error generating ICPs from requirements:", error);
+        return { error: error instanceof Error ? error.message : String(error) };
     }
 }
 
@@ -254,6 +520,64 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                         fitScore: 90,
                         profilesFound: 12,
                     }, flowId, url);
+                }
+            }
+
+            // Save scraped content to sites table for future use (after ICPs are generated so we can include summary)
+            if (flowId) {
+                try {
+                    const supabase = await createClient();
+                    const { data: { user } } = await supabase.auth.getUser();
+
+                    if (user) {
+                        // Check if site already exists
+                        const { data: existingSite } = await supabase
+                            .from("sites")
+                            .select("id")
+                            .eq("parent_flow", flowId)
+                            .eq("url", url)
+                            .maybeSingle();
+
+                        if (!existingSite) {
+                            // Extract basic metadata from scraped content
+                            const titleMatch = crawledContent.match(/^#\s+(.+)$/m);
+                            const title = titleMatch ? titleMatch[1] : new URL(url).hostname;
+
+                            const siteInsert: SiteInsert = {
+                                parent_flow: flowId,
+                                url: url,
+                                content: crawledContent,
+                                source: "webcrawlerapi",
+                                title: title,
+                                description: crawledContent.substring(0, 500) || null,
+                                summary: icpData.summary?.businessDescription || null,
+                                facts_json: icpData.summary ? { summary: icpData.summary } : null,
+                                pages: 1,
+                            };
+
+                            const { error: siteError } = await supabase
+                                .from("sites")
+                                .insert(siteInsert);
+
+                            if (siteError) {
+                                console.error("Error saving scraped site:", siteError);
+                            } else {
+                                console.log("✅ Scraped site saved to database");
+                            }
+                        } else if (icpData.summary) {
+                            // Update existing site with ICP summary
+                            await supabase
+                                .from("sites")
+                                .update({
+                                    summary: icpData.summary.businessDescription,
+                                    facts_json: { summary: icpData.summary },
+                                })
+                                .eq("id", existingSite.id);
+                        }
+                    }
+                } catch (saveError) {
+                    console.error("Error saving scraped site:", saveError);
+                    // Don't fail the request if save fails
                 }
             }
 
@@ -351,53 +675,72 @@ const tools = [
     {
         type: "function" as const,
         function: {
-            name: "generate_one_time_email",
-            description: "Generate a single one-time email. Use when user asks for a single email.",
+            name: "store",
+            description: "Store ICP requirements and business information collected from user prompts. Use this to save information about the business, product, customers, and ICP requirements. The AI will automatically generate ICPs once minimum requirements are met.",
             parameters: {
                 type: "object",
                 properties: {
-                    icp: {
-                        type: "object",
-                        description: "ICP object",
-                    },
-                    websiteUrl: {
+                    business_description: {
                         type: "string",
-                        description: "The website URL",
+                        description: "Short text description of the business or URL",
                     },
-                    factsJson: {
-                        type: "object",
-                        description: "Optional structured facts JSON",
+                    core_value_prop: {
+                        type: "string",
+                        description: "What problem the product/service solves",
+                    },
+                    industry: {
+                        type: "string",
+                        description: "Category or sector (e.g., SaaS, Healthcare, E-commerce)",
+                    },
+                    customer_size: {
+                        type: "string",
+                        description: "B2B/B2C + SMB/Mid/Enterprise (e.g., 'B2B SMB', 'B2C Enterprise')",
+                    },
+                    existing_customers: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "List of example customers (optional, improves precision)",
+                    },
+                    target_geography: {
+                        type: "string",
+                        description: "Target geography or region (optional)",
+                    },
+                    buyer_roles: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "List of buyer roles (e.g., CTO, Founder, Teacher) (optional)",
+                    },
+                    competitors: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "List of competitors (optional)",
+                    },
+                    unique_selling_point: {
+                        type: "string",
+                        description: "Unique selling point or differentiator (optional)",
+                    },
+                    product_description: {
+                        type: "string",
+                        description: "Product description (fallback mode)",
+                    },
+                    target_user: {
+                        type: "string",
+                        description: "Target user description (fallback mode)",
+                    },
+                    primary_pain_point: {
+                        type: "string",
+                        description: "Primary pain point the product addresses (fallback mode)",
+                    },
+                    regenerate: {
+                        type: "boolean",
+                        description: "Set to true if user wants to regenerate ICPs (e.g., 'generate different ones', 'not happy with results', 'try again'). This will generate new ICPs excluding existing ones.",
                     },
                 },
-                required: ["icp", "websiteUrl"],
+                required: [],
             },
         },
-    },
-    {
-        type: "function" as const,
-        function: {
-            name: "generate_linkedin_outreach",
-            description: "Generate LinkedIn outreach content. Use when user asks for LinkedIn posts or outreach.",
-            parameters: {
-                type: "object",
-                properties: {
-                    icp: {
-                        type: "object",
-                        description: "ICP object",
-                    },
-                    websiteUrl: {
-                        type: "string",
-                        description: "The website URL",
-                    },
-                    factsJson: {
-                        type: "object",
-                        description: "Optional structured facts JSON",
-                    },
-                },
-                required: ["icp", "websiteUrl"],
-            },
-        },
-    },
+    }
+
 ];
 
 // Execute a tool call by importing and calling route handlers directly
@@ -413,7 +756,7 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         note: "This URL was already analyzed and ICPs have been generated above. No need to analyze again."
                     });
                 }
-                
+
                 // Check if site already exists
                 const existingSite = await checkExistingSite(args.url, flowId);
                 if (existingSite) {
@@ -433,7 +776,7 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         const cardContent = `<component>${JSON.stringify(siteCardComponent)}</component>`;
                         controller.enqueue(encoder.encode(cardContent));
                     }
-                    
+
                     // Return simple message without component data
                     return JSON.stringify({
                         success: true,
@@ -441,7 +784,7 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         note: "Site already scraped."
                     });
                 }
-                
+
                 try {
                     // Use webcrawlerapi to crawl website
                     const scrapeResult = await crawlWebsiteWithWebcrawler(args.url, {
@@ -483,6 +826,64 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                                 fitScore: 90,
                                 profilesFound: 12,
                             }, flowId, args.url);
+                        }
+                    }
+
+                    // Save scraped content to sites table for future use (after ICPs are generated so we can include summary)
+                    if (flowId) {
+                        try {
+                            const supabase = await createClient();
+                            const { data: { user } } = await supabase.auth.getUser();
+
+                            if (user) {
+                                // Check if site already exists
+                                const { data: existingSite } = await supabase
+                                    .from("sites")
+                                    .select("id")
+                                    .eq("parent_flow", flowId)
+                                    .eq("url", args.url)
+                                    .maybeSingle();
+
+                                if (!existingSite) {
+                                    // Extract basic metadata from scraped content
+                                    const titleMatch = scrapeResult.markdown.match(/^#\s+(.+)$/m);
+                                    const title = titleMatch ? titleMatch[1] : new URL(args.url).hostname;
+
+                                    const siteInsert: SiteInsert = {
+                                        parent_flow: flowId,
+                                        url: args.url,
+                                        content: scrapeResult.markdown,
+                                        source: "webcrawlerapi",
+                                        title: title,
+                                        description: scrapeResult.markdown.substring(0, 500) || null,
+                                        summary: icpData.summary?.businessDescription || null,
+                                        facts_json: icpData.summary ? { summary: icpData.summary } : null,
+                                        pages: 1,
+                                    };
+
+                                    const { error: siteError } = await supabase
+                                        .from("sites")
+                                        .insert(siteInsert);
+
+                                    if (siteError) {
+                                        console.error("Error saving scraped site:", siteError);
+                                    } else {
+                                        console.log("✅ Scraped site saved to database");
+                                    }
+                                } else if (icpData.summary) {
+                                    // Update existing site with ICP summary
+                                    await supabase
+                                        .from("sites")
+                                        .update({
+                                            summary: icpData.summary.businessDescription,
+                                            facts_json: { summary: icpData.summary },
+                                        })
+                                        .eq("id", existingSite.id);
+                                }
+                            }
+                        } catch (saveError) {
+                            console.error("Error saving scraped site:", saveError);
+                            // Don't fail the request if save fails
                         }
                     }
 
@@ -555,6 +956,128 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                 const resp = await POST(newReq);
                 const data = await resp.json();
                 return JSON.stringify(data);
+            }
+            case "store": {
+                if (!flowId) {
+                    return JSON.stringify({ error: "Flow ID is required to store ICP requirements" });
+                }
+
+                // Check if this is a regeneration request
+                const isRegeneration = args.regenerate === true || args.regenerate === "true";
+
+                // Store the requirements (unless it's just a regeneration request)
+                if (!isRegeneration) {
+                    const storeResult = await storeICPRequirements(args, flowId);
+                    if (storeResult.error) {
+                        return JSON.stringify({ error: storeResult.error });
+                    }
+                }
+
+                // Get updated requirements to check if minimum is met
+                const supabase = await createClient();
+                let { data: updatedRequirements } = await supabase
+                    .from("icp_requirements")
+                    .select("*")
+                    .eq("parent_flow", flowId)
+                    .maybeSingle();
+
+                // If no requirements found but this is a regeneration request, check for existing scraped sites
+                if ((!updatedRequirements || isRegeneration) && flowId) {
+                    const { data: existingSites } = await supabase
+                        .from("sites")
+                        .select("content, facts_json, url, title, description, summary")
+                        .eq("parent_flow", flowId)
+                        .order("created_at", { ascending: false })
+                        .limit(1);
+
+                    if (existingSites && existingSites.length > 0) {
+                        const site = existingSites[0];
+                        // Extract requirements from scraped site data
+                        const extractedRequirements: any = {};
+
+                        if (site.facts_json) {
+                            const facts = site.facts_json as any;
+                            if (facts.summary?.businessDescription) {
+                                extractedRequirements.business_description = facts.summary.businessDescription;
+                            }
+                            if (facts.summary?.coreValueProp) {
+                                extractedRequirements.core_value_prop = facts.summary.coreValueProp;
+                            }
+                            if (facts.summary?.industry) {
+                                extractedRequirements.industry = facts.summary.industry;
+                            }
+                        }
+
+                        // Use site metadata as fallback
+                        if (!extractedRequirements.business_description) {
+                            extractedRequirements.business_description = site.summary || site.description || site.title || site.url;
+                        }
+
+                        // Store extracted requirements if they don't exist
+                        if (!updatedRequirements) {
+                            const storeResult = await storeICPRequirements(extractedRequirements, flowId);
+                            if (storeResult.success && storeResult.data) {
+                                updatedRequirements = storeResult.data;
+                            }
+                        } else {
+                            // Merge with existing requirements
+                            updatedRequirements = { ...updatedRequirements, ...extractedRequirements };
+                        }
+                    }
+                }
+
+                if (!updatedRequirements) {
+                    return JSON.stringify({
+                        success: true,
+                        note: "Requirements stored successfully. Continue collecting information."
+                    });
+                }
+
+                // Check if minimum requirements are met
+                const checkResult = checkMinimumRequirements(updatedRequirements);
+
+                if (checkResult.met) {
+                    // Generate ICPs automatically (exclude existing if regenerating)
+                    if (controller && encoder) {
+                        sendStatus(controller, encoder, isRegeneration ? "Regenerating ICPs from requirements" : "Generating ICPs from requirements");
+                    }
+
+                    const icpResult = await generateICPsFromRequirements(
+                        updatedRequirements,
+                        flowId,
+                        controller,
+                        encoder,
+                        isRegeneration // Exclude existing ICPs when regenerating
+                    );
+
+                    if (icpResult.error) {
+                        return JSON.stringify({
+                            success: true,
+                            note: "Requirements stored successfully. Error generating ICPs: " + icpResult.error
+                        });
+                    }
+
+                    // Clear status after generating
+                    if (controller && encoder) {
+                        sendStatus(controller, encoder, "");
+                    }
+
+                    return JSON.stringify({
+                        success: true,
+                        note: isRegeneration
+                            ? `New ICPs generated successfully! ${icpResult.icpsGenerated} new ICPs have been created.`
+                            : `Requirements stored and ICPs generated successfully! ${icpResult.icpsGenerated} ICPs have been created.`,
+                        icpsGenerated: icpResult.icpsGenerated,
+                    });
+                } else {
+                    // Still need more information
+                    const missingList = checkResult.missing.join(", ");
+                    return JSON.stringify({
+                        success: true,
+                        note: `Requirements stored successfully. Still need: ${missingList}. Continue collecting information.`,
+                        missing: checkResult.missing,
+                    });
+                }
             }
             case "generate_value_prop": {
                 const { POST } = await import("@/app/api/generate-value-prop/route");
@@ -741,7 +1264,7 @@ export async function POST(req: NextRequest) {
                     let hasSiteAlreadyScrapedComponent = false;
                     if (savedSiteData) {
                         sendStatus(controller, encoder, "Generating ICPs from saved data...");
-                        
+
                         try {
                             // Generate ICPs from saved content
                             const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
@@ -856,15 +1379,34 @@ export async function POST(req: NextRequest) {
                     sendStatus(controller, encoder, "Generating response");
 
                     // Build system message with scraped content context
-                    let systemContent = `You are a helpful AI assistant with access to tools for analyzing websites and generating content.
+                    let systemContent = `You are a business growth specialist AI assistant with expertise in helping businesses identify and target their Ideal Customer Profiles (ICPs). Your role is to guide users through collecting the necessary information to create accurate ICPs.
 
 Available tools:
-- Crawler: Analyze a website URL to extract content, facts, and metadata (ICPs are automatically generated)
-- Analyst: Generate Ideal Customer Profiles from website content
+- crawler: Analyze a website URL to extract content, facts, and metadata (ICPs are automatically generated)
+- analyst: Generate Ideal Customer Profiles from website content
+- store: Store ICP requirements and business information collected from user prompts. Use this tool frequently to save information as users provide it. The system will automatically generate ICPs once minimum requirements are met.
 - generate_value_prop: Generate value propositions based on ICP and website
-- generate_email_sequence: Generate email sequences for outreach
-- generate_one_time_email: Generate a single email
-- generate_linkedin_outreach: Generate LinkedIn outreach content
+
+YOUR PRIMARY ROLE AS A BUSINESS GROWTH SPECIALIST:
+1. Actively collect ICP requirements from user conversations using the "store" tool
+2. Extract and store information about: business description, core value proposition, industry, customer size, existing customers, target geography, buyer roles, competitors, unique selling points
+3. Guide users to provide minimum required information:
+   - business_description (or product_description as fallback)
+   - core_value_prop (or primary_pain_point as fallback)
+   - industry
+   - customer_size (or target_user as fallback)
+4. Once minimum requirements are met, ICPs will be automatically generated
+5. Use natural conversation to extract this information - don't be too formal or robotic
+6. If user expresses dissatisfaction with ICPs or asks to "generate different ones", "try again", "not happy", "regenerate", "I don't want to work with [X]", etc., call the "store" tool with regenerate: true to generate new ICPs excluding existing ones
+7. IMPORTANT: When regenerating ICPs, the system will automatically use existing scraped content or stored requirements - DO NOT ask for context again if ICPs were already generated from a website
+
+CRITICAL: ANSWERING QUESTIONS ABOUT EXISTING ICPs:
+- If user asks questions about existing ICPs (e.g., "Explain the pain point", "What does this mean?", "Help me understand", "I don't understand"), ANSWER DIRECTLY using the conversation history
+- The conversation history includes all previous ICPs that were generated - reference them when answering questions
+- DO NOT call any tools when answering questions - just provide helpful explanations based on the ICPs already shown in the conversation
+- Questions starting with "explain", "what is", "help me understand", "why", "how", "tell me about", "I don't understand" should be answered conversationally WITHOUT calling tools
+- Only use tools when user explicitly wants to GENERATE NEW ICPs or STORE NEW INFORMATION
+- When user asks about pain points, penalties, goals, or any ICP details, look at the conversation history for the ICP content and explain it clearly
 
 IMPORTANT: When a URL is provided and scraped, Ideal Customer Profiles (ICPs) are AUTOMATICALLY generated and displayed as interactive card components.
 
@@ -873,15 +1415,16 @@ CRITICAL RULES FOR ICP RESPONSES:
 2. The ICP card component is self-contained and includes action buttons - no additional commentary is needed
 3. If you see an ICP component in the conversation, DO NOT add text like "Here are the details:" or "The ICPs have been generated" - the component speaks for itself
 4. Only generate the ICP component and stop - do not add any follow-up text
+5. HOWEVER, if user asks a QUESTION about the ICPs after they're displayed, ANSWER IT DIRECTLY without calling tools
 
 CRITICAL: Do NOT call the Crawler tool if URLs have already been scraped. The ICPs are already generated and displayed above.
 
 When a user asks you to analyze a website or generate content:
 1. If URLs were already scraped (you'll see ICPs displayed above), DO NOT call the Crawler tool
-2. If ICPs are already displayed as components, DO NOT add any text - just let the component be displayed
-3. Only use tools if the user explicitly asks for something that hasn't been generated yet
+2. If ICPs are already displayed as components and user asks a QUESTION, ANSWER IT DIRECTLY - do not regenerate ICPs
+3. Only use tools if the user explicitly asks for something that hasn't been generated yet (e.g., "generate new ones", "regenerate", "create different ICPs")
 
-Remember: ICP components are complete and self-explanatory - no additional text is needed.`;
+Remember: Answer questions about existing ICPs directly. Only use tools to generate NEW ICPs or store NEW information.`;
 
                     // Add scraped content to context if available
                     if (scrapedContents.length > 0) {
@@ -894,7 +1437,54 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                 systemContent += `\n- ${url}: Content scraped (${content.substring(0, 200)}${content.length > 200 ? '...' : ''})\n`;
                             }
                         });
-                        systemContent += `\nCRITICAL: When ICP components are displayed, DO NOT add any follow-up text. The component is self-contained with action buttons. Just let it be displayed without any additional commentary.`;
+                        systemContent += `\nCRITICAL: When ICP components are displayed, DO NOT add any follow-up text. The component is self-contained with action buttons. Just let it be displayed without any additional commentary.\n\nEXCEPTION: If the user asks a QUESTION about the ICPs (e.g., "explain", "what does this mean", "help me understand"), ANSWER IT DIRECTLY using the conversation history. Do NOT regenerate ICPs or call tools - just provide a helpful explanation.`;
+                    }
+
+                    // Fetch conversation history if flowId exists
+                    const conversationHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+                    if (flowId) {
+                        try {
+                            const supabase = await createClient();
+                            // Get previous speeches - limit to last 20 messages to control token usage
+                            // Order by created_at DESC to get most recent, then reverse to maintain chronological order
+                            const { data: previousSpeeches } = await supabase
+                                .from("speech")
+                                .select("id, content, author, model_id, created_at")
+                                .eq("parent_flow", flowId)
+                                .order("created_at", { ascending: false })
+                                .limit(20);
+
+                            if (previousSpeeches && previousSpeeches.length > 0) {
+                                // Reverse to get chronological order (oldest first)
+                                const chronologicalSpeeches = previousSpeeches.reverse();
+
+                                // Convert speeches to OpenAI message format
+                                for (const speech of chronologicalSpeeches) {
+                                    // Skip user messages that match the current message exactly
+                                    // This prevents including the message that was just saved to DB
+                                    if (speech.author && speech.content.trim() === message.trim()) {
+                                        continue;
+                                    }
+
+                                    if (speech.author) {
+                                        // User message
+                                        conversationHistory.push({
+                                            role: "user",
+                                            content: speech.content,
+                                        });
+                                    } else if (speech.model_id) {
+                                        // AI message (has model_id, no author)
+                                        conversationHistory.push({
+                                            role: "assistant",
+                                            content: speech.content,
+                                        });
+                                    }
+                                }
+                            }
+                        } catch (historyError) {
+                            console.error("Error fetching conversation history:", historyError);
+                            // Continue without history if fetch fails
+                        }
                     }
 
                     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -902,7 +1492,8 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                             role: "system",
                             content: systemContent,
                         },
-                        { role: "user", content: message },
+                        ...conversationHistory, // Add conversation history before current message
+                        { role: "user", content: message }, // Current user message
                     ];
 
                     let iteration = 0;
@@ -929,6 +1520,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
 
                         let toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] = [];
                         let accumulatedContent = "";
+                        let hasStreamedContent = false; // Track if we've already streamed content
 
                         for await (const chunk of stream) {
                             const delta = chunk.choices[0]?.delta;
@@ -939,10 +1531,16 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                 filteredContent = filteredContent.replace(/<component>[\s\S]*?<\/component>/g, '');
                                 // Remove any raw JSON that looks like component data
                                 filteredContent = filteredContent.replace(/\{"type":"site-already-scraped"[\s\S]*?\}/g, '');
-                                
+                                // Remove JSON tool results that might be echoed (e.g., {"success":true,"icpsGenerated":3,...})
+                                filteredContent = filteredContent.replace(/\{"success":\s*true[^}]*"icpsGenerated"[^}]*\}/g, '');
+                                filteredContent = filteredContent.replace(/\{"success":\s*true[^}]*"note"[^}]*\}/g, '');
+                                // Remove any JSON objects that look like tool results
+                                filteredContent = filteredContent.replace(/\{[^}]*"url"[^}]*"note"[^}]*\}/g, '');
+
                                 if (filteredContent) {
                                     accumulatedContent += filteredContent;
                                     controller.enqueue(encoder.encode(filteredContent));
+                                    hasStreamedContent = true; // Mark that we've streamed content
                                 }
                             }
                             if (delta?.tool_calls) {
@@ -979,14 +1577,22 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                     return;
                                 }
 
-                                // Regular content without ICPs, stream it (filter out component tags and JSON)
-                                const filteredAccumulated = accumulatedContent
-                                    .replace(/<component>[\s\S]*?<\/component>/g, '')
-                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?\}/g, '')
-                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?\}\}/g, '') // Handle duplicate closing braces
-                                    .replace(/\{"type":"site-already-scraped"[\s\S]*?"\}/g, ''); // Handle various JSON formats
-                                if (filteredAccumulated.trim()) {
-                                    controller.enqueue(encoder.encode(filteredAccumulated));
+                                // Only enqueue if we haven't already streamed it chunk by chunk
+                                // Content was already streamed during the loop above, so don't duplicate it
+                                if (!hasStreamedContent) {
+                                    // This case shouldn't happen, but handle it just in case
+                                    const filteredAccumulated = accumulatedContent
+                                        .replace(/<component>[\s\S]*?<\/component>/g, '')
+                                        .replace(/\{"type":"site-already-scraped"[\s\S]*?\}/g, '')
+                                        .replace(/\{"type":"site-already-scraped"[\s\S]*?\}\}/g, '')
+                                        .replace(/\{"type":"site-already-scraped"[\s\S]*?"\}/g, '')
+                                        // Remove JSON tool results
+                                        .replace(/\{"success":\s*true[^}]*"icpsGenerated"[^}]*\}/g, '')
+                                        .replace(/\{"success":\s*true[^}]*"note"[^}]*\}/g, '')
+                                        .replace(/\{[^}]*"url"[^}]*"note"[^}]*\}/g, '');
+                                    if (filteredAccumulated.trim()) {
+                                        controller.enqueue(encoder.encode(filteredAccumulated));
+                                    }
                                 }
                                 controller.close();
                                 return;
@@ -1024,7 +1630,7 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                 // Clear status after tool execution
                                 sendStatus(controller, encoder, "");
 
-                                // Check if result indicates a component was displayed (site-already-scraped)
+                                // Check if result indicates a component was displayed (site-already-scraped or ICP cards)
                                 let resultData;
                                 try {
                                     resultData = JSON.parse(result);
@@ -1032,9 +1638,21 @@ Remember: ICP components are complete and self-explanatory - no additional text 
                                     resultData = null;
                                 }
 
+                                // Check if ICP components were streamed (check if result contains ICP component or success with ICPs)
+                                const hasICPComponent = result.includes("<component>") &&
+                                    (result.includes('"type":"icp-card"') || result.includes('"type":"icp-cards"'));
+                                const hasICPsGenerated = resultData?.icpsGenerated || resultData?.note?.includes("ICPs generated") || resultData?.note?.includes("ICPs have been");
+
                                 // If site-already-scraped component was displayed, close stream immediately
                                 // Don't add tool result to messages to prevent AI from echoing it
                                 if (resultData?.note?.includes("Site already scraped") || resultData?.note?.includes("card has been displayed")) {
+                                    controller.close();
+                                    return;
+                                }
+
+                                // If ICP components were generated and displayed, close stream and don't add tool result
+                                // This prevents the AI from echoing the JSON tool result
+                                if (hasICPComponent || hasICPsGenerated) {
                                     controller.close();
                                     return;
                                 }

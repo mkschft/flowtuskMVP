@@ -37,16 +37,8 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
 
             // Create flow (if needed) then create speech
             if (!flowId) {
-                // Step 1: Show user message instantly (optimistic update) and clear input
-                const tempUserSpeech = {
-                    id: `temp-${Date.now()}`,
-                    content,
-                    author: userId,
-                    parent_flow: "", // Will be set after flow creation
-                    created_at: new Date().toISOString(),
-                };
-                onNewSpeech?.(tempUserSpeech as any);
-                setValue(""); // Clear input immediately so user sees message in chat
+                // Step 1: Clear input immediately
+                setValue("");
 
                 // Step 2: Generate title - use generic format for URLs, otherwise use first line
                 const URL_REGEX = /https?:\/\/[^\s\)\]\"\'<>]+/gi;
@@ -81,7 +73,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
 
                 if (speechErr) throw speechErr;
 
-                // Step 5: Replace temp speech with real one
+                // Step 5: Show user speech after saving to database
                 onNewSpeech?.(createdSpeech as any);
                 onLoadingChange?.(true);
 
@@ -133,11 +125,7 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                                 modelCode: "gpt-4o-mini",
                             }),
                         });
-                        if (createResp.ok) {
-                            const aiSpeech = await createResp.json();
-                            onNewSpeech?.(aiSpeech as any);
-                            onStreamingContent?.("");
-                        } else {
+                        if (!createResp.ok) {
                             const errorData = await createResp.json();
                             console.error("Failed to create AI speech:", errorData);
                         }
@@ -268,14 +256,15 @@ export function AIComposer({ flowId, onNewSpeech, onLoadingChange, onInputChange
                     });
                     if (createResp.ok) {
                         const aiSpeech = await createResp.json();
-                        // Add real AI speech to chat (replaces streaming content)
+                        // Add saved AI response to UI so it persists
+                        // Don't clear streaming content here - let FlowConversation handle it
+                        // after the speech is actually added to the array to avoid race conditions
                         onNewSpeech?.(aiSpeech as any);
-                        onStreamingContent?.("");
-                        onStatusChange?.("");
                     } else {
                         const errorData = await createResp.json();
                         console.error("Failed to create AI speech:", errorData);
                     }
+                    onStatusChange?.("");
                 }
             } catch (aiError) {
                 console.error("Failed to generate AI response:", aiError);

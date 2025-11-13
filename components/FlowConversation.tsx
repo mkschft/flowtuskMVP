@@ -88,6 +88,27 @@ export function FlowConversation({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [speeches, isAILoading, streamingContent, aiStatus, showSkeletons]);
 
+  // Clear streaming content when a new AI speech is added to the array
+  // This ensures the speech is visible before clearing streaming content
+  useEffect(() => {
+    if (streamingContent && !isAILoading) {
+      // Check if there's a recent AI speech (added in last 2 seconds) in the array
+      // This is more reliable than content matching since content might have slight differences
+      const now = Date.now();
+      const hasRecentAISpeech = speeches.some((s) => {
+        if (s.author) return false; // Only check AI speeches
+        const speechTime = new Date(s.created_at).getTime();
+        const timeDiff = now - speechTime;
+        // If speech was added in last 2 seconds and we have streaming content, clear it
+        return timeDiff < 2000 && timeDiff >= 0;
+      });
+      if (hasRecentAISpeech) {
+        // Recent AI speech is now in the array, safe to clear streaming content
+        setStreamingContent("");
+      }
+    }
+  }, [speeches, streamingContent, isAILoading]);
+
   // Handle ICP selection
   const handleICPSelect = async (icpData: { personaName: string; title: string; [key: string]: any }) => {
     setHideComposer(true);
@@ -470,6 +491,15 @@ export function FlowConversation({
           {speeches.map((s) => {
             // User message if author is set and matches current user, AI message if model_id is set
             const isUser = s.author && currentUserId && s.author === currentUserId;
+            
+            // Check if AI response needs full width (has components or large content)
+            const needsFullWidth = !isUser && (
+              s.content.includes("<component>") ||
+              s.content.length > 500 ||
+              s.content.includes("\n\n\n") || // Multiple line breaks suggest large content
+              s.content.match(/^#{1,3}\s/m) // Has markdown headers
+            );
+            
             return (
               <div
                 key={s.id}
@@ -481,7 +511,9 @@ export function FlowConversation({
                     {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
                   </AvatarFallback>
                 </Avatar>
-                <div className={`rounded-md border p-3 text-sm [&_*]:break-words ${isUser ? "w-fit max-w-2xl" : "w-full"}`}>
+                <div className={`rounded-md border p-3 text-sm [&_*]:break-words ${
+                  isUser ? "w-fit max-w-2xl" : needsFullWidth ? "w-full" : "w-fit max-w-2xl"
+                }`}>
                   {isUser ? (
                     <ReactMarkdown
                       rehypePlugins={[rehypeRaw]}
@@ -540,7 +572,14 @@ export function FlowConversation({
                   <Bot className="size-4" />
                 </AvatarFallback>
               </Avatar>
-              <div className={`rounded-md border p-3 text-sm [&_*]:break-words w-full ${streamingContent ? "" : streamingContent || showSkeletons ? "" : "flex items-center gap-2"}`}>
+              <div className={`rounded-md border p-3 text-sm [&_*]:break-words ${
+                streamingContent && (
+                  streamingContent.includes("<component>") ||
+                  streamingContent.length > 500 ||
+                  streamingContent.includes("\n\n\n") ||
+                  streamingContent.match(/^#{1,3}\s/m)
+                ) ? "w-full" : streamingContent ? "w-fit max-w-2xl" : "w-full"
+              } ${streamingContent ? "" : streamingContent || showSkeletons ? "" : "flex items-center gap-2"}`}>
                 {streamingContent ? (
                   <ResponseRenderer 
                     content={streamingContent} 
@@ -638,14 +677,23 @@ export function FlowConversation({
 
             // Check if content already exists (to prevent duplicates from DB refetch)
             // Only for non-temp speeches that might have been loaded from DB
-            const contentExists = prev.some((s) => 
-              !s.id.startsWith("temp-") && 
-              s.content.trim() === speechRow.content.trim() &&
-              s.author === speechRow.author
-            );
-            if (contentExists) {
-              // Don't add duplicate - it's already in the list
-              return prev;
+            // For AI responses, be more lenient - only check by ID to avoid false positives
+            // from content matching (which might have slight differences)
+            if (speechRow.author) {
+              // User message: check by content and author
+              const contentExists = prev.some((s) => 
+                !s.id.startsWith("temp-") && 
+                s.content.trim() === speechRow.content.trim() &&
+                s.author === speechRow.author
+              );
+              if (contentExists) {
+                // Don't add duplicate - it's already in the list
+                return prev;
+              }
+            } else {
+              // AI message: only check by ID (already done above) or model_id + recent timestamp
+              // Don't do content-based duplicate check for AI as content might have slight differences
+              // The ID check above is sufficient
             }
 
             // New speech, add it (this is for AI responses that don't have a temp version)
@@ -654,9 +702,8 @@ export function FlowConversation({
         }}
         onLoadingChange={(loading) => {
           setIsAILoading(loading);
-          if (!loading) {
-            setStreamingContent("");
-          }
+          // Don't clear streaming content when loading stops - keep it visible
+          // The content is saved to DB and will persist on refresh
         }}
         onStreamingContent={setStreamingContent}
         onStatusChange={setAiStatus}
