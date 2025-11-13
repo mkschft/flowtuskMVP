@@ -15,8 +15,7 @@
       "Other Tools",
       "About",
       "Resources",
-      "Pricing",
-      "Contact Us"
+      "Pricing"
     ],
     "keyPages": [
       {
@@ -134,7 +133,7 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "AI-powered Corporate Tax software for UAE businesses",
+      "text": "AI-powered Corporate Tax software for UAE businesses.",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -142,16 +141,18 @@
     },
     {
       "id": "v2",
-      "text": "E-Invoicing ensures FTA compliance and seamless integration",
+      "text": "E-Invoicing that keeps invoices FTA-compliant.",
       "evidence": [
-        "fact-8"
+        "fact-8",
+        "fact-9"
       ]
     },
     {
       "id": "v3",
-      "text": "Zakat calculations designed for KSA compliance",
+      "text": "Zakat calculations built for KSA.",
       "evidence": [
-        "fact-9"
+        "fact-10",
+        "fact-11"
       ]
     }
   ],
@@ -161,70 +162,76 @@
     "Errors in financial statements"
   ],
   "proof": [
-    "AI-powered software",
-    "FTA compliance",
-    "Client logos: Alpha Pro Partners, JRBCA"
+    "AI-powered compliance ecosystem",
+    "FTA-compliant e-invoicing",
+    "Zakat calculations for KSA"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star provides a compliance ecosystem for corporate tax.",
+      "text": "Tax Star provides AI-powered Corporate Tax software.",
       "page": "Home",
-      "evidence": "Your AI-Powered Compliance Ecosystem"
+      "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
     },
     {
       "id": "fact-2",
-      "text": "Tax Star offers tools for corporate tax, e-invoicing, and zakat.",
+      "text": "Tax Star offers E-Invoicing in the UAE.",
       "page": "Home",
-      "evidence": "Alongside it, E-Invoicing in the UAE and Zakat in KSA complete the toolkit"
+      "evidence": "Alongside it, E-Invoicing in the UAE and Zakat in KSA complete the toolkit."
     },
     {
       "id": "fact-3",
-      "text": "Tax Star's software is AI-powered.",
-      "page": "Home",
-      "evidence": "AI-powered Corporate Tax software"
+      "text": "Tax Star's software includes automated returns and smart reminders.",
+      "page": "Compliance ToolKit",
+      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
     },
     {
       "id": "fact-4",
-      "text": "Tax Star offers automated returns and IFRS financial statements.",
-      "page": "Home",
-      "evidence": "Automated returns, IFRS financial statement, and smart reminders"
+      "text": "Tax Star provides a Corporate Tax Calculator.",
+      "page": "Our Most In Demand Features",
+      "evidence": "AI Powered Corporate Tax Calculator"
     },
     {
       "id": "fact-5",
-      "text": "Tax Star provides smart reminders to avoid penalties.",
-      "page": "Home",
-      "evidence": "Tax Star notifies you when they are due on a timely basis."
-    },
-    {
-      "id": "fact-6",
-      "text": "Failure to update registration documents can result in a AED 5,000 penalty.",
-      "page": "Home",
+      "text": "Tax Star helps avoid AED 5,000 penalty for document expiry.",
+      "page": "Our Most In Demand Features",
       "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
     },
     {
+      "id": "fact-6",
+      "text": "Tax Star notifies users of document expiry.",
+      "page": "Our Most In Demand Features",
+      "evidence": "Tax Star notifies you when they are due on a timely basis."
+    },
+    {
       "id": "fact-7",
-      "text": "Tax Star's primary call to action is to book a demo.",
+      "text": "Tax Star's ecosystem is designed to reduce compliance stress.",
       "page": "Home",
-      "evidence": "Book a Demo"
+      "evidence": "Compliance can feel stressful. That’s why we built a simple ecosystem around Tax Star."
     },
     {
       "id": "fact-8",
-      "text": "E-Invoicing keeps invoices FTA-compliant.",
-      "page": "Home",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+      "text": "E-Invoicing ensures seamless integration with corporate tax filing.",
+      "page": "Compliance ToolKit",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant and ensures seamless integration with corporate tax filing."
     },
     {
       "id": "fact-9",
-      "text": "Zakat calculations are designed for KSA compliance.",
-      "page": "Home",
-      "evidence": "Zakat calculations built for KSA"
+      "text": "Tax Star's E-Invoicing is FTA-compliant.",
+      "page": "Compliance ToolKit",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant."
     },
     {
       "id": "fact-10",
-      "text": "Tax Star's compliance toolkit includes corporate tax, e-invoicing, and zakat.",
-      "page": "Home",
-      "evidence": "Compliance ToolKit"
+      "text": "Zakat calculations are designed to align with compliance reporting.",
+      "page": "Compliance ToolKit",
+      "evidence": "Zakat calculations built for KSA, designed to align smoothly with your overall compliance reporting."
+    },
+    {
+      "id": "fact-11",
+      "text": "Tax Star offers Zakat calculations for KSA.",
+      "page": "Compliance ToolKit",
+      "evidence": "Zakat calculations built for KSA."
     }
   ]
 }

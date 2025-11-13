@@ -26,6 +26,7 @@ import { LinkedInSingleContentCard } from "@/components/LinkedInSingleContentCar
 import { nanoid } from "nanoid";
 import { flowsClient, type Flow } from "@/lib/flows-client";
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import { 
   migrateLocalStorageToDb, 
   needsMigration,
@@ -2816,7 +2817,10 @@ What would you like to create?`;
   const SidebarContent = () => (
     <>
       <div className="p-4 border-b">
-        <div className="font-semibold mb-4">Flowtusk</div>
+        <div className="flex items-center gap-2 font-semibold mb-4">
+          <Image src="/logo.svg" alt="Flowtusk" width={20} height={20} className="shrink-0" />
+          <span>Flowtusk</span>
+        </div>
         <Button
           onClick={() => {
             createNewConversation();
@@ -3030,7 +3034,10 @@ What would you like to create?`;
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-semibold">Flowtusk</span>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.svg" alt="Flowtusk" width={18} height={18} className="shrink-0" />
+            <span className="font-semibold">Flowtusk</span>
+          </div>
         </div>
         {/* Messages */}
         <ScrollArea className="flex-1 px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
