@@ -9,58 +9,56 @@ import { Check, Star } from "lucide-react";
 export function Pricing() {
   const plans = [
     {
-      name: "Starter",
-      price: "€9",
-      period: "/mo",
-      description: "Perfect for solo entrepreneurs and small teams",
+      name: "Free",
+      price: "$0",
+      period: "",
+      description: "Perfect for trying Flowtusk",
       features: [
-        "3 personas per website",
-        "Standard templates",
-        "Email sequences",
-        "LinkedIn posts",
-        "Landing page templates",
-        "Google Slides export",
-        "Plain text export",
-        "Basic support"
+        "3 analyses per month",
+        "View ICP cards",
+        "Download as PNG",
+        "Flowtusk watermark",
+        "Community support"
       ],
-      cta: "Start Free Trial",
-      popular: false
+      cta: "Try Free Now",
+      popular: false,
+      link: "/app"
     },
     {
-      name: "Professional",
-      price: "€49",
-      period: "/mo",
-      description: "Best for growing businesses and marketing teams",
+      name: "Pro",
+      price: "$29",
+      period: "/month",
+      description: "For serious marketers and founders",
       features: [
-        "Unlimited personas",
-        "All templates",
-        "Advanced value props",
+        "Unlimited analyses",
+        "PDF/Figma/Webflow export",
+        "Remove watermark",
+        "Advanced insights",
         "Priority support",
-        "Team collaboration",
-        "Custom branding",
-        "API access",
-        "Advanced analytics"
+        "API access (coming soon)"
       ],
-      cta: "Start Free Trial",
-      popular: true
+      cta: "Upgrade to Pro",
+      popular: true,
+      link: "/checkout?plan=pro"
     },
     {
-      name: "Teams",
-      price: "€149",
-      period: "/mo",
-      description: "For large organizations and agencies",
+      name: "Lifetime Deal",
+      price: "$290",
+      period: "one-time",
+      badge: "Limited",
+      description: "Early adopter special - First 100 users",
       features: [
         "Everything in Pro",
-        "Team collaboration",
-        "API access",
-        "White-label options",
-        "Custom integrations",
-        "Dedicated support",
-        "Advanced reporting",
-        "Custom training"
+        "Lifetime access",
+        "Early adopter badge",
+        "Influence roadmap",
+        "Private Discord",
+        "Future premium features"
       ],
-      cta: "Contact Sales",
-      popular: false
+      cta: "Claim Lifetime Deal",
+      popular: false,
+      link: "/checkout?plan=lifetime",
+      urgent: true
     }
   ];
 
@@ -126,11 +124,13 @@ export function Pricing() {
                   className={`w-full ${
                     plan.popular
                       ? 'bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d32d1] hover:to-[#7c3aed]'
+                      : (plan as any).urgent
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
                       : ''
                   }`}
-                  variant={plan.popular ? "default" : "outline"}
+                  variant={plan.popular || (plan as any).urgent ? "default" : "outline"}
                 >
-                  <Link href="/app">
+                  <Link href={(plan as any).link || "/app"}>
                     {plan.cta}
                   </Link>
                 </Button>
@@ -138,8 +138,17 @@ export function Pricing() {
             ))}
           </div>
 
+          {/* Urgency Counter */}
+          <div className="text-center mt-8">
+            <div className="inline-block px-6 py-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+              <p className="text-sm font-semibold text-amber-900">
+                ⚡ <strong>87/100</strong> lifetime deals claimed
+              </p>
+            </div>
+          </div>
+
           {/* Bottom Message */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-8">
             <Card className="inline-block p-6 bg-gray-50">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
