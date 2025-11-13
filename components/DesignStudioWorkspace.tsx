@@ -164,6 +164,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   };
 
   const handleSendMessage = useCallback(async (message: string) => {
+    if (!currentProject) {
+      addToast("Project data not loaded yet. Please wait.", "info");
+      return;
+    }
+    
     if (regenerationCount >= MAX_REGENERATIONS) {
       addToast("Regeneration limit reached. Refresh to start a new conversation.", "info");
       return;
@@ -247,6 +252,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   }, [chatMessages, currentProject, regenerationCount]);
 
   const parseAndApplyUpdates = (response: string) => {
+    // TODO: Re-implement update parsing for new copilot integration
+    // This needs to be adapted to work with workspaceData state instead of setProject
+    // For now, copilot chat works but updates aren't applied to the UI
+    return;
+    /* COMMENTED OUT UNTIL REIMPLEMENTED
     try {
       // Look for JSON in the response
       const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
@@ -302,6 +312,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       // Silently fail - not all responses will have JSON
       console.log("No structured updates found in response");
     }
+    */
   };
 
   // Loading state
