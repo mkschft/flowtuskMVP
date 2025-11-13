@@ -5,23 +5,32 @@
       "professional",
       "informative"
     ],
-    "primaryCTA": "Explore the free trial"
+    "primaryCTA": "Book a demo or start a free trial"
   },
   "structure": {
     "nav": [
-      "Overview",
-      "Features",
-      "Pricing",
-      "Contact"
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions",
+      "Pricing/Business Model"
     ],
     "keyPages": [
       {
-        "path": "/overview",
-        "title": "Tax Star Overview"
+        "path": "/core-offering",
+        "title": "Core Offering"
       },
       {
-        "path": "/features",
+        "path": "/features-benefits",
         "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
       },
       {
         "path": "/pricing",
@@ -29,12 +38,12 @@
       }
     ],
     "footer": [
-      "Privacy Policy",
-      "Terms of Service",
-      "Contact Us"
+      "Book a demo",
+      "Start a free trial"
     ]
   },
   "audienceSignals": [
+    "Businesses in the UAE",
     "Accounting practice owners",
     "Tax advisors",
     "ERP resellers"
@@ -42,99 +51,140 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Automates time-consuming tax processes, allowing firms to handle more clients without increasing staff.",
+      "text": "Increased Efficiency",
       "evidence": [
-        "fact-5",
+        "fact-7",
         "fact-8"
       ]
     },
     {
       "id": "v2",
-      "text": "Helps businesses stay compliant with local tax laws, reducing the risk of penalties.",
+      "text": "Scalability",
       "evidence": [
-        "fact-6",
         "fact-9"
       ]
     },
     {
       "id": "v3",
-      "text": "Enables firms to grow their client base while maintaining operational efficiency through automation.",
+      "text": "Compliance Assurance",
       "evidence": [
-        "fact-7",
         "fact-10"
       ]
     }
   ],
   "pains": [
-    "Manual tax calculations",
-    "Compliance with local tax laws",
-    "Administrative burden of tax processes"
+    "Complexity of corporate tax compliance",
+    "Time-consuming manual tax calculations",
+    "Risk of document expiration penalties",
+    "Need for seamless ERP integration"
   ],
   "proof": [
-    "Increases efficiency by up to 40%",
-    "IFRS-compliant financial statements",
-    "FTA regulations compliance"
+    "AI-powered technology",
+    "IFRS compliance",
+    "Audit trails for compliance"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star is an AI-powered corporate tax software designed for businesses in the UAE.",
-      "page": "Tax Star Overview",
-      "evidence": "Tax Star is an AI-powered corporate tax software designed for businesses in the UAE."
+      "text": "Tax Star provides AI-powered corporate tax software.",
+      "page": "Core Offering",
+      "evidence": "Tax Star provides AI-powered corporate tax software specifically designed for businesses in the UAE."
     },
     {
       "id": "fact-2",
-      "text": "Tax Star provides a comprehensive suite of compliance solutions.",
-      "page": "Tax Star Overview",
-      "evidence": "It provides a comprehensive suite of compliance solutions, including corporate tax calculations, financial statement production, e-invoicing, and Zakat calculations for businesses in KSA."
+      "text": "The software is designed for businesses in the UAE.",
+      "page": "Core Offering",
+      "evidence": "specifically designed for businesses in the UAE."
     },
     {
       "id": "fact-3",
-      "text": "Automates tax returns and generates IFRS-compliant financial statements.",
-      "page": "Key Features and Benefits",
-      "evidence": "Automates tax returns, generates IFRS-compliant financial statements, and sends smart reminders."
+      "text": "The platform simplifies compliance with corporate tax regulations.",
+      "page": "Core Offering",
+      "evidence": "The platform aims to simplify compliance with corporate tax regulations."
     },
     {
       "id": "fact-4",
-      "text": "Ensures timely and accurate tax return submissions.",
-      "page": "Key Features and Benefits",
-      "evidence": "Corporate Tax Calculator: Ensures timely and accurate tax return submissions."
+      "text": "Tax Star offers tools for tax calculations, financial statement production, and practice management.",
+      "page": "Core Offering",
+      "evidence": "offering tools for tax calculations, financial statement production, and practice management."
     },
     {
       "id": "fact-5",
-      "text": "Simplifies the creation of financial statements, reducing reliance on manual tools like Word and Excel.",
+      "text": "The AI-powered corporate tax calculator automates tax return processes.",
       "page": "Key Features and Benefits",
-      "evidence": "Simplifies the creation of financial statements, reducing reliance on manual tools like Word and Excel."
+      "evidence": "AI-Powered Corporate Tax Calculator: Automates tax return processes."
     },
     {
       "id": "fact-6",
-      "text": "Alerts users to update registration documents to avoid penalties.",
+      "text": "The software facilitates the production of IFRS financial statements.",
       "page": "Key Features and Benefits",
-      "evidence": "Document Expiry Reminders: Alerts users to update registration documents to avoid penalties."
+      "evidence": "Facilitates the production of financial statements in compliance with corporate tax laws."
     },
     {
       "id": "fact-7",
-      "text": "E-Invoicing ensures invoices are compliant with FTA regulations.",
+      "text": "Automated workflows reduce manual calculations and administrative tasks.",
       "page": "Key Features and Benefits",
-      "evidence": "E-Invoicing: Ensures invoices are compliant with FTA regulations and integrates seamlessly with corporate tax filings."
+      "evidence": "Automated Workflows: Reduces manual calculations and administrative tasks."
     },
     {
       "id": "fact-8",
-      "text": "Reduces manual tax calculations, allowing teams to focus on higher-value tasks.",
-      "page": "Key Features and Benefits",
-      "evidence": "Automated Workflow: Reduces manual tax calculations, allowing teams to focus on higher-value tasks and increasing efficiency by up to 40%."
+      "text": "The software saves up to 40% of time spent on manual calculations.",
+      "page": "Value Propositions",
+      "evidence": "Increased Efficiency: Automates tax processes, saving up to 40% of time spent on manual calculations."
     },
     {
       "id": "fact-9",
-      "text": "Centralizes client information and communication, streamlining corporate tax processes.",
-      "page": "Key Features and Benefits",
-      "evidence": "Practice Management Tools: Centralizes client information and communication, streamlining corporate tax processes."
+      "text": "The software enables firms to handle 30-40% more clients without additional staff.",
+      "page": "Value Propositions",
+      "evidence": "Scalability: Enables firms to handle 30-40% more clients without the need to hire additional staff."
     },
     {
       "id": "fact-10",
-      "text": "Offers a free trial for potential users to explore the software.",
+      "text": "The software helps avoid penalties through timely reminders and automated compliance tracking.",
+      "page": "Value Propositions",
+      "evidence": "Compliance Assurance: Helps businesses avoid penalties through timely reminders and automated compliance tracking."
+    },
+    {
+      "id": "fact-11",
+      "text": "Doc expiry reminders notify users of upcoming document expirations.",
+      "page": "Key Features and Benefits",
+      "evidence": "Doc Expiry Reminders: Notifies users of upcoming document expirations to avoid penalties."
+    },
+    {
+      "id": "fact-12",
+      "text": "The software includes client and manager approval flows.",
+      "page": "Key Features and Benefits",
+      "evidence": "Client & Manager Approval Flows: Streamlines approval processes for internal and client-related tasks."
+    },
+    {
+      "id": "fact-13",
+      "text": "ERP integrations enhance workflow efficiency.",
+      "page": "Key Features and Benefits",
+      "evidence": "ERP Integrations: Seamlessly integrates with existing ERP systems to enhance workflow efficiency."
+    },
+    {
+      "id": "fact-14",
+      "text": "Audit trails maintain records for compliance and auditing purposes.",
+      "page": "Key Features and Benefits",
+      "evidence": "Audit Trails: Maintains records for compliance and auditing purposes."
+    },
+    {
+      "id": "fact-15",
+      "text": "Target customers include accounting practice owners, tax advisors, and ERP resellers.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Target Customers: Accounting practice owners, Tax advisors, ERP resellers."
+    },
+    {
+      "id": "fact-16",
+      "text": "Use cases include corporate tax calculations and financial statement production.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Use Cases: Corporate tax calculations, Financial statement production."
+    },
+    {
+      "id": "fact-17",
+      "text": "The website encourages booking a demo or starting a free trial.",
       "page": "Pricing/Business Model",
-      "evidence": "It offers a free trial for potential users to explore the software before committing to a purchase."
+      "evidence": "Interested customers are encouraged to book a demo or start a free trial."
     }
   ]
 }
