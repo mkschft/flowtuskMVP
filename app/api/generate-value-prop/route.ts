@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { callWithQualityCheck } from "@/lib/api-handler";
+import { callWithQualityCheck, executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateValuePropResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildValuePropPrompt, type FactsJSON, type ICP } from "@/lib/prompt-templates";

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { callWithQualityCheck, truncateInput } from "@/lib/api-handler";
+import { callWithQualityCheck, truncateInput, executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateOneTimeEmailResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildEmailPrompt, type FactsJSON, type ICP, type ValueProp, type EmailUserChoices } from "@/lib/prompt-templates";

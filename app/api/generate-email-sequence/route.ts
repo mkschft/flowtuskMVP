@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { callWithQualityCheck } from "@/lib/api-handler";
+import { callWithQualityCheck, executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateEmailSequenceResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildEmailSequencePrompt, type FactsJSON, type ICP, type ValueProp, type EmailSequenceOptions } from "@/lib/prompt-templates";
