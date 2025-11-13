@@ -1,13 +1,42 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
-  // Demo mode bypass for public access
+  // ==========================================================================
+  // CORS handling for API routes (for Figma plugin)
+  // ==========================================================================
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    // Handle preflight OPTIONS request
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Max-Age': '86400', // 24 hours
+        },
+      });
+    }
+
+    // For actual API requests, continue processing but add CORS headers
+    const response = await updateSession(request);
+    
+    // Add CORS headers to response
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    return response;
+  }
+
+  // ==========================================================================
+  // Demo mode bypass for public access (existing logic)
+  // ==========================================================================
   const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
   
   // Allow demo routes without authentication
   if (request.nextUrl.pathname.startsWith('/demo')) {
-    const { NextResponse } = await import("next/server");
     return NextResponse.next();
   }
   
