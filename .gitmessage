@@ -1,0 +1,44 @@
+# <type>(<scope>): <subject> (max 50 chars, imperative mood)
+# Example: feat(copilot): add streaming chat with 40s timeout
+
+# [Optional body: WHAT changed and WHY - wrap at 72 chars]
+# Focus on business logic, not implementation details.
+# For AI tools: mention database schema changes, evidence chain impacts.
+
+# [Optional footer]
+# Database: [table_name] - [columns added/modified/removed]
+# Evidence: [preserved/enhanced/validated]
+# Closes: #issue_number
+# BREAKING CHANGE: [description if breaking]
+
+# --- Types ---
+# feat:     New feature (minor version bump)
+# fix:      Bug fix (patch version bump)
+# docs:     Documentation only
+# refactor: Code restructuring (no functional change)
+# perf:     Performance improvement
+# test:     Add/update tests
+# chore:    Build/deps/tooling
+# style:    Formatting (no logic change)
+
+# --- Scopes (examples) ---
+# copilot, flows, icps, value-prop, email, linkedin, auth, db, api, ui
+
+# --- AI-Friendly Context ---
+# When changing DB: specify table name, columns, migration number
+# When touching evidence chain: confirm sourceFactIds/evidence preserved
+# When fixing bugs: include error message or symptom
+# When adding features: state the user benefit
+
+# --- Examples ---
+# feat(flows): add soft delete with archived_at timestamp
+# Database: positioning_flows - added archived_at column (nullable timestamptz)
+#
+# fix(value-prop): validate sourceFactIds array exists before rendering
+# Evidence: added Zod validation ensuring all variations have sourceFactIds
+#
+# refactor(api): extract evidence validation into shared util
+# Evidence: preserved - moved validation logic to lib/validators/evidence.ts
+#
+# docs: reorganize 33 MD files into docs/ folder structure
+# BREAKING CHANGE: all doc paths changed - update bookmarks/links
