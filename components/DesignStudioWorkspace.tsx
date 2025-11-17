@@ -382,6 +382,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           {/* Right: Canvas Area - Takes remaining space */}
           <CanvasArea
             project={currentProject}
+            persona={workspaceData.persona}
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />

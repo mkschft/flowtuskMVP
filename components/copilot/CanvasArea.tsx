@@ -7,18 +7,21 @@ import { StyleGuideCanvas } from "./StyleGuideCanvas";
 import { LandingCanvas } from "./LandingCanvas";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
+import type { ICP } from "@/lib/types/database";
 import { AnimatePresence, motion } from "motion/react";
 import { Sparkles, Palette, Layout, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CanvasAreaProps = {
   project: DesignProject;
+  persona: ICP;
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
 };
 
 export function CanvasArea({
   project,
+  persona,
   activeTab,
   onTabChange,
 }: CanvasAreaProps) {
@@ -98,7 +101,7 @@ export function CanvasArea({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {activeTab === "value-prop" && <ValuePropCanvas project={project} />}
+              {activeTab === "value-prop" && <ValuePropCanvas project={project} persona={persona} />}
               {activeTab === "brand" && <BrandGuideCanvas project={project} />}
               {activeTab === "style" && <StyleGuideCanvas project={project} />}
               {activeTab === "landing" && <LandingCanvas project={project} />}

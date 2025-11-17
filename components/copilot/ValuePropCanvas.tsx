@@ -15,13 +15,15 @@ import {
   Rocket
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
+import type { ICP } from "@/lib/types/database";
 import { useState } from "react";
 
 type ValuePropCanvasProps = {
   project: DesignProject;
+  persona: ICP;
 };
 
-export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
+export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { valueProp } = project;
 
@@ -31,14 +33,22 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Mock persona data
-  const personaName = "Sarah Chen";
-  const personaRole = "Managing Partner";
-  const personaCompany = "Chen & Associates CPAs (12 employees)";
-  const personaLocation = "Austin, Texas, United States";
+  // Use actual persona data
+  const personaName = persona.persona_name;
+  const personaRole = persona.persona_role;
+  const personaCompany = persona.persona_company;
+  const personaLocation = `${persona.location}, ${persona.country}`;
+  
+  // Use value prop headline (set from variations), with fallbacks
+  const personaValueProp = valueProp.headline || 
+                          valueProp.benefits?.[0] || 
+                          "Value proposition";
 
-  // One-line value proposition tailored to this profile
-  const personaValueProp = "Cut admin time in half with AI-powered automation built for CPAs";
+  // Generate avatar using professional style with persona name as seed
+  const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(personaName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+
+  // Use fit_score from persona data, with fallback
+  const fitScore = persona.fit_score || 92;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -51,7 +61,7 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
             {/* Avatar */}
             <div className="relative shrink-0">
               <img 
-                src={`https://api.dicebear.com/7.x/open-peeps/svg?seed=${project.name}Profile&backgroundColor=transparent&strokeColor=000000`}
+                src={avatarUrl}
                 alt="Persona Avatar"
                 className="w-20 h-20 rounded-full ring-2 ring-purple-200 dark:ring-purple-800 ring-offset-2 ring-offset-background bg-white"
                 style={{ filter: 'contrast(1.2)' }}
@@ -75,7 +85,7 @@ export function ValuePropCanvas({ project }: ValuePropCanvasProps) {
                 </div>
                 <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 shrink-0">
                   <Sparkles className="w-3 h-3 mr-1" />
-                  ICP Match: 92%
+                  ICP Match: {fitScore}%
                 </Badge>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">

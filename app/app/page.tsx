@@ -1443,6 +1443,31 @@ function ChatPageContent() {
         // Store brand colors
         // Note: brandColors saved for future use
 
+        // Save ICPs to database and get UUID IDs
+        console.log('💾 [ICPs] Saving to database...');
+        const saveIcpsRes = await fetch("/api/positioning-icps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            icps,
+            flowId: activeConversation?.id,
+            websiteUrl: url
+          }),
+        });
+
+        let icpsWithDbIds = icps;
+        if (saveIcpsRes.ok) {
+          const { icps: savedIcps } = await saveIcpsRes.json();
+          // Map saved ICP database IDs back to the generated ICPs
+          icpsWithDbIds = icps.map((icp: ICP, index: number) => ({
+            ...icp,
+            id: savedIcps[index]?.id || icp.id, // Use database UUID or fallback to generated ID
+          }));
+          console.log('✅ [ICPs] Saved with database IDs:', icpsWithDbIds.map((i: ICP) => i.id));
+        } else {
+          console.warn('⚠️ [ICPs] Failed to save to database, using in-memory IDs');
+        }
+
         updateThinkingStep(thinkingMsgId, 'generate', { 
           status: 'complete',
           duration: Date.now() - icpStart,
@@ -1478,18 +1503,18 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
           content: summaryText,
         });
 
-        // Show ICP cards
+        // Show ICP cards with database IDs
         addMessage({
           id: nanoid(),
           role: "assistant",
           content: "",
           component: "icps",
-          data: icps,
+          data: icpsWithDbIds,
         });
 
         // Record website analysis completion
         updateUserJourney({ websiteAnalyzed: true });
-        memoryManager.addGenerationRecord(activeConversationId, 'website-analyzed', { icps, summary } as Record<string, unknown>);
+        memoryManager.addGenerationRecord(activeConversationId, 'website-analyzed', { icps: icpsWithDbIds, summary } as Record<string, unknown>);
       } else if (selectedIcp && websiteUrl) {
         // Chat refinement
         const response = await fetch("/api/chat", {

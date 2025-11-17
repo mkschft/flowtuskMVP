@@ -2,184 +2,236 @@
   "brand": {
     "name": "Stripe",
     "tones": [
-      "informative",
-      "professional"
+      "professional",
+      "innovative"
     ],
-    "primaryCTA": "Visit the Stripe pricing page"
+    "primaryCTA": "Contact sales"
   },
   "structure": {
     "nav": [
-      "Overview",
-      "Core Offering",
-      "Key Features and Benefits",
-      "Target Customers and Use Cases",
-      "Value Propositions",
-      "Pricing/Business Model"
+      "Products",
+      "Solutions",
+      "Developers",
+      "Resources",
+      "Pricing",
+      "Dashboard",
+      "Sign in"
     ],
     "keyPages": [
       {
-        "path": "/overview",
-        "title": "Stripe Overview"
+        "path": "/products",
+        "title": "Products"
       },
       {
-        "path": "/core-offering",
-        "title": "Core Offering"
+        "path": "/solutions",
+        "title": "Solutions"
       },
       {
-        "path": "/features-benefits",
-        "title": "Key Features and Benefits"
+        "path": "/developers",
+        "title": "Developers"
       },
       {
-        "path": "/target-customers",
-        "title": "Target Customers and Use Cases"
-      },
-      {
-        "path": "/value-propositions",
-        "title": "Value Propositions"
+        "path": "/resources",
+        "title": "Resources"
       },
       {
         "path": "/pricing",
-        "title": "Pricing/Business Model"
+        "title": "Pricing"
+      },
+      {
+        "path": "/contact-sales",
+        "title": "Contact Sales"
       }
     ],
     "footer": [
-      "Stripe pricing page"
+      "API reference",
+      "Libraries and SDKs",
+      "App integrations",
+      "Guides",
+      "Support centre",
+      "Managed support plans",
+      "Professional services",
+      "Blog",
+      "Customer stories",
+      "Sessions conference",
+      "Jobs",
+      "Newsroom",
+      "Stripe Press",
+      "Become a partner"
     ]
   },
   "audienceSignals": [
-    "Enterprises and Startups",
-    "Ecommerce businesses",
-    "Marketplaces and Platforms",
-    "SaaS companies",
-    "Global Businesses",
-    "Specific Industries such as AI, media, travel, insurance, and nonprofits"
+    "Enterprises",
+    "Startups",
+    "Crypto",
+    "E-commerce",
+    "Embedded finance",
+    "Global businesses",
+    "Marketplaces",
+    "Platforms",
+    "SaaS",
+    "AI companies",
+    "Creator economy",
+    "Hospitality, travel and leisure",
+    "Insurance",
+    "Media and entertainment",
+    "Non-profits",
+    "Retail"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Ease of Use",
+      "text": "Stripe offers a fully integrated suite of financial and payments products.",
       "evidence": [
-        "fact-9",
-        "fact-10"
+        "fact-3",
+        "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "Flexibility",
+      "text": "Stripe helps reduce costs, grow revenue, and run businesses more efficiently.",
       "evidence": [
-        "fact-11"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Security",
-      "evidence": [
-        "fact-12"
-      ]
-    },
-    {
-      "id": "v4",
-      "text": "Scalability",
-      "evidence": [
-        "fact-13"
+        "fact-4",
+        "fact-8"
       ]
     }
   ],
   "pains": [
-    "Need for comprehensive financial infrastructure",
-    "Requirement for global payment methods",
-    "Necessity for fraud prevention",
-    "Demand for financial automation"
+    "Managing complex payment systems",
+    "Handling fraud prevention",
+    "Automating revenue recognition",
+    "Optimizing payment acceptance"
   ],
   "proof": [
-    "Stripe Radar for fraud detection",
-    "Stripe Sigma for custom reporting",
-    "Extensive API documentation and SDKs"
+    "OpenAI logo",
+    "Amazon logo",
+    "Google logo",
+    "Anthropic logo",
+    "Marriott logo",
+    "Shopify logo",
+    "Airbnb logo",
+    "URBN logo"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Stripe provides a comprehensive financial infrastructure.",
-      "page": "Core Offering",
-      "evidence": "Stripe provides a comprehensive financial infrastructure designed to facilitate online payments and manage business finances."
+      "text": "Stripe is a financial infrastructure company.",
+      "page": "homepage",
+      "evidence": "Financial infrastructure to grow your revenue"
     },
     {
       "id": "fact-2",
-      "text": "Stripe supports over 100 payment methods worldwide.",
-      "page": "Key Features and Benefits",
-      "evidence": "Supports online payments, in-person transactions, and access to over 100 payment methods worldwide."
+      "text": "Stripe provides global payment solutions.",
+      "page": "products",
+      "evidence": "Global payments Payments Payments"
     },
     {
       "id": "fact-3",
-      "text": "Stripe offers financial accounts and card issuance.",
-      "page": "Key Features and Benefits",
-      "evidence": "Includes features like financial accounts, issuing physical and virtual cards, and global payouts."
+      "text": "Stripe offers no-code payment solutions.",
+      "page": "products",
+      "evidence": "Payment Links No-code payments"
     },
     {
       "id": "fact-4",
-      "text": "Stripe provides subscription management and invoicing tools.",
-      "page": "Key Features and Benefits",
-      "evidence": "Offers subscription management, invoicing, tax automation, and revenue recognition tools."
+      "text": "Stripe provides fraud prevention tools.",
+      "page": "products",
+      "evidence": "Radar Fraud prevention"
     },
     {
       "id": "fact-5",
-      "text": "Stripe uses Stripe Radar for fraud detection.",
-      "page": "Key Features and Benefits",
-      "evidence": "Utilizes Stripe Radar for fraud detection and prevention."
+      "text": "Stripe supports in-person payments.",
+      "page": "products",
+      "evidence": "Terminal In-person payments"
     },
     {
       "id": "fact-6",
-      "text": "Stripe provides custom reporting through Stripe Sigma.",
-      "page": "Key Features and Benefits",
-      "evidence": "Provides Stripe Sigma for generating custom reports and data insights."
+      "text": "Stripe offers subscription management.",
+      "page": "products",
+      "evidence": "Billing Subscription management"
     },
     {
       "id": "fact-7",
-      "text": "Stripe is developer-friendly with extensive API documentation.",
-      "page": "Key Features and Benefits",
-      "evidence": "Extensive API documentation and SDKs for easy integration into applications."
+      "text": "Stripe automates sales tax and VAT.",
+      "page": "products",
+      "evidence": "Tax Sales tax & VAT automation"
     },
     {
       "id": "fact-8",
-      "text": "Stripe serves enterprises and startups.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Tailored solutions for businesses of all sizes, from startups to large enterprises."
+      "text": "Stripe provides accounting automation.",
+      "page": "products",
+      "evidence": "Revenue Recognition Accounting automation"
     },
     {
       "id": "fact-9",
-      "text": "Stripe offers no-code payment solutions.",
-      "page": "Value Propositions",
-      "evidence": "No-code payment solutions and prebuilt forms simplify the payment process for businesses."
+      "text": "Stripe offers custom reporting tools.",
+      "page": "products",
+      "evidence": "Stripe Sigma Custom reports"
     },
     {
       "id": "fact-10",
-      "text": "Stripe provides prebuilt forms for payment processing.",
-      "page": "Value Propositions",
-      "evidence": "No-code payment solutions and prebuilt forms simplify the payment process for businesses."
+      "text": "Stripe supports over 100 payment methods globally.",
+      "page": "products",
+      "evidence": "Payment methods Access to 100+ globally"
     },
     {
       "id": "fact-11",
-      "text": "Stripe offers customizable payment solutions.",
-      "page": "Value Propositions",
-      "evidence": "Customizable payment solutions that can be tailored to specific business needs."
+      "text": "Stripe provides online identity verification.",
+      "page": "products",
+      "evidence": "Identity Online identity verification"
     },
     {
       "id": "fact-12",
-      "text": "Stripe has robust fraud prevention measures.",
-      "page": "Value Propositions",
-      "evidence": "Robust fraud prevention measures and compliance with financial regulations."
+      "text": "Stripe offers start-up incorporation services.",
+      "page": "products",
+      "evidence": "Atlas Start-up incorporation"
     },
     {
       "id": "fact-13",
-      "text": "Stripe's infrastructure accommodates increasing transaction volumes.",
-      "page": "Value Propositions",
-      "evidence": "Infrastructure that grows with the business, accommodating increasing transaction volumes."
+      "text": "Stripe's platform is AI-powered.",
+      "page": "homepage",
+      "evidence": "AI-powered platform"
     },
     {
       "id": "fact-14",
-      "text": "Stripe's pricing model is based on transaction fees.",
-      "page": "Pricing/Business Model",
-      "evidence": "Stripe typically operates on a transaction fee model, charging a percentage of each transaction processed through its platform."
+      "text": "Stripe serves a variety of industries including retail and non-profits.",
+      "page": "solutions",
+      "evidence": "Retail Non-profits"
+    },
+    {
+      "id": "fact-15",
+      "text": "Stripe provides tools for finance automation.",
+      "page": "solutions",
+      "evidence": "Finance automation"
+    },
+    {
+      "id": "fact-16",
+      "text": "Stripe's platform supports embedded finance.",
+      "page": "solutions",
+      "evidence": "Embedded finance"
+    },
+    {
+      "id": "fact-17",
+      "text": "Stripe has a marketplace for app integrations.",
+      "page": "ecosystem",
+      "evidence": "Stripe App Marketplace"
+    },
+    {
+      "id": "fact-18",
+      "text": "Stripe offers managed support plans.",
+      "page": "resources",
+      "evidence": "Managed support plans"
+    },
+    {
+      "id": "fact-19",
+      "text": "Stripe provides professional services.",
+      "page": "resources",
+      "evidence": "Professional services"
+    },
+    {
+      "id": "fact-20",
+      "text": "Stripe's platform is used by millions of companies.",
+      "page": "homepage",
+      "evidence": "Join the millions of companies that use Stripe"
     }
   ]
 }
