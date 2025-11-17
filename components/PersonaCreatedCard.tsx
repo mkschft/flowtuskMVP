@@ -3,15 +3,27 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface PersonaCreatedCardProps {
   personaName: string;
   personaId?: string;
+  flowId?: string;
   onWorkflows?: () => void;
   onRestart?: () => void;
 }
 
-export function PersonaCreatedCard({ personaName, personaId, onWorkflows, onRestart }: PersonaCreatedCardProps) {
+export function PersonaCreatedCard({ personaName, personaId, flowId, onWorkflows, onRestart }: PersonaCreatedCardProps) {
+  const router = useRouter();
+
+  const handleLaunchWorkspace = () => {
+    if (flowId) {
+      router.push(`/w/${flowId}`);
+    } else if (onWorkflows) {
+      onWorkflows();
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="rounded-lg from-green-50  dark:from-green-950/20 dark:to-green-900/10 p-6 max-w-md w-full space-y-4">
@@ -28,7 +40,7 @@ export function PersonaCreatedCard({ personaName, personaId, onWorkflows, onRest
 
         <div className="flex flex-col gap-2 pt-4">
           <Button
-            onClick={onWorkflows}
+            onClick={handleLaunchWorkspace}
             className="w-full bg-green-600 hover:bg-green-700 text-white"
           >
             Launch workspace

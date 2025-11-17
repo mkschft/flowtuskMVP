@@ -21,9 +21,6 @@ export function WorkflowsMenubar() {
         <ToggleGroupItem value="value-prop" aria-label="Value Prop" className="text-xs px-3 h-7">
           Value Prop
         </ToggleGroupItem>
-        <ToggleGroupItem value="mood-board" aria-label="Mood board" className="text-xs px-3 h-7">
-          Mood board
-        </ToggleGroupItem>
         <ToggleGroupItem value="style" aria-label="Style" className="text-xs px-3 h-7">
           Style
         </ToggleGroupItem>

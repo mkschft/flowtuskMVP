@@ -121,14 +121,17 @@ export function ICPCard({
           </div>
         )}
 
-        {/* Profiles Found */}
+        {/* Description and Select button */}
         <div className="space-y-2 pt-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              <span className="font-medium">{profilesFound}+</span>{" "}
-              <span className="text-gray-600 dark:text-gray-400">LinkedIn profiles found</span>
-            </span>
-          </div>
+          {/* Description above Select button */}
+          {description && (
+            <div className="rounded-md bg-pink-50/50 dark:bg-pink-900/10 border border-pink-200/50 dark:border-pink-800/30 p-2.5">
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                {description}
+              </p>
+            </div>
+          )}
+          
           <Button
             variant="outline"
             size="sm"

@@ -4,6 +4,8 @@ export interface Flow {
   id: string;
   title: string;
   author: string;
+  selected_icp: string | null;
+  selected_site: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -11,10 +13,14 @@ export interface Flow {
 export interface FlowInsert {
   title: string;
   author: string;
+  selected_icp?: string | null;
+  selected_site?: string | null;
 }
 
 export interface FlowUpdate {
   title?: string;
+  selected_icp?: string | null;
+  selected_site?: string | null;
 }
 
 export interface Model {
@@ -176,5 +182,71 @@ export interface InvitationUpdate {
   status?: "pending" | "accepted" | "expired" | "cancelled";
   accepted_at?: string | null;
   accepted_by?: string | null;
+}
+
+export interface StyleGuide {
+  id: string;
+  parent_flow: string;
+  locale: string;
+  name: string | null;
+  description: string | null;
+  colors: Record<string, any>;
+  typography: Record<string, any>;
+  spacing: Record<string, any>;
+  components: Record<string, any>;
+  logo_url: string | null;
+  favicon_url: string | null;
+  brand_voice: string | null;
+  effects: Record<string, any>;
+  source_url: string | null;
+  extraction_method: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StyleGuideInsert {
+  parent_flow: string;
+  locale: string;
+  name?: string | null;
+  description?: string | null;
+  colors?: Record<string, any>;
+  typography?: Record<string, any>;
+  spacing?: Record<string, any>;
+  components?: Record<string, any>;
+  logo_url?: string | null;
+  favicon_url?: string | null;
+  brand_voice?: string | null;
+  effects?: Record<string, any>;
+  source_url?: string | null;
+  extraction_method?: string | null;
+}
+
+export interface StyleGuideUpdate {
+  name?: string | null;
+  description?: string | null;
+  colors?: Record<string, any>;
+  typography?: Record<string, any>;
+  spacing?: Record<string, any>;
+  components?: Record<string, any>;
+  logo_url?: string | null;
+  favicon_url?: string | null;
+  brand_voice?: string | null;
+  effects?: Record<string, any>;
+  source_url?: string | null;
+  extraction_method?: string | null;
+}
+
+export interface SiteStyleGuide {
+  id: string;
+  site_id: string;
+  style_guide_id: string;
+  locale: string;
+  created_at: string;
+}
+
+export interface SiteStyleGuideInsert {
+  site_id: string;
+  style_guide_id: string;
+  locale: string;
 }
 

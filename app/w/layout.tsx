@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { WorkflowsNavbar } from "@/components/workflows-navbar";
+import { WorkflowsSubmenu } from "@/components/workflows-submenu";
 import { WorkflowsChat } from "@/components/WorkflowsChat";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -31,25 +33,28 @@ export default async function WLayout({
     };
 
     return (
-        <WorkflowTabProvider>
-            <div className="flex h-screen w-full overflow-hidden">
-                {/* Left side: Workspace window - matches sidebar width (385.875px) */}
-                <div
-                    className="w-[385.875px] h-full border-r bg-background overflow-hidden flex flex-col shrink-0"
-                    style={{ width: "385.875px" }}
-                >
-                    <WorkflowsChat />
-                </div>
+        <Suspense fallback={<div className="flex h-screen w-full items-center justify-center">Loading...</div>}>
+            <WorkflowTabProvider>
+                <div className="flex h-screen w-full overflow-hidden">
+                    {/* Left side: Workspace window - matches sidebar width (385.875px) */}
+                    <div
+                        className="w-[385.875px] h-full border-r bg-background overflow-hidden flex flex-col shrink-0"
+                        style={{ width: "385.875px" }}
+                    >
+                        <WorkflowsChat />
+                    </div>
 
-                {/* Right side: Content area - takes remaining space */}
-                <div className="flex-1 h-full overflow-hidden bg-background flex flex-col">
-                    <WorkflowsNavbar user={userData} />
-                    <div className="flex-1 overflow-hidden">
-                    {children}
+                    {/* Right side: Content area - takes remaining space */}
+                    <div className="flex-1 h-full overflow-hidden bg-background flex flex-col">
+                        <WorkflowsNavbar user={userData} />
+                        <WorkflowsSubmenu />
+                        <div className="flex-1 overflow-hidden">
+                        {children}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </WorkflowTabProvider>
+            </WorkflowTabProvider>
+        </Suspense>
     );
 }
 

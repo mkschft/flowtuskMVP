@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BadgeCheck, Bell, CreditCard, LogOut, Sparkles, Sun, Moon, Laptop, Share2, Download } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Bell, CreditCard, LogOut, Sparkles, Sun, Moon, Laptop, Send, Download } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,9 +89,6 @@ export function WorkflowsNavbar({
           <ToggleGroupItem value="value-prop" aria-label="Value Prop" className="text-xs px-3 h-7">
             Value Prop
           </ToggleGroupItem>
-          <ToggleGroupItem value="mood-board" aria-label="Mood board" className="text-xs px-3 h-7">
-            Mood board
-          </ToggleGroupItem>
           <ToggleGroupItem value="style" aria-label="Style" className="text-xs px-3 h-7">
             Style
           </ToggleGroupItem>
@@ -110,11 +107,11 @@ export function WorkflowsNavbar({
             className="h-7 px-2 gap-1.5"
             aria-label="Share"
           >
-            <Share2 className="h-4 w-4" />
+            <Send className="h-4 w-4" />
             <span className="text-xs">Share</span>
           </Button>
 
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -138,7 +135,7 @@ export function WorkflowsNavbar({
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

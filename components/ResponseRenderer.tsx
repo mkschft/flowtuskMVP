@@ -36,6 +36,33 @@ function parseComponents(content: string): { markdown: string; components: Compo
         });
     }
 
+    // Check for incomplete component tags (opening tag without closing tag)
+    // This can happen during streaming - remove them to prevent showing raw JSON
+    const incompleteComponentRegex = /<component>([\s\S]*?)(?=<component>|<\/component>|$)/g;
+    let incompleteMatch;
+    incompleteComponentRegex.lastIndex = 0;
+    const incompleteMatches: Array<{ fullMatch: string; index: number }> = [];
+    while ((incompleteMatch = incompleteComponentRegex.exec(content)) !== null) {
+        // Check if this is not already captured by a complete match
+        const isComplete = matches.some(m => 
+            m.index <= incompleteMatch.index && 
+            m.index + m.fullMatch.length >= incompleteMatch.index + incompleteMatch[0].length
+        );
+        if (!isComplete && !incompleteMatch[0].includes('</component>')) {
+            // This is an incomplete component tag - mark it for removal
+            incompleteMatches.push({
+                fullMatch: incompleteMatch[0],
+                index: incompleteMatch.index,
+            });
+        }
+    }
+    
+    // Remove incomplete component tags in reverse order
+    for (let i = incompleteMatches.length - 1; i >= 0; i--) {
+        const m = incompleteMatches[i];
+        markdown = markdown.substring(0, m.index) + markdown.substring(m.index + m.fullMatch.length);
+    }
+
     // Second pass: parse components and replace in reverse order to preserve indices
     for (let i = matches.length - 1; i >= 0; i--) {
         const m = matches[i];
@@ -45,11 +72,20 @@ function parseComponents(content: string): { markdown: string; components: Compo
             // Replace component tag with placeholder (working backwards preserves string indices)
             markdown = markdown.substring(0, m.index) + `[COMPONENT_${i}]` + markdown.substring(m.index + m.fullMatch.length);
         } catch (e) {
-            console.error("Failed to parse component:", e);
+            console.error("Failed to parse component:", e, "JSON content:", m.jsonContent.substring(0, 100));
             // Even if parsing fails, remove the component tag to prevent it from showing as text
             markdown = markdown.substring(0, m.index) + markdown.substring(m.index + m.fullMatch.length);
         }
     }
+
+    // Final pass: remove any remaining raw JSON that looks like component data or tool results
+    // This catches cases where component tags weren't properly formed or were partially streamed
+    // Only match JSON that's clearly component-related (has "type" and component-specific props)
+    markdown = markdown.replace(/\{"type":"(icp-card|icp-cards|persona-created-card|site-already-scraped)"[^}]*"props"[^}]*}/g, '');
+    markdown = markdown.replace(/\{"type":"(icp-card|icp-cards|persona-created-card|site-already-scraped)"[\s\S]{0,500}?}/g, '');
+    // Remove tool result JSON (has "success" and "note" or "icpsGenerated")
+    markdown = markdown.replace(/\{"success":\s*(true|false)[^}]*"(note|icpsGenerated)"[^}]*}/g, '');
+    markdown = markdown.replace(/\{"url":\s*"[^"]*"[^}]*"note"[^}]*}/g, '');
 
     return { markdown, components };
 }
@@ -219,6 +255,7 @@ function renderComponent(component: ComponentData, index: number, flowId?: strin
                     key={index}
                     personaName={component.props?.personaName || ""}
                     personaId={component.props?.personaId}
+                    flowId={component.props?.flowId || flowId}
                     onWorkflows={() => onPersonaWorkflows?.(component.props?.personaId)}
                     onRestart={onPersonaRestart}
                 />

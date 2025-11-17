@@ -3,8 +3,8 @@
     "name": "Imtiaz Al Shariar",
     "tones": [
       "design-forward",
-      "innovative",
-      "technical"
+      "technical",
+      "innovative"
     ],
     "primaryCTA": "Consult"
   },
@@ -34,8 +34,8 @@
       }
     ],
     "footer": [
-      "Blog",
-      "Case Studies and Op-Eds"
+      "Subscribe",
+      "Consult"
     ]
   },
   "audienceSignals": [
@@ -48,21 +48,28 @@
       "id": "v1",
       "text": "Builds end-to-end web applications and MVPs",
       "evidence": [
-        "fact-3"
+        "fact-1"
       ]
     },
     {
       "id": "v2",
       "text": "Focus on design and technical execution",
       "evidence": [
-        "fact-4"
+        "fact-2"
       ]
     },
     {
       "id": "v3",
       "text": "Architects scalable, user-centric systems",
       "evidence": [
-        "fact-5"
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Trusted by innovative teams across Europe and Asia",
+      "evidence": [
+        "fact-4"
       ]
     }
   ],
@@ -70,99 +77,69 @@
     "complex business challenges"
   ],
   "proof": [
-    "Trusted by innovative teams across Europe and Asia",
-    "Logos of companies like KONE, Kahf, Zipli, Ource, ZeltaTech"
+    "Trusted by companies like KONE, Kahf, Zipli, Ource, ZeltaTech",
+    "Case study on microservices architecture handling 10M+ requests per day"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Imtiaz Al Shariar is a design-forward product engineer.",
+      "text": "Imtiaz Al Shariar builds end-to-end web applications and MVPs.",
       "page": "/",
-      "evidence": "Design-forward Product Engineer."
+      "evidence": "I, Imtiaz Al Shariar, build end-to-end web applications and MVPs that solve complex business challenges."
     },
     {
       "id": "fact-2",
-      "text": "Primary call to action is 'Consult'.",
+      "text": "Imtiaz Al Shariar focuses on design and technical execution.",
       "page": "/",
-      "evidence": "Consult"
+      "evidence": "With a focus on design and technical execution, I help startups and enterprises bring innovative products to market."
     },
     {
       "id": "fact-3",
-      "text": "Imtiaz builds end-to-end web applications and MVPs.",
-      "page": "/",
-      "evidence": "I, Imtiaz Al Shariar, build end-to-end web applications and MVPs"
-    },
-    {
-      "id": "fact-4",
-      "text": "Focus on design and technical execution.",
-      "page": "/",
-      "evidence": "With a focus on design and technical execution"
-    },
-    {
-      "id": "fact-5",
-      "text": "Architects scalable, user-centric systems.",
+      "text": "Imtiaz Al Shariar architects scalable, user-centric systems.",
       "page": "/",
       "evidence": "Architecting scalable, user-centric systems."
     },
     {
-      "id": "fact-6",
-      "text": "Helps startups and enterprises bring innovative products to market.",
-      "page": "/",
-      "evidence": "I help startups and enterprises bring innovative products to market."
-    },
-    {
-      "id": "fact-7",
-      "text": "Trusted by innovative teams across Europe and Asia.",
+      "id": "fact-4",
+      "text": "Imtiaz Al Shariar is trusted by innovative teams across Europe and Asia.",
       "page": "/",
       "evidence": "Trusted by innovative teams across Europe and Asia"
     },
     {
+      "id": "fact-5",
+      "text": "Companies like KONE, Kahf, Zipli, Ource, and ZeltaTech trust Imtiaz Al Shariar.",
+      "page": "/",
+      "evidence": "Trusted by companies like KONE, Kahf, Zipli, Ource, ZeltaTech"
+    },
+    {
+      "id": "fact-6",
+      "text": "Imtiaz Al Shariar has a case study on designing and implementing a microservices architecture.",
+      "page": "/articles/building-scalable-systems/",
+      "evidence": "How we designed and implemented a microservices architecture that handles 10M+ requests per day while maintaining sub-100ms response times."
+    },
+    {
+      "id": "fact-7",
+      "text": "Imtiaz Al Shariar applies design thinking principles in product development.",
+      "page": "/articles/design-thinking-process/",
+      "evidence": "How applying design thinking principles transformed our product development process and led to better user experiences."
+    },
+    {
       "id": "fact-8",
-      "text": "Companies like KONE, Kahf, Zipli, Ource, ZeltaTech are associated.",
-      "page": "/",
-      "evidence": "Logos of companies like KONE, Kahf, Zipli, Ource, ZeltaTech"
-    },
-    {
-      "id": "fact-9",
-      "text": "Website includes a blog section.",
-      "page": "/",
-      "evidence": "Blog"
-    },
-    {
-      "id": "fact-10",
-      "text": "Website includes case studies and op-eds.",
-      "page": "/",
-      "evidence": "Case Studies and Op-Eds"
-    },
-    {
-      "id": "fact-11",
-      "text": "Articles and writings are published on-site and across different spaces.",
-      "page": "/",
+      "text": "Imtiaz Al Shariar's blog includes articles and writings published on-site and across different spaces.",
+      "page": "/articles",
       "evidence": "Articles and writings published on-site and across different spaces for discussion."
     },
     {
-      "id": "fact-12",
-      "text": "Case study on building scalable systems is available.",
-      "page": "/",
-      "evidence": "Building Scalable Systems: A Case Study"
+      "id": "fact-9",
+      "text": "Imtiaz Al Shariar's case study on scalable systems details handling 10M+ requests per day.",
+      "page": "/articles/building-scalable-systems/",
+      "evidence": "How we designed and implemented a microservices architecture that handles 10M+ requests per day while maintaining sub-100ms response times."
     },
     {
-      "id": "fact-13",
-      "text": "Design thinking process in product development is discussed.",
-      "page": "/",
-      "evidence": "The Design Thinking Process in Product Development"
-    },
-    {
-      "id": "fact-14",
-      "text": "Complex business challenges are addressed.",
-      "page": "/",
-      "evidence": "solve complex business challenges"
-    },
-    {
-      "id": "fact-15",
-      "text": "The website has a section for viewing all posts.",
-      "page": "/",
-      "evidence": "View All Posts"
+      "id": "fact-10",
+      "text": "Imtiaz Al Shariar's article 'Pink Tanks and Green Futures' discusses BRAC’s Climate Change Program.",
+      "page": "/articles/pink-tanks-and-green-futures-balance-between-institutional-and-public-participation-in-bracs-climate-change-program/",
+      "evidence": "My visit to BRAC's Climate Change Program in Mongla showed me how lasting change emerges when institutions and communities work hand in hand."
     }
   ]
 }

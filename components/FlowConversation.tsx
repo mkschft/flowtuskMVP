@@ -128,6 +128,12 @@ export function FlowConversation({
 
       if (!error && icps && icps.length > 0) {
         personaId = icps[0].id;
+        
+        // Update flows table with selected_icp
+        await supabase
+          .from("flows")
+          .update({ selected_icp: personaId })
+          .eq("id", flowId);
       }
     } catch (error) {
       console.error("Failed to find ICP:", error);
@@ -139,6 +145,7 @@ export function FlowConversation({
       props: {
         personaName: icpData.personaName,
         personaId: personaId,
+        flowId: flowId,
       },
     })}</component>`;
 
@@ -241,13 +248,16 @@ export function FlowConversation({
       }
 
       // After scraping, trigger AI response generation
+      // Use a message that tells the AI to generate ICPs from the freshly scraped data
+      // and skip the Crawler tool check
       setAiStatus("Generating response...");
       const aiResp = await fetch("/api/generate-ai-response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: `Analyze this website and generate ICPs: ${url}`,
+          message: `Generate ICPs from the freshly scraped website data for ${url}. The site has just been re-scraped, so use the Analyst tool with the updated content.`,
           flowId: flowId || undefined,
+          skipCrawlerCheck: true, // Flag to skip existing site check
         }),
       });
 

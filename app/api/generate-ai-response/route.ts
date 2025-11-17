@@ -488,42 +488,8 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                 return "";
             }
 
-            // Don't show analysis message - just generate ICPs silently
-
-            // Generate ICPs from crawled content
-            const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
-            const icpReq = new NextRequest(req?.url || "http://localhost", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    content: crawledContent,
-                    excludeCurrentICP: excludeICP,
-                }),
-            });
-
-            const icpResp = await generateICPs(icpReq);
-            const icpData = await icpResp.json();
-
-            if (!icpData.icps || icpData.icps.length === 0) {
-                controller.enqueue(encoder.encode(`\n[Error: Could not generate ICPs from website content]\n\n`));
-                return "";
-            }
-
-            // Get first 3 ICPs (or all if less than 3)
-            const icpsToShow = icpData.icps.slice(0, 3);
-
-            // Save all ICPs to database
-            if (flowId) {
-                for (const icp of icpsToShow) {
-                    await saveICP({
-                        ...icp,
-                        fitScore: 90,
-                        profilesFound: 12,
-                    }, flowId, url);
-                }
-            }
-
-            // Save scraped content to sites table for future use (after ICPs are generated so we can include summary)
+            // Save scraped content to sites table FIRST (before ICP generation)
+            // This ensures data is saved even if ICP generation fails
             if (flowId) {
                 try {
                     const supabase = await createClient();
@@ -550,21 +516,88 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                                 source: "webcrawlerapi",
                                 title: title,
                                 description: crawledContent.substring(0, 500) || null,
-                                summary: icpData.summary?.businessDescription || null,
-                                facts_json: icpData.summary ? { summary: icpData.summary } : null,
+                                summary: null, // Will be updated after ICP generation if successful
+                                facts_json: null, // Will be updated after ICP generation if successful
                                 pages: 1,
                             };
 
-                            const { error: siteError } = await supabase
+                            const { data: insertedSite, error: siteError } = await supabase
                                 .from("sites")
-                                .insert(siteInsert);
+                                .insert(siteInsert)
+                                .select("id")
+                                .single();
 
                             if (siteError) {
                                 console.error("Error saving scraped site:", siteError);
                             } else {
                                 console.log("✅ Scraped site saved to database");
+                                // Update flows table with selected_site (last created site)
+                                if (insertedSite?.id) {
+                                    await supabase
+                                        .from("flows")
+                                        .update({ selected_site: insertedSite.id })
+                                        .eq("id", flowId);
+                                }
                             }
-                        } else if (icpData.summary) {
+                        }
+                    }
+                } catch (saveError) {
+                    console.error("Error saving scraped site:", saveError);
+                    // Don't fail the request if save fails
+                }
+            }
+
+            // Don't show analysis message - just generate ICPs silently
+
+            // Generate ICPs from crawled content
+            const { POST: generateICPs } = await import("@/app/api/generate-icps/route");
+            const icpReq = new NextRequest(req?.url || "http://localhost", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: crawledContent,
+                    excludeCurrentICP: excludeICP,
+                }),
+            });
+
+            const icpResp = await generateICPs(icpReq);
+            const icpData = await icpResp.json();
+
+            if (!icpData.icps || icpData.icps.length === 0) {
+                controller.enqueue(encoder.encode(`\n[Error: Could not generate ICPs from website content]\n\n`));
+                // Site is already saved above, so we can return
+                return "";
+            }
+
+            // Get first 3 ICPs (or all if less than 3)
+            const icpsToShow = icpData.icps.slice(0, 3);
+
+            // Save all ICPs to database
+            if (flowId) {
+                for (const icp of icpsToShow) {
+                    await saveICP({
+                        ...icp,
+                        fitScore: 90,
+                        profilesFound: 12,
+                    }, flowId, url);
+                }
+            }
+
+            // Update site with ICP summary if available
+            if (flowId && icpData.summary) {
+                try {
+                    const supabase = await createClient();
+                    const { data: { user } } = await supabase.auth.getUser();
+
+                    if (user) {
+                        const { data: existingSite } = await supabase
+                            .from("sites")
+                            .select("id")
+                            .eq("parent_flow", flowId)
+                            .eq("url", url)
+                            .maybeSingle();
+
+                        if (existingSite) {
                             // Update existing site with ICP summary
                             await supabase
                                 .from("sites")
@@ -575,9 +608,9 @@ async function scrapeUrl(url: string, controller: ReadableStreamDefaultControlle
                                 .eq("id", existingSite.id);
                         }
                     }
-                } catch (saveError) {
-                    console.error("Error saving scraped site:", saveError);
-                    // Don't fail the request if save fails
+                } catch (updateError) {
+                    console.error("Error updating site with ICP summary:", updateError);
+                    // Don't fail the request if update fails
                 }
             }
 
@@ -739,12 +772,63 @@ const tools = [
                 required: [],
             },
         },
+    },
+    {
+        type: "function" as const,
+        function: {
+            name: "update",
+            description: "Update the currently selected ICP with new information provided by the user. Use this when the user indicates that existing ICP information needs to be corrected or updated (e.g., 'the business is based in Paris', 'update the location', 'change the company name', 'the pain point is different'). Only update fields that the user explicitly mentions or provides new information for.",
+            parameters: {
+                type: "object",
+                properties: {
+                    persona_name: {
+                        type: "string",
+                        description: "Update the persona name if user provides new information",
+                    },
+                    persona_role: {
+                        type: "string",
+                        description: "Update the persona role if user provides new information",
+                    },
+                    persona_company: {
+                        type: "string",
+                        description: "Update the company name if user provides new information",
+                    },
+                    location: {
+                        type: "string",
+                        description: "Update the location/city if user provides new information (e.g., 'Paris', 'New York')",
+                    },
+                    country: {
+                        type: "string",
+                        description: "Update the country if user provides new information",
+                    },
+                    title: {
+                        type: "string",
+                        description: "Update the ICP title/category if user provides new information",
+                    },
+                    description: {
+                        type: "string",
+                        description: "Update the ICP description if user provides new information",
+                    },
+                    pain_points: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Update the pain points array if user provides new information",
+                    },
+                    goals: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Update the goals array if user provides new information",
+                    },
+                },
+                required: [],
+            },
+        },
     }
 
 ];
 
 // Execute a tool call by importing and calling route handlers directly
-async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, scrapedUrls?: Set<string>, excludeICP?: any): Promise<string> {
+async function executeTool(toolName: string, args: any, req: NextRequest, flowId?: string, controller?: ReadableStreamDefaultController<Uint8Array>, encoder?: TextEncoder, scrapedUrls?: Set<string>, excludeICP?: any, skipCrawlerCheck?: boolean): Promise<string> {
     try {
         switch (toolName) {
             case "Crawler": {
@@ -757,32 +841,34 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                     });
                 }
 
-                // Check if site already exists
-                const existingSite = await checkExistingSite(args.url, flowId);
-                if (existingSite) {
-                    // Stream the card component if controller is available
-                    if (controller && encoder) {
-                        const siteCardComponent = {
-                            type: "site-already-scraped",
-                            props: {
-                                url: args.url,
-                                siteId: existingSite.id,
-                                title: existingSite.title || args.url,
-                                summary: existingSite.summary || existingSite.description || "This site has already been scraped.",
-                                createdAt: existingSite.created_at,
-                                flowId: flowId,
-                            }
-                        };
-                        const cardContent = `<component>${JSON.stringify(siteCardComponent)}</component>`;
-                        controller.enqueue(encoder.encode(cardContent));
-                    }
+                // Check if site already exists (skip if skipCrawlerCheck is true)
+                if (!skipCrawlerCheck) {
+                    const existingSite = await checkExistingSite(args.url, flowId);
+                    if (existingSite) {
+                        // Stream the card component if controller is available
+                        if (controller && encoder) {
+                            const siteCardComponent = {
+                                type: "site-already-scraped",
+                                props: {
+                                    url: args.url,
+                                    siteId: existingSite.id,
+                                    title: existingSite.title || args.url,
+                                    summary: existingSite.summary || existingSite.description || "This site has already been scraped.",
+                                    createdAt: existingSite.created_at,
+                                    flowId: flowId,
+                                }
+                            };
+                            const cardContent = `<component>${JSON.stringify(siteCardComponent)}</component>`;
+                            controller.enqueue(encoder.encode(cardContent));
+                        }
 
-                    // Return simple message without component data
-                    return JSON.stringify({
-                        success: true,
-                        url: args.url,
-                        note: "Site already scraped."
-                    });
+                        // Return simple message without component data
+                        return JSON.stringify({
+                            success: true,
+                            url: args.url,
+                            note: "Site already scraped."
+                        });
+                    }
                 }
 
                 try {
@@ -795,6 +881,65 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
 
                     if (!scrapeResult.markdown || !scrapeResult.markdown.trim()) {
                         return JSON.stringify({ error: "No content extracted from website" });
+                    }
+
+                    // Save scraped content to sites table FIRST (before ICP generation)
+                    // This ensures data is saved even if ICP generation fails
+                    if (flowId) {
+                        try {
+                            const supabase = await createClient();
+                            const { data: { user } } = await supabase.auth.getUser();
+
+                            if (user) {
+                                // Check if site already exists
+                                const { data: existingSite } = await supabase
+                                    .from("sites")
+                                    .select("id")
+                                    .eq("parent_flow", flowId)
+                                    .eq("url", args.url)
+                                    .maybeSingle();
+
+                                if (!existingSite) {
+                                    // Extract basic metadata from scraped content
+                                    const titleMatch = scrapeResult.markdown.match(/^#\s+(.+)$/m);
+                                    const title = titleMatch ? titleMatch[1] : new URL(args.url).hostname;
+
+                                    const siteInsert: SiteInsert = {
+                                        parent_flow: flowId,
+                                        url: args.url,
+                                        content: scrapeResult.markdown,
+                                        source: "webcrawlerapi",
+                                        title: title,
+                                        description: scrapeResult.markdown.substring(0, 500) || null,
+                                        summary: null, // Will be updated after ICP generation if successful
+                                        facts_json: null, // Will be updated after ICP generation if successful
+                                        pages: 1,
+                                    };
+
+                                    const { data: insertedSite, error: siteError } = await supabase
+                                        .from("sites")
+                                        .insert(siteInsert)
+                                        .select("id")
+                                        .single();
+
+                                    if (siteError) {
+                                        console.error("Error saving scraped site:", siteError);
+                                    } else {
+                                        console.log("✅ Scraped site saved to database");
+                                        // Update flows table with selected_site (last created site)
+                                        if (insertedSite?.id) {
+                                            await supabase
+                                                .from("flows")
+                                                .update({ selected_site: insertedSite.id })
+                                                .eq("id", flowId);
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (saveError) {
+                            console.error("Error saving scraped site:", saveError);
+                            // Don't fail the request if save fails
+                        }
                     }
 
                     // Generate ICPs from crawled content
@@ -829,14 +974,13 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                         }
                     }
 
-                    // Save scraped content to sites table for future use (after ICPs are generated so we can include summary)
-                    if (flowId) {
+                    // Update site with ICP summary if available
+                    if (flowId && icpData.summary) {
                         try {
                             const supabase = await createClient();
                             const { data: { user } } = await supabase.auth.getUser();
 
                             if (user) {
-                                // Check if site already exists
                                 const { data: existingSite } = await supabase
                                     .from("sites")
                                     .select("id")
@@ -844,33 +988,7 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                                     .eq("url", args.url)
                                     .maybeSingle();
 
-                                if (!existingSite) {
-                                    // Extract basic metadata from scraped content
-                                    const titleMatch = scrapeResult.markdown.match(/^#\s+(.+)$/m);
-                                    const title = titleMatch ? titleMatch[1] : new URL(args.url).hostname;
-
-                                    const siteInsert: SiteInsert = {
-                                        parent_flow: flowId,
-                                        url: args.url,
-                                        content: scrapeResult.markdown,
-                                        source: "webcrawlerapi",
-                                        title: title,
-                                        description: scrapeResult.markdown.substring(0, 500) || null,
-                                        summary: icpData.summary?.businessDescription || null,
-                                        facts_json: icpData.summary ? { summary: icpData.summary } : null,
-                                        pages: 1,
-                                    };
-
-                                    const { error: siteError } = await supabase
-                                        .from("sites")
-                                        .insert(siteInsert);
-
-                                    if (siteError) {
-                                        console.error("Error saving scraped site:", siteError);
-                                    } else {
-                                        console.log("✅ Scraped site saved to database");
-                                    }
-                                } else if (icpData.summary) {
+                                if (existingSite) {
                                     // Update existing site with ICP summary
                                     await supabase
                                         .from("sites")
@@ -881,9 +999,9 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                                         .eq("id", existingSite.id);
                                 }
                             }
-                        } catch (saveError) {
-                            console.error("Error saving scraped site:", saveError);
-                            // Don't fail the request if save fails
+                        } catch (updateError) {
+                            console.error("Error updating site with ICP summary:", updateError);
+                            // Don't fail the request if update fails
                         }
                     }
 
@@ -1139,6 +1257,95 @@ async function executeTool(toolName: string, args: any, req: NextRequest, flowId
                 const data = await resp.json();
                 return JSON.stringify(data);
             }
+            case "update": {
+                if (!flowId) {
+                    return JSON.stringify({ error: "Flow ID is required to update ICP" });
+                }
+
+                try {
+                    const supabase = await createClient();
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) {
+                        return JSON.stringify({ error: "User not authenticated" });
+                    }
+
+                    // Get the selected ICP from the flow
+                    const { data: flow, error: flowError } = await supabase
+                        .from("flows")
+                        .select("selected_icp")
+                        .eq("id", flowId)
+                        .single();
+
+                    if (flowError || !flow?.selected_icp) {
+                        return JSON.stringify({
+                            error: "No ICP selected for this flow. Please select an ICP first."
+                        });
+                    }
+
+                    // Get the current ICP
+                    const { data: currentICP, error: icpError } = await supabase
+                        .from("icps")
+                        .select("*")
+                        .eq("id", flow.selected_icp)
+                        .single();
+
+                    if (icpError || !currentICP) {
+                        return JSON.stringify({ error: "Selected ICP not found" });
+                    }
+
+                    // Build update object with only provided fields
+                    const updateData: any = {};
+                    if (args.persona_name !== undefined) updateData.persona_name = args.persona_name;
+                    if (args.persona_role !== undefined) updateData.persona_role = args.persona_role;
+                    if (args.persona_company !== undefined) updateData.persona_company = args.persona_company;
+                    if (args.location !== undefined) updateData.location = args.location;
+                    if (args.country !== undefined) updateData.country = args.country;
+                    if (args.title !== undefined) updateData.title = args.title;
+                    if (args.description !== undefined) updateData.description = args.description;
+                    if (args.pain_points !== undefined) updateData.pain_points = args.pain_points;
+                    if (args.goals !== undefined) updateData.goals = args.goals;
+
+                    // If no fields to update, return error
+                    if (Object.keys(updateData).length === 0) {
+                        return JSON.stringify({
+                            error: "No fields provided to update. Please specify which ICP fields to update."
+                        });
+                    }
+
+                    // Update the ICP
+                    const { data: updatedICP, error: updateError } = await supabase
+                        .from("icps")
+                        .update(updateData)
+                        .eq("id", flow.selected_icp)
+                        .select()
+                        .single();
+
+                    if (updateError) {
+                        console.error("Error updating ICP:", updateError);
+                        return JSON.stringify({ error: `Failed to update ICP: ${updateError.message}` });
+                    }
+
+                    // Stream success message with updated fields
+                    const updatedFields = Object.keys(updateData).join(", ");
+                    const successMessage = `ICP updated successfully. Updated fields: ${updatedFields}.`;
+
+                    if (controller && encoder) {
+                        controller.enqueue(encoder.encode(successMessage));
+                    }
+
+                    return JSON.stringify({
+                        success: true,
+                        message: successMessage,
+                        updatedFields: Object.keys(updateData),
+                        icp: updatedICP,
+                    });
+                } catch (error) {
+                    console.error("Error in update tool:", error);
+                    return JSON.stringify({
+                        error: `Failed to update ICP: ${error instanceof Error ? error.message : String(error)}`
+                    });
+                }
+            }
             default:
                 return JSON.stringify({ error: `Unknown tool: ${toolName}` });
         }
@@ -1158,7 +1365,7 @@ function sendStatus(controller: ReadableStreamDefaultController<Uint8Array>, enc
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, flowId, excludeCurrentICP, savedSiteData } = await req.json() as {
+        const { message, flowId, excludeCurrentICP, savedSiteData, skipCrawlerCheck } = await req.json() as {
             message?: string;
             flowId?: string;
             excludeCurrentICP?: string;
@@ -1170,6 +1377,7 @@ export async function POST(req: NextRequest) {
                 summary?: string;
                 url?: string;
             };
+            skipCrawlerCheck?: boolean;
         };
         if (!message || !message.trim()) {
             return new Response(JSON.stringify({ error: "Missing message" }), { status: 400 });
@@ -1385,6 +1593,7 @@ Available tools:
 - crawler: Analyze a website URL to extract content, facts, and metadata (ICPs are automatically generated)
 - analyst: Generate Ideal Customer Profiles from website content
 - store: Store ICP requirements and business information collected from user prompts. Use this tool frequently to save information as users provide it. The system will automatically generate ICPs once minimum requirements are met.
+- update: Update the currently selected ICP with new information. Use this when the user indicates that existing ICP information needs to be corrected or updated (e.g., "the business is based in Paris", "update the location", "change the company name", "the pain point is different"). Only update fields that the user explicitly mentions or provides new information for.
 - generate_value_prop: Generate value propositions based on ICP and website
 
 YOUR PRIMARY ROLE AS A BUSINESS GROWTH SPECIALIST:
@@ -1405,8 +1614,14 @@ CRITICAL: ANSWERING QUESTIONS ABOUT EXISTING ICPs:
 - The conversation history includes all previous ICPs that were generated - reference them when answering questions
 - DO NOT call any tools when answering questions - just provide helpful explanations based on the ICPs already shown in the conversation
 - Questions starting with "explain", "what is", "help me understand", "why", "how", "tell me about", "I don't understand" should be answered conversationally WITHOUT calling tools
-- Only use tools when user explicitly wants to GENERATE NEW ICPs or STORE NEW INFORMATION
+- Only use tools when user explicitly wants to GENERATE NEW ICPs, STORE NEW INFORMATION, or UPDATE EXISTING ICP INFORMATION
 - When user asks about pain points, penalties, goals, or any ICP details, look at the conversation history for the ICP content and explain it clearly
+
+UPDATING EXISTING ICPs:
+- If user indicates that existing ICP information is incorrect or needs to be updated (e.g., "the business is based in Paris", "update the location to New York", "change the company name", "the pain point is different", "update the description"), use the "update" tool
+- Only update fields that the user explicitly mentions or provides new information for
+- Examples of update prompts: "the location should be Paris", "update the company to XYZ Corp", "change the pain points to include...", "the business is actually in London"
+- The update tool will automatically find the currently selected ICP and update only the specified fields
 
 IMPORTANT: When a URL is provided and scraped, Ideal Customer Profiles (ICPs) are AUTOMATICALLY generated and displayed as interactive card components.
 
@@ -1534,6 +1749,7 @@ Remember: Answer questions about existing ICPs directly. Only use tools to gener
                                 // Remove JSON tool results that might be echoed (e.g., {"success":true,"icpsGenerated":3,...})
                                 filteredContent = filteredContent.replace(/\{"success":\s*true[^}]*"icpsGenerated"[^}]*\}/g, '');
                                 filteredContent = filteredContent.replace(/\{"success":\s*true[^}]*"note"[^}]*\}/g, '');
+                                filteredContent = filteredContent.replace(/\{"success":\s*true[^}]*"message"[^}]*"updatedFields"[^}]*\}/g, '');
                                 // Remove any JSON objects that look like tool results
                                 filteredContent = filteredContent.replace(/\{[^}]*"url"[^}]*"note"[^}]*\}/g, '');
 
@@ -1589,6 +1805,7 @@ Remember: Answer questions about existing ICPs directly. Only use tools to gener
                                         // Remove JSON tool results
                                         .replace(/\{"success":\s*true[^}]*"icpsGenerated"[^}]*\}/g, '')
                                         .replace(/\{"success":\s*true[^}]*"note"[^}]*\}/g, '')
+                                        .replace(/\{"success":\s*true[^}]*"message"[^}]*"updatedFields"[^}]*\}/g, '')
                                         .replace(/\{[^}]*"url"[^}]*"note"[^}]*\}/g, '');
                                     if (filteredAccumulated.trim()) {
                                         controller.enqueue(encoder.encode(filteredAccumulated));
@@ -1625,7 +1842,7 @@ Remember: Answer questions about existing ICPs directly. Only use tools to gener
                                     sendStatus(controller, encoder, "Generating content");
                                 }
 
-                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls, excludeICP);
+                                const result = await executeTool(functionName, functionArgs, req, flowId, controller, encoder, scrapedUrls, excludeICP, skipCrawlerCheck);
 
                                 // Clear status after tool execution
                                 sendStatus(controller, encoder, "");
