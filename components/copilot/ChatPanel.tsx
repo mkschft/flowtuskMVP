@@ -82,9 +82,13 @@ export function ChatPanel({
               return null;
             }
             
-            // Render GenerationProgress component for special marker
-            if (originalContent === '__GENERATION_PROGRESS__') {
+            // Render GenerationProgress component for special markers
+            if (originalContent === '__GENERATION_PROGRESS__' || originalContent === '__UPDATE_PROGRESS__') {
               const allComplete = generationSteps.every(s => s.status === 'complete');
+              
+              // Only show if there are steps to display
+              if (generationSteps.length === 0) return null;
+              
               return (
                 <div key={idx} className="w-full">
                   <GenerationProgress steps={generationSteps} allComplete={allComplete} />

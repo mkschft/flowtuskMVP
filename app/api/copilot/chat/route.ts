@@ -76,70 +76,74 @@ export async function POST(req: NextRequest) {
         type: "function",
         function: {
           name: "update_design",
-          description: "Update design elements based on user's needs and strategic recommendations",
+          description: "Update design elements based on user's needs and strategic recommendations. IMPORTANT: When location/country changes, you MUST also update persona name and company to be culturally appropriate and regenerate value prop for the new market.",
           parameters: {
             type: "object",
             properties: {
-              colors: {
-                type: "array",
-                description: "Array of hex color codes (e.g., ['#FF5733', '#3B82F6'])",
-                items: { type: "string" }
+              updateType: {
+                type: "string",
+                description: "Type of update being made",
+                enum: ["market_shift", "styling", "messaging", "refinement"],
               },
-              fonts: {
+              persona: {
                 type: "object",
-                description: "Font family updates",
+                description: "Persona/ICP updates - include ALL relevant fields when location changes",
                 properties: {
-                  heading: { type: "string", description: "Heading font family" },
-                  body: { type: "string", description: "Body font family" }
+                  name: { type: "string", description: "Persona name - MUST be culturally appropriate for location" },
+                  company: { type: "string", description: "Company name - MUST reflect local market" },
+                  location: { type: "string", description: "City or region" },
+                  country: { type: "string", description: "Country name" },
                 }
               },
-              headline: {
-                type: "string",
-                description: "Updated value proposition headline"
+              valueProp: {
+                type: "object",
+                description: "Value proposition updates - regenerate comprehensively for market shifts",
+                properties: {
+                  headline: { type: "string", description: "Updated value proposition headline" },
+                  subheadline: { type: "string", description: "Updated subheadline or tagline" },
+                  targetAudience: { type: "string", description: "Target audience (Who) for the value proposition" },
+                  problem: { type: "string", description: "Core problem or pain point being addressed" },
+                  solution: { type: "string", description: "The solution or approach being offered" },
+                  outcome: { type: "string", description: "Expected outcome or benefit (Why Us)" },
+                  benefits: { type: "array", items: { type: "string" }, description: "Array of key benefits" },
+                }
               },
-              subheadline: {
-                type: "string",
-                description: "Updated subheadline or tagline"
+              brandUpdates: {
+                type: "object",
+                description: "Brand design updates",
+                properties: {
+                  colors: { type: "array", items: { type: "string" }, description: "Array of hex color codes" },
+                  fonts: {
+                    type: "object",
+                    properties: {
+                      heading: { type: "string", description: "Heading font family" },
+                      body: { type: "string", description: "Body font family" }
+                    }
+                  },
+                  tone: {
+                    type: "string",
+                    description: "Brand tone",
+                    enum: ["professional", "friendly", "bold", "innovative", "playful", "serious", "modern", "classic"]
+                  },
+                }
               },
-              targetAudience: {
-                type: "string",
-                description: "Target audience (Who) for the value proposition"
-              },
-              problem: {
-                type: "string",
-                description: "Core problem or pain point being addressed"
-              },
-              solution: {
-                type: "string",
-                description: "The solution or approach being offered"
-              },
-              outcome: {
-                type: "string",
-                description: "Expected outcome or benefit (Why Us)"
-              },
-              benefits: {
+              executionSteps: {
                 type: "array",
-                description: "Array of key benefits",
-                items: { type: "string" }
-              },
-              tone: {
-                type: "string",
-                description: "Brand tone (e.g., professional, friendly, bold, innovative)",
-                enum: ["professional", "friendly", "bold", "innovative", "playful", "serious", "modern", "classic"]
-              },
-              location: {
-                type: "string",
-                description: "City or region for the persona (e.g., 'Dhaka', 'London', 'New York')"
-              },
-              country: {
-                type: "string",
-                description: "Country for the persona (e.g., 'Bangladesh', 'United Kingdom', 'United States')"
+                description: "Multi-step execution plan for complex updates (shown to user as progress)",
+                items: {
+                  type: "object",
+                  properties: {
+                    step: { type: "string", description: "Step description (e.g., '🌍 Updating location...')" },
+                    status: { type: "string", enum: ["pending", "complete"], description: "Step status" }
+                  }
+                }
               },
               reasoning: {
                 type: "string",
-                description: "Strategic explanation of why these changes work for their specific audience and industry"
+                description: "Strategic explanation of why these changes work for their specific audience and industry. REQUIRED for market shifts."
               }
-            }
+            },
+            required: ["updateType", "reasoning"]
           }
         }
       }
@@ -304,30 +308,76 @@ Conversation Style:
 
 IMPORTANT - Response Format:
 • ALWAYS provide a friendly conversational message when calling update_design
-• Summarize what you changed: "I've updated your location to Bangladesh and adjusted colors to..."
-• Explain why: "This works better for your audience because..."
+• For comprehensive updates, describe WHAT changed: "I've updated your persona to target the Bangladesh market..."
+• Explain WHY with strategic reasoning: "This works better because [specific cultural/market insights]..."
+• List the key changes made with details: "Updated: location (Dhaka), persona name (Rafiq Ahmed), company (Green Solutions Bangladesh), value proposition"
+• For market_shift updates, ALWAYS provide a detailed summary of cultural/market considerations
 • NEVER just call the function silently—users need to see what happened
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPREHENSIVE UPDATE WORKFLOWS (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When user requests location/market changes, follow this CASCADE:
+
+1. MARKET SHIFT WORKFLOW (updateType: "market_shift")
+   Triggers: Location change, country change, new target market
+   
+   YOU MUST UPDATE:
+   ✓ persona.location (e.g., "Dhaka")
+   ✓ persona.country (e.g., "Bangladesh")
+   ✓ persona.name → Culturally appropriate name (e.g., "Markus Laine" → "Rafiq Ahmed" for Bangladesh)
+   ✓ persona.company → Localized company name (e.g., "EcoConsulting Ltd" → "Green Solutions Bangladesh")
+   ✓ valueProp.targetAudience → Rephrase for new market
+   ✓ valueProp.problem → Localize pain points with cultural context
+   ✓ valueProp.solution → Adapt solution messaging
+   ✓ valueProp.headline → Regenerate for new audience
+   ✓ valueProp.benefits → Update with market-specific benefits
+   
+   Example executionSteps (REQUIRED for market_shift):
+   [
+     {"step": "🌍 Updating location to Dhaka, Bangladesh", "status": "complete"},
+     {"step": "👤 Adapting persona (name, company) to local market", "status": "complete"},
+     {"step": "🎯 Regenerating value proposition for Bangladesh audience", "status": "complete"},
+     {"step": "✨ Adjusting messaging for cultural context", "status": "complete"}
+   ]
+   
+   Example conversational message for market_shift:
+   "I've adapted your persona for the Bangladesh market! Here's what changed:
+   
+   ✅ Location: Now targeting Dhaka, Bangladesh
+   ✅ Persona: Updated to Rafiq Ahmed (common Bengali name) at Green Solutions Bangladesh
+   ✅ Value Proposition: Regenerated to resonate with Bangladeshi homeowners
+   ✅ Cultural Context: Adjusted messaging to align with local preferences (green represents Islam and nature, emphasis on sustainability aligns with growing eco-consciousness)
+   
+   This approach will resonate better because Bangladesh has a rapidly growing middle class interested in sustainable living, and environmental concerns are increasingly important in South Asian markets."
+
+2. STYLING WORKFLOW (updateType: "styling")
+   Triggers: Color changes, font changes, tone adjustments
+   Only update: brandUpdates.colors, brandUpdates.fonts, brandUpdates.tone
+
+3. MESSAGING WORKFLOW (updateType: "messaging")
+   Triggers: Headline tweaks, benefit refinements
+   Only update: valueProp fields (keep persona unchanged)
+
+4. REFINEMENT WORKFLOW (updateType: "refinement")
+   Triggers: Small adjustments, clarifications
+   Update minimal fields
+
 Strategic Thinking:
-• Consider cultural context (e.g., if targeting Bangladesh, think colors, imagery, language preferences)
+• Consider cultural context (e.g., if targeting Bangladesh: green/red colors meaningful, Islamic holidays, Bengali language nuances)
 • Think about competitive differentiation in their industry
 • Balance brand consistency with market adaptation
 • Consider psychological impact of design choices on their specific audience
+• When location changes, persona name MUST reflect the culture (use common local names)
 
 When to Ask vs Act:
 • If request is VAGUE ("make it better", "change the design") → Ask clarifying questions
-• If request is CLEAR ("change to Bangladesh audience", "use green colors") → Execute immediately
+• If request is CLEAR ("change location to Bangladesh") → Execute FULL market_shift workflow immediately
 • If user says YES, CONFIRM, PROCEED, GO AHEAD → Act now, don't ask again
 • If user provides specific direction → Use update_design function right away
 
-What You Can Update:
-• Colors, fonts, tone → Use colors, fonts, tone fields
-• Brand messaging → Use headline, subheadline fields
-• Value proposition content → Use targetAudience (Who), problem (Pain), solution (Solution), outcome (Why Us), benefits fields
-• Persona location/country → Use location, country fields
-• Adapting for different audience/market → Update targetAudience, problem, solution, location, country to reflect new market
-
 Tone: Warm, professional, consultative. Like a senior partner at a consultancy who genuinely cares about their success.
 
-Updates: When making design changes, ALWAYS use the update_design function with clear reasoning tied to their business goals and audience. When user confirms changes, call update_design immediately.`;
+Updates: When making design changes, ALWAYS use the update_design function with clear reasoning tied to their business goals and audience. For market shifts, provide comprehensive reasoning about cultural adaptation.`;
 }

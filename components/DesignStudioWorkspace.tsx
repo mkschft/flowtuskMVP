@@ -526,7 +526,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       let updates;
       
       if (functionCallMatch) {
-        // Parse function call arguments
+        // Parse function call arguments (new structured format)
         const parsed = JSON.parse(functionCallMatch[1]);
         updates = parsed;
       } else {
@@ -541,92 +541,267 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       if (!updates) return;
 
       // Apply updates to project state
-      // Note: This updates design assets, not the project directly
       if (!workspaceData || !designAssets) return;
       
-      // Update persona location/country if provided
-      if (updates.location || updates.country) {
+      const updateType = updates.updateType || 'refinement';
+      console.log(`🔄 [Design Studio] Applying ${updateType} updates`, updates);
+      
+      // Show progress steps for complex updates
+      if (updateType === 'market_shift' && updates.executionSteps) {
+        // Add progress indicator to chat
+        setChatMessages((prev) => {
+          // Check if last message already has progress marker
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg?.content.includes('__UPDATE_PROGRESS__')) {
+            return prev; // Already showing progress
+          }
+          return [...prev, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
+        });
+        
+        // Update generation steps with execution plan
+        const executionSteps = updates.executionSteps.map((step: any, idx: number) => ({
+          id: `exec_${idx}`,
+          label: step.step.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, ''), // Remove emoji for label
+          icon: step.step.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⚡', // Extract emoji or use default
+          status: 'complete' as const // Mark as complete since we're applying them
+        }));
+        
+        setGenerationSteps(executionSteps);
+      }
+      
+      // Track what changed for comprehensive summary
+      const changedFields: string[] = [];
+      
+      // === PERSONA UPDATES (for market_shift and other workflows) ===
+      if (updates.persona) {
         setWorkspaceData((prev: any) => {
           if (!prev) return prev;
+          
+          const personaUpdates: any = {};
+          if (updates.persona.name) {
+            personaUpdates.persona_name = updates.persona.name;
+            changedFields.push(`persona name to "${updates.persona.name}"`);
+          }
+          if (updates.persona.company) {
+            personaUpdates.persona_company = updates.persona.company;
+            changedFields.push(`company to "${updates.persona.company}"`);
+          }
+          if (updates.persona.location) {
+            personaUpdates.location = updates.persona.location;
+            changedFields.push(`location to "${updates.persona.location}"`);
+          }
+          if (updates.persona.country) {
+            personaUpdates.country = updates.persona.country;
+            changedFields.push(`country to "${updates.persona.country}"`);
+          }
+          
           return {
             ...prev,
             persona: {
               ...prev.persona,
-              ...(updates.location && { location: updates.location }),
-              ...(updates.country && { country: updates.country }),
+              ...personaUpdates
             }
           };
         });
-        
-        const locationUpdates = [];
-        if (updates.location) locationUpdates.push(`location to ${updates.location}`);
-        if (updates.country) locationUpdates.push(`country to ${updates.country}`);
-        addToast(`🌍 ${locationUpdates.join(' and ')} updated!`, "success");
       }
       
-      // Update UI value prop state (instant updates, auto-persists via debounce)
+      // Backwards compatibility: handle legacy flat location/country fields
+      if (updates.location || updates.country) {
+        setWorkspaceData((prev: any) => {
+          if (!prev) return prev;
+          const legacyUpdates: any = {};
+          if (updates.location) {
+            legacyUpdates.location = updates.location;
+            changedFields.push(`location to "${updates.location}"`);
+          }
+          if (updates.country) {
+            legacyUpdates.country = updates.country;
+            changedFields.push(`country to "${updates.country}"`);
+          }
+          return {
+            ...prev,
+            persona: {
+              ...prev.persona,
+              ...legacyUpdates
+            }
+          };
+        });
+      }
+      
+      // === VALUE PROP UPDATES ===
+      if (updates.valueProp) {
+        const vp = updates.valueProp;
+        setUiValueProp((prev: any) => {
+          if (!prev) return prev;
+          
+          const vpUpdates: any = {};
+          if (vp.headline) { vpUpdates.headline = vp.headline; changedFields.push('headline'); }
+          if (vp.subheadline) { vpUpdates.subheadline = vp.subheadline; changedFields.push('subheadline'); }
+          if (vp.problem) { vpUpdates.problem = vp.problem; changedFields.push('problem'); }
+          if (vp.solution) { vpUpdates.solution = vp.solution; changedFields.push('solution'); }
+          if (vp.outcome) { vpUpdates.outcome = vp.outcome; changedFields.push('outcome'); }
+          if (vp.targetAudience) { vpUpdates.targetAudience = vp.targetAudience; changedFields.push('target audience'); }
+          if (vp.benefits && Array.isArray(vp.benefits)) { vpUpdates.benefits = vp.benefits; changedFields.push('benefits'); }
+          
+          return { ...prev, ...vpUpdates };
+        });
+      }
+      
+      // Backwards compatibility: handle legacy flat value prop fields
       if (updates.targetAudience || updates.problem || updates.solution || updates.outcome || updates.benefits || updates.headline) {
         setUiValueProp((prev: any) => {
           if (!prev) return prev;
           
-          return {
-            ...prev,
-            ...(updates.headline && { headline: updates.headline }),
-            ...(updates.subheadline && { subheadline: updates.subheadline }),
-            ...(updates.problem && { problem: updates.problem }),
-            ...(updates.solution && { solution: updates.solution }),
-            ...(updates.outcome && { outcome: updates.outcome }),
-            ...(updates.targetAudience && { targetAudience: updates.targetAudience }),
-            ...(updates.benefits && Array.isArray(updates.benefits) && { benefits: updates.benefits }),
-          };
+          const legacyVpUpdates: any = {};
+          if (updates.headline) { legacyVpUpdates.headline = updates.headline; changedFields.push('headline'); }
+          if (updates.subheadline) { legacyVpUpdates.subheadline = updates.subheadline; changedFields.push('subheadline'); }
+          if (updates.problem) { legacyVpUpdates.problem = updates.problem; changedFields.push('problem'); }
+          if (updates.solution) { legacyVpUpdates.solution = updates.solution; changedFields.push('solution'); }
+          if (updates.outcome) { legacyVpUpdates.outcome = updates.outcome; changedFields.push('outcome'); }
+          if (updates.targetAudience) { legacyVpUpdates.targetAudience = updates.targetAudience; changedFields.push('target audience'); }
+          if (updates.benefits && Array.isArray(updates.benefits)) { legacyVpUpdates.benefits = updates.benefits; changedFields.push('benefits'); }
+          
+          return { ...prev, ...legacyVpUpdates };
         });
-        
-        addToast("Value proposition updated! 🎯", "success");
-        setTimeout(() => setActiveTab("value-prop"), 500);
       }
       
+      // === BRAND UPDATES ===
+      if (updates.brandUpdates) {
+        setDesignAssets((prev: any) => {
+          if (!prev || !prev.brand_guide) return prev;
+          const updated = { ...prev };
+
+          if (updates.brandUpdates.colors && Array.isArray(updates.brandUpdates.colors)) {
+            updates.brandUpdates.colors.forEach((hex: string, idx: number) => {
+              if (updated.brand_guide.colors.primary[idx]) {
+                updated.brand_guide.colors.primary[idx].hex = hex;
+              }
+            });
+            changedFields.push('colors');
+          }
+
+          if (updates.brandUpdates.fonts) {
+            if (updates.brandUpdates.fonts.heading) {
+              const headingFont = updated.brand_guide.typography.find((t: any) => t.category === "heading");
+              if (headingFont) headingFont.fontFamily = updates.brandUpdates.fonts.heading;
+              changedFields.push('heading font');
+            }
+            if (updates.brandUpdates.fonts.body) {
+              const bodyFont = updated.brand_guide.typography.find((t: any) => t.category === "body");
+              if (bodyFont) bodyFont.fontFamily = updates.brandUpdates.fonts.body;
+              changedFields.push('body font');
+            }
+          }
+
+          return updated;
+        });
+      }
+      
+      // Backwards compatibility: handle legacy flat colors/fonts
       setDesignAssets((prev: any) => {
         if (!prev) return prev;
         const updated = { ...prev };
+        let hasChanges = false;
 
         if (updates.colors && Array.isArray(updates.colors) && updated.brand_guide) {
-          // Update primary colors
           updates.colors.forEach((hex: string, idx: number) => {
             if (updated.brand_guide.colors.primary[idx]) {
               updated.brand_guide.colors.primary[idx].hex = hex;
             }
           });
-          addToast("Colors updated! 🎨", "success");
-          setTimeout(() => setActiveTab("brand"), 500);
+          changedFields.push('colors');
+          hasChanges = true;
         }
 
         if (updates.fonts && updated.brand_guide) {
           if (updates.fonts.heading) {
             const headingFont = updated.brand_guide.typography.find((t: any) => t.category === "heading");
             if (headingFont) headingFont.fontFamily = updates.fonts.heading;
+            changedFields.push('heading font');
+            hasChanges = true;
           }
           if (updates.fonts.body) {
             const bodyFont = updated.brand_guide.typography.find((t: any) => t.category === "body");
             if (bodyFont) bodyFont.fontFamily = updates.fonts.body;
+            changedFields.push('body font');
+            hasChanges = true;
           }
-          addToast("Fonts updated! ✨", "success");
         }
 
         if (updates.headline && updated.landing_page) {
           updated.landing_page.hero.headline = updates.headline;
-          addToast("Headline updated!", "success");
+          hasChanges = true;
         }
 
         if (updates.subheadline && updated.landing_page) {
           updated.landing_page.hero.subheadline = updates.subheadline;
-          addToast("Subheadline updated!", "success");
+          hasChanges = true;
         }
 
-        return updated;
+        return hasChanges ? updated : prev;
       });
+      
+      // === SHOW COMPREHENSIVE UPDATE TOAST & SUMMARY ===
+      if (changedFields.length > 0) {
+        const uniqueFields = [...new Set(changedFields)];
+        
+        // Show toast notification
+        if (updateType === 'market_shift') {
+          addToast(`🌍 Market shift complete! Updated: ${uniqueFields.slice(0, 3).join(', ')}${uniqueFields.length > 3 ? '...' : ''}`, "success");
+        } else if (uniqueFields.length > 3) {
+          addToast(`✨ ${uniqueFields.length} elements updated successfully!`, "success");
+        } else {
+          addToast(`✓ Updated: ${uniqueFields.join(', ')}`, "success");
+        }
+        
+        // Add summary message to chat for complex updates
+        if (updateType === 'market_shift' && uniqueFields.length >= 3) {
+          setTimeout(() => {
+            setChatMessages((prev) => {
+              // Check if we already added a summary
+              const lastMsg = prev[prev.length - 1];
+              if (lastMsg?.content.includes('✅ Updated:')) {
+                return prev; // Summary already added
+              }
+              
+              // Build comprehensive summary
+              const summaryParts = [];
+              if (updates.persona) {
+                if (updates.persona.location || updates.persona.country) {
+                  summaryParts.push(`✅ **Location**: ${updates.persona.location || ''}${updates.persona.country ? ', ' + updates.persona.country : ''}`);
+                }
+                if (updates.persona.name) {
+                  summaryParts.push(`✅ **Persona**: ${updates.persona.name}${updates.persona.company ? ' at ' + updates.persona.company : ''}`);
+                }
+              }
+              if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
+                summaryParts.push(`✅ **Value Proposition**: Regenerated for new market`);
+              }
+              
+              const summaryMessage = `\n\n**🎉 Update Complete!**\n\n${summaryParts.join('\n')}\n\n${updates.reasoning || 'Changes applied successfully.'}`;
+              
+              return [...prev, { role: 'ai', content: summaryMessage }];
+            });
+            
+            // Clear progress steps after showing summary
+            setTimeout(() => {
+              setGenerationSteps([]);
+            }, 500);
+          }, 300);
+        }
+        
+        // Switch to appropriate tab based on update type
+        if (updateType === 'market_shift' || updates.valueProp || updates.targetAudience) {
+          setTimeout(() => setActiveTab("value-prop"), 800);
+        } else if (updateType === 'styling' || updates.brandUpdates) {
+          setTimeout(() => setActiveTab("brand"), 500);
+        }
+      }
+      
+      console.log(`✅ [Design Studio] Applied updates:`, changedFields);
     } catch (error) {
       // Silently fail - not all responses will have JSON
-      console.log("No structured updates found in response");
+      console.log("No structured updates found in response", error);
     }
   };
 
