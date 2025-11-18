@@ -326,15 +326,34 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             role: msg.role === "ai" ? "assistant" : msg.role,
             content: msg.content
           })),
-          project: currentProject ? {
-            name: currentProject.name,
-            colors: currentProject.brandGuide.colors.primary.map(c => c.hex),
-            fonts: {
-              heading: currentProject.brandGuide.typography.find(t => t.category === "heading")?.fontFamily,
-              body: currentProject.brandGuide.typography.find(t => t.category === "body")?.fontFamily,
-            }
-          } : null,
-          regenerationCount,
+          context: workspaceData ? {
+            persona: {
+              name: workspaceData.persona.persona_name,
+              role: workspaceData.persona.persona_role,
+              company: workspaceData.persona.persona_company,
+              industry: workspaceData.persona.title || 'Business',
+              location: workspaceData.persona.location,
+              country: workspaceData.persona.country,
+              painPoints: workspaceData.persona.pain_points,
+              goals: workspaceData.persona.goals || [],
+            },
+            valueProp: workspaceData.valueProp ? {
+              headline: currentProject?.valueProp.headline || '',
+              subheadline: currentProject?.valueProp.subheadline || '',
+              problem: currentProject?.valueProp.problem || '',
+              solution: currentProject?.valueProp.solution || '',
+              targetAudience: currentProject?.valueProp.targetAudience || '',
+            } : undefined,
+            brandGuide: designAssets?.brand_guide ? {
+              colors: {
+                primary: designAssets.brand_guide.colors.primary || [],
+                secondary: designAssets.brand_guide.colors.secondary || [],
+              },
+              typography: designAssets.brand_guide.typography || [],
+              toneOfVoice: designAssets.brand_guide.toneOfVoice || [],
+            } : undefined,
+            regenerationCount,
+          } : { regenerationCount },
         }),
       });
 
@@ -387,12 +406,22 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
   const parseAndApplyUpdates = (response: string) => {
     try {
-      // Look for JSON in the response
-      const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
-      if (!jsonMatch) return;
-
-      const parsed = JSON.parse(jsonMatch[0]);
-      const updates = parsed.updates;
+      // Check for function call format from new API
+      const functionCallMatch = response.match(/__FUNCTION_CALL__(.+)/);
+      let updates;
+      
+      if (functionCallMatch) {
+        // Parse function call arguments
+        const parsed = JSON.parse(functionCallMatch[1]);
+        updates = parsed;
+      } else {
+        // Fallback: Look for legacy JSON format
+        const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
+        if (!jsonMatch) return;
+        
+        const parsed = JSON.parse(jsonMatch[0]);
+        updates = parsed.updates;
+      }
 
       if (!updates) return;
 
