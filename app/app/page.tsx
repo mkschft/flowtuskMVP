@@ -179,6 +179,9 @@ function ChatPageContent() {
     }
   }
 
+  const realtimeChannelRef = useRef<any>(null);
+  const thinkingMsgIdRef = useRef<string | null>(null);
+
   function loadFromLocalStorage() {
     const savedConversations = localStorage.getItem('flowtusk_conversations');
     const savedActiveId = localStorage.getItem('flowtusk_active_conversation');
@@ -257,7 +260,7 @@ function ChatPageContent() {
         id: flow.id,
         websiteUrl: flow.website_url || '',
         websiteContent: undefined,
-        factsJson: flow.facts_json as any,
+        factsJson: (flow as any).facts_json ?? (flow as any).website_analysis,
         selectedIcp: flow.selected_icp as any,
         generationHistory: generatedContent.generationHistory || [],
         userPreferences: generatedContent.userPreferences || {
@@ -276,6 +279,11 @@ function ChatPageContent() {
     
     const conversation = conversations.find(c => c.id === activeConversationId);
     if (!conversation) return;
+
+    // Skip DB autosave during generation to reduce write noise
+    if (conversation.generationState?.isGenerating) {
+      return;
+    }
     
     // Only auto-save if conversation has messages (meaning it's been initialized)
     // This prevents trying to update flows that don't exist in DB yet
@@ -525,6 +533,17 @@ function ChatPageContent() {
     );
   };
 
+  // Targeted add to avoid race when conversation ID changes (e.g., after flow creation)
+  const addMessageTo = (conversationId: string, message: ChatMessage) => {
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === conversationId
+          ? { ...conv, messages: [...conv.messages, message] }
+          : conv
+      )
+    );
+  };
+
   // Enhanced state management utilities
   const updateGenerationState = (updates: Partial<GenerationState>) => {
     setConversations(prev =>
@@ -544,6 +563,15 @@ function ChatPageContent() {
     setConversations(prev =>
       prev.map(conv =>
         conv.id === activeConversationId
+          ? { ...conv, userJourney: { ...conv.userJourney, ...updates } }
+          : conv
+      )
+    );
+  };
+  const updateUserJourneyFor = (conversationId: string, updates: Partial<UserJourney>) => {
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === conversationId
           ? { ...conv, userJourney: { ...conv.userJourney, ...updates } }
           : conv
       )
@@ -604,24 +632,21 @@ function ChatPageContent() {
 
 
   const updateThinkingStep = (messageId: string, stepId: string, updates: Partial<ThinkingStep>) => {
+    // Update by messageId across conversations to be resilient to ID changes
     setConversations(prev =>
-      prev.map(conv =>
-        conv.id === activeConversationId
-          ? {
-              ...conv,
-              messages: conv.messages.map(m =>
-                m.id === messageId
-                  ? {
-                      ...m,
-                      thinking: m.thinking?.map(s =>
-                        s.id === stepId ? { ...s, ...updates } : s
-                      ),
-                    }
-                  : m
-              ),
-            }
-          : conv
-      )
+      prev.map(conv => ({
+        ...conv,
+        messages: conv.messages.map(m =>
+          m.id === messageId
+            ? {
+                ...m,
+                thinking: m.thinking?.map(s =>
+                  s.id === stepId ? { ...s, ...updates } : s
+                ),
+              }
+            : m
+        ),
+      }))
     );
   };
 
@@ -680,6 +705,7 @@ function ChatPageContent() {
 
         // Create thinking message with all steps
         const thinkingMsgId = nanoid();
+        thinkingMsgIdRef.current = thinkingMsgId;
         addMessage({
           id: thinkingMsgId,
           role: "assistant",
@@ -769,6 +795,74 @@ function ChatPageContent() {
           )
         );
 
+        // Create flow in database
+        console.log('💾 [Flow] Creating flow in database...');
+        const hostTitle = new URL(url).hostname;
+        const createFlowRes = await fetch("/api/flows", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": hostTitle },
+          body: JSON.stringify({ 
+            title: hostTitle,
+            website_url: url,
+            facts_json: factsJson || null,
+            step: 'analyzed'
+          }),
+        });
+        
+        if (!createFlowRes.ok) {
+          let apiErr = {} as any;
+          try { apiErr = await createFlowRes.json(); } catch {}
+          console.error('❌ [Flow] Failed to create flow', apiErr);
+          const reason = apiErr?.details || apiErr?.error || createFlowRes.statusText;
+          throw new Error(`Failed to create flow in database${reason ? `: ${reason}` : ''}`);
+        }
+        
+        const { flow } = await createFlowRes.json();
+        console.log('✅ [Flow] Created with ID:', flow.id);
+        
+        // Store flow ID and align conversation ID with DB flow ID
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? {
+                  ...conv,
+                  id: flow.id,
+                  memory: {
+                    ...conv.memory,
+                    id: flow.id,
+                    flowId: flow.id,
+                  }
+                }
+              : conv
+          )
+        );
+        // Make the new DB flow the active conversation
+        setActiveConversationId(flow.id);
+
+        // Subscribe to realtime updates for this flow (step transitions)
+        try {
+          const supabase = createClient();
+          if (realtimeChannelRef.current) {
+            supabase.removeChannel(realtimeChannelRef.current);
+            realtimeChannelRef.current = null;
+          }
+          const channel = supabase.channel(`flow:${flow.id}`)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'positioning_flows', filter: `id=eq.${flow.id}` }, (payload) => {
+              const newStep = (payload.new as any)?.step;
+              if (!newStep) return;
+              const msgId = thinkingMsgIdRef.current;
+              if (!msgId) return;
+              if (newStep === 'analyzed') {
+                updateThinkingStep(msgId, 'analyze', { status: 'complete' });
+              } else if (newStep === 'icps') {
+                updateThinkingStep(msgId, 'generate', { status: 'complete' });
+              }
+            })
+            .subscribe();
+          realtimeChannelRef.current = channel;
+        } catch {}
+
+        console.log('🎯 [Flow] Proceeding to Step 2: Extract visuals');
         // Step 2: Extract visuals
         const extractStart = Date.now();
         updateThinkingStep(thinkingMsgId, 'extract', { 
@@ -789,6 +883,7 @@ function ChatPageContent() {
           ]
         });
 
+        console.log('🎯 [Flow] Proceeding to Step 3: Generate ICPs');
         // Step 3: Generate ICPs
         const icpStart = Date.now();
         updateThinkingStep(thinkingMsgId, 'generate', { 
@@ -797,32 +892,89 @@ function ChatPageContent() {
           substeps: ['Analyzing content patterns...', 'Generating customer profiles with AI (10-20s)...']
         });
 
-        const icpRes = await fetch("/api/generate-icps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            content, // Fallback for legacy mode
-            factsJson: factsJson || undefined // NEW: Pass structured facts
-          }),
-        });
-
-        if (!icpRes.ok) throw new Error("Failed to generate ICPs");
-        const { icps, brandColors, summary } = await icpRes.json();
+        // Prefer SSE; fallback to JSON
+        let icps: ICP[] = [] as any;
+        let brandColors: any = null;
+        let summary: any = null;
+        let usedSSE = false;
+        try {
+          const sseRes = await fetch("/api/generate-icps?stream=1", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
+            body: JSON.stringify({ content, factsJson: factsJson || undefined }),
+          });
+          if (sseRes.ok && (sseRes.headers.get('content-type') || '').includes('text/event-stream')) {
+            usedSSE = true;
+            const reader = sseRes.body?.getReader();
+            const decoder = new TextDecoder();
+            if (reader) {
+              let buffer = "";
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const events = buffer.split("\n\n");
+                buffer = events.pop() || "";
+                for (const ev of events) {
+                  const lines = ev.split("\n");
+                  let type = "message"; let dataStr = "{}";
+                  for (const line of lines) {
+                    if (line.startsWith("event:")) type = line.slice(6).trim();
+                    if (line.startsWith("data:")) dataStr = line.slice(5).trim();
+                  }
+                  if (type === 'progress') {
+                    const payload = JSON.parse(dataStr);
+                    const msgId = thinkingMsgIdRef.current;
+                    if (msgId) {
+                      let detail = 'Generating profiles...';
+                      switch (payload.step) {
+                        case 'received_input': detail = 'Preparing input...'; break;
+                        case 'prompt_ready': detail = 'Prompt ready'; break;
+                        case 'calling_model': detail = 'Calling AI model...'; break;
+                        case 'model_done': detail = 'Model completed'; break;
+                        case 'parsing': detail = 'Validating and structuring output...'; break;
+                      }
+                      updateThinkingStep(msgId, 'generate', { substeps: ['Analyzing content patterns...', detail] });
+                    }
+                  } else if (type === 'done') {
+                    const payload = JSON.parse(dataStr);
+                    icps = payload.icps; brandColors = payload.brandColors; summary = payload.summary;
+                  } else if (type === 'error') {
+                    const payload = JSON.parse(dataStr);
+                    throw new Error(payload?.error || 'Generation failed');
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // fall back
+        }
+        if (!usedSSE) {
+          const icpRes = await fetch("/api/generate-icps", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content, factsJson: factsJson || undefined }),
+          });
+          if (!icpRes.ok) throw new Error("Failed to generate ICPs");
+          const json = await icpRes.json();
+          icps = json.icps; brandColors = json.brandColors; summary = json.summary;
+        }
         
         // Store brand colors
         // Note: brandColors saved for future use
 
         // Save ICPs to database and get UUID IDs
         console.log('💾 [ICPs] Saving to database...');
-        console.log('📋 [ICPs] FlowID:', activeConversation?.id);
+        console.log('📋 [ICPs] FlowID:', flow.id);
         console.log('🔢 [ICPs] Count:', icps.length);
         
         const saveIcpsRes = await fetch("/api/positioning-icps", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Idempotency-Key": flow.id },
           body: JSON.stringify({ 
             icps,
-            flowId: activeConversation?.id,
+            flowId: flow.id,
             websiteUrl: url
           }),
         });
@@ -836,6 +988,15 @@ function ChatPageContent() {
             id: savedIcps[index]?.id || icp.id, // Use database UUID or fallback to generated ID
           }));
           console.log('✅ [ICPs] Saved with database IDs:', icpsWithDbIds.map((i: ICP) => i.id));
+
+          // Boundary step update -> 'icps' (triggers realtime event)
+          try {
+            await fetch(`/api/flows/${flow.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ step: 'icps' }),
+            });
+          } catch {}
         } else {
           const errorData = await saveIcpsRes.json().catch(() => ({}));
           console.error('❌ [ICPs] Failed to save to database!');
@@ -874,14 +1035,14 @@ ${painPoints.slice(0, 3).map((p: { pain: string; metric: string }) => `• **${p
 I've identified **${icps.length} ideal customer profiles** below. Select one to customize your funnel:`;
 
         // Show summary
-        addMessage({
+        addMessageTo(flow.id, {
           id: nanoid(),
           role: "assistant",
           content: summaryText,
         });
 
         // Show ICP cards with database IDs
-        addMessage({
+        addMessageTo(flow.id, {
           id: nanoid(),
           role: "assistant",
           content: "",
@@ -890,8 +1051,8 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
         });
 
         // Record website analysis completion
-        updateUserJourney({ websiteAnalyzed: true });
-        memoryManager.addGenerationRecord(activeConversationId, 'website-analyzed', { icps: icpsWithDbIds, summary } as Record<string, unknown>);
+        updateUserJourneyFor(flow.id, { websiteAnalyzed: true });
+        memoryManager.addGenerationRecord(flow.id, 'website-analyzed', { icps: icpsWithDbIds, summary } as Record<string, unknown>);
       } else if (selectedIcp && websiteUrl) {
         // Chat refinement
         const response = await fetch("/api/chat", {
@@ -1637,7 +1798,150 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       setIsMigrating(false);
       setShowMigrationPrompt(false);
     }
-  }
+  };
+
+  const handleSelectIcp = async (icp: ICP) => {
+    // Check if action is allowed
+    if (!canPerformAction('select-icp')) {
+      console.log('🚫 [handleSelectIcp] Action not allowed - generation in progress or prerequisites not met');
+      return;
+    }
+
+    // Check if already completed for this ICP
+    if (isGenerationCompleted('value-prop', { icp: icp.id })) {
+      console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
+      setSelectedIcp(icp);
+      updateUserJourney({ icpSelected: true });
+      return;
+    }
+
+    // Check if currently generating
+    if (isGenerationInProgress('value-prop', { icp: icp.id })) {
+      console.log('⏳ [handleSelectIcp] Value prop generation already in progress');
+      return;
+    }
+
+    setSelectedIcp(icp);
+    updateGenerationState({ 
+      isGenerating: true, 
+      generationId: `value-prop-${icp.id}`,
+      currentStep: 'value-prop'
+    });
+    updateUserJourney({ icpSelected: true });
+    
+    // Record ICP selection
+    memoryManager.addGenerationRecord(activeConversationId, 'select-icp', { icpId: icp.id, icpTitle: icp.title } as Record<string, unknown>);
+
+    addMessage({
+      id: nanoid(),
+      role: "user",
+      content: `Create value proposition for: ${icp.title}`,
+    });
+
+    // Single loading message
+    const loadingMsgId = nanoid();
+    addMessage({
+      id: loadingMsgId,
+      role: "assistant",
+      content: "Generating your positioning package...",
+    });
+
+    try {
+      // Use idempotent generation
+      const valuePropData = await generationManager.generate(
+        'value-prop',
+        { icp: icp.id, websiteUrl },
+        async () => {
+          // Generate value prop (all backend processing happens here)
+          const valuePropRes = await fetch("/api/generate-value-prop", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              icp,
+              websiteUrl,
+              factsJson: activeConversation?.memory.factsJson
+            }),
+          });
+
+          if (!valuePropRes.ok) {
+            const errorData = await valuePropRes.json().catch(() => ({}));
+            console.error('❌ [Generate Value Prop] API error:', errorData);
+            throw new Error(errorData.error || errorData.details || "Failed to generate value prop");
+          }
+          const data = await valuePropRes.json();
+
+          return data;
+        }
+      );
+
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
+
+      // Show persona showcase directly
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "persona-showcase",
+        data: {
+          personas: [icp],
+          selectedPersonaId: icp.id,
+          valuePropData: {
+            [icp.id]: valuePropData
+          }
+        }
+      });
+
+      // Update state with generated content (include ICP for export functionality)
+      updateGenerationState({
+        generatedContent: {
+          ...activeConversation?.generationState.generatedContent,
+          valueProp: {
+            ...valuePropData,
+            icp // Add ICP to valueProp data for PNG export
+          }
+        },
+        completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
+      });
+
+      // Record in memory
+      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', valuePropData);
+      memoryManager.setLastAction(activeConversationId, 'select-icp');
+
+    } catch (error) {
+      console.error("Error:", error);
+      
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
+      
+      // Show error message with more details
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
+      });
+      
+      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', { error: true }, false);
+    } finally {
+      updateGenerationState({ 
+        isGenerating: false, 
+        generationId: undefined 
+      });
+    }
+  };
 
   // ============================================================================
   // Hero UI Handlers (for new UI components)
@@ -1913,8 +2217,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                 if (target.closest('button') || target.closest('[role="menuitem"]')) {
                                   return;
                                 }
-                                // ICP selection now handled automatically via persona showcase
-                                console.log('📋 [ICP Card] Clicked:', icp.personaName);
+                                // Select this ICP and proceed
+                                handleSelectIcp(icp);
                               }}
                             >
                               {/* Gradient background */}
@@ -2006,8 +2310,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                     className={`w-full h-8 text-xs hover:shadow-lg transition-all font-semibold`}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      // ICP selection now handled automatically via persona showcase
-                                      console.log('✅ [ICP Card] Select clicked:', icp.personaName);
+                                      handleSelectIcp(icp);
                                     }}
                                   >
                                     <CheckCircle2 className="h-3 w-3 mr-1.5" />
