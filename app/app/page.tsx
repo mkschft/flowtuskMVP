@@ -337,7 +337,8 @@ function ChatPageContent() {
       };
       
       await flowsClient.debouncedUpdate(conversation.id, {
-        title: conversation.title,
+        // Don't update title to avoid 409 conflicts with other flows
+        // (title is set once during creation via findOrCreateFlow)
         website_url: conversation.memory.websiteUrl,
         facts_json: conversation.memory.factsJson,
         selected_icp: conversation.memory.selectedIcp ?? undefined,
@@ -795,30 +796,17 @@ function ChatPageContent() {
           )
         );
 
-        // Create flow in database
-        console.log('💾 [Flow] Creating flow in database...');
+        // Find or create flow in database (prevents duplicates)
+        console.log('💾 [Flow] Finding or creating flow in database...');
         const hostTitle = new URL(url).hostname;
-        const createFlowRes = await fetch("/api/flows", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Idempotency-Key": hostTitle },
-          body: JSON.stringify({ 
-            title: hostTitle,
-            website_url: url,
-            facts_json: factsJson || null,
-            step: 'analyzed'
-          }),
+        const { flow, isNew } = await flowsClient.findOrCreateFlow({
+          title: hostTitle,
+          website_url: url,
+          facts_json: factsJson || undefined,
+          step: 'analyzed'
         });
         
-        if (!createFlowRes.ok) {
-          let apiErr = {} as any;
-          try { apiErr = await createFlowRes.json(); } catch {}
-          console.error('❌ [Flow] Failed to create flow', apiErr);
-          const reason = apiErr?.details || apiErr?.error || createFlowRes.statusText;
-          throw new Error(`Failed to create flow in database${reason ? `: ${reason}` : ''}`);
-        }
-        
-        const { flow } = await createFlowRes.json();
-        console.log('✅ [Flow] Created with ID:', flow.id);
+        console.log(`✅ [Flow] ${isNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
         
         // Store flow ID and align conversation ID with DB flow ID
         setConversations(prev =>

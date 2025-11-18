@@ -1,0 +1,158 @@
+{
+  "brand": {
+    "name": "Yaser UK",
+    "tones": [
+      "professional",
+      "informative"
+    ],
+    "primaryCTA": "Contact Yaser UK"
+  },
+  "structure": {
+    "nav": [
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions",
+      "Pricing/Business Model"
+    ],
+    "keyPages": [
+      {
+        "path": "/core-offering",
+        "title": "Core Offering"
+      },
+      {
+        "path": "/key-features-and-benefits",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers-and-use-cases",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
+      },
+      {
+        "path": "/pricing-business-model",
+        "title": "Pricing/Business Model"
+      }
+    ],
+    "footer": [
+      "Contact",
+      "Privacy Policy",
+      "Terms of Service"
+    ]
+  },
+  "audienceSignals": [
+    "Fintech Companies",
+    "Small Businesses",
+    "E-commerce",
+    "Crypto and Financial Services",
+    "Dental Practices"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Proven track record of ranking on the first page for competitive keywords in the UK.",
+      "evidence": [
+        "fact-8"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Customized strategies that align with the specific needs of various industries.",
+      "evidence": [
+        "fact-9"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Focus on delivering measurable results and improving clients' online presence.",
+      "evidence": [
+        "fact-10"
+      ]
+    }
+  ],
+  "pains": [
+    "Lack of online visibility",
+    "Difficulty in engaging target audiences",
+    "Challenges in transitioning websites without losing SEO value"
+  ],
+  "proof": [
+    "Proven track record of ranking on the first page for competitive keywords in the UK."
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Yaser UK is a London-based SEO consultancy.",
+      "page": "Core Offering",
+      "evidence": "Yaser UK is a London-based SEO consultancy that specializes in enhancing online visibility for businesses."
+    },
+    {
+      "id": "fact-2",
+      "text": "Yaser UK offers SEO, PPC marketing, and email marketing services.",
+      "page": "Core Offering",
+      "evidence": "Yaser UK specializes in enhancing online visibility for businesses through various digital marketing strategies, including search engine optimization (SEO), pay-per-click (PPC) marketing, and email marketing."
+    },
+    {
+      "id": "fact-3",
+      "text": "Yaser UK provides comprehensive SEO services including Technical SEO, Local SEO, and platform-specific services.",
+      "page": "Key Features and Benefits",
+      "evidence": "Comprehensive SEO Services: Includes Technical SEO, Local SEO, and specialized services for platforms like WordPress, Webflow, Squarespace, and Wix."
+    },
+    {
+      "id": "fact-4",
+      "text": "Yaser UK offers SEO copywriting services.",
+      "page": "Key Features and Benefits",
+      "evidence": "SEO Copywriting: Tailored content creation to improve search rankings and engage target audiences."
+    },
+    {
+      "id": "fact-5",
+      "text": "Yaser UK conducts SEO audits.",
+      "page": "Key Features and Benefits",
+      "evidence": "SEO Audits: Detailed assessments of websites to identify areas for improvement and optimization."
+    },
+    {
+      "id": "fact-6",
+      "text": "Yaser UK assists with website migrations.",
+      "page": "Key Features and Benefits",
+      "evidence": "Website Migrations: Assistance in transitioning websites without losing SEO value."
+    },
+    {
+      "id": "fact-7",
+      "text": "Yaser UK provides PPC marketing services.",
+      "page": "Key Features and Benefits",
+      "evidence": "PPC Marketing: Targeted advertising to drive traffic and conversions."
+    },
+    {
+      "id": "fact-8",
+      "text": "Yaser UK has a proven track record of ranking on the first page for competitive keywords in the UK.",
+      "page": "Value Propositions",
+      "evidence": "Proven track record of ranking on the first page for competitive keywords in the UK."
+    },
+    {
+      "id": "fact-9",
+      "text": "Yaser UK offers customized strategies for various industries.",
+      "page": "Value Propositions",
+      "evidence": "Customized strategies that align with the specific needs of various industries."
+    },
+    {
+      "id": "fact-10",
+      "text": "Yaser UK focuses on delivering measurable results and improving clients' online presence.",
+      "page": "Value Propositions",
+      "evidence": "Focus on delivering measurable results and improving clients' online presence."
+    },
+    {
+      "id": "fact-11",
+      "text": "Yaser UK serves fintech companies, small businesses, e-commerce, crypto and financial services, and dental practices.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Yaser UK serves a diverse clientele, including: Fintech Companies, Small Businesses, E-commerce, Crypto and Financial Services, Dental Practices."
+    },
+    {
+      "id": "fact-12",
+      "text": "Yaser UK offers email marketing strategies.",
+      "page": "Key Features and Benefits",
+      "evidence": "Email Marketing: Strategies to engage customers and nurture leads."
+    }
+  ]
+}

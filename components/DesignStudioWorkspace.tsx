@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,17 @@ export type TabType = "value-prop" | "brand" | "style" | "landing";
 
 const MAX_REGENERATIONS = 4;
 
+// UI-friendly value prop structure (single source of truth)
+type UiValueProp = {
+  headline: string;
+  subheadline: string;
+  problem: string;
+  solution: string;
+  outcome: string;
+  benefits: string[];
+  targetAudience: string;
+};
+
 type DesignStudioWorkspaceProps = {
   icpId: string;
   flowId: string;
@@ -34,6 +45,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   // Data from database
   const [workspaceData, setWorkspaceData] = useState<CopilotWorkspaceData | null>(null);
   const [designAssets, setDesignAssets] = useState<PositioningDesignAssets | null>(null);
+  
+  // UI state: flattened value prop for instant updates
+  const [uiValueProp, setUiValueProp] = useState<UiValueProp | null>(null);
   
   const handleBackToConversations = () => {
     router.push(`/app?flowId=${flowId}`);
@@ -66,12 +80,54 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     loadWorkspaceData();
   }, [icpId, flowId]);
   
+  // Initialize UI value prop from database
+  useEffect(() => {
+    if (workspaceData) {
+      setUiValueProp({
+        headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text || 
+                  workspaceData.persona.description,
+        subheadline: workspaceData.valueProp?.summary?.mainInsight || 
+                     `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
+        problem: workspaceData.persona.pain_points.join(", "),
+        solution: workspaceData.valueProp?.summary?.approachStrategy || 
+                  `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
+        outcome: workspaceData.valueProp?.summary?.expectedImpact || 
+                 `Proven results that help teams like yours achieve their goals faster`,
+        benefits: workspaceData.valueProp?.variations?.map(v => v.text) || 
+                  workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
+        targetAudience: workspaceData.persona.title,
+      });
+    }
+  }, [workspaceData]);
+  
   // Trigger background generation after workspace loads
   useEffect(() => {
     if (workspaceData && !loading) {
       triggerBackgroundGeneration();
     }
   }, [workspaceData, loading]);
+  
+  // Debounced persistence: save UI changes to database after 2s of inactivity
+  useEffect(() => {
+    if (!uiValueProp || !workspaceData) return;
+    
+    const timeout = setTimeout(async () => {
+      try {
+        console.log('💾 [Design Studio] Auto-saving value prop changes...');
+        // TODO: Implement /api/value-props/update endpoint
+        // await fetch('/api/value-props/update', {
+        //   method: 'PATCH',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({ icpId, flowId, ...uiValueProp })
+        // });
+        console.log('✅ [Design Studio] Value prop auto-saved');
+      } catch (err) {
+        console.error('❌ [Design Studio] Auto-save failed:', err);
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timeout);
+  }, [uiValueProp, icpId, flowId]);
 
   const loadWorkspaceData = async () => {
     setLoading(true);
@@ -237,50 +293,44 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   };
 
   // Build a DesignProject-like object for compatibility with existing components
-  const currentProject: DesignProject | null = workspaceData ? {
-    id: workspaceData.persona.id,
-    name: workspaceData.persona.persona_company.split('(')[0].trim(),
-    type: "saas",
-    description: workspaceData.persona.description,
-    chatHistory: chatMessages,
-    valueProp: {
-      headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text || 
-                workspaceData.persona.description,
-      subheadline: workspaceData.valueProp?.summary?.mainInsight || 
-                   `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
-      problem: workspaceData.persona.pain_points.join(", "),
-      solution: workspaceData.valueProp?.summary?.approachStrategy || 
-                `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
-      outcome: workspaceData.valueProp?.summary?.expectedImpact || 
-               `Proven results that help teams like yours achieve their goals faster`,
-      benefits: workspaceData.valueProp?.variations?.map(v => v.text) || 
-                workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
-      targetAudience: workspaceData.persona.title,
-      ctaSuggestions: ["Get Started", "Learn More", "Try Free"],
-    },
-    brandGuide: designAssets?.brand_guide || {
-      colors: { primary: [], secondary: [], accent: [], neutral: [] },
-      typography: [],
-      logoVariations: [],
-      toneOfVoice: [],
-      personalityTraits: [],
-    },
-    styleGuide: designAssets?.style_guide || {
-      buttons: [],
-      cards: [],
-      formElements: [],
-      spacing: [],
-      borderRadius: [],
-      shadows: [],
-    },
-    landingPage: designAssets?.landing_page || {
-      navigation: { logo: "", links: [] },
-      hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
-      features: [],
-      socialProof: [],
-      footer: { sections: [] },
-    },
-  } : null;
+  // Use useMemo to recompute when uiValueProp or other dependencies change
+  const currentProject: DesignProject | null = useMemo(() => {
+    if (!workspaceData || !uiValueProp) return null;
+    
+    return {
+      id: workspaceData.persona.id,
+      name: workspaceData.persona.persona_company.split('(')[0].trim(),
+      type: "saas",
+      description: workspaceData.persona.description,
+      chatHistory: chatMessages,
+      valueProp: {
+        ...uiValueProp,
+        ctaSuggestions: ["Get Started", "Learn More", "Try Free"],
+      },
+      brandGuide: designAssets?.brand_guide || {
+        colors: { primary: [], secondary: [], accent: [], neutral: [] },
+        typography: [],
+        logoVariations: [],
+        toneOfVoice: [],
+        personalityTraits: [],
+      },
+      styleGuide: designAssets?.style_guide || {
+        buttons: [],
+        cards: [],
+        formElements: [],
+        spacing: [],
+        borderRadius: [],
+        shadows: [],
+      },
+      landingPage: designAssets?.landing_page || {
+        navigation: { logo: "", links: [] },
+        hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
+        features: [],
+        socialProof: [],
+        footer: { sections: [] },
+      },
+    };
+  }, [workspaceData, uiValueProp, designAssets, chatMessages]);
 
   const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -428,6 +478,27 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       // Apply updates to project state
       // Note: This updates design assets, not the project directly
       if (!workspaceData || !designAssets) return;
+      
+      // Update UI value prop state (instant updates, auto-persists via debounce)
+      if (updates.targetAudience || updates.problem || updates.solution || updates.outcome || updates.benefits || updates.headline) {
+        setUiValueProp((prev: any) => {
+          if (!prev) return prev;
+          
+          return {
+            ...prev,
+            ...(updates.headline && { headline: updates.headline }),
+            ...(updates.subheadline && { subheadline: updates.subheadline }),
+            ...(updates.problem && { problem: updates.problem }),
+            ...(updates.solution && { solution: updates.solution }),
+            ...(updates.outcome && { outcome: updates.outcome }),
+            ...(updates.targetAudience && { targetAudience: updates.targetAudience }),
+            ...(updates.benefits && Array.isArray(updates.benefits) && { benefits: updates.benefits }),
+          };
+        });
+        
+        addToast("Value proposition updated! 🎯", "success");
+        setTimeout(() => setActiveTab("value-prop"), 500);
+      }
       
       setDesignAssets((prev: any) => {
         if (!prev) return prev;

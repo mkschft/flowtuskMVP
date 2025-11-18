@@ -101,6 +101,27 @@ export async function POST(req: NextRequest) {
                 type: "string",
                 description: "Updated subheadline or tagline"
               },
+              targetAudience: {
+                type: "string",
+                description: "Target audience (Who) for the value proposition"
+              },
+              problem: {
+                type: "string",
+                description: "Core problem or pain point being addressed"
+              },
+              solution: {
+                type: "string",
+                description: "The solution or approach being offered"
+              },
+              outcome: {
+                type: "string",
+                description: "Expected outcome or benefit (Why Us)"
+              },
+              benefits: {
+                type: "array",
+                description: "Array of key benefits",
+                items: { type: "string" }
+              },
               tone: {
                 type: "string",
                 description: "Brand tone (e.g., professional, friendly, bold, innovative)",
@@ -145,6 +166,9 @@ export async function POST(req: NextRequest) {
             controller.close();
           }, STREAM_TIMEOUT_MS);
 
+          let functionCallArgs = ""; // Accumulate function call arguments
+          let hasFunctionCall = false;
+
           for await (const chunk of stream) {
             if (Date.now() - streamStartTime > STREAM_TIMEOUT_MS) {
               clearTimeout(timeoutId);
@@ -160,18 +184,23 @@ export async function POST(req: NextRequest) {
               controller.enqueue(encoder.encode(content));
             }
 
-            // Handle function calls
+            // Handle function calls - OpenAI streams these incrementally
             const toolCalls = choice?.delta?.tool_calls;
             if (toolCalls && toolCalls.length > 0) {
-              // Function call detected - will be handled by frontend
               const functionCall = toolCalls[0];
               if (functionCall.function?.arguments) {
-                // Stream function arguments as JSON
-                controller.enqueue(
-                  encoder.encode(`\n\n__FUNCTION_CALL__${functionCall.function.arguments}`)
-                );
+                hasFunctionCall = true;
+                functionCallArgs += functionCall.function.arguments;
               }
             }
+          }
+
+          // Send complete function call at the end
+          if (hasFunctionCall && functionCallArgs) {
+            controller.enqueue(
+              encoder.encode(`\n\n__FUNCTION_CALL__${functionCallArgs}`)
+            );
+            console.log(`🔧 [Copilot] Function call: ${functionCallArgs.substring(0, 100)}...`);
           }
 
           clearTimeout(timeoutId);
@@ -277,7 +306,13 @@ When to Ask vs Act:
 • If user says YES, CONFIRM, PROCEED, GO AHEAD → Act now, don't ask again
 • If user provides specific direction → Use update_design function right away
 
+What You Can Update:
+• Colors, fonts, tone → Use colors, fonts, tone fields
+• Brand messaging → Use headline, subheadline fields
+• Value proposition content → Use targetAudience (Who), problem (Pain), solution (Solution), outcome (Why Us), benefits fields
+• Adapting for different audience/market → Update targetAudience, problem, solution to reflect new market
+
 Tone: Warm, professional, consultative. Like a senior partner at a consultancy who genuinely cares about their success.
 
-Updates: When making design changes, use the update_design function with clear reasoning tied to their business goals and audience.`;
+Updates: When making design changes, ALWAYS use the update_design function with clear reasoning tied to their business goals and audience. When user confirms changes, call update_design immediately.`;
 }

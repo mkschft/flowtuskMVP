@@ -158,6 +158,47 @@ export class FlowsClient {
   }
 
   /**
+   * Find an existing flow by website URL, or create a new one if not found
+   * This prevents duplicate flows for the same website
+   */
+  async findOrCreateFlow(input: CreateFlowInput & { website_url: string }): Promise<{ flow: Flow; isNew: boolean }> {
+    try {
+      // First, try to find existing flow by website URL
+      const flows = await this.listFlows({ archived: false });
+      const existingFlow = flows.find(f => f.website_url === input.website_url);
+      
+      if (existingFlow) {
+        console.log('✅ [DB] Found existing flow for website:', existingFlow.id);
+        // Update the existing flow with new data if provided
+        if (input.facts_json || input.step) {
+          const updated = await this.updateFlow(existingFlow.id, {
+            facts_json: input.facts_json,
+            step: input.step,
+          });
+          return { flow: updated, isNew: false };
+        }
+        return { flow: existingFlow, isNew: false };
+      }
+      
+      // No existing flow found, create a new one
+      console.log('✅ [DB] Creating new flow for website:', input.website_url);
+      const flow = await this.createFlow(input);
+      return { flow, isNew: true };
+    } catch (error) {
+      // If we hit a 409 conflict (race condition), try to find the flow again
+      if (error instanceof Error && error.message.includes('already exists')) {
+        console.warn('⚠️ [DB] Conflict detected, retrying find...');
+        const flows = await this.listFlows({ archived: false });
+        const existingFlow = flows.find(f => f.website_url === input.website_url || f.title === input.title);
+        if (existingFlow) {
+          return { flow: existingFlow, isNew: false };
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Update an existing flow
    */
   async updateFlow(id: string, updates: UpdateFlowInput): Promise<Flow> {

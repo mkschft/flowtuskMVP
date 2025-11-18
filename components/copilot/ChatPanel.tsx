@@ -55,15 +55,29 @@ export function ChatPanel({
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, idx) => {
-            // Strip any code blocks (e.g., ```json { "updates": ... } ```)
-            const displayContent = message.content
+            // Strip any code blocks, function calls, and JSON
+            const originalContent = message.content;
+            
+            // Count function calls for status indicator
+            const functionCallMatches = originalContent.match(/__FUNCTION_CALL__/g);
+            const functionCallCount = functionCallMatches ? functionCallMatches.length : 0;
+            
+            // Clean display content
+            const displayContent = originalContent
+              // remove function call markers and their JSON
+              .replace(/__FUNCTION_CALL__[\s\S]*?(?=\n\n|$)/g, "")
               // remove fenced blocks
               .replace(/```[\s\S]*?```/g, "")
-              // also remove bare JSON objects that include an "updates" key
+              // remove bare JSON objects that include an "updates" key
               .replace(/\{[\s\S]*?\"updates\"[\s\S]*?\}/g, "")
               // collapse excessive blank lines
               .replace(/\n{3,}/g, "\n\n")
               .trim();
+            
+            // Skip rendering if only function calls (no human-readable content)
+            if (!displayContent && functionCallCount > 0) {
+              return null;
+            }
 
             return (
               <div
