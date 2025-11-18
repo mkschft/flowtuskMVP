@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { User, Send, Sparkles } from "lucide-react";
 import type { ChatMessage } from "@/lib/design-studio-mock-data";
 import { cn } from "@/lib/utils";
+import { GenerationProgress } from "@/components/copilot/GenerationProgress";
 
 type ChatPanelProps = {
   messages: ChatMessage[];
@@ -15,6 +16,7 @@ type ChatPanelProps = {
   isStreaming?: boolean;
   regenerationCount?: number;
   maxRegenerations?: number;
+  generationSteps?: Array<{id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete'}>;
 };
 
 export function ChatPanel({ 
@@ -23,7 +25,8 @@ export function ChatPanel({
   projectName, 
   isStreaming = false,
   regenerationCount = 0,
-  maxRegenerations = 4 
+  maxRegenerations = 4,
+  generationSteps = []
 }: ChatPanelProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -77,6 +80,16 @@ export function ChatPanel({
             // Skip rendering if only function calls (no human-readable content)
             if (!displayContent && functionCallCount > 0) {
               return null;
+            }
+            
+            // Render GenerationProgress component for special marker
+            if (originalContent === '__GENERATION_PROGRESS__') {
+              const allComplete = generationSteps.every(s => s.status === 'complete');
+              return (
+                <div key={idx} className="w-full">
+                  <GenerationProgress steps={generationSteps} allComplete={allComplete} />
+                </div>
+              );
             }
 
             return (

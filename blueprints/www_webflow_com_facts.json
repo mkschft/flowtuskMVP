@@ -6,7 +6,7 @@
       "empowering",
       "dynamic"
     ],
-    "primaryCTA": "Get started — it’s free"
+    "primaryCTA": "Get started"
   },
   "structure": {
     "nav": [
@@ -15,7 +15,7 @@
       "Resources",
       "Enterprise",
       "Pricing",
-      "Contact Sales"
+      "Site Settings"
     ],
     "keyPages": [
       {
@@ -50,12 +50,13 @@
     "Designers",
     "Developers",
     "Agencies",
-    "Startups"
+    "Startups",
+    "Classrooms"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Webflow allows teams to build web experiences visually with AI support.",
+      "text": "Webflow allows for the creation, management, and optimization of personalized web experiences.",
       "evidence": [
         "fact-3",
         "fact-4"
@@ -63,34 +64,33 @@
     },
     {
       "id": "v2",
-      "text": "Webflow's CMS helps manage content that drives results with built-in SEO and AEO tools.",
+      "text": "Webflow provides a visual, composable CMS that drives results.",
       "evidence": [
-        "fact-5",
         "fact-6"
       ]
     },
     {
       "id": "v3",
-      "text": "Webflow's platform offers significant cost savings and increased efficiency.",
+      "text": "Webflow's AI-powered tools optimize content for both traditional and AI-driven search.",
       "evidence": [
-        "fact-7",
-        "fact-8"
+        "fact-7"
       ]
     }
   ],
   "pains": [
-    "Need for dynamic digital experiences that resonate with humans and are readable by bots.",
-    "Technical complexity in web development."
+    "Technical complexity in web development",
+    "Need for dynamic digital experiences",
+    "Optimization for AI-driven search"
   ],
   "proof": [
-    "300,000 brands use Webflow.",
-    "10x in cost savings annually.",
-    "67% decrease in dev ticketing.",
-    "$6M in cost savings annually.",
-    "56% increase in form fills.",
-    "1,170% increase in traffic YoY.",
-    "$200M in new pipeline generated post-site launch.",
-    "+20% increase in site-wide conversion."
+    "300,000 brands use Webflow",
+    "10x in cost savings annually",
+    "67% decrease in dev ticketing",
+    "$6M in cost savings annually",
+    "56% increase in form fills",
+    "1,170% increase in traffic YoY",
+    "$200M in new pipeline generated post-site launch",
+    "+20% increase in site-wide conversion"
   ],
   "facts": [
     {
@@ -101,87 +101,93 @@
     },
     {
       "id": "fact-2",
-      "text": "Webflow offers a platform for building, managing, and optimizing web experiences.",
+      "text": "Webflow offers an AI-native platform.",
       "page": "Platform",
-      "evidence": "Generate full-stack web apps in Webflow — Learn more"
+      "evidence": "With Webflow’s AI-native platform, you can create, manage, and optimize personalized web experiences."
     },
     {
       "id": "fact-3",
-      "text": "Webflow lets your whole team build web experiences visually, with AI support.",
+      "text": "Webflow allows marketing teams to build, manage, and optimize dynamic web experiences.",
       "page": "Platform",
-      "evidence": "Webflow lets your whole team build web experiences (including interactions and animations) visually, with help from AI"
+      "evidence": "With Webflow’s AI-native platform, marketing teams can build, manage, and optimize dynamic web experiences."
     },
     {
       "id": "fact-4",
-      "text": "Webflow keeps everything on-brand with design systems and designer-approved building blocks.",
+      "text": "Webflow's platform is designed to drive real business results.",
       "page": "Platform",
-      "evidence": "while keeping everything on-brand with design systems and designer-approved building blocks"
+      "evidence": "With Webflow’s AI-native platform, marketing teams can build, manage, and optimize dynamic web experiences that drive real business results."
     },
     {
       "id": "fact-5",
-      "text": "Webflow’s CMS lets you create and manage content that drives results.",
+      "text": "Webflow's CMS is visual and composable.",
       "page": "Platform",
-      "evidence": "Webflow’s visual, composable CMS lets you create and manage content that drives results"
+      "evidence": "Webflow’s visual, composable CMS lets you create and manage content that drives results."
     },
     {
       "id": "fact-6",
       "text": "Webflow includes built-in SEO and AEO tools.",
       "page": "Platform",
-      "evidence": "while built-in SEO and AEO tools help you optimize content for both traditional and AI-driven search"
+      "evidence": "Webflow’s visual, composable CMS lets you create and manage content that drives results — while built-in SEO and AEO tools help you optimize content for both traditional and AI-driven search."
     },
     {
       "id": "fact-7",
-      "text": "Webflow offers significant cost savings, such as $6M annually.",
-      "page": "Home",
-      "evidence": "$6M in cost savings annually"
+      "text": "Webflow's platform includes AI-powered personalization and localization tools.",
+      "page": "Platform",
+      "evidence": "Webflow’s native analytics — along with AI-powered personalization and localization tools — empower you to discover what works, scale it globally, and drive revenue."
     },
     {
       "id": "fact-8",
-      "text": "Webflow reports a 67% decrease in dev ticketing.",
-      "page": "Home",
-      "evidence": "67% decrease in dev ticketing"
-    },
-    {
-      "id": "fact-9",
-      "text": "Webflow reports a 56% increase in form fills.",
-      "page": "Home",
-      "evidence": "56% increase in form fills"
-    },
-    {
-      "id": "fact-10",
-      "text": "Webflow reports a 1,170% increase in traffic YoY.",
-      "page": "Home",
-      "evidence": "1,170% increase in traffic YoY"
-    },
-    {
-      "id": "fact-11",
-      "text": "Webflow's platform is used by 300,000 brands.",
+      "text": "Webflow is trusted by teams at 300,000 brands.",
       "page": "Home",
       "evidence": "300,000 brands move the needle with Webflow"
     },
     {
+      "id": "fact-9",
+      "text": "Webflow offers a free start option.",
+      "page": "Home",
+      "evidence": "Get started — it&#x27;s free"
+    },
+    {
+      "id": "fact-10",
+      "text": "Webflow has a 10x in cost savings annually.",
+      "page": "Home",
+      "evidence": "10x In cost savings annually Read story"
+    },
+    {
+      "id": "fact-11",
+      "text": "Webflow has a 67% decrease in dev ticketing.",
+      "page": "Home",
+      "evidence": "67% decrease in dev ticketing Read story"
+    },
+    {
       "id": "fact-12",
-      "text": "Webflow's AI-native platform helps create personalized web experiences.",
-      "page": "Platform",
-      "evidence": "With Webflow’s AI-native platform, you can create, manage, and optimize personalized web experiences"
+      "text": "Webflow has achieved a $6M in cost savings annually.",
+      "page": "Home",
+      "evidence": "$6M in cost savings annually Read story"
     },
     {
       "id": "fact-13",
-      "text": "Webflow's platform is trusted by teams at various companies.",
+      "text": "Webflow has a 56% increase in form fills.",
       "page": "Home",
-      "evidence": "Trusted by teams at"
+      "evidence": "56% increase in form fills Read story"
     },
     {
       "id": "fact-14",
-      "text": "Webflow empowers marketers, designers, and content creators by stripping away technical complexity.",
+      "text": "Webflow has a 1,170% increase in traffic YoY.",
       "page": "Home",
-      "evidence": "Webflow empowers us to do what we do best as marketers, designers, and content creators: It strips away the technical complexity"
+      "evidence": "1,170% increase in traffic YoY Read story"
     },
     {
       "id": "fact-15",
-      "text": "Webflow's platform allows for faster project timelines by 44%.",
+      "text": "Webflow has generated $200M in new pipeline post-site launch.",
       "page": "Home",
-      "evidence": "44% Faster project timelines"
+      "evidence": "$200M in new pipeline generated post-site launch Read story"
+    },
+    {
+      "id": "fact-16",
+      "text": "Webflow has a +20% increase in site-wide conversion.",
+      "page": "Home",
+      "evidence": "+20% increase in site-wide conversion Read story"
     }
   ]
 }

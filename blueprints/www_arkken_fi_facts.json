@@ -1,0 +1,172 @@
+{
+  "brand": {
+    "name": "Arkken",
+    "tones": [
+      "Inspirational",
+      "Professional"
+    ],
+    "primaryCTA": "Varaa aika"
+  },
+  "structure": {
+    "nav": [
+      "Keittiöt",
+      "Muut tilat",
+      "Inspiraatio",
+      "Näin tilaat",
+      "Meistä"
+    ],
+    "keyPages": [
+      {
+        "path": "/keittiot",
+        "title": "Keittiöt"
+      },
+      {
+        "path": "/muut-tilat",
+        "title": "Muut tilat"
+      },
+      {
+        "path": "/inspiraatio",
+        "title": "Inspiraatio"
+      },
+      {
+        "path": "/nain-tilaat",
+        "title": "Näin tilaat"
+      },
+      {
+        "path": "/meista",
+        "title": "Meistä"
+      }
+    ],
+    "footer": [
+      "Inspiraatio",
+      "Meistä",
+      "Yhteys",
+      "Rahoitus",
+      "Vinkit & ideat",
+      "Tietosuojaseloste"
+    ]
+  },
+  "audienceSignals": [
+    "Elämänilon etsijöille",
+    "Kotimaista puusepäntaitoa arvostavat"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Kotimaista puusepäntaitoa ja kauniita, mietittyjä yksityiskohtia",
+      "evidence": [
+        "fact-5",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Mittatilauskeittiöt suunnitellaan ja toimitetaan syyskuussa",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Sisäänrakennettua vastuullisuutta: Arkkenin kestävän kehityksen malli",
+      "evidence": [
+        "fact-10"
+      ]
+    }
+  ],
+  "pains": [
+    "Tarve yksilöllisille ja mittatilauskeittiöille",
+    "Kestävä kehitys ja vastuullisuus"
+  ],
+  "proof": [
+    "Kotimaista puusepäntaitoa",
+    "Arkkenin oma tehdas Salossa"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Arkken suunnittelee mittatilauskeittiöitä, jotka toimitetaan syyskuussa.",
+      "page": "Home",
+      "evidence": "Syyskuussa toimitettavia keittiöitä suunnitellaan nyt!"
+    },
+    {
+      "id": "fact-2",
+      "text": "Arkken tarjoaa mittatilauskeittiöitä.",
+      "page": "Keittiöt",
+      "evidence": "Mittatilauskeittiö"
+    },
+    {
+      "id": "fact-3",
+      "text": "Arkken tarjoaa viilukeittiöitä.",
+      "page": "Keittiöt",
+      "evidence": "Viilukeittiö"
+    },
+    {
+      "id": "fact-4",
+      "text": "Arkken tarjoaa klassisia keittiöitä.",
+      "page": "Keittiöt",
+      "evidence": "Klassinen keittiö"
+    },
+    {
+      "id": "fact-5",
+      "text": "Arkken tarjoaa moderneja keittiöitä.",
+      "page": "Keittiöt",
+      "evidence": "Moderni keittiö"
+    },
+    {
+      "id": "fact-6",
+      "text": "Arkken tarjoaa värikkäitä keittiöitä.",
+      "page": "Keittiöt",
+      "evidence": "Värikäs keittiö"
+    },
+    {
+      "id": "fact-7",
+      "text": "Arkkenin keittiöt valmistetaan kotimaisena puusepäntyönä.",
+      "page": "Home",
+      "evidence": "Kotimaista puusepäntaitoa ja kauniita, mietittyjä yksityiskohtia"
+    },
+    {
+      "id": "fact-8",
+      "text": "Arkkenin tehdas sijaitsee Salossa.",
+      "page": "Home",
+      "evidence": "Arkkenin omalta tehtaalta Salosta"
+    },
+    {
+      "id": "fact-9",
+      "text": "Arkken tarjoaa kylpyhuoneita ja säilytysratkaisuja.",
+      "page": "Muut tilat",
+      "evidence": "Kylpyhuoneet Säilytysratkaisut"
+    },
+    {
+      "id": "fact-10",
+      "text": "Arkken sisällyttää kestävän kehityksen mallin tuotteisiinsa.",
+      "page": "Home",
+      "evidence": "Sisäänrakennettua vastuullisuutta: Arkkenin kestävän kehityksen malli"
+    },
+    {
+      "id": "fact-11",
+      "text": "Arkken tarjoaa asiakastarinoita ja inspiraatiota.",
+      "page": "Inspiraatio",
+      "evidence": "Arkken Kotona – lue aitoja asiakastarinoita"
+    },
+    {
+      "id": "fact-12",
+      "text": "Arkken tarjoaa ilmaisen keittiösuunnittelun oppaan.",
+      "page": "Home",
+      "evidence": "Lataa ilmainen opas ja tutustu suunnitteluprosessiimme."
+    },
+    {
+      "id": "fact-13",
+      "text": "Arkkenin showroom on päivitetty ja uusia yhteistyökumppaneita on lisätty.",
+      "page": "Home",
+      "evidence": "Uutta Arkkenilla! Päivitetty showroom ja uudet yhteistyökumppanit"
+    },
+    {
+      "id": "fact-14",
+      "text": "Arkken tarjoaa veloituksetta tilausvärin uusiin keittiötilauksiin.",
+      "page": "Home",
+      "evidence": "Valitsemasi tilausväri veloituksetta 30.11.2025 mennessä tehtyihin uusiin keittiötilauksiin"
+    }
+  ]
+}

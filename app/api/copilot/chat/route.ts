@@ -127,6 +127,14 @@ export async function POST(req: NextRequest) {
                 description: "Brand tone (e.g., professional, friendly, bold, innovative)",
                 enum: ["professional", "friendly", "bold", "innovative", "playful", "serious", "modern", "classic"]
               },
+              location: {
+                type: "string",
+                description: "City or region for the persona (e.g., 'Dhaka', 'London', 'New York')"
+              },
+              country: {
+                type: "string",
+                description: "Country for the persona (e.g., 'Bangladesh', 'United Kingdom', 'United States')"
+              },
               reasoning: {
                 type: "string",
                 description: "Strategic explanation of why these changes work for their specific audience and industry"
@@ -294,6 +302,12 @@ Conversation Style:
 • Reference their specific audience, pain points, and market context in updates
 • Be decisive and action-oriented—consultative, not hesitant
 
+IMPORTANT - Response Format:
+• ALWAYS provide a friendly conversational message when calling update_design
+• Summarize what you changed: "I've updated your location to Bangladesh and adjusted colors to..."
+• Explain why: "This works better for your audience because..."
+• NEVER just call the function silently—users need to see what happened
+
 Strategic Thinking:
 • Consider cultural context (e.g., if targeting Bangladesh, think colors, imagery, language preferences)
 • Think about competitive differentiation in their industry
@@ -310,7 +324,8 @@ What You Can Update:
 • Colors, fonts, tone → Use colors, fonts, tone fields
 • Brand messaging → Use headline, subheadline fields
 • Value proposition content → Use targetAudience (Who), problem (Pain), solution (Solution), outcome (Why Us), benefits fields
-• Adapting for different audience/market → Update targetAudience, problem, solution to reflect new market
+• Persona location/country → Use location, country fields
+• Adapting for different audience/market → Update targetAudience, problem, solution, location, country to reflect new market
 
 Tone: Warm, professional, consultative. Like a senior partner at a consultancy who genuinely cares about their success.
 

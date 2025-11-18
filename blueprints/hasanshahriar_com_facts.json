@@ -5,44 +5,43 @@
       "professional",
       "innovative"
     ],
-    "primaryCTA": "reach out for collaboration or inquiries"
+    "primaryCTA": "Book a call to learn more"
   },
   "structure": {
     "nav": [
-      "Core Offering",
-      "Key Features and Benefits",
-      "Target Customers and Use Cases",
-      "Value Propositions"
+      "Webflow x Growth",
+      "Hasan Shahriar",
+      "Solutions",
+      "Technology",
+      "Industries",
+      "Get in touch"
     ],
     "keyPages": [
       {
-        "path": "/core-offering",
-        "title": "Core Offering"
+        "path": "/",
+        "title": "Hasan Shahriar | Webflow x Growth"
       },
       {
-        "path": "/features-benefits",
-        "title": "Key Features and Benefits"
-      },
-      {
-        "path": "/target-customers",
-        "title": "Target Customers and Use Cases"
-      },
-      {
-        "path": "/value-propositions",
-        "title": "Value Propositions"
+        "path": "/about",
+        "title": "About Hasan"
       }
     ],
-    "footer": []
+    "footer": [
+      "LinkedIn",
+      "Twitter",
+      "Email"
+    ]
   },
   "audienceSignals": [
-    "B2B companies looking to improve digital presence",
-    "Startups needing scalable web solutions",
-    "Enterprises seeking digital transformation"
+    "B2B companies",
+    "startups",
+    "agencies",
+    "enterprises"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Scalability of solutions",
+      "text": "Scalable digital solutions for B2B growth",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -50,90 +49,83 @@
     },
     {
       "id": "v2",
-      "text": "Expertise in B2B sector",
+      "text": "Expertise in full stack web and AI applications",
       "evidence": [
         "fact-4",
-        "fact-8"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Customer-centric approach",
-      "evidence": [
-        "fact-5",
-        "fact-9"
+        "fact-5"
       ]
     }
   ],
   "pains": [
-    "Need for scalable digital solutions",
-    "Challenges in digital transformation and customer engagement"
+    "Need for digital transformation",
+    "Engaging customers effectively",
+    "Accelerating growth"
   ],
   "proof": [
-    "Over 7 years of experience",
-    "Portfolio includes websites for more than 100 startups, agencies, and enterprises",
-    "Generated over 10,000 impactful leads"
+    "7+ years of experience",
+    "100+ websites built",
+    "10,000+ impactful leads generated"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Hasan Shahriar specializes in B2B digital transformation.",
-      "page": "Core Offering",
-      "evidence": "Hasan Shahriar specializes in B2B digital transformation, providing scalable digital solutions."
+      "text": "Hasan Shahriar is a tech lead and B2B growth consultant based in Finland.",
+      "page": "About Hasan",
+      "evidence": "Hello, this is Hasan 👋 I am a tech lead and B2B growth consultant based in Finland."
     },
     {
       "id": "fact-2",
-      "text": "The company employs a technology-first approach.",
-      "page": "Core Offering",
-      "evidence": "The company employs a technology-first approach that integrates strategic innovation with proven execution."
+      "text": "Hasan Shahriar specializes in helping B2B companies grow with scalable solutions.",
+      "page": "About Hasan",
+      "evidence": "We specialize in helping B2B companies to grow with scalable full stack web an AI applications."
     },
     {
       "id": "fact-3",
-      "text": "Solutions are designed to grow with the client's business needs.",
-      "page": "Value Propositions",
-      "evidence": "Solutions designed to grow with the client's business needs."
+      "text": "The company architects scalable digital solutions for B2B companies.",
+      "page": "Home",
+      "evidence": "We architect scalable digital solutions that transform how B2B companies engage customers and accelerate growth."
     },
     {
       "id": "fact-4",
       "text": "Hasan Shahriar has over 7 years of experience.",
-      "page": "Key Features and Benefits",
-      "evidence": "Over 7 years of experience with a portfolio that includes websites for more than 100 startups, agencies, and enterprises."
+      "page": "About Hasan",
+      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries."
     },
     {
       "id": "fact-5",
-      "text": "Focus on understanding and addressing unique challenges faced by B2B companies.",
-      "page": "Value Propositions",
-      "evidence": "Focus on understanding and addressing the unique challenges faced by B2B companies."
+      "text": "The company has built websites for over 100 startups, agencies, and enterprises.",
+      "page": "About Hasan",
+      "evidence": "We’ve built websites for 100+ startups, agencies and enterprises in 8 countries."
     },
     {
       "id": "fact-6",
-      "text": "Development of comprehensive web solutions tailored for B2B companies.",
-      "page": "Key Features and Benefits",
-      "evidence": "Development of comprehensive web solutions tailored for B2B companies."
+      "text": "Hasan Shahriar has helped generate over 10,000 impactful leads.",
+      "page": "About Hasan",
+      "evidence": "Helping generate over 10,000 impactful leads."
     },
     {
       "id": "fact-7",
-      "text": "Utilizes platforms like Webflow and React.",
-      "page": "Key Features and Benefits",
-      "evidence": "Utilizes platforms like Webflow and React to enhance digital marketing and content creation."
+      "text": "The company combines strategic innovation with proven execution.",
+      "page": "Home",
+      "evidence": "Our technology-first approach combines strategic innovation with proven execution to deliver outcomes that matter."
     },
     {
       "id": "fact-8",
-      "text": "Portfolio includes websites for more than 100 startups, agencies, and enterprises across 8 countries.",
-      "page": "Key Features and Benefits",
-      "evidence": "Portfolio that includes websites for more than 100 startups, agencies, and enterprises across 8 countries."
+      "text": "Featured work includes projects with KONE, The Guestbook, Arkken, Storylake, and Krusti Foodkits.",
+      "page": "Home",
+      "evidence": "Featured work How KONE innovation integrated Webflow to their stack..."
     },
     {
       "id": "fact-9",
-      "text": "Successfully generated over 10,000 impactful leads for clients.",
-      "page": "Key Features and Benefits",
-      "evidence": "Successfully generated over 10,000 impactful leads for clients."
+      "text": "Hasan Shahriar is open to collaboration and meetings in Helsinki.",
+      "page": "About Hasan",
+      "evidence": "Book a call to learn more, or if you’re in Helsinki, let’s meet up for coffee ☕"
     },
     {
       "id": "fact-10",
-      "text": "Services cater to a wide range of clients, from startups to established enterprises.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Services cater to a wide range of clients, from startups to established enterprises, needing scalable web solutions."
+      "text": "Contact options include email, Twitter, LinkedIn, and Discord.",
+      "page": "Home",
+      "evidence": "Send me email or DM me in Twitter , LinkedIn or Discord"
     }
   ]
 }

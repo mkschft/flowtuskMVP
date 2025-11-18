@@ -9,6 +9,7 @@ import { CanvasArea } from "@/components/copilot/CanvasArea";
 import { ToastContainer } from "@/components/copilot/Toast";
 import { ShareModal } from "@/components/copilot/ShareModal";
 import { ToolBar } from "@/components/copilot/ToolBar";
+import { GenerationProgress } from "@/components/copilot/GenerationProgress";
 import type { ChatMessage, DesignProject } from "@/lib/design-studio-mock-data";
 import type { ToastProps } from "@/components/copilot/Toast";
 import type {
@@ -58,12 +59,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     }, 100);
   };
   
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      role: "ai",
-      content: "Welcome to the Design Studio! I can help you customize your brand, style guide, and landing page design.",
-    },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [generationSteps, setGenerationSteps] = useState<Array<{id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete'}>>([]);
   const [toasts, setToasts] = useState<ToastProps[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -179,6 +176,46 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     
     console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
     
+    // Initialize generation steps based on current state
+    const steps = [
+      { 
+        id: 'brand', 
+        label: 'Brand Guide', 
+        icon: '🎨', 
+        status: generationState.brand ? 'complete' as const : 'pending' as const 
+      },
+      { 
+        id: 'style', 
+        label: 'Style Guide', 
+        icon: '✨', 
+        status: generationState.style ? 'complete' as const : 'pending' as const 
+      },
+      { 
+        id: 'landing', 
+        label: 'Landing Page', 
+        icon: '🚀', 
+        status: generationState.landing ? 'complete' as const : 'pending' as const 
+      }
+    ];
+    
+    setGenerationSteps(steps);
+    
+    const needsGeneration = !generationState.brand || !generationState.style || !generationState.landing;
+    const allComplete = generationState.brand && generationState.style && generationState.landing;
+    
+    if (needsGeneration) {
+      // Show welcome with progress component in chat
+      setChatMessages([{
+        role: 'ai',
+        content: '__GENERATION_PROGRESS__'
+      }]);
+    } else {
+      setChatMessages([{
+        role: 'ai',
+        content: 'Welcome back! All your design assets are ready. I can help you customize your brand, style guide, and landing page design.'
+      }]);
+    }
+    
     // If all assets already generated, nothing to do
     if (generationState.brand && generationState.style && generationState.landing) {
       console.log('✅ [Design Studio] All design assets already generated');
@@ -189,6 +226,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     if (!generationState.brand) {
       console.log('🎨 [Design Studio] Starting brand guide generation...');
       setIsGeneratingBrand(true);
+      
+      // Update step to loading
+      setGenerationSteps(prev => prev.map(s => 
+        s.id === 'brand' ? { ...s, status: 'loading' as const } : s
+      ));
       
       try {
         const brandRes = await fetch('/api/design-assets/generate', {
@@ -202,17 +244,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           setDesignAssets(updatedAssets);
           console.log('✅ [Design Studio] Brand guide generated');
           
-          // Update chat with success message
-          setChatMessages(prev => [...prev, {
-            role: 'ai',
-            content: '🎨 Your brand guide is ready! Check the Brand Guide tab to see your custom colors, typography, and brand personality.'
-          }]);
+          // Update step to complete
+          setGenerationSteps(prev => prev.map(s => 
+            s.id === 'brand' ? { ...s, status: 'complete' as const } : s
+          ));
           
-          // Step 2 & 3: Generate Style Guide and Landing Page in parallel
-          Promise.all([
-            generateStyleGuide(),
-            generateLandingPage()
-          ]);
+          // Step 2: Generate Style Guide (sequential)
+          await generateStyleGuide();
+          
+          // Step 3: Generate Landing Page (sequential)
+          await generateLandingPage();
         } else {
           console.error('❌ [Design Studio] Brand guide generation failed');
         }
@@ -222,17 +263,24 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         setIsGeneratingBrand(false);
       }
     } else {
-      // Brand already exists, generate style and landing in parallel
-      Promise.all([
-        !generationState.style && generateStyleGuide(),
-        !generationState.landing && generateLandingPage()
-      ]);
+      // Brand already exists, generate style and landing sequentially
+      if (!generationState.style) {
+        await generateStyleGuide();
+      }
+      if (!generationState.landing) {
+        await generateLandingPage();
+      }
     }
   };
   
   const generateStyleGuide = async () => {
     console.log('🎨 [Design Studio] Starting style guide generation...');
     setIsGeneratingStyle(true);
+    
+    // Update step to loading
+    setGenerationSteps(prev => prev.map(s => 
+      s.id === 'style' ? { ...s, status: 'loading' as const } : s
+    ));
     
     try {
       const styleRes = await fetch('/api/design-assets/generate', {
@@ -246,11 +294,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         setDesignAssets(updatedAssets);
         console.log('✅ [Design Studio] Style guide generated');
         
-        // Update chat
-        setChatMessages(prev => [...prev, {
-          role: 'ai',
-          content: '✨ Your style guide is complete! See button variants, form styles, spacing, and shadows in the Style Guide tab.'
-        }]);
+        // Update step to complete
+        setGenerationSteps(prev => prev.map(s => 
+          s.id === 'style' ? { ...s, status: 'complete' as const } : s
+        ));
       } else {
         console.error('❌ [Design Studio] Style guide generation failed');
       }
@@ -265,6 +312,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     console.log('🎨 [Design Studio] Starting landing page generation...');
     setIsGeneratingLanding(true);
     
+    // Update step to loading
+    setGenerationSteps(prev => prev.map(s => 
+      s.id === 'landing' ? { ...s, status: 'loading' as const } : s
+    ));
+    
     try {
       const landingRes = await fetch('/api/design-assets/generate', {
         method: 'POST',
@@ -277,11 +329,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         setDesignAssets(updatedAssets);
         console.log('✅ [Design Studio] Landing page generated');
         
-        // Update chat
-        setChatMessages(prev => [...prev, {
-          role: 'ai',
-          content: '🚀 Your landing page design is ready! Check the Landing tab to preview your hero section, features, and more.'
-        }]);
+        // Update step to complete and mark all done
+        setGenerationSteps(prev => prev.map(s => 
+          s.id === 'landing' ? { ...s, status: 'complete' as const } : s
+        ));
       } else {
         console.error('❌ [Design Studio] Landing page generation failed');
       }
@@ -423,27 +474,41 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       const decoder = new TextDecoder();
       let aiResponse = "";
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      if (!reader) {
+        console.error("❌ [Chat] No reader available from response");
+        addToast("Failed to read response. Please try again.", "info");
+        setIsStreaming(false);
+        return;
+      }
 
-          const chunk = decoder.decode(value, { stream: true });
-          aiResponse += chunk;
-
-          // Update AI message in real-time
-          setChatMessages((prev) => {
-            const lastMsg = prev[prev.length - 1];
-            if (lastMsg?.role === "ai") {
-              return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
-            }
-            return [...prev, { role: "ai", content: aiResponse }];
-          });
+      console.log("📖 [Chat] Starting to read stream...");
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log("✅ [Chat] Stream complete", { responseLength: aiResponse.length });
+          break;
         }
+
+        const chunk = decoder.decode(value, { stream: true });
+        aiResponse += chunk;
+
+        // Update AI message in real-time
+        setChatMessages((prev) => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg?.role === "ai") {
+            return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
+          }
+          return [...prev, { role: "ai", content: aiResponse }];
+        });
       }
 
       // Parse updates from AI response if JSON is present
-      parseAndApplyUpdates(aiResponse);
+      if (aiResponse.trim()) {
+        parseAndApplyUpdates(aiResponse);
+      } else {
+        console.warn("⚠️ [Chat] Empty response from AI");
+      }
       
       setRegenerationCount(prev => prev + 1);
     } catch (error) {
@@ -478,6 +543,26 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       // Apply updates to project state
       // Note: This updates design assets, not the project directly
       if (!workspaceData || !designAssets) return;
+      
+      // Update persona location/country if provided
+      if (updates.location || updates.country) {
+        setWorkspaceData((prev: any) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            persona: {
+              ...prev.persona,
+              ...(updates.location && { location: updates.location }),
+              ...(updates.country && { country: updates.country }),
+            }
+          };
+        });
+        
+        const locationUpdates = [];
+        if (updates.location) locationUpdates.push(`location to ${updates.location}`);
+        if (updates.country) locationUpdates.push(`country to ${updates.country}`);
+        addToast(`🌍 ${locationUpdates.join(' and ')} updated!`, "success");
+      }
       
       // Update UI value prop state (instant updates, auto-persists via debounce)
       if (updates.targetAudience || updates.problem || updates.solution || updates.outcome || updates.benefits || updates.headline) {
@@ -617,6 +702,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               isStreaming={isStreaming}
               regenerationCount={regenerationCount}
               maxRegenerations={MAX_REGENERATIONS}
+              generationSteps={generationSteps}
             />
           </div>
 

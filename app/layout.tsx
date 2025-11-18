@@ -10,11 +10,17 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   title: "Flowtusk - Find Who You're Selling To in Minutes Not Weeks",
-  description: "Paste your website URL. Get customer clarity. Export ready-to-use templates—emails, landing pages, LinkedIn, pitch decks—rooted in real customer insights. All in 15 minutes.",
-  keywords: "customer personas, ideal customer profile, B2B marketing, landing page generator, email templates, LinkedIn content, pitch deck, customer insights",
+  description:
+    "Paste your website URL. Get customer clarity. Export ready-to-use templates—emails, landing pages, LinkedIn, pitch decks—rooted in real customer insights. All in 15 minutes.",
+  keywords:
+    "customer personas, ideal customer profile, B2B marketing, landing page generator, email templates, LinkedIn content, pitch deck, customer insights",
+  icons: {
+    icon: "/logo.svg",
+  },
   openGraph: {
     title: "Flowtusk - Find Who You're Selling To in Minutes Not Weeks",
-    description: "Get customer clarity and ready-to-use marketing templates in 15 minutes. No credit card required.",
+    description:
+      "Get customer clarity and ready-to-use marketing templates in 15 minutes. No credit card required.",
     type: "website",
   },
 };
