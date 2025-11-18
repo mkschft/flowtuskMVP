@@ -93,6 +93,30 @@ export async function POST(req: NextRequest) {
     
     console.log('✅ [Positioning ICPs API] Parent flow found:', flow.id, 'user_id:', flow.user_id || 'NULL');
 
+    // Idempotency: if recent ICPs exist for this flow and look identical, return them
+    try {
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { data: recentIcps } = await supabase
+        .from('positioning_icps')
+        .select('id, title, persona_name, created_at')
+        .eq('parent_flow', flowId)
+        .gte('created_at', tenMinutesAgo);
+      if (recentIcps && recentIcps.length > 0) {
+        const incomingTitles = new Set(icps.map((i: any) => `${i.title}|${i.personaName}`));
+        const recentTitles = new Set(recentIcps.map((r: any) => `${r.title}|${r.persona_name}`));
+        if (incomingTitles.size === recentTitles.size && [...incomingTitles].every(t => recentTitles.has(t))) {
+          const { data: fullRecent } = await supabase
+            .from('positioning_icps')
+            .select('*')
+            .eq('parent_flow', flowId)
+            .order('created_at', { ascending: true });
+          return NextResponse.json({ icps: fullRecent || [] });
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ [Positioning ICPs API] Idempotency check skipped:', e);
+    }
+
     // Map ICPs to database format
     const icpsToInsert = icps.map((icp: any) => ({
       parent_flow: flowId,

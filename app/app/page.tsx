@@ -1996,47 +1996,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Migration Prompt */}
-      {showMigrationPrompt && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="max-w-md p-6 space-y-4">
-            <h2 className="text-xl font-semibold">Migrate Your Data</h2>
-            <p className="text-muted-foreground">
-              We've upgraded to database storage! Your flows are currently stored locally.
-              Migrate them now to access from any device and ensure they're safely backed up.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              ✅ Evidence chain will be validated<br/>
-              ✅ Backup will be downloaded automatically<br/>
-              ✅ Your local data stays safe until you confirm
-            </p>
-            
-            <div className="flex gap-2">
-              <Button onClick={handleMigration} disabled={isMigrating}>
-                {isMigrating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Migrating...
-                  </>
-                ) : (
-                  'Migrate Now'
-                )}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setShowMigrationPrompt(false);
-                  setDbSyncEnabled(false); // Disable DB sync if skipped
-                }}
-                disabled={isMigrating}
-              >
-                Skip for Now
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
-      
       {/* Desktop Sidebar - Hidden on mobile */}
       <div className="hidden md:flex md:w-64 border-r flex-col">
         <SidebarContent />

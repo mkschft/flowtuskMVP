@@ -11,7 +11,110 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const wantsSSE = url.searchParams.get('stream') === '1' || (req.headers.get('accept') || '').includes('text/event-stream');
+
     const { content, factsJson } = await req.json();
+
+    if (wantsSSE) {
+      const stream = new ReadableStream<Uint8Array>({
+        start: async (controller) => {
+          const encoder = new TextEncoder();
+          const send = (event: string, data: unknown) => {
+            controller.enqueue(encoder.encode(`event: ${event}\n`));
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+          };
+
+          try {
+            send('progress', { step: 'received_input' });
+
+            // 3-layer prompt path if factsJson present
+            let system: string | undefined, developer: string | undefined, user: string | undefined;
+            if (factsJson) {
+              const built = buildICPPrompt(factsJson as FactsJSON);
+              system = built.system; developer = built.developer; user = built.user;
+              send('progress', { step: 'prompt_ready' });
+            }
+
+            send('progress', { step: 'calling_model' });
+            const result = await executeWithRetryAndTimeout(
+              async () => {
+                return await openai.chat.completions.create({
+                  model: "gpt-4o",
+                  messages: factsJson ? [
+                    { role: "system", content: system! },
+                    { role: "developer" as any, content: developer! },
+                    { role: "user", content: user! },
+                  ] : [
+                    { role: "system", content: `You are a B2B marketing expert... Return ONLY valid JSON.` },
+                    { role: "user", content: `Website content:\n\n${truncateInput(content, 50000)}\n\nGenerate 3 ICPs in JSON format.` },
+                  ],
+                  response_format: { type: "json_object" },
+                  temperature: factsJson ? 0.7 : 0.8,
+                });
+              },
+              { timeout: 30000, maxRetries: 3 },
+              ErrorContext.ICP_GENERATION
+            );
+
+            send('progress', { step: 'model_done' });
+
+            if (!result.success || !result.data) {
+              const errorResponse = createErrorResponse(
+                result.error?.code || 'UNKNOWN_ERROR',
+                ErrorContext.ICP_GENERATION,
+                500
+              );
+              send('error', errorResponse.body);
+              controller.close();
+              return;
+            }
+
+            send('progress', { step: 'parsing' });
+            const completion = result.data;
+            const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
+
+            // Validate
+            const validation = validateICPResponse({
+              icps: parsedResult.icps || [],
+              summary: parsedResult.summary,
+            });
+
+            if (!validation.ok) {
+              const errorResponse = createErrorResponse('VALIDATION_ERROR', ErrorContext.ICP_GENERATION, 500);
+              send('error', { ...errorResponse.body, validationErrors: validation.errors });
+              controller.close();
+              return;
+            }
+
+            send('done', {
+              icps: parsedResult.icps || [],
+              brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
+              summary: parsedResult.summary || {
+                businessDescription: "",
+                targetMarket: "",
+                painPointsWithMetrics: [],
+                opportunityMultiplier: "3"
+              }
+            });
+            controller.close();
+          } catch (err: any) {
+            const errorResponse = createErrorResponse('UNKNOWN_ERROR', ErrorContext.ICP_GENERATION, 500);
+            send('error', { ...errorResponse.body, details: err?.message });
+            try { controller.close(); } catch {}
+          }
+        }
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    }
 
     // Prefer factsJson if available, otherwise fall back to raw content
     if (!factsJson && !content) {

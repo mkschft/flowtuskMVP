@@ -4,15 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  Layout, 
   Square, 
   FormInput,
   Ruler,
-  Circle,
-  Layers
+  Circle
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 
@@ -21,152 +17,100 @@ type StyleGuideCanvasProps = {
 };
 
 export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
-  const { styleGuide } = project;
+  const { styleGuide, valueProp } = project;
+  
+  // Use persona-specific CTAs, or fallback to generic ones
+  const ctaLabels = valueProp.ctaSuggestions || ["Get Started", "Learn More", "Contact Us", "Book Demo", "Try Free"];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Buttons */}
+      {/* Call-to-action Section */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
           <Square className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-lg">Buttons</h3>
+          <h3 className="font-bold text-lg">Call-to-action</h3>
         </div>
 
-        <div className="space-y-4">
-          {styleGuide.buttons.map((btn, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border">
-              <div className="flex-1">
-                <p className="font-semibold text-sm">{btn.variant}</p>
-                <p className="text-xs text-muted-foreground">{btn.description}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {styleGuide.buttons.map((btn, idx) => {
+            // Cycle through CTA labels for variety
+            const ctaLabel = ctaLabels[idx % ctaLabels.length];
+            
+            return (
+              <div key={idx} className="space-y-3 p-4 rounded-lg border bg-muted/20">
+                <div>
+                  <p className="font-semibold text-sm mb-1">{btn.variant}</p>
+                  <p className="text-xs text-muted-foreground">{btn.description}</p>
+                </div>
+                <div className="flex items-center justify-center py-4">
+                  {btn.variant === "Primary" && (
+                    <Button>{ctaLabel}</Button>
+                  )}
+                  {btn.variant === "Secondary" && (
+                    <Button variant="secondary">{ctaLabel}</Button>
+                  )}
+                  {btn.variant === "Outline" && (
+                    <Button variant="outline">{ctaLabel}</Button>
+                  )}
+                  {btn.variant === "Ghost" && (
+                    <Button variant="ghost">{ctaLabel}</Button>
+                  )}
+                  {btn.variant === "Destructive" && (
+                    <Button variant="destructive">Cancel</Button>
+                  )}
+                  {btn.variant === "Dark" && (
+                    <Button variant="default" className="bg-slate-900 text-white hover:bg-slate-800">
+                      {ctaLabel}
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {btn.variant === "Primary" && (
-                  <Button>Primary Button</Button>
-                )}
-                {btn.variant === "Secondary" && (
-                  <Button variant="secondary">Secondary Button</Button>
-                )}
-                {btn.variant === "Outline" && (
-                  <Button variant="outline">Outline Button</Button>
-                )}
-                {btn.variant === "Ghost" && (
-                  <Button variant="ghost">Ghost Button</Button>
-                )}
-                {btn.variant === "Destructive" && (
-                  <Button variant="destructive">Destructive Button</Button>
-                )}
-                {btn.variant === "Dark" && (
-                  <Button variant="default" className="bg-slate-900 text-white hover:bg-slate-800">
-                    Dark Button
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
 
-      {/* Cards */}
-      <Card className="p-6 bg-background border-2">
-        <div className="flex items-center gap-2 mb-6">
-          <Layers className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-lg">Cards</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {styleGuide.cards.map((card, idx) => (
-            <div key={idx} className="space-y-2">
-              <p className="text-sm font-semibold">{card.variant}</p>
-              <Card className={
-                card.variant === "Elevated" 
-                  ? "p-4 shadow-lg" 
-                  : card.variant === "Outlined"
-                  ? "p-4 border-2"
-                  : card.variant === "Interactive"
-                  ? "p-4 cursor-pointer hover:shadow-md transition-shadow"
-                  : card.variant === "Dark Glass"
-                  ? "p-4 bg-slate-900/50 backdrop-blur border-slate-700"
-                  : "p-4"
-              }>
-                <p className="text-xs text-muted-foreground mb-2">{card.description}</p>
-                <div className="h-12 bg-muted/50 rounded" />
-              </Card>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Form Elements */}
+      {/* Inputs Section */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
           <FormInput className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-lg">Form Elements</h3>
+          <h3 className="font-bold text-lg">Inputs</h3>
         </div>
 
         <div className="space-y-6">
-          {styleGuide.formElements.map((element, idx) => (
-            <div key={idx} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="font-semibold text-sm">{element.element}</p>
-                <Badge variant="outline" className="text-xs">
-                  {element.description}
-                </Badge>
-              </div>
-              
-              <div className="p-4 rounded-lg bg-muted/30 border">
-                {element.element === "Text Input" && (
-                  <Input placeholder="Enter text..." />
-                )}
-                {element.element === "Textarea" && (
-                  <Textarea placeholder="Enter multiple lines..." rows={3} />
-                )}
-                {element.element === "Select Dropdown" && (
-                  <select className="w-full px-3 py-2 rounded-md border border-input bg-background">
-                    <option>Choose an option...</option>
-                    <option>Option 1</option>
-                    <option>Option 2</option>
-                  </select>
-                )}
-                {element.element === "Checkbox" && (
-                  <div className="flex items-center gap-2">
-                    <Checkbox id={`check-${idx}`} />
-                    <label htmlFor={`check-${idx}`} className="text-sm">
-                      Checkbox label
-                    </label>
-                  </div>
-                )}
-                {element.element === "Radio Button" && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input type="radio" name={`radio-${idx}`} id={`radio-1-${idx}`} />
-                      <label htmlFor={`radio-1-${idx}`} className="text-sm">
-                        Radio option 1
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input type="radio" name={`radio-${idx}`} id={`radio-2-${idx}`} />
-                      <label htmlFor={`radio-2-${idx}`} className="text-sm">
-                        Radio option 2
-                      </label>
-                    </div>
-                  </div>
-                )}
-                {element.element === "Toggle Switch" && (
-                  <div className="flex items-center gap-2">
-                    <input type="checkbox" className="toggle" />
-                    <label className="text-sm">Toggle switch</label>
-                  </div>
-                )}
-                {element.element === "Select" && (
-                  <select className="w-full px-3 py-2 rounded-md border border-input bg-background">
-                    <option>Select option...</option>
-                    <option>Option 1</option>
-                    <option>Option 2</option>
-                  </select>
-                )}
-              </div>
+          {/* Normal State */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Normal</h4>
             </div>
-          ))}
+            <Input placeholder="Enter text..." />
+          </div>
+
+          {/* Active/Focus State */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Active</h4>
+            </div>
+            <Input placeholder="Enter text..." className="ring-2 ring-purple-600" />
+          </div>
+
+          {/* Error State */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Error</h4>
+            </div>
+            <Input placeholder=")(& 21jdas" className="border-red-500" />
+            <p className="text-xs text-red-500">Error message</p>
+          </div>
+
+          {/* Label Example */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Label</h4>
+            </div>
+            <label className="text-sm font-medium">Name Surname</label>
+            <Input placeholder="Enter your name" />
+          </div>
         </div>
       </Card>
 
@@ -216,29 +160,6 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
               />
               <p className="font-mono text-xs font-semibold">{radius.name}</p>
               <p className="font-mono text-xs text-muted-foreground">{radius.value}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Shadows */}
-      <Card className="p-6 bg-background border-2">
-        <div className="flex items-center gap-2 mb-6">
-          <Layers className="w-5 h-5 text-purple-600" />
-          <h3 className="font-bold text-lg">Shadow System</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {styleGuide.shadows.map((shadow, idx) => (
-            <div key={idx} className="space-y-2">
-              <p className="font-mono text-xs font-semibold">{shadow.name}</p>
-              <div
-                className="h-24 bg-background rounded-lg border"
-                style={{ boxShadow: shadow.value }}
-              />
-              <p className="font-mono text-xs text-muted-foreground truncate">
-                {shadow.value}
-              </p>
             </div>
           ))}
         </div>

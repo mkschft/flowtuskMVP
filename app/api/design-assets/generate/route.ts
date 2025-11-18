@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
         };
         updatePayload.generation_metadata = {
           ...existingAssets.generation_metadata,
-          models: { ...existingAssets.generation_metadata?.models, style: 'gpt-4o-mini' },
+          models: { ...existingAssets.generation_metadata?.models, style: 'gpt-4o' },
           timestamps: { ...existingAssets.generation_metadata?.timestamps, style: timestamp },
         };
       } else if (tab === 'landing') {

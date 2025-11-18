@@ -1,0 +1,171 @@
+{
+  "brand": {
+    "name": "Zipli",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Facilitate efficient redistribution of surplus food"
+  },
+  "structure": {
+    "nav": [
+      "Overview",
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions"
+    ],
+    "keyPages": [
+      {
+        "path": "/overview",
+        "title": "Zipli Overview"
+      },
+      {
+        "path": "/core-offering",
+        "title": "Core Offering"
+      },
+      {
+        "path": "/features-benefits",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
+      }
+    ],
+    "footer": []
+  },
+  "audienceSignals": [
+    "B2B platform for food industry and municipalities",
+    "Cities and municipalities",
+    "HoReCa (Hotels, Restaurants, and Cafés) & Retail",
+    "Food Producers",
+    "Charities and Upcyclers"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Contributes to reducing food waste and achieving sustainability goals",
+      "evidence": [
+        "fact-9",
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Empowers businesses and municipalities to support local communities and enhance social wellbeing",
+      "evidence": [
+        "fact-11",
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Streamlines the food donation process, reducing costs and improving compliance",
+      "evidence": [
+        "fact-13",
+        "fact-14"
+      ]
+    }
+  ],
+  "pains": [
+    "Food waste in the food industry",
+    "Compliance with food donation regulations",
+    "High disposal costs for businesses"
+  ],
+  "proof": [
+    "AI-powered data platform",
+    "Real-time food tracking",
+    "Automated redistribution logistics"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Zipli is a B2B platform designed to reduce food waste.",
+      "page": "Core Offering",
+      "evidence": "Zipli is a B2B platform designed to reduce food waste and improve sustainability within the food industry and municipalities."
+    },
+    {
+      "id": "fact-2",
+      "text": "Zipli provides a mobile app and an AI-powered data platform.",
+      "page": "Core Offering",
+      "evidence": "It provides a mobile app and an AI-powered data platform that facilitates the efficient redistribution of surplus food."
+    },
+    {
+      "id": "fact-3",
+      "text": "Real-Time Food Tracking allows users to post donations or food requests.",
+      "page": "Key Features and Benefits",
+      "evidence": "Real-Time Food Tracking: Allows users to post donations or food requests, matching surplus food with those in need instantly."
+    },
+    {
+      "id": "fact-4",
+      "text": "Automated Redistribution Logistics simplifies the logistics of food donations.",
+      "page": "Key Features and Benefits",
+      "evidence": "Automated Redistribution Logistics: Simplifies the logistics of food donations, ensuring compliance with food donation regulations."
+    },
+    {
+      "id": "fact-5",
+      "text": "AI-Powered Insights offer actionable insights and auto-generated reports.",
+      "page": "Key Features and Benefits",
+      "evidence": "AI-Powered Insights: Offers actionable insights and auto-generated reports for tracking ESG metrics."
+    },
+    {
+      "id": "fact-6",
+      "text": "The mobile app provides a user-friendly interface for food matchmaking.",
+      "page": "Key Features and Benefits",
+      "evidence": "Mobile App: Provides a user-friendly interface for everyday food matchmaking between food providers and receivers."
+    },
+    {
+      "id": "fact-7",
+      "text": "Zipli helps businesses lower disposal costs.",
+      "page": "Key Features and Benefits",
+      "evidence": "Cost Reduction: Helps businesses lower disposal costs and improve their brand image by contributing to social good."
+    },
+    {
+      "id": "fact-8",
+      "text": "Zipli targets cities and municipalities to meet food waste reduction goals.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Cities and Municipalities: Aims to help local governments meet food waste reduction goals and enhance social wellbeing."
+    },
+    {
+      "id": "fact-9",
+      "text": "Zipli supports HoReCa & Retail in building responsible brands.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "HoReCa (Hotels, Restaurants, and Cafés) & Retail: Supports businesses in building responsible brands by automating food donation processes."
+    },
+    {
+      "id": "fact-10",
+      "text": "Zipli assists food producers in turning surplus food into savings.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Food Producers: Assists in turning surplus food into savings and ensuring compliance with food donation rules."
+    },
+    {
+      "id": "fact-11",
+      "text": "Zipli provides charities and upcyclers with reliable access to surplus food.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Charities and Upcyclers: Provides reliable access to surplus food, reducing sourcing stress and enabling impactful food innovations."
+    },
+    {
+      "id": "fact-12",
+      "text": "Zipli contributes to reducing food waste and achieving sustainability goals.",
+      "page": "Value Propositions",
+      "evidence": "Environmental Impact: Contributes to reducing food waste and achieving sustainability goals."
+    },
+    {
+      "id": "fact-13",
+      "text": "Zipli empowers businesses and municipalities to support local communities.",
+      "page": "Value Propositions",
+      "evidence": "Social Responsibility: Empowers businesses and municipalities to support local communities and enhance social wellbeing."
+    },
+    {
+      "id": "fact-14",
+      "text": "Zipli streamlines the food donation process, reducing costs and improving compliance.",
+      "page": "Value Propositions",
+      "evidence": "Operational Efficiency: Streamlines the food donation process, reducing costs and improving compliance."
+    }
+  ]
+}

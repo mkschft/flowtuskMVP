@@ -12,7 +12,6 @@ import { ToolBar } from "@/components/copilot/ToolBar";
 import type { ChatMessage, DesignProject } from "@/lib/design-studio-mock-data";
 import type { ToastProps } from "@/components/copilot/Toast";
 import type {
-  PositioningValueProp,
   PositioningDesignAssets,
   CopilotWorkspaceData,
 } from "@/lib/types/design-assets";
@@ -56,48 +55,184 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const [isStreaming, setIsStreaming] = useState(false);
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [isChatVisible, setIsChatVisible] = useState(true);
+  
+  // Generation states
+  const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
+  const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
+  const [isGeneratingLanding, setIsGeneratingLanding] = useState(false);
 
   // Load data on mount
   useEffect(() => {
     loadWorkspaceData();
   }, [icpId, flowId]);
+  
+  // Trigger background generation after workspace loads
+  useEffect(() => {
+    if (workspaceData && !loading) {
+      triggerBackgroundGeneration();
+    }
+  }, [workspaceData, loading]);
 
   const loadWorkspaceData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch ICP data
+      // Unified workspace fetch (single request)
+      const wsRes = await fetch(`/api/workspace?icpId=${icpId}&flowId=${flowId}`);
+
+      if (wsRes.ok) {
+        const { icp, valueProp, designAssets: assets } = await wsRes.json();
+        if (!icp) throw new Error("Persona not found");
+
+        setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
+        setDesignAssets(assets || null);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback for compatibility: fetch the three endpoints separately
+      console.warn('⚠️ [Design Studio] Workspace API fallback path');
       const icpResponse = await fetch(`/api/positioning-icps?id=${icpId}&flowId=${flowId}`);
-      if (!icpResponse.ok) {
-        throw new Error("Failed to load persona data");
-      }
+      if (!icpResponse.ok) throw new Error("Failed to load persona data");
       const { icp } = await icpResponse.json();
+      if (!icp) throw new Error("Persona not found");
 
-      if (!icp) {
-        throw new Error("Persona not found");
-      }
-
-      // Fetch value prop
       const valuePropResponse = await fetch(`/api/value-props?icpId=${icpId}&flowId=${flowId}`);
       const { valueProp } = await valuePropResponse.json();
 
-      // Fetch design assets
       const designAssetsResponse = await fetch(`/api/design-assets?icpId=${icpId}&flowId=${flowId}`);
       const { designAssets: assets } = await designAssetsResponse.json();
 
-      setWorkspaceData({
-        persona: icp,
-        valueProp: valueProp || null,
-        designAssets: assets || null,
-      });
-      
+      setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
       setDesignAssets(assets || null);
       setLoading(false);
     } catch (err) {
       console.error("❌ [Design Studio] Error loading data:", err);
       setError(err instanceof Error ? err.message : "Failed to load data");
       setLoading(false);
+    }
+  };
+  
+  // Background generation orchestration
+  const triggerBackgroundGeneration = async () => {
+    if (!workspaceData) return;
+    
+    const hasDesignAssets = designAssets !== null;
+    const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+    
+    console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
+    
+    // If all assets already generated, nothing to do
+    if (generationState.brand && generationState.style && generationState.landing) {
+      console.log('✅ [Design Studio] All design assets already generated');
+      return;
+    }
+    
+    // Step 1: Generate Brand Guide (if not exists)
+    if (!generationState.brand) {
+      console.log('🎨 [Design Studio] Starting brand guide generation...');
+      setIsGeneratingBrand(true);
+      
+      try {
+        const brandRes = await fetch('/api/design-assets/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ icpId, flowId, tab: 'brand' })
+        });
+        
+        if (brandRes.ok) {
+          const { designAssets: updatedAssets } = await brandRes.json();
+          setDesignAssets(updatedAssets);
+          console.log('✅ [Design Studio] Brand guide generated');
+          
+          // Update chat with success message
+          setChatMessages(prev => [...prev, {
+            role: 'ai',
+            content: '🎨 Your brand guide is ready! Check the Brand Guide tab to see your custom colors, typography, and brand personality.'
+          }]);
+          
+          // Step 2 & 3: Generate Style Guide and Landing Page in parallel
+          Promise.all([
+            generateStyleGuide(),
+            generateLandingPage()
+          ]);
+        } else {
+          console.error('❌ [Design Studio] Brand guide generation failed');
+        }
+      } catch (err) {
+        console.error('❌ [Design Studio] Brand guide generation error:', err);
+      } finally {
+        setIsGeneratingBrand(false);
+      }
+    } else {
+      // Brand already exists, generate style and landing in parallel
+      Promise.all([
+        !generationState.style && generateStyleGuide(),
+        !generationState.landing && generateLandingPage()
+      ]);
+    }
+  };
+  
+  const generateStyleGuide = async () => {
+    console.log('🎨 [Design Studio] Starting style guide generation...');
+    setIsGeneratingStyle(true);
+    
+    try {
+      const styleRes = await fetch('/api/design-assets/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ icpId, flowId, tab: 'style' })
+      });
+      
+      if (styleRes.ok) {
+        const { designAssets: updatedAssets } = await styleRes.json();
+        setDesignAssets(updatedAssets);
+        console.log('✅ [Design Studio] Style guide generated');
+        
+        // Update chat
+        setChatMessages(prev => [...prev, {
+          role: 'ai',
+          content: '✨ Your style guide is complete! See button variants, form styles, spacing, and shadows in the Style Guide tab.'
+        }]);
+      } else {
+        console.error('❌ [Design Studio] Style guide generation failed');
+      }
+    } catch (err) {
+      console.error('❌ [Design Studio] Style guide generation error:', err);
+    } finally {
+      setIsGeneratingStyle(false);
+    }
+  };
+  
+  const generateLandingPage = async () => {
+    console.log('🎨 [Design Studio] Starting landing page generation...');
+    setIsGeneratingLanding(true);
+    
+    try {
+      const landingRes = await fetch('/api/design-assets/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ icpId, flowId, tab: 'landing' })
+      });
+      
+      if (landingRes.ok) {
+        const { designAssets: updatedAssets } = await landingRes.json();
+        setDesignAssets(updatedAssets);
+        console.log('✅ [Design Studio] Landing page generated');
+        
+        // Update chat
+        setChatMessages(prev => [...prev, {
+          role: 'ai',
+          content: '🚀 Your landing page design is ready! Check the Landing tab to preview your hero section, features, and more.'
+        }]);
+      } else {
+        console.error('❌ [Design Studio] Landing page generation failed');
+      }
+    } catch (err) {
+      console.error('❌ [Design Studio] Landing page generation error:', err);
+    } finally {
+      setIsGeneratingLanding(false);
     }
   };
 
@@ -111,11 +246,15 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     valueProp: {
       headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text || 
                 workspaceData.persona.description,
-      subheadline: workspaceData.valueProp?.summary?.mainInsight || "",
+      subheadline: workspaceData.valueProp?.summary?.mainInsight || 
+                   `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
       problem: workspaceData.persona.pain_points.join(", "),
-      solution: workspaceData.valueProp?.summary?.approachStrategy || "",
-      outcome: workspaceData.valueProp?.summary?.expectedImpact || "",
-      benefits: workspaceData.valueProp?.variations?.map(v => v.text) || [],
+      solution: workspaceData.valueProp?.summary?.approachStrategy || 
+                `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
+      outcome: workspaceData.valueProp?.summary?.expectedImpact || 
+               `Proven results that help teams like yours achieve their goals faster`,
+      benefits: workspaceData.valueProp?.variations?.map(v => v.text) || 
+                workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
       targetAudience: workspaceData.persona.title,
       ctaSuggestions: ["Get Started", "Learn More", "Try Free"],
     },
@@ -387,6 +526,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             persona={workspaceData!.persona as any}
             activeTab={activeTab}
             onTabChange={setActiveTab}
+            isGeneratingBrand={isGeneratingBrand}
+            isGeneratingStyle={isGeneratingStyle}
+            isGeneratingLanding={isGeneratingLanding}
           />
 
         </div>

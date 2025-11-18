@@ -5,6 +5,9 @@ import { ValuePropCanvas } from "./ValuePropCanvas";
 import { BrandGuideCanvas } from "./BrandGuideCanvas";
 import { StyleGuideCanvas } from "./StyleGuideCanvas";
 import { LandingCanvas } from "./LandingCanvas";
+import { BrandGuideCanvasSkeleton } from "./BrandGuideCanvasSkeleton";
+import { StyleGuideCanvasSkeleton } from "./StyleGuideCanvasSkeleton";
+import { LandingCanvasSkeleton } from "./LandingCanvasSkeleton";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { ICP } from "@/lib/types/database";
@@ -17,6 +20,9 @@ type CanvasAreaProps = {
   persona: ICP;
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
+  isGeneratingBrand?: boolean;
+  isGeneratingStyle?: boolean;
+  isGeneratingLanding?: boolean;
 };
 
 export function CanvasArea({
@@ -24,6 +30,9 @@ export function CanvasArea({
   persona,
   activeTab,
   onTabChange,
+  isGeneratingBrand = false,
+  isGeneratingStyle = false,
+  isGeneratingLanding = false,
 }: CanvasAreaProps) {
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
@@ -102,9 +111,9 @@ export function CanvasArea({
               transition={{ duration: 0.2 }}
             >
               {activeTab === "value-prop" && <ValuePropCanvas project={project} persona={persona} />}
-              {activeTab === "brand" && <BrandGuideCanvas project={project} />}
-              {activeTab === "style" && <StyleGuideCanvas project={project} />}
-              {activeTab === "landing" && <LandingCanvas project={project} />}
+              {activeTab === "brand" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} />)}
+              {activeTab === "style" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} />)}
+              {activeTab === "landing" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} />)}
             </motion.div>
           </AnimatePresence>
         </div>

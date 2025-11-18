@@ -1,0 +1,150 @@
+{
+  "brand": {
+    "name": "KONE SiteFlow",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Book a demo"
+  },
+  "structure": {
+    "nav": [
+      "Overview",
+      "Features",
+      "Use Cases",
+      "Contact"
+    ],
+    "keyPages": [
+      {
+        "path": "/overview",
+        "title": "KONE SiteFlow Overview"
+      },
+      {
+        "path": "/features",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/use-cases",
+        "title": "Target Customers and Use Cases"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Terms of Service",
+      "Contact Us"
+    ]
+  },
+  "audienceSignals": [
+    "Property and Asset Managers",
+    "Construction Companies",
+    "Building Owners"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Enhanced Operational Efficiency",
+      "evidence": [
+        "fact-5",
+        "fact-8"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Cost Reduction",
+      "evidence": [
+        "fact-6",
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Safety and Security",
+      "evidence": [
+        "fact-7",
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "Day-to-day logistics challenges on-site",
+    "Peak hour traffic management",
+    "Energy consumption and costs"
+  ],
+  "proof": [
+    "Potential savings of up to 36% on building energy consumption"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "KONE SiteFlow provides real-time digital tools for construction and building operations.",
+      "page": "Overview",
+      "evidence": "KONE SiteFlow provides real-time digital tools designed for construction and building operations."
+    },
+    {
+      "id": "fact-2",
+      "text": "SiteFlow enhances logistics management, elevator access control, and building optimization.",
+      "page": "Overview",
+      "evidence": "It focuses on enhancing logistics management, elevator access control, and building optimization through data-driven insights."
+    },
+    {
+      "id": "fact-3",
+      "text": "Real-time control tools allow immediate management of construction time use elevators (CTUs).",
+      "page": "Features",
+      "evidence": "Offers practical tools that allow immediate management of construction time use elevators (CTUs)."
+    },
+    {
+      "id": "fact-4",
+      "text": "Digital access control facilitates efficient elevator access management.",
+      "page": "Features",
+      "evidence": "Facilitates efficient elevator access management to prioritize people movement."
+    },
+    {
+      "id": "fact-5",
+      "text": "SiteFlow provides real-time insights and control for smoother operations.",
+      "page": "Value Propositions",
+      "evidence": "By providing real-time insights and control, SiteFlow helps users manage logistics more effectively, leading to smoother operations."
+    },
+    {
+      "id": "fact-6",
+      "text": "The platform aims to lower energy costs without the need for new equipment.",
+      "page": "Value Propositions",
+      "evidence": "The platform aims to lower energy costs and improve resource management without the need for new equipment."
+    },
+    {
+      "id": "fact-7",
+      "text": "Digital access control enhances safety by managing floor access.",
+      "page": "Value Propositions",
+      "evidence": "The digital access control feature enhances safety by managing who can access different floors within a building."
+    },
+    {
+      "id": "fact-8",
+      "text": "SiteFlow helps manage logistics effectively for construction companies.",
+      "page": "Target Customers",
+      "evidence": "Construction Companies: Benefit from real-time tools to streamline site operations and manage elevator usage effectively."
+    },
+    {
+      "id": "fact-9",
+      "text": "SiteFlow enhances safety through digital access control.",
+      "page": "Value Propositions",
+      "evidence": "The digital access control feature enhances safety by managing who can access different floors within a building."
+    },
+    {
+      "id": "fact-10",
+      "text": "SiteFlow claims potential savings of up to 36% on building energy consumption.",
+      "page": "Features",
+      "evidence": "Claims potential savings of up to 36% on building energy consumption by leveraging accurate occupancy data."
+    },
+    {
+      "id": "fact-11",
+      "text": "Property and Asset Managers use SiteFlow for managing building operations.",
+      "page": "Target Customers",
+      "evidence": "Property and Asset Managers: Utilize SiteFlow for managing building operations and logistics efficiently."
+    },
+    {
+      "id": "fact-12",
+      "text": "Building Owners use SiteFlow for optimizing building management.",
+      "page": "Target Customers",
+      "evidence": "Building Owners: Use the platform for optimizing building management and reducing operational costs."
+    }
+  ]
+}

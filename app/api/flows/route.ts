@@ -57,11 +57,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate env early to avoid opaque failures
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anon) {
+      console.error('❌ [Flows API] Missing Supabase env (URL or ANON KEY)');
+      return NextResponse.json(
+        { error: 'Supabase is not configured on the server' },
+        { status: 500 }
+      );
+    }
+
     const supabase = await createClient();
     const body = await req.json();
     
     // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError) {
+      console.warn('⚠️ [Flows API] getUser error:', authError.message);
+    }
     
     // Demo mode support
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
@@ -73,9 +87,8 @@ export async function POST(req: NextRequest) {
     const flowData: any = {
       title: body.title || 'New Flow',
       website_url: body.website_url || null,
-      facts_json: body.facts_json || null,
+      website_analysis: body.facts_json || null, // map facts_json -> website_analysis (DB column)
       selected_icp: body.selected_icp || null,
-      generated_content: body.generated_content || {},
       step: body.step || 'initial',
       metadata: {
         analysis: {
@@ -99,12 +112,30 @@ export async function POST(req: NextRequest) {
           is_template: false,
         },
       },
-      schema_version: 1,
     };
 
     // Add user_id if authenticated
     if (user) {
       flowData.user_id = user.id;
+    }
+
+    // Idempotency / dedupe: if recent active flow for same user + website exists, reuse
+    const idempotencyKey = req.headers.get('Idempotency-Key') || body.idempotencyKey;
+    if (idempotencyKey && (flowData.website_url || flowData.title)) {
+      const { data: recent } = await supabase
+        .from('positioning_flows')
+        .select('*')
+        .eq('website_url', flowData.website_url)
+        .is('archived_at', null)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (recent) {
+        const createdAt = new Date(recent.created_at).getTime();
+        if (Date.now() - createdAt < 10 * 60 * 1000) {
+          return NextResponse.json({ flow: recent }, { status: 200 });
+        }
+      }
     }
 
     // Insert flow
@@ -115,21 +146,39 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      // Handle unique constraint violation
-      if (error.code === '23505') {
+      console.error('❌ [Flows API] Insert error:', { code: (error as any).code, message: error.message, details: (error as any).details, hint: (error as any).hint });
+      // Handle unique constraint violation -> return existing active flow instead of 409
+      if ((error as any).code === '23505') {
+        let existingQuery = supabase
+          .from('positioning_flows')
+          .select('*')
+          .eq('title', flowData.title)
+          .is('archived_at', null)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        if (flowData.website_url) existingQuery = existingQuery.eq('website_url', flowData.website_url);
+        if (user) existingQuery = existingQuery.eq('user_id', user.id); else existingQuery = existingQuery.is('user_id', null);
+        const { data: existing } = await existingQuery.maybeSingle();
+        if (existing) {
+          return NextResponse.json({ flow: existing }, { status: 200 });
+        }
+        // Fallback if not found
         return NextResponse.json(
           { error: "A flow with this title already exists" },
           { status: 409 }
         );
       }
-      throw error;
+      return NextResponse.json(
+        { error: 'Failed to create flow', details: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ flow }, { status: 201 });
-  } catch (error) {
-    console.error("Error creating flow:", error);
+  } catch (error: any) {
+    console.error('❌ [Flows API] Unexpected error:', error);
     return NextResponse.json(
-      { error: "Failed to create flow" },
+      { error: 'Failed to create flow', details: error?.message },
       { status: 500 }
     );
   }
