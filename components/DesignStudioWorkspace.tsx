@@ -187,14 +187,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             role: msg.role === "ai" ? "assistant" : msg.role,
             content: msg.content
           })),
-          project: {
+          project: currentProject ? {
             name: currentProject.name,
             colors: currentProject.brandGuide.colors.primary.map(c => c.hex),
             fonts: {
               heading: currentProject.brandGuide.typography.find(t => t.category === "heading")?.fontFamily,
               body: currentProject.brandGuide.typography.find(t => t.category === "body")?.fontFamily,
             }
-          },
+          } : null,
           regenerationCount,
         }),
       });
@@ -258,41 +258,43 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       if (!updates) return;
 
       // Apply updates to project state
-      setProject(prev => {
+      // Note: This updates design assets, not the project directly
+      if (!workspaceData || !designAssets) return;
+      
+      setDesignAssets((prev: any) => {
+        if (!prev) return prev;
         const updated = { ...prev };
 
-        if (updates.colors && Array.isArray(updates.colors)) {
+        if (updates.colors && Array.isArray(updates.colors) && updated.brand_guide) {
           // Update primary colors
           updates.colors.forEach((hex: string, idx: number) => {
-            if (updated.brandGuide.colors.primary[idx]) {
-              updated.brandGuide.colors.primary[idx].hex = hex;
+            if (updated.brand_guide.colors.primary[idx]) {
+              updated.brand_guide.colors.primary[idx].hex = hex;
             }
           });
           addToast("Colors updated! 🎨", "success");
           setTimeout(() => setActiveTab("brand"), 500);
         }
 
-        if (updates.fonts) {
+        if (updates.fonts && updated.brand_guide) {
           if (updates.fonts.heading) {
-            const headingFont = updated.brandGuide.typography.find(t => t.category === "heading");
+            const headingFont = updated.brand_guide.typography.find((t: any) => t.category === "heading");
             if (headingFont) headingFont.fontFamily = updates.fonts.heading;
           }
           if (updates.fonts.body) {
-            const bodyFont = updated.brandGuide.typography.find(t => t.category === "body");
+            const bodyFont = updated.brand_guide.typography.find((t: any) => t.category === "body");
             if (bodyFont) bodyFont.fontFamily = updates.fonts.body;
           }
           addToast("Fonts updated! ✨", "success");
         }
 
-        if (updates.headline) {
-          updated.valueProp.headline = updates.headline;
-          updated.landingPage.hero.headline = updates.headline;
+        if (updates.headline && updated.landing_page) {
+          updated.landing_page.hero.headline = updates.headline;
           addToast("Headline updated!", "success");
         }
 
-        if (updates.subheadline) {
-          updated.valueProp.subheadline = updates.subheadline;
-          updated.landingPage.hero.subheadline = updates.subheadline;
+        if (updates.subheadline && updated.landing_page) {
+          updated.landing_page.hero.subheadline = updates.subheadline;
           addToast("Subheadline updated!", "success");
         }
 
@@ -381,8 +383,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
           {/* Right: Canvas Area - Takes remaining space */}
           <CanvasArea
-            project={currentProject}
-            persona={workspaceData.persona}
+            project={currentProject!}
+            persona={workspaceData!.persona as any}
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />

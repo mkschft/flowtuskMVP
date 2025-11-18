@@ -21,7 +21,7 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-import { SmartButton } from "@/app/app/page";
+import { SmartButton } from "@/components/app/SmartButton";
 import { IntegratedValuePropPreview } from "./IntegratedValuePropPreview";
 
 type ValuePropVariable = {

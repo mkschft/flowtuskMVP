@@ -260,7 +260,6 @@ export function CompactPersonaCard({
     try {
       const canvas = await html2canvas(cardElement, {
         background: '#ffffff',
-        scale: 2,
       });
       
       const link = document.createElement('a');

@@ -71,6 +71,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log('💾 [Positioning ICPs API] Attempting to save', icps.length, 'ICPs');
+    console.log('📝 [Positioning ICPs API] flowId:', flowId);
+    console.log('👤 [Positioning ICPs API] user:', user?.id || 'NULL (demo mode)');
+    console.log('🎯 [Positioning ICPs API] isDemoMode:', isDemoMode);
+
+    // Verify parent flow exists
+    const { data: flow, error: flowError } = await supabase
+      .from('positioning_flows')
+      .select('id, user_id')
+      .eq('id', flowId)
+      .single();
+    
+    if (flowError || !flow) {
+      console.error('❌ [Positioning ICPs API] Parent flow not found:', flowError?.message || 'No flow');
+      return NextResponse.json(
+        { error: "Parent flow not found", details: flowError?.message || 'Flow does not exist' },
+        { status: 404 }
+      );
+    }
+    
+    console.log('✅ [Positioning ICPs API] Parent flow found:', flow.id, 'user_id:', flow.user_id || 'NULL');
+
     // Map ICPs to database format
     const icpsToInsert = icps.map((icp: any) => ({
       parent_flow: flowId,
@@ -87,6 +109,8 @@ export async function POST(req: NextRequest) {
       fit_score: 90,
       profiles_found: 12,
     }));
+
+    console.log('📦 [Positioning ICPs API] Prepared', icpsToInsert.length, 'ICPs for insert');
 
     // Insert ICPs (RLS will handle authorization)
     const { data: insertedIcps, error } = await supabase

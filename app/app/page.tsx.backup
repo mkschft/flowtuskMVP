@@ -59,6 +59,490 @@ type OldGenerationState = {
   lastGenerationTime?: Date;
 };
 
+type UserJourney = {
+  websiteAnalyzed: boolean;
+  icpSelected: boolean;
+  valuePropGenerated: boolean;
+  exported: boolean;
+};
+
+type ConversationMemory = {
+  id: string;
+  websiteUrl: string;
+  websiteContent?: string; // Raw content fallback
+  factsJson?: Record<string, unknown>; // NEW: Structured facts for evidence-based generation
+  selectedIcp: ICP | null;
+  generationHistory: Array<{
+    timestamp: Date;
+    action: string;
+    result: Record<string, unknown>;
+    success: boolean;
+  }>;
+  userPreferences: {
+    preferredContentType: string;
+    lastAction: string;
+  };
+};
+
+type Conversation = {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: Date;
+  // Enhanced state management
+  generationState: GenerationState;
+  userJourney: UserJourney;
+  memory: ConversationMemory;
+};
+
+// Generation Manager Class
+class GenerationManager {
+  private cache: Map<string, unknown> = new Map();
+  private pendingGenerations: Map<string, Promise<unknown>> = new Map();
+  private completedGenerations: Set<string> = new Set();
+
+  createKey(type: string, params: Record<string, unknown>): string {
+    return `${type}:${JSON.stringify(params)}`;
+  }
+
+  async generate<T>(
+    type: string,
+    params: Record<string, unknown>,
+    generator: () => Promise<T>
+  ): Promise<T> {
+    const key = this.createKey(type, params);
+
+    // Check cache first
+    if (this.cache.has(key)) {
+      console.log(`🎯 [GenerationManager] Cache hit for ${type}`);
+      return this.cache.get(key) as T;
+    }
+
+    // Check if already generating
+    if (this.pendingGenerations.has(key)) {
+      console.log(`⏳ [GenerationManager] Waiting for existing generation: ${type}`);
+      return this.pendingGenerations.get(key) as Promise<T>;
+    }
+
+    // Check if already completed
+    if (this.completedGenerations.has(key)) {
+      console.log(`✅ [GenerationManager] Already completed: ${type}`);
+      return this.cache.get(key) as T;
+    }
+
+    // Start generation
+    console.log(`🚀 [GenerationManager] Starting generation: ${type}`);
+    const promise = this.executeGeneration(key, generator);
+    this.pendingGenerations.set(key, promise);
+
+    try {
+      const result = await promise;
+      this.cache.set(key, result);
+      this.completedGenerations.add(key);
+      return result;
+    } finally {
+      this.pendingGenerations.delete(key);
+    }
+  }
+
+  private async executeGeneration<T>(key: string, generator: () => Promise<T>): Promise<T> {
+    try {
+      return await generator();
+    } catch (error) {
+      console.error(`❌ [GenerationManager] Generation failed for ${key}:`, error);
+      throw error;
+    }
+  }
+
+  isGenerating(type: string, params: Record<string, unknown>): boolean {
+    const key = this.createKey(type, params);
+    return this.pendingGenerations.has(key);
+  }
+
+  isCompleted(type: string, params: Record<string, unknown>): boolean {
+    const key = this.createKey(type, params);
+    return this.completedGenerations.has(key);
+  }
+
+  clearCache(): void {
+    this.cache.clear();
+    this.pendingGenerations.clear();
+    this.completedGenerations.clear();
+  }
+}
+
+// Enhanced Memory Manager Class with Persistence
+class MemoryManager {
+  private memories: Map<string, ConversationMemory> = new Map();
+  private readonly STORAGE_KEY = 'flowtusk_conversation_memories';
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    if (typeof window === "undefined") return;
+
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        Object.entries(data).forEach(([id, memory]) => {
+          this.memories.set(id, memory as ConversationMemory);
+        });
+        console.log('📚 [MemoryManager] Loaded memories from storage');
+      }
+    } catch (error) {
+      console.error('❌ [MemoryManager] Failed to load memories:', error);
+    }
+  }
+
+  private saveToStorage(): void {
+    if (typeof window === "undefined") return;
+
+    try {
+      const data = Object.fromEntries(this.memories);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+      console.log('💾 [MemoryManager] Saved memories to storage');
+    } catch (error) {
+      console.error('❌ [MemoryManager] Failed to save memories:', error);
+    }
+  }
+
+  getMemory(conversationId: string): ConversationMemory | null {
+    return this.memories.get(conversationId) || null;
+  }
+
+  updateMemory(conversationId: string, updates: Partial<ConversationMemory>): void {
+    const current = this.getMemory(conversationId);
+    if (current) {
+      const updated = { ...current, ...updates };
+      this.memories.set(conversationId, updated);
+      this.saveToStorage();
+    }
+  }
+
+  addGenerationRecord(conversationId: string, action: string, result: Record<string, unknown>, success: boolean = true): void {
+    const memory = this.getMemory(conversationId);
+    if (memory) {
+      memory.generationHistory.push({
+        timestamp: new Date(),
+        action,
+        result,
+        success
+      });
+      this.saveToStorage();
+    }
+  }
+
+  getLastAction(conversationId: string): string | null {
+    const memory = this.getMemory(conversationId);
+    return memory?.userPreferences.lastAction || null;
+  }
+
+  setLastAction(conversationId: string, action: string): void {
+    const memory = this.getMemory(conversationId);
+    if (memory) {
+      memory.userPreferences.lastAction = action;
+      this.saveToStorage();
+    }
+  }
+
+  getGenerationHistory(conversationId: string): Array<{
+    timestamp: Date;
+    action: string;
+    result: Record<string, unknown>;
+    success: boolean;
+  }> {
+    const memory = this.getMemory(conversationId);
+    return memory?.generationHistory || [];
+  }
+
+  getCompletedActions(conversationId: string): string[] {
+    const history = this.getGenerationHistory(conversationId);
+    return history
+      .filter(record => record.success)
+      .map(record => record.action);
+  }
+
+  canPerformAction(conversationId: string, action: string): boolean {
+    // Define action dependencies (using actual recorded action names)
+    const dependencies: Record<string, string[]> = {
+      'select-icp': [], // No prerequisite - ICPs can be selected when shown
+      'value-prop': ['select-icp'],
+      'funnel': ['value-prop'],
+      'make-content-choice': ['funnel'],
+      'email': ['make-content-choice'],
+      'linkedin': ['make-content-choice'],
+      'show-email-choice': ['approve-positioning-summary'], // Email flow starts after positioning
+      'choose-email-type': ['show-email-choice'],
+      'generate-one-time-email': ['choose-email-type'],
+      'generate-email-sequence': ['choose-email-type'],
+      'generate-linkedin-outreach': ['choose-email-type'],
+    };
+
+    const required = dependencies[action] || [];
+
+    // If no prerequisites required, allow the action immediately
+    // This prevents blocking actions like 'select-icp' when memory hasn't been initialized yet
+    if (required.length === 0) {
+      return true;
+    }
+
+    // For actions with prerequisites, check memory and completed actions
+    const memory = this.getMemory(conversationId);
+    if (!memory) return false;
+
+    const completed = this.getCompletedActions(conversationId);
+    return required.every(dep => completed.includes(dep));
+  }
+
+  clearMemory(conversationId: string): void {
+    this.memories.delete(conversationId);
+    this.saveToStorage();
+  }
+
+  exportMemory(conversationId: string): string {
+    const memory = this.getMemory(conversationId);
+    return JSON.stringify(memory, null, 2);
+  }
+}
+
+// Initialize managers
+const generationManager = new GenerationManager();
+const memoryManager = new MemoryManager();
+
+// Smart Button Component with State Management
+interface SmartButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  action: string;
+  onClick: () => void | Promise<void>;
+  children: React.ReactNode;
+  disabled?: boolean;
+  loadingText?: string;
+  conversationId?: string;
+}
+
+// Memory Status Indicator Component
+const MemoryStatusIndicator: React.FC<{ conversationId: string }> = ({ conversationId }) => {
+  const memory = memoryManager.getMemory(conversationId);
+  const completedActions = memoryManager.getCompletedActions(conversationId);
+  
+  if (!memory || completedActions.length === 0) return null;
+  
+  return (
+    <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 border rounded-lg p-3 shadow-lg max-w-xs">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+        <span className="text-sm font-medium">Memory Active</span>
+      </div>
+      <div className="text-xs text-gray-600 dark:text-gray-400">
+        <div>Completed: {completedActions.length} actions</div>
+        <div>Last: {memory.userPreferences.lastAction || 'None'}</div>
+      </div>
+    </div>
+  );
+};
+
+export const SmartButton: React.FC<SmartButtonProps> = ({ 
+  action, 
+  onClick, 
+  children, 
+  disabled: propDisabled,
+  loadingText = "Generating...",
+  conversationId,
+  ...props 
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const isActionDisabled = (action: string): boolean => {
+    if (!conversationId) return false;
+    
+    // Check if generation is in progress
+    if (generationManager.isGenerating(action, {})) {
+      return true;
+    }
+    
+    // Check if already completed (for certain actions)
+    if (['value-prop', 'email', 'linkedin', 'landing'].includes(action)) {
+      return generationManager.isCompleted(action, {});
+    }
+    
+    return false;
+  };
+
+  // Move isDisabled calculation up before handleClick
+  const isDisabled = propDisabled || isActionDisabled(action) || isLoading;
+
+  const handleClick = async () => {
+    if (isActionDisabled(action) || isLoading || propDisabled) return;
+    
+    setIsLoading(true);
+    
+    try {
+      await onClick();
+    } catch (error) {
+      console.error(`SmartButton error for ${action}:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <Button
+      {...props}
+      disabled={isDisabled}
+      onClick={handleClick}
+      className={`${props.className || ''} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {loadingText}
+        </>
+      ) : (
+        children
+      )}
+    </Button>
+  );
+};
+
+// Thinking Block Component
+function ThinkingBlock({ thinking, onCancel }: { thinking: ThinkingStep[]; onCancel?: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const totalTime = thinking.reduce((sum, s) => sum + (s.duration || 0), 0);
+  const allComplete = thinking.every(s => s.status === 'complete');
+  const hasError = thinking.some(s => s.status === 'error');
+  const isRunning = thinking.some(s => s.status === 'running');
+  const runningStep = thinking.find(s => s.status === 'running');
+  
+  // Update elapsed time every 500ms for running steps
+  useEffect(() => {
+    if (!isRunning || !runningStep?.startTime) return;
+    
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - runningStep.startTime!;
+      setElapsedTime(elapsed);
+    }, 500);
+    
+    return () => clearInterval(interval);
+  }, [isRunning, runningStep?.startTime]);
+  
+  const completedSteps = thinking.filter(s => s.status === 'complete').length;
+  const progress = (completedSteps / thinking.length) * 100;
+  
+  return (
+    <Card className="border-l-4 border-l-purple-500">
+      <button 
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {hasError ? (
+            <div className="h-9 w-9 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0">
+              <span className="text-red-600 dark:text-red-400">✗</span>
+            </div>
+          ) : allComplete ? (
+            <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center shrink-0">
+              <Loader2 className="h-5 w-5 animate-spin text-purple-600 dark:text-purple-400" />
+            </div>
+          )}
+          <div className="text-left flex-1 min-w-0">
+            <div className="text-sm font-medium">
+              {hasError ? 'Error occurred' : allComplete ? 'Analysis complete' : 'Thinking...'}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {completedSteps} / {thinking.length} steps
+              {totalTime > 0 && ` • ${(totalTime / 1000).toFixed(1)}s`}
+              {isRunning && elapsedTime > 0 && ` • ${(elapsedTime / 1000).toFixed(0)}s elapsed`}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {onCancel && isRunning && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel();
+              }}
+              className="h-7 px-2 text-xs"
+              asChild
+            >
+              <span role="button" tabIndex={0}>
+                Cancel
+              </span>
+            </Button>
+          )}
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+      
+      {/* Progress bar */}
+      {isRunning && (
+        <div className="h-1 bg-muted">
+          <div 
+            className="h-full bg-purple-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
+      {expanded && (
+        <div className="px-3 pb-3 space-y-3 border-t pt-3">
+          {thinking.map(step => (
+            <div key={step.id} className="flex items-start gap-2">
+              <div className="mt-1 shrink-0">
+                {step.status === 'complete' && (
+                  <div className="h-5 w-5 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
+                    <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                  </div>
+                )}
+                {step.status === 'running' && (
+                  <Loader2 className="h-5 w-5 animate-spin text-purple-600 dark:text-purple-400" />
+                )}
+                {step.status === 'pending' && (
+                  <div className="h-5 w-5 rounded-full bg-muted border-2 border-muted-foreground/20" />
+                )}
+                {step.status === 'error' && (
+                  <div className="h-5 w-5 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center">
+                    <span className="text-xs text-red-600 dark:text-red-400">✗</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">{step.label}</span>
+                  {step.duration && (
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {(step.duration / 1000).toFixed(1)}s
+                    </span>
+                  )}
+                </div>
+                {step.substeps && step.substeps.length > 0 && (
+                  <div className="mt-1.5 space-y-1">
+                    {step.substeps.map((substep, idx) => (
+                      <div key={idx} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                        <span className="mt-1">→</span>
+                        <span>{substep}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function ChatPageContent() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string>("");
@@ -1376,8 +1860,7 @@ Ready to see your complete positioning package?`;
 
     // Clear cache and regenerate
     generationManager.clearCache();
-    // TODO: Implement regeneration logic
-    console.log('🔄 [Regenerate Value Prop] Feature to be implemented');
+    await handleSelectIcp(selectedIcp);
   };
 
   // Handler for approving positioning summary
@@ -1426,6 +1909,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }, 1000);
   };
 
+
   // Handler for Launch Copilot button
   const handleLaunchCopilot = (persona: ICP) => {
     console.log('🚀 [Launch Copilot] Navigating to copilot for:', persona.personaName);
@@ -1450,6 +1934,674 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }
     
     router.push(`/copilot?icpId=${persona.id}&flowId=${flowId}`);
+  };
+
+  // Email sequence handlers
+  const handleContinueToEmail = (icp: ICP) => {
+    // Show email strategy summary message
+    const emailStrategyText = `Let's create your email outreach for **${icp.title}**.
+
+**Available Options:**
+• **Single Email** – Perfect for announcements or quick outreach
+• **Email Sequence** – 5, 7, or 10-day nurture flow that builds relationships over time
+
+Which approach would you like to use?`;
+
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: emailStrategyText
+    });
+
+    // Show email type choice card
+    setTimeout(() => {
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "email-type-choice",
+        data: { icp }
+      });
+    }, 500);
+
+    memoryManager.addGenerationRecord(activeConversationId, 'show-email-choice', { icpId: icp.id } as Record<string, unknown>);
+  };
+
+  // LinkedIn outreach handlers
+  const handleContinueToLinkedIn = (icp: ICP) => {
+    // Show LinkedIn strategy summary message
+    const linkedInStrategyText = `Let's create LinkedIn content for **${icp.title}**.
+
+**Available Formats:**
+• **Post** – Single LinkedIn post with hashtags and CTA
+• **Profile Bio** – First-person bio highlighting your expertise
+• **InMail** – 60-120 word outreach message to connect
+
+What would you like to create?`;
+
+    addMessage({
+      id: nanoid(),
+      role: "assistant",
+      content: linkedInStrategyText
+    });
+
+    // Show LinkedIn type choice card
+    setTimeout(() => {
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "linkedin-type-choice",
+        data: { icp }
+      });
+    }, 500);
+
+    memoryManager.addGenerationRecord(activeConversationId, 'show-linkedin-choice', { icpId: icp.id } as Record<string, unknown>);
+  };
+
+  // Handler for LinkedIn type choice
+  const handleLinkedInTypeChoice = async (type: 'post' | 'profile_bio' | 'inmail', icp: ICP) => {
+    const typeLabels = {
+      post: 'LinkedIn Post',
+      profile_bio: 'Profile Bio',
+      inmail: 'InMail Message'
+    };
+
+    addMessage({
+      id: nanoid(),
+      role: "user",
+      content: `Generate a ${typeLabels[type]} for ${icp.title}`
+    });
+
+    // Create thinking message
+    const thinkingMsgId = nanoid();
+    addMessage({
+      id: thinkingMsgId,
+      role: "assistant",
+      content: "thinking",
+      thinking: [
+        { id: 'analyze', label: 'Analyzing persona insights', status: 'pending' },
+        { id: 'craft', label: `Crafting ${typeLabels[type]}`, status: 'pending' },
+        { id: 'optimize', label: 'Optimizing for engagement', status: 'pending' },
+      ],
+    });
+
+    updateGenerationState({ isGenerating: true, currentStep: 'linkedin-outreach' });
+
+    try {
+      // Step 1: Analyze persona insights
+      const analyzeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'running',
+        startTime: analyzeStart,
+        substeps: ['Analyzing ICP pain points & goals...', 'Matching to value propositions...']
+      });
+
+      // Get current value prop data
+      const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
+      const websiteUrl = activeConversation?.memory.websiteUrl;
+
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'complete',
+        duration: Date.now() - analyzeStart,
+        substeps: [
+          `✅ Analyzed ${icp.painPoints?.length || 0} pain points`,
+          `✅ Matched to ${valuePropData?.variations?.length || 0} value props`
+        ]
+      });
+
+      // Step 2: Craft LinkedIn content
+      const craftStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'craft', {
+        status: 'running',
+        startTime: craftStart,
+        substeps: [`Generating ${typeLabels[type]} with AI (10-20s)...`]
+      });
+
+      // Call LinkedIn generation API
+      const response = await fetch('/api/generate-linkedin-outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          icp,
+          valueProp: valuePropData,
+          websiteUrl,
+          factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+          websiteContent: activeConversation?.memory.websiteContent, // Fallback
+          type, // Pass the specific type
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate LinkedIn content');
+
+      const linkedInData = await response.json();
+
+      updateThinkingStep(thinkingMsgId, 'craft', {
+        status: 'complete',
+        duration: Date.now() - craftStart,
+        substeps: [
+          `✅ Generated ${linkedInData?.messages?.length || 0} LinkedIn messages`,
+          `✅ Total ${linkedInData?.messages?.reduce((sum: number, m: any) => sum + (m.characterCount || 0), 0) || 0} characters`
+        ]
+      });
+
+      // Step 3: Optimize for engagement
+      const optimizeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'optimize', {
+        status: 'running',
+        startTime: optimizeStart,
+        substeps: ['Adding personalization tips...', 'Optimizing for engagement...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'optimize', {
+        status: 'complete',
+        duration: Date.now() - optimizeStart,
+        substeps: [
+          `✅ Added ${linkedInData?.messages?.[0]?.personalizationTips?.length || 0} personalization tips`,
+          '✅ Optimized for LinkedIn best practices'
+        ]
+      });
+
+      // Remove thinking message and show result
+      setTimeout(() => {
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+              : conv
+          )
+        );
+
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: `Here's your ${typeLabels[type]} for **${icp.title}**. Copy it and use it on LinkedIn!`,
+          component: "linkedin-outreach",
+          data: linkedInData.messages 
+            ? { outreach: linkedInData, icp, type } // Sequence format
+            : { ...linkedInData, icp, type }, // Single content format
+        });
+
+        updateGenerationState({
+          isGenerating: false,
+          generatedContent: {
+            ...activeConversation?.generationState.generatedContent,
+            linkedinOutreach: linkedInData
+          }
+        });
+      }, 300);
+
+    } catch (error) {
+      console.error('Error generating LinkedIn content:', error);
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+            : conv
+        )
+      );
+
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `I encountered an error generating your ${typeLabels[type]}. Please try again.`,
+      });
+
+      updateGenerationState({ isGenerating: false });
+    }
+  };
+
+  const handleEmailTypeChoice = async (type: 'one-time' | 'sequence', icp: ICP) => {
+    if (type === 'one-time') {
+      // Generate single email immediately
+      addMessage({
+        id: nanoid(),
+        role: "user",
+        content: `Generate a single email for ${icp.title}`
+      });
+
+      // Create thinking message
+      const thinkingMsgId = nanoid();
+      addMessage({
+        id: thinkingMsgId,
+        role: "assistant",
+        content: "thinking",
+        thinking: [
+          { id: 'analyze', label: 'Analyzing persona insights', status: 'pending' },
+          { id: 'craft', label: 'Crafting email copy', status: 'pending' },
+          { id: 'subjects', label: 'Creating A/B/C subject lines', status: 'pending' },
+        ],
+      });
+
+      updateGenerationState({ isGenerating: true, currentStep: 'one-time-email' });
+
+      try {
+        // Step 1: Analyze persona insights
+        const analyzeStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'analyze', {
+          status: 'running',
+          startTime: analyzeStart,
+          substeps: ['Analyzing persona profile...', 'Identifying key pain points...']
+        });
+
+        updateThinkingStep(thinkingMsgId, 'analyze', {
+          status: 'complete',
+          duration: Date.now() - analyzeStart,
+          substeps: [
+            `✅ Analyzed ${icp.title}`,
+            `✅ ${icp.painPoints?.length || 0} pain points identified`
+          ]
+        });
+
+        // Step 2: Craft email copy
+        const craftStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'craft', {
+          status: 'running',
+          startTime: craftStart,
+          substeps: ['Crafting email body (10-20s)...', 'Generating A/B/C subject lines...']
+        });
+
+        const response = await fetch('/api/generate-one-time-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            icp, 
+            websiteContext: activeConversation?.memory.websiteContent, // Fallback
+            factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+            valueProp: activeConversation?.generationState.generatedContent.valueProp,
+            userChoices: {} // Can be extended later with tone, CTA choices
+          })
+        });
+
+        const data: OneTimeEmailData = await response.json();
+
+        updateThinkingStep(thinkingMsgId, 'craft', {
+          status: 'complete',
+          duration: Date.now() - craftStart,
+          substeps: [
+            `✅ Email body: ${data?.emailBody?.split(' ')?.length || 0} words`,
+            `✅ Generated ${Object.keys(data?.subjectLines || {}).length} subject line variations`
+          ]
+        });
+
+        // Step 3: Optimize subject lines
+        const subjectsStart = Date.now();
+        updateThinkingStep(thinkingMsgId, 'subjects', {
+          status: 'running',
+          startTime: subjectsStart,
+          substeps: ['Optimizing subject lines for open rates...']
+        });
+
+        updateThinkingStep(thinkingMsgId, 'subjects', {
+          status: 'complete',
+          duration: Date.now() - subjectsStart,
+          substeps: [
+            `✅ ${data?.subjectLines?.A?.length || 0} chars (optimal: 40-50)`,
+            '✅ Ready for A/B/C testing'
+          ]
+        });
+
+        // Remove thinking message
+        setTimeout(() => {
+          setConversations(prev =>
+            prev.map(conv =>
+              conv.id === activeConversationId
+                ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+                : conv
+            )
+          );
+
+          // Show result
+          addMessage({
+            id: nanoid(),
+            role: "assistant",
+            content: `Here's your one-time email for **${icp.title}** with 3 subject line variations ready for A/B testing.`,
+            component: "one-time-email",
+            data: { email: data, icp }
+          });
+
+          // Update generation state
+          updateGenerationState({
+            isGenerating: false,
+            generatedContent: {
+              ...activeConversation?.generationState.generatedContent,
+              oneTimeEmail: data
+            }
+          });
+
+          memoryManager.addGenerationRecord(activeConversationId, 'generate-one-time-email', { icpId: icp.id, data } as Record<string, unknown>);
+        }, 800);
+      } catch (error) {
+        console.error('Error generating one-time email:', error);
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+              : conv
+          )
+        );
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: "Sorry, there was an error generating the email. Please try again."
+        });
+        updateGenerationState({ isGenerating: false });
+      }
+    } else {
+      // Show sequence length choice
+      addMessage({
+        id: nanoid(),
+        role: "user",
+        content: `I want to create an email sequence for ${icp.title}`
+      });
+
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "Perfect! Email sequences are great for building relationships. Let's choose the length:",
+        component: "sequence-length-choice",
+        data: { icp }
+      });
+
+      memoryManager.addGenerationRecord(activeConversationId, 'choose-email-type', { type: 'sequence', icpId: icp.id } as Record<string, unknown>);
+    }
+  };
+
+  const handleSequenceLengthChoice = async (days: 5 | 7 | 10, icp: ICP) => {
+    addMessage({
+      id: nanoid(),
+      role: "user",
+      content: `Generate a ${days}-day email sequence for ${icp.title}`
+    });
+
+    // Create thinking message
+    const thinkingMsgId = nanoid();
+    addMessage({
+      id: thinkingMsgId,
+      role: "assistant",
+      content: "thinking",
+      thinking: [
+        { id: 'analyze', label: 'Analyzing persona journey', status: 'pending' },
+        { id: 'sequence', label: `Planning ${days}-day sequence`, status: 'pending' },
+        { id: 'emails', label: `Crafting ${days} emails with variations`, status: 'pending' },
+        { id: 'timeline', label: 'Building visual timeline', status: 'pending' },
+      ],
+    });
+
+    updateGenerationState({ isGenerating: true, currentStep: 'email-sequence' });
+
+    try {
+      // Step 1: Analyze persona journey
+      const analyzeStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'running',
+        startTime: analyzeStart,
+        substeps: ['Analyzing customer journey...', 'Identifying touchpoints...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'analyze', {
+        status: 'complete',
+        duration: Date.now() - analyzeStart,
+        substeps: [
+          `✅ Mapped ${days}-day journey`,
+          '✅ Identified key decision points'
+        ]
+      });
+
+      // Step 2: Plan sequence
+      const sequenceStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'sequence', {
+        status: 'running',
+        startTime: sequenceStart,
+        substeps: [`Planning ${days} touchpoints...`, 'Defining email objectives...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'sequence', {
+        status: 'complete',
+        duration: Date.now() - sequenceStart,
+        substeps: [
+          `✅ Planned ${days} emails`,
+          '✅ Defined sequence flow'
+        ]
+      });
+
+      // Step 3: Craft emails
+      const emailsStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'emails', {
+        status: 'running',
+        startTime: emailsStart,
+        substeps: [`Crafting ${days} emails with AI (20-40s)...`, 'Generating A/B variations...']
+      });
+
+      const response = await fetch('/api/generate-email-sequence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          icp,
+          websiteUrl,
+          factsJson: activeConversation?.memory.factsJson, // NEW: Pass structured facts
+          websiteContent: activeConversation?.memory.websiteContent, // Fallback
+          valueProp: activeConversation?.generationState.generatedContent.valueProp,
+          sequenceLength: days
+        })
+      });
+
+      const data: EmailSequenceData = await response.json();
+
+      updateThinkingStep(thinkingMsgId, 'emails', {
+        status: 'complete',
+        duration: Date.now() - emailsStart,
+        substeps: [
+          `✅ Generated ${data?.emails?.length || 0} emails`,
+          `✅ ${data?.emails?.reduce((sum: number, e: EmailMessage) => sum + (e.subjectLines?.length || 0), 0)} total subject lines`
+        ]
+      });
+
+      // Step 4: Build timeline
+      const timelineStart = Date.now();
+      updateThinkingStep(thinkingMsgId, 'timeline', {
+        status: 'running',
+        startTime: timelineStart,
+        substeps: ['Building visual timeline...', 'Adding delivery schedule...']
+      });
+
+      updateThinkingStep(thinkingMsgId, 'timeline', {
+        status: 'complete',
+        duration: Date.now() - timelineStart,
+        substeps: [
+          `✅ Timeline: Day 0 → Day ${days}`,
+          '✅ Ready to deploy'
+        ]
+      });
+
+      // Remove thinking message and show result
+      setTimeout(() => {
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+              : conv
+          )
+        );
+
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: `Here's your complete ${days}-day email sequence for **${icp.title}** with a visual timeline and personalization tips for each email.`,
+          component: "email-sequence",
+          data: { sequence: data, icp, days }
+        });
+
+        // Update generation state
+        updateGenerationState({
+          isGenerating: false,
+          generatedContent: {
+            ...activeConversation?.generationState.generatedContent,
+            emailSequence: data
+          }
+        });
+
+        memoryManager.addGenerationRecord(activeConversationId, 'generate-email-sequence', { icpId: icp.id, days, data } as Record<string, unknown>);
+      }, 1000);
+    } catch (error) {
+      console.error('Error generating email sequence:', error);
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== thinkingMsgId) }
+            : conv
+        )
+      );
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "Sorry, there was an error generating the email sequence. Please try again."
+      });
+      updateGenerationState({ isGenerating: false });
+    }
+  };
+
+  const handleSelectIcp = async (icp: ICP) => {
+    // Check if action is allowed
+    if (!canPerformAction('select-icp')) {
+      console.log('🚫 [handleSelectIcp] Action not allowed - generation in progress or prerequisites not met');
+      return;
+    }
+
+    // Check if already completed for this ICP
+    if (isGenerationCompleted('value-prop', { icp: icp.id })) {
+      console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
+      setSelectedIcp(icp);
+      updateUserJourney({ icpSelected: true });
+      return;
+    }
+
+    // Check if currently generating
+    if (isGenerationInProgress('value-prop', { icp: icp.id })) {
+      console.log('⏳ [handleSelectIcp] Value prop generation already in progress');
+      return;
+    }
+
+    setSelectedIcp(icp);
+    updateGenerationState({ 
+      isGenerating: true, 
+      generationId: `value-prop-${icp.id}`,
+      currentStep: 'value-prop'
+    });
+    updateUserJourney({ icpSelected: true });
+    
+    // Record ICP selection
+    memoryManager.addGenerationRecord(activeConversationId, 'select-icp', { icpId: icp.id, icpTitle: icp.title } as Record<string, unknown>);
+
+    addMessage({
+      id: nanoid(),
+      role: "user",
+      content: `Create value proposition for: ${icp.title}`,
+    });
+
+    // Single loading message
+    const loadingMsgId = nanoid();
+    addMessage({
+      id: loadingMsgId,
+      role: "assistant",
+      content: "Generating your positioning package...",
+    });
+
+    try {
+      // Use idempotent generation
+      const valuePropData = await generationManager.generate(
+        'value-prop',
+        { icp: icp.id, websiteUrl },
+        async () => {
+          // Generate value prop (all backend processing happens here)
+          const valuePropRes = await fetch("/api/generate-value-prop", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              icp,
+              websiteUrl,
+              factsJson: activeConversation?.memory.factsJson
+            }),
+          });
+
+          if (!valuePropRes.ok) {
+            const errorData = await valuePropRes.json().catch(() => ({}));
+            console.error('❌ [Generate Value Prop] API error:', errorData);
+            throw new Error(errorData.error || errorData.details || "Failed to generate value prop");
+          }
+          const data = await valuePropRes.json();
+
+          return data;
+        }
+      );
+
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
+
+      // Show persona showcase directly
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "",
+        component: "persona-showcase",
+        data: {
+          personas: [icp],
+          selectedPersonaId: icp.id,
+          valuePropData: {
+            [icp.id]: valuePropData
+          }
+        }
+      });
+
+      // Update state with generated content (include ICP for export functionality)
+      updateGenerationState({
+        generatedContent: {
+          ...activeConversation?.generationState.generatedContent,
+          valueProp: {
+            ...valuePropData,
+            icp // Add ICP to valueProp data for PNG export
+          }
+        },
+        completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
+      });
+
+      // Record in memory
+      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', valuePropData);
+      memoryManager.setLastAction(activeConversationId, 'select-icp');
+
+    } catch (error) {
+      console.error("Error:", error);
+      
+      // Remove loading message
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? { ...conv, messages: conv.messages.filter(m => m.id !== loadingMsgId) }
+            : conv
+        )
+      );
+      
+      // Show error message with more details
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
+      });
+      
+      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', { error: true }, false);
+    } finally {
+      updateGenerationState({ 
+        isGenerating: false, 
+        generationId: undefined 
+      });
+    }
   };
 
   const handleExport = async (format: string, data: { personas: ICP[]; valuePropData: Record<string, ValuePropData> }) => {
@@ -1913,8 +3065,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                 if (target.closest('button') || target.closest('[role="menuitem"]')) {
                                   return;
                                 }
-                                // ICP selection now handled automatically via persona showcase
-                                console.log('📋 [ICP Card] Clicked:', icp.personaName);
+                                handleSelectIcp(icp);
                               }}
                             >
                               {/* Gradient background */}
@@ -2006,8 +3157,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                     className={`w-full h-8 text-xs hover:shadow-lg transition-all font-semibold`}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      // ICP selection now handled automatically via persona showcase
-                                      console.log('✅ [ICP Card] Select clicked:', icp.personaName);
+                                      handleSelectIcp(icp);
                                     }}
                                   >
                                     <CheckCircle2 className="h-3 w-3 mr-1.5" />
@@ -2090,18 +3240,122 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             );
                           }}
                           onExport={handleExport}
+                          onContinue={(persona) => handleContinueToOutreach(persona)}
+                          onGenerateLinkedIn={(persona) => handleContinueToLinkedIn(persona)}
+                          onGenerateEmail={(persona) => handleContinueToEmail(persona)}
                           onLaunchCopilot={handleLaunchCopilot}
                           readOnly={false}
                         />
                       );
                     })()}
 
+                    {/* Outreach Choice (Email vs LinkedIn) */}
+                    {message.component === "outreach-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <OutreachChoice
+                          onSelect={(choice) => handleOutreachChoice(choice, data.icp)}
+                        />
+                      );
+                    })()}
+
+                    {/* LinkedIn Type Choice */}
+                    {message.component === "linkedin-type-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <LinkedInTypeChoice
+                          onSelect={(type) => handleLinkedInTypeChoice(type, data.icp)}
+                        />
+                      );
+                    })()}
+
+                    {/* Email Type Choice */}
+                    {message.component === "email-type-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <EmailTypeChoice
+                          onSelect={(type) => handleEmailTypeChoice(type, data.icp)}
+                        />
+                      );
+                    })()}
+
+                    {/* Sequence Length Choice */}
+                    {message.component === "sequence-length-choice" && message.data && (() => {
+                      const data = message.data as { icp: ICP };
+                      return (
+                        <SequenceLengthChoice
+                          onSelect={(days) => handleSequenceLengthChoice(days, data.icp)}
+                        />
+                      );
+                    })()}
+
+                    {/* Email Sequence */}
+                    {message.component === "email-sequence" && message.data && (() => {
+                      const data = message.data as { sequence: EmailSequenceData; icp: ICP; days: number };
+                      return (
+                        <EmailSequenceCard
+                          data={data.sequence}
+                          personaTitle={data.icp.title}
+                        />
+                      );
+                    })()}
+
+                    {/* One-Time Email */}
+                    {message.component === "one-time-email" && message.data && (() => {
+                      const data = message.data as { email: OneTimeEmailData; icp: ICP };
+                      return (
+                        <OneTimeEmailCard
+                          data={data.email}
+                          personaTitle={data.icp.title}
+                        />
+                      );
+                    })()}
+
+                    {/* LinkedIn Outreach */}
+                    {message.component === "linkedin-outreach" && message.data && (() => {
+                      const data = message.data as any;
+                      
+                      // Check if it's a sequence format (has outreach.messages)
+                      if (data.outreach?.messages) {
+                        return (
+                          <LinkedInOutreachCard
+                            data={data.outreach}
+                            personaTitle={data.icp?.title || 'Unknown Persona'}
+                          />
+                        );
+                      }
+                      
+                      // Check if it's single content format (has content or type)
+                      if (data.content || data.type) {
+                        return (
+                          <LinkedInSingleContentCard
+                            content={data.content}
+                            type={data.type}
+                            hashtags={data.suggestedHashtags}
+                            callToAction={data.callToAction}
+                            sourceFactIds={data.sourceFactIds}
+                            personaTitle={data.icp?.title || 'Unknown Persona'}
+                          />
+                        );
+                      }
+                      
+                      // Fallback for unexpected format
+                      return (
+                        <Card className="p-6 text-center">
+                          <p className="text-muted-foreground">
+                            Unable to display LinkedIn content. Please regenerate.
+                          </p>
+                        </Card>
+                      );
+                    })()}
+
+
                   </div>
                 )}
               </div>
             ))}
 
-            {isLoading && !activeConversation?.messages.some(m =>
+            {isLoading && !activeConversation?.messages.some(m => 
               m.content.includes("🔍") || 
               m.content.includes("✨") || 
               m.content.includes("🧠")

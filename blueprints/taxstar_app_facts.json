@@ -5,7 +5,7 @@
       "professional",
       "informative"
     ],
-    "primaryCTA": "Start with a free trial"
+    "primaryCTA": "Start a free trial"
   },
   "structure": {
     "nav": [
@@ -23,11 +23,11 @@
         "title": "Core Offering"
       },
       {
-        "path": "/features-benefits",
+        "path": "/key-features-benefits",
         "title": "Key Features and Benefits"
       },
       {
-        "path": "/target-customers",
+        "path": "/target-customers-use-cases",
         "title": "Target Customers and Use Cases"
       },
       {
@@ -35,25 +35,36 @@
         "title": "Value Propositions"
       },
       {
-        "path": "/pricing",
+        "path": "/pricing-business-model",
         "title": "Pricing/Business Model"
       },
       {
         "path": "/additional-tools",
         "title": "Additional Tools"
+      },
+      {
+        "path": "/conclusion",
+        "title": "Conclusion"
       }
     ],
-    "footer": []
+    "footer": [
+      "Pricing",
+      "Demo",
+      "Contact",
+      "Terms of Service",
+      "Privacy Policy"
+    ]
   },
   "audienceSignals": [
-    "Accounting practice owners",
-    "Tax advisors",
-    "ERP resellers"
+    "Businesses in the UAE",
+    "Accounting Practice Owners",
+    "Tax Advisors",
+    "ERP Resellers"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Efficiency in corporate tax processes",
+      "text": "Automates complex tax processes, allowing firms to handle more clients without increasing staff.",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -61,99 +72,126 @@
     },
     {
       "id": "v2",
-      "text": "Accuracy in tax calculations and document handling",
+      "text": "Reduces human error in tax calculations and document management.",
       "evidence": [
-        "fact-4",
-        "fact-8"
+        "fact-4"
       ]
     },
     {
       "id": "v3",
-      "text": "Compliance assurance with local tax laws",
+      "text": "Helps businesses stay compliant with UAE tax regulations, avoiding penalties.",
       "evidence": [
-        "fact-5",
-        "fact-9"
+        "fact-5"
       ]
     },
     {
       "id": "v4",
-      "text": "Scalability for expanding firms",
+      "text": "Enables firms to grow their client base without the need for additional hires.",
       "evidence": [
-        "fact-6",
-        "fact-10"
+        "fact-6"
       ]
     }
   ],
   "pains": [
-    "Manual tax calculations",
-    "Risk of penalties due to document expiry",
-    "Inefficiencies in practice management"
+    "Complexity of tax compliance processes",
+    "Human error in tax calculations",
+    "Risk of penalties due to non-compliance"
   ],
   "proof": [
-    "Automates tax return processes",
-    "Facilitates IFRS financial statements",
-    "Saves up to 40% of time on tax calculations"
+    "AI-powered corporate tax software",
+    "Saves up to 40% of time on corporate tax calculations",
+    "Seamless integration with existing ERP systems"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star provides AI-powered corporate tax software for UAE businesses.",
+      "text": "Tax Star provides AI-powered corporate tax software designed specifically for businesses in the UAE.",
       "page": "Core Offering",
-      "evidence": "Tax Star provides AI-powered corporate tax software specifically designed for businesses in the UAE."
+      "evidence": "Tax Star provides AI-powered corporate tax software designed specifically for businesses in the UAE."
     },
     {
       "id": "fact-2",
-      "text": "The platform automates tax calculations and generates financial statements.",
+      "text": "The platform simplifies tax compliance processes, including corporate tax calculations, internal and client approvals, financial statement production, and practice management.",
       "page": "Core Offering",
-      "evidence": "The platform aims to simplify compliance with corporate tax regulations by automating tax calculations, generating financial statements."
+      "evidence": "The platform simplifies tax compliance processes, including corporate tax calculations, internal and client approvals, financial statement production, and practice management."
     },
     {
       "id": "fact-3",
-      "text": "AI-Powered Corporate Tax Calculator automates tax return processes.",
+      "text": "Automates tax return processes, ensuring timely and accurate submissions.",
       "page": "Key Features and Benefits",
       "evidence": "AI-Powered Corporate Tax Calculator: Automates tax return processes, ensuring timely and accurate submissions."
     },
     {
       "id": "fact-4",
-      "text": "Facilitates easy production of IFRS financial statements.",
+      "text": "Facilitates easy production of financial statements, reducing reliance on traditional word processing and spreadsheet software.",
       "page": "Key Features and Benefits",
-      "evidence": "IFRS Financial Statements: Facilitates easy production of financial statements, reducing reliance on manual tools like Word and Excel."
+      "evidence": "IFRS Financial Statements: Facilitates easy production of financial statements, reducing reliance on traditional word processing and spreadsheet software."
     },
     {
       "id": "fact-5",
-      "text": "Document Expiry Reminders help avoid penalties.",
+      "text": "Alerts users to update registration documents to avoid penalties.",
       "page": "Key Features and Benefits",
-      "evidence": "Document Expiry Reminders: Alerts users about upcoming document expirations to avoid penalties."
+      "evidence": "Document Expiry Reminders: Alerts users to update registration documents to avoid penalties."
     },
     {
       "id": "fact-6",
-      "text": "Automated Tax Workflows save up to 40% of time on calculations.",
+      "text": "Saves up to 40% of time on corporate tax calculations, allowing teams to focus on higher-value tasks.",
       "page": "Key Features and Benefits",
-      "evidence": "Automated Tax Workflows: Saves up to 40% of time on corporate tax calculations, allowing teams to focus on higher-value tasks."
+      "evidence": "Automated Workflows: Saves up to 40% of time on corporate tax calculations, allowing teams to focus on higher-value tasks."
     },
     {
       "id": "fact-7",
-      "text": "Compliance Tracking features minimize risk of penalties.",
+      "text": "Automated reminders and tracking ensure compliance with tax laws and deadlines.",
       "page": "Key Features and Benefits",
-      "evidence": "Compliance Tracking: Automated reminders and tracking features help ensure compliance and timely filings, minimizing the risk of penalties."
+      "evidence": "Compliance Tracking: Automated reminders and tracking ensure compliance with tax laws and deadlines."
     },
     {
       "id": "fact-8",
-      "text": "The software supports scalability by managing more clients without increasing staff.",
+      "text": "Centralizes client information and communication, streamlining practice management.",
       "page": "Key Features and Benefits",
-      "evidence": "Scalability: Enables firms to manage 30-40% more clients without increasing staff overhead through efficient automated workflows."
+      "evidence": "Client Management: Centralizes client information and communication, streamlining practice management."
     },
     {
       "id": "fact-9",
-      "text": "Target customers include accounting practice owners, tax advisors, and ERP resellers.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Target Customers: Accounting practice owners, Tax advisors, ERP resellers."
+      "text": "Seamless integration with existing ERP systems to enhance workflow efficiency.",
+      "page": "Key Features and Benefits",
+      "evidence": "ERP Integrations: Seamless integration with existing ERP systems to enhance workflow efficiency."
     },
     {
       "id": "fact-10",
-      "text": "Use cases include corporate tax calculations and financial statement production.",
+      "text": "Accounting Practice Owners need efficient tax compliance solutions for their clients.",
       "page": "Target Customers and Use Cases",
-      "evidence": "Use Cases: Corporate tax calculations, Internal and client approvals, Financial statement production, Practice management and deadline tracking."
+      "evidence": "Accounting Practice Owners: Need efficient tax compliance solutions for their clients."
+    },
+    {
+      "id": "fact-11",
+      "text": "Tax Advisors require tools to manage corporate tax calculations and client approvals.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Tax Advisors: Require tools to manage corporate tax calculations and client approvals."
+    },
+    {
+      "id": "fact-12",
+      "text": "ERP Resellers are looking for integrated solutions to offer to their clients.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "ERP Resellers: Looking for integrated solutions to offer to their clients."
+    },
+    {
+      "id": "fact-13",
+      "text": "Use cases include corporate tax calculations, financial statement production, internal and client approvals, and practice management.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "Use Cases: Corporate tax calculations, financial statement production, internal and client approvals, and practice management."
+    },
+    {
+      "id": "fact-14",
+      "text": "E-Invoicing ensures invoices are compliant with FTA regulations and integrates with corporate tax filing.",
+      "page": "Additional Tools",
+      "evidence": "E-Invoicing (UAE): Ensures invoices are compliant with FTA regulations and integrates with corporate tax filing."
+    },
+    {
+      "id": "fact-15",
+      "text": "Zakat for Business provides tools for Zakat calculations aligned with compliance reporting in Saudi Arabia.",
+      "page": "Additional Tools",
+      "evidence": "Zakat for Business (KSA): Provides tools for Zakat calculations aligned with compliance reporting in Saudi Arabia."
     }
   ]
 }
