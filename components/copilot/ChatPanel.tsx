@@ -90,6 +90,38 @@ export function ChatPanel({
                   <p className="text-sm leading-relaxed whitespace-pre-line">
                     {displayContent || (message.role === "ai" ? "Applied your requested changes." : message.content)}
                   </p>
+                  
+                  {/* Quick Action Buttons for AI confirmation questions */}
+                  {message.role === "ai" && 
+                   idx === messages.length - 1 && 
+                   !isStreaming &&
+                   (displayContent.toLowerCase().includes("would you like") ||
+                    displayContent.toLowerCase().includes("shall i") ||
+                    displayContent.toLowerCase().includes("proceed with") ||
+                    displayContent.toLowerCase().includes("implement these") ||
+                    displayContent.toLowerCase().includes("do you want")) && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          onSendMessage("Yes, proceed");
+                        }}
+                        className="flex-1"
+                      >
+                        Yes, proceed
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          onSendMessage("No, let me clarify");
+                        }}
+                        className="flex-1"
+                      >
+                        No, clarify
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {message.role === "user" && (
