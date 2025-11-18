@@ -1,0 +1,172 @@
+{
+  "brand": {
+    "name": "Hasan Jubair",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "Explore EdTech Solutions"
+  },
+  "structure": {
+    "nav": [
+      "Core Offering",
+      "Key Features and Benefits",
+      "Target Customers and Use Cases",
+      "Value Propositions",
+      "Pricing/Business Model"
+    ],
+    "keyPages": [
+      {
+        "path": "/core-offering",
+        "title": "Core Offering"
+      },
+      {
+        "path": "/key-features-benefits",
+        "title": "Key Features and Benefits"
+      },
+      {
+        "path": "/target-customers",
+        "title": "Target Customers and Use Cases"
+      },
+      {
+        "path": "/value-propositions",
+        "title": "Value Propositions"
+      },
+      {
+        "path": "/pricing-business-model",
+        "title": "Pricing/Business Model"
+      }
+    ],
+    "footer": [
+      "Contact",
+      "Privacy Policy",
+      "Terms of Service"
+    ]
+  },
+  "audienceSignals": [
+    "EdTech Startups",
+    "Educational Institutions",
+    "Parents and Students"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Expertise in EdTech",
+      "evidence": [
+        "fact-10",
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Focus on Measurable Outcomes",
+      "evidence": [
+        "fact-11",
+        "fact-13"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Community Engagement",
+      "evidence": [
+        "fact-14",
+        "fact-15"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for effective EdTech product development",
+    "Challenges in scaling educational technology solutions",
+    "Demand for innovative learning tools"
+  ],
+  "proof": [
+    "CEO and Founder of Projukti Team Limited",
+    "Country Head of Codingal, a Y Combinator-backed startup"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Hasan Jubair is a serial entrepreneur in the EdTech sector.",
+      "page": "Core Offering",
+      "evidence": "Hasan Jubair is a serial entrepreneur in the EdTech sector."
+    },
+    {
+      "id": "fact-2",
+      "text": "He is the CEO and Founder of Projukti Team Limited.",
+      "page": "Core Offering",
+      "evidence": "CEO and Founder of Projukti Team Limited"
+    },
+    {
+      "id": "fact-3",
+      "text": "He is the Country Head of Codingal.",
+      "page": "Core Offering",
+      "evidence": "Country Head of Codingal"
+    },
+    {
+      "id": "fact-4",
+      "text": "Codingal is a Y Combinator-backed startup.",
+      "page": "Core Offering",
+      "evidence": "Codingal, a Y Combinator-backed startup"
+    },
+    {
+      "id": "fact-5",
+      "text": "He specializes in launching EdTech products that integrate effective pedagogy with measurable outcomes.",
+      "page": "Core Offering",
+      "evidence": "specializes in launching EdTech products that integrate effective pedagogy with measurable outcomes"
+    },
+    {
+      "id": "fact-6",
+      "text": "Focuses on creating educational technology products that enhance learning experiences.",
+      "page": "Key Features and Benefits",
+      "evidence": "Focuses on creating educational technology products that enhance learning experiences"
+    },
+    {
+      "id": "fact-7",
+      "text": "Successfully led Codingal to increase enrollment through strategic partnerships and community engagement.",
+      "page": "Key Features and Benefits",
+      "evidence": "Successfully led Codingal to increase enrollment through strategic partnerships and community engagement"
+    },
+    {
+      "id": "fact-8",
+      "text": "Provides guidance to EdTech startups on pricing strategies, sales funnels, and AI automation to improve financial performance.",
+      "page": "Key Features and Benefits",
+      "evidence": "Provides guidance to EdTech startups on pricing strategies, sales funnels, and AI automation to improve financial performance"
+    },
+    {
+      "id": "fact-9",
+      "text": "Target customers include EdTech startups, educational institutions, and parents and students.",
+      "page": "Target Customers and Use Cases",
+      "evidence": "EdTech Startups, Educational Institutions, Parents and Students"
+    },
+    {
+      "id": "fact-10",
+      "text": "Combines deep industry knowledge with practical experience to deliver impactful educational solutions.",
+      "page": "Value Propositions",
+      "evidence": "Combines deep industry knowledge with practical experience to deliver impactful educational solutions"
+    },
+    {
+      "id": "fact-11",
+      "text": "Emphasizes results-driven approaches in educational product development.",
+      "page": "Value Propositions",
+      "evidence": "Emphasizes results-driven approaches in educational product development"
+    },
+    {
+      "id": "fact-12",
+      "text": "Leverages partnerships to foster a supportive learning environment.",
+      "page": "Value Propositions",
+      "evidence": "Leverages partnerships to foster a supportive learning environment"
+    },
+    {
+      "id": "fact-13",
+      "text": "Specific pricing details and business models are not mentioned on the website.",
+      "page": "Pricing/Business Model",
+      "evidence": "Specific pricing details and business models are not mentioned on the website"
+    },
+    {
+      "id": "fact-14",
+      "text": "The focus on partnerships and community suggests a collaborative approach to revenue generation and customer acquisition.",
+      "page": "Pricing/Business Model",
+      "evidence": "The focus on partnerships and community suggests a collaborative approach to revenue generation and customer acquisition"
+    }
+  ]
+}

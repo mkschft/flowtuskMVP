@@ -38,6 +38,11 @@ export const FactsJSONSchema = z.object({
     })),
     footer: z.array(z.string()),
   }),
+  targetMarket: z.object({
+    primaryRegion: z.string().min(1), // e.g. "UK", "United States", "Europe", "Global"
+    industryFocus: z.string().optional(), // e.g. "EdTech", "FinTech"
+    signals: z.array(z.string()).optional(), // Evidence from website (domain, language, mentions)
+  }).optional(),
   audienceSignals: z.array(z.string()),
   valueProps: z.array(ValuePropFactSchema),
   pains: z.array(z.string()),

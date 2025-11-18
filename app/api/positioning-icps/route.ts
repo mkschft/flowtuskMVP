@@ -54,6 +54,9 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { icps, flowId, websiteUrl } = await req.json();
+    
+    // Get idempotency key from header
+    const idempotencyKey = req.headers.get('Idempotency-Key');
 
     if (!icps || !Array.isArray(icps) || !flowId) {
       return NextResponse.json(
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
 
     console.log('💾 [Positioning ICPs API] Attempting to save', icps.length, 'ICPs');
     console.log('📝 [Positioning ICPs API] flowId:', flowId);
+    console.log('🔑 [Positioning ICPs API] idempotencyKey:', idempotencyKey);
     console.log('👤 [Positioning ICPs API] user:', user?.id || 'NULL (demo mode)');
     console.log('🎯 [Positioning ICPs API] isDemoMode:', isDemoMode);
 
@@ -93,7 +97,22 @@ export async function POST(req: NextRequest) {
     
     console.log('✅ [Positioning ICPs API] Parent flow found:', flow.id, 'user_id:', flow.user_id || 'NULL');
 
-    // Idempotency: if recent ICPs exist for this flow and look identical, return them
+    // Strict idempotency: if idempotency key matches flowId, return existing ICPs
+    // This prevents duplicate creation when the same request is made multiple times
+    if (idempotencyKey && idempotencyKey === flowId) {
+      const { data: existingIcps } = await supabase
+        .from('positioning_icps')
+        .select('*')
+        .eq('parent_flow', flowId)
+        .order('created_at', { ascending: true });
+      
+      if (existingIcps && existingIcps.length > 0) {
+        console.log('🔄 [Positioning ICPs API] Idempotency key matched - returning', existingIcps.length, 'existing ICPs');
+        return NextResponse.json({ icps: existingIcps });
+      }
+    }
+    
+    // Fallback idempotency: if recent ICPs exist for this flow and look identical, return them
     try {
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
       const { data: recentIcps } = await supabase
@@ -110,6 +129,7 @@ export async function POST(req: NextRequest) {
             .select('*')
             .eq('parent_flow', flowId)
             .order('created_at', { ascending: true });
+          console.log('🔄 [Positioning ICPs API] Content-based idempotency matched - returning', fullRecent?.length || 0, 'existing ICPs');
           return NextResponse.json({ icps: fullRecent || [] });
         }
       }

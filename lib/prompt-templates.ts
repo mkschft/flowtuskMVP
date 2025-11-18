@@ -32,6 +32,11 @@ export interface FactsJSON {
     keyPages: Array<{ path: string; title: string }>;
     footer: string[];
   };
+  targetMarket?: {
+    primaryRegion: string;
+    industryFocus?: string;
+    signals?: string[];
+  };
   audienceSignals: string[];
   valueProps: Array<{
     id: string;
@@ -116,11 +121,21 @@ GUARDRAILS:
 RULES:
 1. Extract brand identity (name, tone, primary CTA)
 2. Map site structure (nav, key pages, footer links)
-3. Identify audience signals (who they serve)
-4. List value propositions with evidence
-5. Extract pain points they address
-6. Note proof elements (certs, logos, metrics)
-7. Create atomic facts array with IDs
+3. Identify target market geography (primary region, industry focus)
+4. Identify audience signals (who they serve)
+5. List value propositions with evidence
+6. Extract pain points they address
+7. Note proof elements (certs, logos, metrics)
+8. Create atomic facts array with IDs
+
+GEOGRAPHIC SIGNALS TO IDENTIFY:
+- Domain extensions (.co.uk = UK, .com.au = Australia, .de = Germany)
+- Language/spelling (colour vs color, centre vs center)
+- Currency symbols (£, €, $)
+- Location mentions (cities, regions, countries)
+- Local regulations/standards (GDPR, Ofsted, FDA)
+- Phone number formats
+- Address information
 
 CONSTRAINTS:
 - Each fact must cite its page/section
@@ -140,6 +155,11 @@ SCHEMA:
     "nav": ["string"],
     "keyPages": [{"path": "string", "title": "string"}],
     "footer": ["string"]
+  },
+  "targetMarket": {
+    "primaryRegion": "string (e.g. UK, United States, Europe, Australia, Global)",
+    "industryFocus": "string (e.g. EdTech, FinTech, Healthcare) - optional",
+    "signals": ["Evidence from content that indicates geographic market"]
   },
   "audienceSignals": ["string"],
   "valueProps": [
@@ -185,6 +205,15 @@ RULES:
 4. Goals must be realistic and specific
 5. Personas should be diverse and realistic
 6. Keep painPoints SHORT (1-3 words: "Time constraints", "Manual processes")
+
+GEOGRAPHIC RELEVANCE (CRITICAL):
+${facts.targetMarket?.primaryRegion ? `- Target region is ${facts.targetMarket.primaryRegion}
+- Generate personas with ${facts.targetMarket.primaryRegion}-relevant locations, companies, and institutions
+- Use ${facts.targetMarket.primaryRegion}-specific terminology and context
+- Example for UK: Use cities like London, Manchester, Birmingham; companies like "Academy Trust (12 schools)"
+- Example for US: Use cities like San Francisco, New York, Austin; companies like "Tech Startup (50 employees)"
+` : `- No explicit region specified - use globally-recognized examples but prefer diverse geographic distribution
+`}
 
 EVIDENCE REQUIREMENT:
 - Every pain point and goal should map to at least one fact ID
@@ -247,6 +276,9 @@ SCHEMA:
 
   const user = `WEBSITE FACTS:
 ${JSON.stringify(facts, null, 2)}
+${facts.targetMarket?.primaryRegion ? `
+
+IMPORTANT: This company targets ${facts.targetMarket.primaryRegion}. Generate personas with locations, companies, and institutions relevant to ${facts.targetMarket.primaryRegion}.` : ''}
 
 Generate 3 ICPs with evidence tracking. Use only the facts above.`;
 

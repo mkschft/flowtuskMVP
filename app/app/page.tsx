@@ -2122,7 +2122,12 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     {/* ICP Cards */}
                     {message.component === "icps" && message.data && (
                       <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        {(message.data as ICP[]).map((icp, idx) => {
+                        {(
+                          // De-duplicate ICPs by id to avoid React key warnings
+                          (message.data as ICP[]).filter((icp, index, arr) =>
+                            arr.findIndex(i => i.id === icp.id) === index
+                          )
+                        ).map((icp, idx) => {
                           const colors = [
                             { 
                               gradient: "from-pink-500/10 to-purple-500/10",

@@ -3,7 +3,7 @@
     "name": "Stripe",
     "tones": [
       "professional",
-      "innovative"
+      "informative"
     ],
     "primaryCTA": "Contact sales"
   },
@@ -15,7 +15,8 @@
       "Resources",
       "Pricing",
       "Dashboard",
-      "Sign in"
+      "Sign in",
+      "Contact sales"
     ],
     "keyPages": [
       {
@@ -37,22 +38,12 @@
       {
         "path": "/pricing",
         "title": "Pricing"
-      },
-      {
-        "path": "/contact-sales",
-        "title": "Contact Sales"
       }
     ],
     "footer": [
-      "API reference",
-      "Libraries and SDKs",
-      "App integrations",
-      "Guides",
-      "Support centre",
-      "Managed support plans",
-      "Professional services",
       "Blog",
       "Customer stories",
+      "Guides",
       "Sessions conference",
       "Jobs",
       "Newsroom",
@@ -69,19 +60,12 @@
     "Global businesses",
     "Marketplaces",
     "Platforms",
-    "SaaS",
-    "AI companies",
-    "Creator economy",
-    "Hospitality, travel and leisure",
-    "Insurance",
-    "Media and entertainment",
-    "Non-profits",
-    "Retail"
+    "SaaS"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Stripe offers a fully integrated suite of financial and payments products.",
+      "text": "Fully integrated suite of financial and payments products",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -89,7 +73,7 @@
     },
     {
       "id": "v2",
-      "text": "Stripe helps reduce costs, grow revenue, and run businesses more efficiently.",
+      "text": "Reduce costs, grow revenue, and run your business more efficiently",
       "evidence": [
         "fact-4",
         "fact-8"
@@ -97,10 +81,8 @@
     }
   ],
   "pains": [
-    "Managing complex payment systems",
-    "Handling fraud prevention",
-    "Automating revenue recognition",
-    "Optimizing payment acceptance"
+    "Managing revenue operations",
+    "Launching new business models"
   ],
   "proof": [
     "OpenAI logo",
@@ -115,123 +97,99 @@
   "facts": [
     {
       "id": "fact-1",
-      "text": "Stripe is a financial infrastructure company.",
-      "page": "homepage",
-      "evidence": "Financial infrastructure to grow your revenue"
+      "text": "Stripe offers global payments solutions.",
+      "page": "Products",
+      "evidence": "Global payments Payments Payments Online payments"
     },
     {
       "id": "fact-2",
-      "text": "Stripe provides global payment solutions.",
-      "page": "products",
-      "evidence": "Global payments Payments Payments"
-    },
-    {
-      "id": "fact-3",
-      "text": "Stripe offers no-code payment solutions.",
-      "page": "products",
-      "evidence": "Payment Links No-code payments"
-    },
-    {
-      "id": "fact-4",
-      "text": "Stripe provides fraud prevention tools.",
-      "page": "products",
+      "text": "Stripe provides fraud prevention through Radar.",
+      "page": "Products",
       "evidence": "Radar Fraud prevention"
     },
     {
+      "id": "fact-3",
+      "text": "Stripe offers a fully integrated suite of financial and payments products.",
+      "page": "Home",
+      "evidence": "A fully integrated suite of financial and payments products"
+    },
+    {
+      "id": "fact-4",
+      "text": "Stripe helps reduce costs and grow revenue.",
+      "page": "Home",
+      "evidence": "Reduce costs, grow revenue, and run your business more efficiently"
+    },
+    {
       "id": "fact-5",
-      "text": "Stripe supports in-person payments.",
-      "page": "products",
+      "text": "Stripe supports in-person payments through Terminal.",
+      "page": "Products",
       "evidence": "Terminal In-person payments"
     },
     {
       "id": "fact-6",
-      "text": "Stripe offers subscription management.",
-      "page": "products",
+      "text": "Stripe provides subscription management through Billing.",
+      "page": "Products",
       "evidence": "Billing Subscription management"
     },
     {
       "id": "fact-7",
-      "text": "Stripe automates sales tax and VAT.",
-      "page": "products",
-      "evidence": "Tax Sales tax & VAT automation"
-    },
-    {
-      "id": "fact-8",
-      "text": "Stripe provides accounting automation.",
-      "page": "products",
-      "evidence": "Revenue Recognition Accounting automation"
-    },
-    {
-      "id": "fact-9",
-      "text": "Stripe offers custom reporting tools.",
-      "page": "products",
-      "evidence": "Stripe Sigma Custom reports"
-    },
-    {
-      "id": "fact-10",
-      "text": "Stripe supports over 100 payment methods globally.",
-      "page": "products",
-      "evidence": "Payment methods Access to 100+ globally"
-    },
-    {
-      "id": "fact-11",
-      "text": "Stripe provides online identity verification.",
-      "page": "products",
-      "evidence": "Identity Online identity verification"
-    },
-    {
-      "id": "fact-12",
-      "text": "Stripe offers start-up incorporation services.",
-      "page": "products",
-      "evidence": "Atlas Start-up incorporation"
-    },
-    {
-      "id": "fact-13",
       "text": "Stripe's platform is AI-powered.",
-      "page": "homepage",
+      "page": "Home",
       "evidence": "AI-powered platform"
     },
     {
+      "id": "fact-8",
+      "text": "Stripe allows access to 100+ global payment methods.",
+      "page": "Products",
+      "evidence": "Payment methods Access to 100+ globally"
+    },
+    {
+      "id": "fact-9",
+      "text": "Stripe offers sales tax and VAT automation through Tax.",
+      "page": "Products",
+      "evidence": "Tax Sales tax & VAT automation"
+    },
+    {
+      "id": "fact-10",
+      "text": "Stripe supports accounting automation through Revenue Recognition.",
+      "page": "Products",
+      "evidence": "Revenue Recognition Accounting automation"
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe provides custom reports through Stripe Sigma.",
+      "page": "Products",
+      "evidence": "Stripe Sigma Custom reports"
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe offers a pre-built payment form through Checkout.",
+      "page": "Products",
+      "evidence": "Checkout Pre-built payment form"
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe supports physical and virtual cards through Issuing.",
+      "page": "Products",
+      "evidence": "Issuing Physical and virtual cards"
+    },
+    {
       "id": "fact-14",
-      "text": "Stripe serves a variety of industries including retail and non-profits.",
-      "page": "solutions",
-      "evidence": "Retail Non-profits"
+      "text": "Stripe's platform supports startups and enterprises.",
+      "page": "Solutions",
+      "evidence": "By stage Enterprises Startups"
     },
     {
       "id": "fact-15",
-      "text": "Stripe provides tools for finance automation.",
-      "page": "solutions",
-      "evidence": "Finance automation"
+      "text": "Stripe offers carbon removal through Climate.",
+      "page": "Products",
+      "evidence": "Climate Carbon removal"
     },
     {
       "id": "fact-16",
-      "text": "Stripe's platform supports embedded finance.",
-      "page": "solutions",
-      "evidence": "Embedded finance"
-    },
-    {
-      "id": "fact-17",
-      "text": "Stripe has a marketplace for app integrations.",
-      "page": "ecosystem",
-      "evidence": "Stripe App Marketplace"
-    },
-    {
-      "id": "fact-18",
-      "text": "Stripe offers managed support plans.",
-      "page": "resources",
-      "evidence": "Managed support plans"
-    },
-    {
-      "id": "fact-19",
-      "text": "Stripe provides professional services.",
-      "page": "resources",
-      "evidence": "Professional services"
-    },
-    {
-      "id": "fact-20",
-      "text": "Stripe's platform is used by millions of companies.",
-      "page": "homepage",
-      "evidence": "Join the millions of companies that use Stripe"
+      "text": "Stripe provides linked financial account data through Financial Connections.",
+      "page": "Products",
+      "evidence": "Financial Connections Linked financial account data"
     }
   ]
 }

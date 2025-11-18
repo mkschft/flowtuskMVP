@@ -205,15 +205,26 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     
     if (needsGeneration) {
       // Show welcome with progress component in chat
-      setChatMessages([{
-        role: 'ai',
-        content: '__GENERATION_PROGRESS__'
-      }]);
+      setChatMessages(prev => {
+        // Only show progress if chat is empty (initial load)
+        if (prev.length > 0) {
+          // If there's existing chat, don't reset - user is in a conversation
+          return prev;
+        }
+        return [{
+          role: 'ai',
+          content: '__GENERATION_PROGRESS__'
+        }];
+      });
     } else {
-      setChatMessages([{
-        role: 'ai',
-        content: 'Welcome back! All your design assets are ready. I can help you customize your brand, style guide, and landing page design.'
-      }]);
+      setChatMessages(prev => {
+        // Only add welcome if chat is empty (initial load)
+        if (prev.length > 0) return prev;
+        return [{
+          role: 'ai',
+          content: 'Welcome back! All your design assets are ready. I can help you customize your brand, style guide, and landing page design.'
+        }];
+      });
     }
     
     // If all assets already generated, nothing to do
@@ -417,16 +428,39 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     
     setChatMessages((prev) => [...prev, userMessage]);
     setIsStreaming(true);
+    
+    // Show preparing indicator for complex requests
+    const isComplexRequest = message.toLowerCase().includes('change') || 
+                            message.toLowerCase().includes('update') || 
+                            message.toLowerCase().includes('location') ||
+                            message.toLowerCase().includes('market');
+    
+    if (isComplexRequest) {
+      // Add temporary loading message
+      setChatMessages((prev) => [...prev, { 
+        role: 'ai', 
+        content: '⚡ Analyzing your request...' 
+      }]);
+    }
 
     try {
+      // Filter out internal UI markers before sending to API
+      const cleanMessages = [...chatMessages, userMessage]
+        .filter(msg => {
+          // Remove progress markers - these are internal UI state
+          return msg.content !== '__GENERATION_PROGRESS__' && 
+                 msg.content !== '__UPDATE_PROGRESS__';
+        })
+        .map(msg => ({
+          role: msg.role === "ai" ? "assistant" : msg.role,
+          content: msg.content
+        }));
+      
       const response = await fetch("/api/copilot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...chatMessages, userMessage].map(msg => ({
-            role: msg.role === "ai" ? "assistant" : msg.role,
-            content: msg.content
-          })),
+          messages: cleanMessages,
           context: workspaceData ? {
             persona: {
               name: workspaceData.persona.persona_name,
@@ -497,6 +531,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         setChatMessages((prev) => {
           const lastMsg = prev[prev.length - 1];
           if (lastMsg?.role === "ai") {
+            // Replace last AI message (could be loading indicator or partial response)
             return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
           }
           return [...prev, { role: "ai", content: aiResponse }];
@@ -548,14 +583,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       
       // Show progress steps for complex updates
       if (updateType === 'market_shift') {
-        // Add progress indicator to chat
+        // Add progress indicator to chat (append to existing messages)
         setChatMessages((prev) => {
           // Check if last message already has progress marker
           const lastMsg = prev[prev.length - 1];
           if (lastMsg?.content.includes('__UPDATE_PROGRESS__')) {
             return prev; // Already showing progress
           }
-          return [...prev, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
+          // Filter out any old progress markers and append new one
+          const filtered = prev.filter(m => m.content !== '__UPDATE_PROGRESS__');
+          return [...filtered, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
         });
         
         // Use AI-provided steps or generate fallback steps
