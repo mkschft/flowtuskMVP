@@ -83,7 +83,6 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
 
               {/* Label */}
               <div className="flex items-center gap-2 flex-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" aria-hidden="true" />
                 <span className={`text-sm font-medium transition-colors ${
                   step.status === 'complete' 
                     ? 'text-foreground' 
