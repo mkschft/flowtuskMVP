@@ -97,15 +97,15 @@ export async function POST(req: NextRequest) {
               },
               valueProp: {
                 type: "object",
-                description: "Value proposition updates - regenerate comprehensively for market shifts",
+                description: "Value proposition updates - For market_shift, you MUST regenerate ALL fields to reference ONLY the new location. NEVER leave old location references!",
                 properties: {
-                  headline: { type: "string", description: "Updated value proposition headline" },
-                  subheadline: { type: "string", description: "Updated subheadline or tagline" },
-                  targetAudience: { type: "string", description: "Target audience (Who) for the value proposition" },
-                  problem: { type: "string", description: "Core problem or pain point being addressed" },
-                  solution: { type: "string", description: "The solution or approach being offered" },
-                  outcome: { type: "string", description: "Expected outcome or benefit (Why Us)" },
-                  benefits: { type: "array", items: { type: "string" }, description: "Array of key benefits" },
+                  headline: { type: "string", description: "REQUIRED for market_shift: Main value prop headline with NEW location only (e.g., 'Tax advisors in Finland...' NOT 'Tax advisors in Saudi Arabia...')" },
+                  subheadline: { type: "string", description: "Updated subheadline referencing NEW location" },
+                  targetAudience: { type: "string", description: "REQUIRED for market_shift: Target audience with NEW location (e.g., 'Tax advisors in Finland')" },
+                  problem: { type: "string", description: "REQUIRED for market_shift: Core problem rewritten for NEW location context (e.g., 'Finnish tax regulations' NOT 'Saudi Zakat')" },
+                  solution: { type: "string", description: "Solution rewritten for NEW market" },
+                  outcome: { type: "string", description: "Expected outcome for NEW market" },
+                  benefits: { type: "array", items: { type: "string" }, description: "Benefits rewritten for NEW location-specific context" },
                 }
               },
               brandUpdates: {
@@ -324,16 +324,23 @@ When user requests location/market changes, follow this CASCADE:
 1. MARKET SHIFT WORKFLOW (updateType: "market_shift")
    Triggers: Location change, country change, new target market
    
-   YOU MUST UPDATE:
-   ✓ persona.location (e.g., "Dhaka")
-   ✓ persona.country (e.g., "Bangladesh")
-   ✓ persona.name → Culturally appropriate name (e.g., "Markus Laine" → "Rafiq Ahmed" for Bangladesh)
-   ✓ persona.company → Localized company name (e.g., "EcoConsulting Ltd" → "Green Solutions Bangladesh")
-   ✓ valueProp.targetAudience → Rephrase for new market
-   ✓ valueProp.problem → Localize pain points with cultural context
-   ✓ valueProp.solution → Adapt solution messaging
-   ✓ valueProp.headline → Regenerate for new audience
-   ✓ valueProp.benefits → Update with market-specific benefits
+   ⚠️ CRITICAL: When location changes, you MUST completely REGENERATE all content to reference the NEW location ONLY.
+   NEVER leave ANY references to the old location in ANY field!
+   
+   YOU MUST UPDATE ALL THESE FIELDS:
+   ✓ persona.location (e.g., "Helsinki" not "Dhaka")
+   ✓ persona.country (e.g., "Finland" not "Bangladesh")
+   ✓ persona.name → Culturally appropriate name (e.g., "Jukka Virtanen" for Finland, NOT "Rafiq Ahmed")
+   ✓ persona.company → Localized company name (e.g., "Virtanen Tax Consultancy" for Finland)
+   ✓ valueProp.targetAudience → Completely rewrite for new market ("Tax advisors in Finland" NOT "Tax advisors in Saudi Arabia")
+   ✓ valueProp.problem → Completely rewrite with NEW location context ("Finnish tax regulations" NOT "Saudi Zakat")
+   ✓ valueProp.solution → Completely rewrite for new market
+   ✓ valueProp.headline → Completely regenerate with NEW location ONLY ("Tax advisors in Finland..." NOT "Tax advisors in Saudi Arabia...")
+   ✓ valueProp.subheadline → Update to reference new location
+   ✓ valueProp.outcome → Update with market-specific outcomes
+   ✓ valueProp.benefits → Completely regenerate with location-specific benefits
+   
+   ⚠️ VALIDATION CHECK: Before sending, verify EVERY field mentions only the NEW location, never the old one!
    
    Example executionSteps (REQUIRED for market_shift):
    [
@@ -343,15 +350,30 @@ When user requests location/market changes, follow this CASCADE:
      {"step": "✨ Adjusting messaging for cultural context", "status": "complete"}
    ]
    
+   CONCRETE EXAMPLE - Location Change from Saudi Arabia → Finland:
+   
+   ❌ WRONG (leaves old location references):
+   headline: "Tax advisors in Saudi Arabia focused on Zakat calculations"  ← STILL SAYS SAUDI!
+   
+   ✅ CORRECT (all fields updated to Finland):
+   persona.name: "Jukka Virtanen" (Finnish name)
+   persona.company: "Virtanen Tax Consultancy"
+   persona.location: "Helsinki"
+   persona.country: "Finland"
+   valueProp.headline: "Tax advisors in Finland focused on efficient VAT reporting and compliance"
+   valueProp.problem: "Finnish tax regulations and complex reporting requirements"
+   valueProp.targetAudience: "Tax advisors in Finland"
+   valueProp.solution: "Streamlined tools for Finnish tax compliance"
+   
    Example conversational message for market_shift:
-   "I've adapted your persona for the Bangladesh market! Here's what changed:
+   "I've adapted your persona for the Finland market! Here's what changed:
    
-   ✅ Location: Now targeting Dhaka, Bangladesh
-   ✅ Persona: Updated to Rafiq Ahmed (common Bengali name) at Green Solutions Bangladesh
-   ✅ Value Proposition: Regenerated to resonate with Bangladeshi homeowners
-   ✅ Cultural Context: Adjusted messaging to align with local preferences (green represents Islam and nature, emphasis on sustainability aligns with growing eco-consciousness)
+   ✅ Location: Now targeting Helsinki, Finland
+   ✅ Persona: Updated to Jukka Virtanen (common Finnish name) at Virtanen Tax Consultancy
+   ✅ Value Proposition: Completely regenerated to focus on Finnish tax advisors and their specific challenges with VAT and compliance
+   ✅ Cultural Context: Adjusted for Nordic business culture and Finnish regulatory environment
    
-   This approach will resonate better because Bangladesh has a rapidly growing middle class interested in sustainable living, and environmental concerns are increasingly important in South Asian markets."
+   This approach will resonate better because Finland has specific tax requirements and a culture that values efficiency and digital solutions."
 
 2. STYLING WORKFLOW (updateType: "styling")
    Triggers: Color changes, font changes, tone adjustments
