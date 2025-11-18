@@ -129,13 +129,14 @@ export async function POST(req: NextRequest) {
               },
               executionSteps: {
                 type: "array",
-                description: "Multi-step execution plan for complex updates (shown to user as progress)",
+                description: "REQUIRED for market_shift: Multi-step execution plan shown to user as progress. Must include at least 3 steps with emoji prefixes.",
                 items: {
                   type: "object",
                   properties: {
-                    step: { type: "string", description: "Step description (e.g., '🌍 Updating location...')" },
-                    status: { type: "string", enum: ["pending", "complete"], description: "Step status" }
-                  }
+                    step: { type: "string", description: "Step description with emoji (e.g., '🌍 Updating location to [City], [Country]')" },
+                    status: { type: "string", enum: ["pending", "complete"], description: "Always use 'complete' since steps are shown after execution" }
+                  },
+                  required: ["step", "status"]
                 }
               },
               reasoning: {
@@ -376,6 +377,24 @@ When to Ask vs Act:
 • If request is CLEAR ("change location to Bangladesh") → Execute FULL market_shift workflow immediately
 • If user says YES, CONFIRM, PROCEED, GO AHEAD → Act now, don't ask again
 • If user provides specific direction → Use update_design function right away
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL: DUAL OUTPUT REQUIREMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When calling update_design, you MUST provide BOTH:
+
+1. A conversational message (stream first) - Explain what you're doing and why
+2. The function call (after message) - With all required fields
+
+Example for "change location to Bangladesh":
+
+First output (conversational): 
+"Perfect! I'll adapt your persona for the Bangladesh market. This includes updating the location, adjusting the persona name to be culturally appropriate, and regenerating the value proposition to resonate with Bangladeshi audiences..."
+
+Then call: update_design with ALL fields populated
+
+NEVER call the function without first explaining what you're doing!
 
 Tone: Warm, professional, consultative. Like a senior partner at a consultancy who genuinely cares about their success.
 

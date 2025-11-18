@@ -547,7 +547,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       console.log(`🔄 [Design Studio] Applying ${updateType} updates`, updates);
       
       // Show progress steps for complex updates
-      if (updateType === 'market_shift' && updates.executionSteps) {
+      if (updateType === 'market_shift') {
         // Add progress indicator to chat
         setChatMessages((prev) => {
           // Check if last message already has progress marker
@@ -558,13 +558,60 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           return [...prev, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
         });
         
-        // Update generation steps with execution plan
-        const executionSteps = updates.executionSteps.map((step: any, idx: number) => ({
-          id: `exec_${idx}`,
-          label: step.step.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, ''), // Remove emoji for label
-          icon: step.step.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⚡', // Extract emoji or use default
-          status: 'complete' as const // Mark as complete since we're applying them
-        }));
+        // Use AI-provided steps or generate fallback steps
+        let executionSteps;
+        
+        if (updates.executionSteps && updates.executionSteps.length > 0) {
+          // Use AI-provided steps
+          executionSteps = updates.executionSteps.map((step: any, idx: number) => ({
+            id: `exec_${idx}`,
+            label: step.step.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, ''), // Remove emoji for label
+            icon: step.step.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⚡', // Extract emoji or use default
+            status: 'complete' as const
+          }));
+        } else {
+          // Fallback: Auto-generate steps based on what changed
+          const steps = [];
+          
+          if (updates.persona?.location || updates.persona?.country) {
+            const loc = updates.persona.location || '';
+            const country = updates.persona.country || '';
+            steps.push({
+              id: 'location',
+              label: `Updating location to ${loc}${country ? ', ' + country : ''}`,
+              icon: '🌍',
+              status: 'complete' as const
+            });
+          }
+          
+          if (updates.persona?.name || updates.persona?.company) {
+            steps.push({
+              id: 'persona',
+              label: 'Adapting persona to local market',
+              icon: '👤',
+              status: 'complete' as const
+            });
+          }
+          
+          if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
+            steps.push({
+              id: 'valueprop',
+              label: 'Regenerating value proposition',
+              icon: '🎯',
+              status: 'complete' as const
+            });
+          }
+          
+          if (steps.length === 0) {
+            // Generic fallback
+            steps.push(
+              { id: 'update1', label: 'Analyzing market context', icon: '🔍', status: 'complete' as const },
+              { id: 'update2', label: 'Applying changes', icon: '✨', status: 'complete' as const }
+            );
+          }
+          
+          executionSteps = steps;
+        }
         
         setGenerationSteps(executionSteps);
       }
