@@ -1,9 +1,3 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export interface ScrapeResult {
   markdown: string;
   metadata: {
@@ -32,72 +26,38 @@ export async function scrapeWebsite(
   // Primary: Jina AI Reader (fast, reliable, free)
   try {
     console.log("📡 [Scraper] Using Jina AI Reader...");
-    const jinaUrl = `https://r.jina.ai/${url}`;
-    const response = await fetch(jinaUrl, {
+    // Add query params to optimize response size and speed
+    const jinaUrl = new URL(`https://r.jina.ai/${url}`);
+    jinaUrl.searchParams.set('max-length', '12000'); // Limit response size for faster processing
+    
+    const response = await fetch(jinaUrl.toString(), {
       headers: {
         Accept: "text/markdown",
         "X-Return-Format": "markdown",
       },
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(15000), // Reduced from 30s - fail fast for slow sites
     });
 
     if (response.ok) {
       const rawMarkdown = await response.text();
       console.log(`✅ [Scraper] Jina success: ${rawMarkdown.length} chars`);
 
-      // Use OpenAI to clean up and format the markdown for better analysis
-      try {
-        const systemPrompt = `You are a professional business analyst. Format the scraped website content into clean, structured markdown optimized for analysis. Focus on:
-- What the company/product does (core offering)
-- Key features and benefits
-- Target customers and use cases
-- Value propositions
-- Pricing/business model (if mentioned)
+      // Jina AI already returns clean markdown - no additional formatting needed
+      // Truncate early to prevent processing huge responses
+      const MAX_SCRAPE_LENGTH = 12000; // Keep slightly larger than analyze-website truncation
+      const markdown = rawMarkdown.length > MAX_SCRAPE_LENGTH 
+        ? rawMarkdown.substring(0, MAX_SCRAPE_LENGTH) + '\n\n[Content truncated for performance]'
+        : rawMarkdown;
 
-Write in third person, be concise but comprehensive. Remove navigation, footers, and irrelevant content. Preserve all substantive business information.`;
-
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            {
-              role: "user",
-              content: `Website: ${url}\n\nRaw scraped content:\n${rawMarkdown.slice(0, 10000)}`,
-            },
-          ],
-          temperature: 0.3,
-          max_tokens: 3000,
-        });
-
-        const formattedMarkdown =
-          completion.choices[0]?.message?.content || rawMarkdown;
-
-        console.log(`✅ [Scraper] OpenAI formatting complete: ${formattedMarkdown.length} chars`);
-
-        return {
-          markdown: formattedMarkdown,
-          metadata: {
-            url,
-            title: undefined,
-            description: undefined,
-            heroImage: null,
-          },
-        };
-      } catch (aiError) {
-        console.warn(
-          "⚠️ [Scraper] OpenAI formatting failed, using raw Jina output:",
-          aiError
-        );
-        return {
-          markdown: rawMarkdown,
-          metadata: {
-            url,
-            title: undefined,
-            description: undefined,
-            heroImage: null,
-          },
-        };
-      }
+      return {
+        markdown,
+        metadata: {
+          url,
+          title: undefined,
+          description: undefined,
+          heroImage: null,
+        },
+      };
     } else {
       console.error(
         `❌ [Scraper] Jina failed with status: ${response.status}`

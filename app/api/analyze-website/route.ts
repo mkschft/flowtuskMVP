@@ -7,6 +7,7 @@ import { validateFactsJSON } from "@/lib/validators";
 import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { scrapeWebsite } from "@/lib/scraper";
+import { getCachedScrape, setCachedScrape } from "@/lib/scrape-cache";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -29,11 +30,28 @@ export async function POST(req: NextRequest) {
     console.log('🔍 [Analyze] Starting analysis for:', normalizedUrl);
 
     // ========================================================================
+    // STEP 0: Check cache for recent scrape
+    // ========================================================================
+    const cached = getCachedScrape(normalizedUrl);
+    if (cached) {
+      console.log('⚡ [Analyze] Using cached scrape result');
+      return NextResponse.json({
+        content: cached.content,
+        source: cached.source + ' (cached)',
+        pages: 1,
+        metadata: cached.metadata,
+        factsJson: cached.factsJson,
+        cached: true,
+      });
+    }
+
+    // ========================================================================
     // STEP 1: Fetch website content (Webcrawler → Jina → Direct fallback)
     // ========================================================================
     let rawContent = "";
     let source = "jina";
     let metadata = {
+      url: normalizedUrl,
       heroImage: null as string | null,
       faviconUrl: `${new URL(normalizedUrl).origin}/favicon.ico`,
     };
@@ -179,7 +197,12 @@ export async function POST(req: NextRequest) {
     console.log('✅ [Analyze] Analysis complete with Facts JSON');
 
     // ========================================================================
-    // STEP 4: Return both Facts JSON and raw content
+    // STEP 4: Cache result for future requests
+    // ========================================================================
+    setCachedScrape(normalizedUrl, rawContent, metadata, factsJson, source);
+
+    // ========================================================================
+    // STEP 5: Return both Facts JSON and raw content
     // ========================================================================
     return NextResponse.json({
       content: rawContent, // Keep for fallback
@@ -187,6 +210,7 @@ export async function POST(req: NextRequest) {
       pages: 1,
       metadata,
       factsJson, // Structured facts for reuse
+      cached: false,
     });
 
   } catch (error) {
