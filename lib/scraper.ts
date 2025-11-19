@@ -1,3 +1,5 @@
+import { convert } from 'html-to-text';
+
 export interface ScrapeResult {
   markdown: string;
   metadata: {
@@ -80,14 +82,28 @@ export async function scrapeWebsite(
 
     if (response.ok) {
       const html = await response.text();
-      // Simple text extraction (remove HTML tags)
-      const text = html
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 10000);
+      
+      // Use html-to-text library for better extraction
+      const text = convert(html, {
+        wordwrap: false,
+        selectors: [
+          // Prioritize main content areas
+          { selector: 'script', format: 'skip' },
+          { selector: 'style', format: 'skip' },
+          { selector: 'nav', format: 'skip' },
+          { selector: 'footer', format: 'skip' },
+          { selector: 'header', format: 'skip' },
+          // Keep main content
+          { selector: 'main', options: { leadingLineBreaks: 1, trailingLineBreaks: 1 } },
+          { selector: 'article', options: { leadingLineBreaks: 1, trailingLineBreaks: 1 } },
+          { selector: 'h1', options: { uppercase: false } },
+          { selector: 'h2', options: { uppercase: false } },
+          { selector: 'h3', options: { uppercase: false } },
+          { selector: 'p', options: { leadingLineBreaks: 1, trailingLineBreaks: 1 } },
+          { selector: 'ul', options: { leadingLineBreaks: 1, trailingLineBreaks: 1 } },
+          { selector: 'a', options: { ignoreHref: true } },
+        ],
+      }).slice(0, 12000); // Match MAX_SCRAPE_LENGTH
 
       console.log(`✅ [Scraper] Direct fetch success: ${text.length} chars`);
 
