@@ -2,162 +2,184 @@
   "brand": {
     "name": "Linear",
     "tones": [
-      "professional",
+      "modern",
+      "focused",
       "efficient"
     ],
-    "primaryCTA": "Visit the pricing page for more information"
+    "primaryCTA": "Start building"
   },
   "structure": {
     "nav": [
-      "Overview",
-      "Features",
+      "Homepage",
+      "Product",
+      "Resources",
       "Pricing",
-      "Contact"
+      "Customers",
+      "Now",
+      "Contact",
+      "Docs",
+      "Open app",
+      "Log in",
+      "Sign up"
     ],
     "keyPages": [
       {
-        "path": "/overview",
-        "title": "Linear Overview"
+        "path": "/homepage",
+        "title": "Homepage"
       },
       {
         "path": "/features",
-        "title": "Key Features and Benefits"
+        "title": "Product"
+      },
+      {
+        "path": "/about",
+        "title": "Resources"
       },
       {
         "path": "/pricing",
-        "title": "Pricing/Business Model"
+        "title": "Pricing"
+      },
+      {
+        "path": "/customers",
+        "title": "Customers"
+      },
+      {
+        "path": "/now",
+        "title": "Now"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact"
+      },
+      {
+        "path": "/docs",
+        "title": "Docs"
+      },
+      {
+        "path": "/login",
+        "title": "Log in"
+      },
+      {
+        "path": "/signup",
+        "title": "Sign up"
       }
     ],
-    "footer": [
-      "Privacy Policy",
-      "Terms of Service",
-      "Contact Us"
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Software Development",
+    "signals": [
+      "modern software development",
+      "world’s best product teams",
+      "AI-assisted product development"
     ]
   },
   "audienceSignals": [
-    "Modern product teams",
-    "Next-gen startups",
-    "Established enterprises",
-    "Software development teams"
+    "product teams",
+    "next-gen startups",
+    "established enterprises"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Enhanced Productivity",
+      "text": "Streamline issues, projects, and product roadmaps.",
       "evidence": [
-        "fact-3",
-        "fact-7"
+        "fact-1",
+        "fact-2"
       ]
     },
     {
       "id": "v2",
-      "text": "Quality Craftsmanship",
+      "text": "AI assistance for routine, manual tasks.",
       "evidence": [
+        "fact-8",
         "fact-9"
       ]
     },
     {
       "id": "v3",
-      "text": "Adaptability",
+      "text": "Align your team around a unified product timeline.",
       "evidence": [
-        "fact-10"
+        "fact-10",
+        "fact-11"
       ]
     }
   ],
   "pains": [
-    "Need for efficient collaboration across teams",
-    "Requirement to streamline project management processes",
-    "Managing product roadmaps and tracking progress"
+    "manual task management",
+    "disorganized product timelines"
   ],
   "proof": [
-    "AI-Assisted Product Development",
-    "Visual Planning Tools",
-    "Centralized Project Management"
+    "Powering the world’s best product teams",
+    "AI agents for technical tasks"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Linear is a purpose-built tool for modern software development.",
-      "page": "Overview",
-      "evidence": "Linear is a purpose-built tool designed for modern software development."
+      "text": "Linear is a purpose-built tool for planning and building products.",
+      "page": "Homepage",
+      "evidence": "Linear is a purpose-built tool for planning and building products"
     },
     {
       "id": "fact-2",
-      "text": "Linear focuses on planning and building products efficiently.",
-      "page": "Overview",
-      "evidence": "focusing on planning and building products efficiently."
+      "text": "Streamline issues, projects, and product roadmaps.",
+      "page": "Homepage",
+      "evidence": "Streamline issues, projects, and product roadmaps"
     },
     {
       "id": "fact-3",
-      "text": "Linear streamlines issues, projects, and product roadmaps.",
-      "page": "Overview",
-      "evidence": "streamlines issues, projects, and product roadmaps to enhance productivity."
+      "text": "Linear is shaped by practices and principles of world-class product teams.",
+      "page": "Homepage",
+      "evidence": "Linear is shaped by the practices and principles that distinguish world-class product teams"
     },
     {
       "id": "fact-4",
-      "text": "AI-Assisted Product Development improves workflow efficiency.",
-      "page": "Features",
-      "evidence": "Offers various AI agents to delegate tasks such as code generation and routine operations, improving workflow efficiency."
+      "text": "Linear is designed to move fast and crafted to perfection.",
+      "page": "Homepage",
+      "evidence": "Designed to move fast"
     },
     {
       "id": "fact-5",
-      "text": "Visual Planning Tools help teams align around a unified product timeline.",
-      "page": "Features",
-      "evidence": "Enables teams to align around a unified product timeline, manage, and track product initiatives effectively."
+      "text": "Linear offers AI-assisted product development.",
+      "page": "AI",
+      "evidence": "AI-assisted product development"
     },
     {
       "id": "fact-6",
-      "text": "Centralized Project Management consolidates specifications, milestones, tasks, and documentation.",
-      "page": "Features",
-      "evidence": "Consolidates specifications, milestones, tasks, and documentation in one location for better organization."
+      "text": "Linear offers a variety of AI agents for delegating work.",
+      "page": "AI",
+      "evidence": "Choose from a variety of AI agents and start delegating work"
     },
     {
       "id": "fact-7",
-      "text": "Task Tracking and Sprint Planning is optimized for speed.",
-      "page": "Features",
-      "evidence": "Optimized for speed, allowing users to create tasks quickly and discuss issues in context."
+      "text": "Linear connects to tools like Cursor, Claude, ChatGPT.",
+      "page": "MCP",
+      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT"
     },
     {
       "id": "fact-8",
-      "text": "Cycle Management helps teams establish healthy work routines.",
-      "page": "Features",
-      "evidence": "Helps teams establish healthy work routines and focus on upcoming tasks."
+      "text": "Streamline product development workflows with AI assistance.",
+      "page": "AI",
+      "evidence": "Streamline your product development workflows with AI assistance"
     },
     {
       "id": "fact-9",
-      "text": "Linear is designed with a focus on quality craftsmanship.",
-      "page": "Value Propositions",
-      "evidence": "Designed with a focus on the quality of craft, ensuring that product development is both effective and precise."
+      "text": "Linear provides triage intelligence and suggestions.",
+      "page": "AI",
+      "evidence": "Triage Intelligence Suggestions"
     },
     {
       "id": "fact-10",
-      "text": "Linear supports a variety of tools and integrations.",
-      "page": "Value Propositions",
-      "evidence": "Supports a variety of tools and integrations, allowing teams to customize their workflows according to their specific needs."
+      "text": "Plan, manage, and track all product initiatives with Linear’s visual planning tools.",
+      "page": "Plan",
+      "evidence": "Plan, manage, and track all product initiatives with Linear’s visual planning tools"
     },
     {
       "id": "fact-11",
-      "text": "Linear targets modern product teams, ranging from next-gen startups to established enterprises.",
-      "page": "Target Customers",
-      "evidence": "Linear targets modern product teams, ranging from next-gen startups to established enterprises."
-    },
-    {
-      "id": "fact-12",
-      "text": "Linear is beneficial for software development teams.",
-      "page": "Target Customers",
-      "evidence": "It is particularly beneficial for: Software development teams looking to streamline their project management processes."
-    },
-    {
-      "id": "fact-13",
-      "text": "Linear facilitates the review and assignment of incoming work.",
-      "page": "Features",
-      "evidence": "Facilitates the review and assignment of incoming work, including bug reports and feature requests."
-    },
-    {
-      "id": "fact-14",
-      "text": "Collaboration Tools support real-time collaboration on product ideas.",
-      "page": "Features",
-      "evidence": "Supports real-time collaboration on product ideas and feature specifications with inline comments and rich-text formatting."
+      "text": "Consolidate specs, milestones, tasks, and documentation in one location.",
+      "page": "Plan",
+      "evidence": "Consolidate specs, milestones, tasks, and other documentation in one centralized location"
     }
   ]
 }
