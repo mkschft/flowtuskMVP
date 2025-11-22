@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "strict": true,
+        "jsx": "react-jsx",
+        "module": "es2020",
+        "moduleResolution": "node",
+        "typeRoots": [
+            "./node_modules/@types",
+            "./node_modules/@figma"
+        ],
+        "outDir": "./dist"
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx"
+    ]
+}

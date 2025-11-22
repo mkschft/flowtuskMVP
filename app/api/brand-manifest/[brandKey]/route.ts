@@ -25,9 +25,24 @@ export async function GET(
         return NextResponse.json({ error: 'Manifest not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
         success: true,
         manifest: data.manifest,
         created_at: data.created_at
     });
+
+    // Allow CORS for Figma plugin
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    return response;
+}
+
+export async function OPTIONS() {
+    const response = NextResponse.json({}, { status: 200 });
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return response;
 }
