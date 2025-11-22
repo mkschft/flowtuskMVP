@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Varela Round", sans-serif;
+  --font-varela: "Varela Round", sans-serif;
+  --color-black: #121212;
+  /* Accent - Purple  */
+  --color-accent-25: #faf5ff;
+  --color-accent-50: #f3e8ff;
+  --color-accent-100: #e9d5ff;
+  --color-accent-200: #d8b4fe;
+  --color-accent-300: #c084fc;
+  --color-accent-400: #a855f7;
+  --color-accent-500: #9333ea;
+  --color-accent-600: #7e22ce;
+  --color-accent-700: #6b21a8;
+  --color-accent-800: #581c87;
+  --color-accent-900: #3b0764;
+  --color-accent-950: #2e0350;
+  /* Base */
+  --color-base-25: #fafafa;
+  --color-base-50: #f9fafb;
+  --color-base-100: #f3f4f6;
+  --color-base-200: #e5e7eb;
+  --color-base-300: #d1d5db;
+  --color-base-400: #9ca3af;
+  --color-base-500: #6b7280;
+  --color-base-600: #4b5563;
+  --color-base-700: #374151;
+  --color-base-800: #1f2937;
+  --color-base-900: #111827;
+  --color-base-950: #030712;
+}
+
+/* CSS */
+:root {
+  font-family: "Varela Round", sans-serif;
+  scroll-behavior: smooth;
+}
+
+
+/* Adds pointer cursor to buttons */
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Gradient Background Utilities */
+.gradient-hero {
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #f3e7e9 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.gradient-purple-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Purple gradient buttons - Paragon style */
+.btn-gradient {
+  background: #6d28d9;
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.3);
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.btn-gradient:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Hero title glow effect */
+.hero-title-glow {
+  position: relative;
+}
+
+.hero-title-glow::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(147, 51, 234, 0.15) 0%, transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Logo hover effects */
+.logo-hover {
+  transition: all 0.3s ease;
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
+.logo-hover:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  filter: grayscale(0%);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient mesh backgrounds */
+.gradient-mesh {
+  background: 
+    radial-gradient(at 0% 0%, rgba(102, 126, 234, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(118, 75, 162, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(240, 147, 251, 0.1) 0px, transparent 50%);
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, .transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced focus states */
+*:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

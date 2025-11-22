@@ -1,61 +1,24 @@
-import { Header } from "@/components/landing/Header";
-import { Hero } from "@/components/landing/Hero";
-import { ProblemSection } from "@/components/landing/ProblemSection";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { CaseStudy } from "@/components/landing/CaseStudy";
-import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
-import { CompetitiveEdge } from "@/components/landing/CompetitiveEdge";
-import { Pricing } from "@/components/landing/Pricing";
-import { Testimonials } from "@/components/landing/Testimonials";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { Footer } from "@/components/landing/Footer";
-import { Varela_Round } from "next/font/google";
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 
-const varelaRound = Varela_Round({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-// Demo mode: Always show landing page without auth check
+// Root page redirects to landing or app based on auth state
 export default async function RootPage() {
-  return (
-    <div className={`min-h-screen bg-white ${varelaRound.className}`}>
-      {/* Header */}
-      <Header />
-
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <Hero />
-
-        {/* Problem Section */}
-        <ProblemSection />
-
-        {/* How It Works */}
-        <HowItWorks />
-
-        {/* Case Study */}
-        <CaseStudy />
-
-        {/* Features Grid */}
-        <FeaturesGrid />
-
-        {/* Competitive Edge */}
-        <CompetitiveEdge />
-
-        {/* Pricing */}
-        <Pricing />
-
-        {/* Testimonials */}
-        <Testimonials />
-
-        {/* Final CTA */}
-        <FinalCTA />
-      </main>
-
-      {/* Footer */}
-      <Footer />
-    </div>
-  );
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
+  
+  if (isDemoMode) {
+    // Demo mode: always show landing
+    redirect('/landing');
+  }
+  
+  // Check auth
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // Authenticated: go to app
+    redirect('/app');
+  } else {
+    // Not authenticated: show landing
+    redirect('/landing');
+  }
 }

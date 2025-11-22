@@ -1,0 +1,146 @@
+{
+  "brand": {
+    "name": "Reaktor",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "Let's talk"
+  },
+  "structure": {
+    "nav": [
+      "Work",
+      "Services",
+      "Industries",
+      "Insights",
+      "Culture",
+      "Careers",
+      "About"
+    ],
+    "keyPages": [
+      {
+        "path": "/work",
+        "title": "Work"
+      },
+      {
+        "path": "/services",
+        "title": "Services"
+      },
+      {
+        "path": "/services/industries/overview",
+        "title": "Overview"
+      },
+      {
+        "path": "/insights",
+        "title": "News & Insights"
+      },
+      {
+        "path": "/culture",
+        "title": "Culture"
+      },
+      {
+        "path": "/careers",
+        "title": "Careers"
+      },
+      {
+        "path": "/about-us",
+        "title": "About"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Cookie Preferences"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Technology Consultancy",
+    "signals": [
+      "global technology consultancy",
+      "category-defining digital solutions"
+    ]
+  },
+  "audienceSignals": [
+    "businesses seeking digital solutions",
+    "industries like Aero, Defence & Security, Gaming, Health, Industrial, Public, Retail"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Designs and builds category-defining digital solutions",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for personalized web experience",
+    "Requirement for effective targeting campaigns"
+  ],
+  "proof": [
+    "global technology consultancy"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Reaktor is a global technology consultancy.",
+      "page": "Home",
+      "evidence": "We're a global technology consultancy that designs and builds category-defining digital solutions."
+    },
+    {
+      "id": "fact-2",
+      "text": "Reaktor offers services in various industries including Aero, Defence & Security, Gaming, Health, Industrial, Public, and Retail.",
+      "page": "Home",
+      "evidence": "Industries: Aero, Defence & Security, Gaming, Health, Industrial, Public, Retail"
+    },
+    {
+      "id": "fact-3",
+      "text": "Reaktor designs and builds category-defining digital solutions.",
+      "page": "Home",
+      "evidence": "We're a global technology consultancy that designs and builds category-defining digital solutions."
+    },
+    {
+      "id": "fact-4",
+      "text": "Reaktor uses cookies to provide a personalized web experience.",
+      "page": "Privacy preference center",
+      "evidence": "The information collected might relate to you, your preferences, or your device, and is mostly used to make the site work as you expect it to and to provide a more personalized web experience."
+    },
+    {
+      "id": "fact-5",
+      "text": "Reaktor respects user privacy and allows users to manage their cookie preferences.",
+      "page": "Privacy preference center",
+      "evidence": "Because we respect your right to privacy, you can choose not to allow certain types of cookies, which may impact your experience of the site and the services we are able to offer."
+    },
+    {
+      "id": "fact-6",
+      "text": "Reaktor's primary call to action is 'Let's talk'.",
+      "page": "Home",
+      "evidence": "Let's talk"
+    },
+    {
+      "id": "fact-7",
+      "text": "Reaktor provides insights through news and events.",
+      "page": "Home",
+      "evidence": "Insights: News & Insights, Events"
+    },
+    {
+      "id": "fact-8",
+      "text": "Reaktor offers a privacy policy for users to review.",
+      "page": "Privacy preference center",
+      "evidence": "For more information, please review our Privacy Statement."
+    },
+    {
+      "id": "fact-9",
+      "text": "Reaktor's website includes a section for careers.",
+      "page": "Home",
+      "evidence": "Careers"
+    },
+    {
+      "id": "fact-10",
+      "text": "Reaktor uses performance cookies to track popular pages and visitor movement.",
+      "page": "Privacy preference center",
+      "evidence": "Performance cookies help us improve the site by tracking which pages are most popular and how visitors move around the site."
+    }
+  ]
+}
