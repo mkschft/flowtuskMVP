@@ -9,6 +9,14 @@ function App() {
     const [loading, setLoading] = React.useState(false);
     const [message, setMessage] = React.useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
+    // Component selection state
+    const [selectedComponents, setSelectedComponents] = React.useState({
+        brandGuide: true,
+        landingPage: true,
+        styleGuide: false,
+        valueProp: false
+    });
+
     React.useEffect(() => {
         window.onmessage = (event) => {
             const { type, message } = event.data.pluginMessage;
@@ -57,6 +65,34 @@ function App() {
             parent.postMessage({
                 pluginMessage: {
                     type: 'import-manifest',
+                    manifest: data.manifest,
+                    selectedComponents  // Pass component selection
+                }
+            }, '*');
+
+        } catch (err: any) {
+            setMessage({ type: 'error', text: err.message });
+            setLoading(false);
+        }
+    };
+
+    const handleFillTemplate = async () => {
+        if (!brandKey) return;
+        setLoading(true);
+        setMessage(null);
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/brand-manifest/${brandKey}`);
+
+            if (!response.ok) {
+                throw new Error('Brand Key not found or invalid.');
+            }
+
+            const data = await response.json();
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'fill-template',
                     manifest: data.manifest
                 }
             }, '*');
@@ -115,6 +151,34 @@ function App() {
                             onChange={(e) => setBrandKey(e.target.value)}
                             className="input"
                         />
+
+                        {/* Component Selection */}
+                        <div className="component-selection">
+                            <p className="section-label">Select Components to Import:</p>
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedComponents.brandGuide}
+                                    onChange={(e) => setSelectedComponents({
+                                        ...selectedComponents,
+                                        brandGuide: e.target.checked
+                                    })}
+                                />
+                                <span>Brand Guide (Colors & Typography)</span>
+                            </label>
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedComponents.landingPage}
+                                    onChange={(e) => setSelectedComponents({
+                                        ...selectedComponents,
+                                        landingPage: e.target.checked
+                                    })}
+                                />
+                                <span>Landing Page (Hero & Features)</span>
+                            </label>
+                        </div>
+
                         <button
                             onClick={handleImportBrand}
                             disabled={loading || !brandKey}
@@ -122,6 +186,19 @@ function App() {
                         >
                             {loading ? 'Importing...' : 'Import Brand System'}
                         </button>
+
+                        <div className="or-divider">
+                            <span>or</span>
+                        </div>
+
+                        <button
+                            onClick={handleFillTemplate}
+                            disabled={loading || !brandKey}
+                            className="button secondary"
+                        >
+                            {loading ? 'Filling...' : 'Fill Existing Template'}
+                        </button>
+                        <p className="hint-small">Fills the current page with your brand data</p>
                     </div>
                 )}
 
