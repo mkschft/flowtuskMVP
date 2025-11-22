@@ -18,74 +18,39 @@
     ],
     "keyPages": [
       {
-        "path": "/payments",
-        "title": "Payments Online payments"
+        "path": "https://stripe.com/pricing",
+        "title": "Pricing"
       },
       {
-        "path": "/terminal",
-        "title": "Terminal In-person payments"
+        "path": "https://stripe.com/payments",
+        "title": "Payments"
       },
       {
-        "path": "/radar",
-        "title": "Radar Fraud prevention"
+        "path": "https://stripe.com/terminal",
+        "title": "Terminal"
       },
       {
-        "path": "/authorization-boost",
-        "title": "Authorization Boost Acceptance optimizations"
+        "path": "https://stripe.com/radar",
+        "title": "Radar"
       },
       {
-        "path": "/connect",
-        "title": "Connect Payments for platforms"
+        "path": "https://stripe.com/billing",
+        "title": "Billing"
       },
       {
-        "path": "/financial-accounts",
-        "title": "Financial Accounts Manage business finances"
+        "path": "https://stripe.com/tax",
+        "title": "Tax"
       },
       {
-        "path": "/issuing",
-        "title": "Issuing Physical and virtual cards"
+        "path": "https://stripe.com/enterprise",
+        "title": "Enterprises"
       },
       {
-        "path": "/payouts",
-        "title": "Global Payouts Send money to third parties"
-      },
-      {
-        "path": "/billing",
-        "title": "Billing Subscription management"
-      },
-      {
-        "path": "/tax",
-        "title": "Tax Sales tax & VAT automation"
-      },
-      {
-        "path": "/revenue-recognition",
-        "title": "Revenue Recognition Accounting automation"
-      },
-      {
-        "path": "/sigma",
-        "title": "Stripe Sigma Custom reports"
-      },
-      {
-        "path": "/data-pipeline",
-        "title": "Data Pipeline Data sync"
-      },
-      {
-        "path": "/payments/payment-methods",
-        "title": "Payment methods Access to 100+ globally"
-      },
-      {
-        "path": "/identity",
-        "title": "Identity Online identity verification"
-      },
-      {
-        "path": "/atlas",
-        "title": "Atlas Startup incorporation"
+        "path": "https://stripe.com/startups",
+        "title": "Startups"
       }
     ],
     "footer": [
-      "API reference",
-      "Libraries and SDKs",
-      "App integrations",
       "Support center",
       "Managed support plans",
       "Professional services",
@@ -104,7 +69,8 @@
     "industryFocus": "Financial Technology",
     "signals": [
       "Global payments",
-      "Access to 100+ payment methods globally"
+      "Access to 100+ globally",
+      "Send money to third parties"
     ]
   },
   "audienceSignals": [
@@ -118,95 +84,152 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Comprehensive financial infrastructure",
+      "text": "Stripe offers global payment solutions.",
       "evidence": [
-        "fact-1",
-        "fact-2"
+        "fact-3",
+        "fact-4"
       ]
     },
     {
       "id": "v2",
-      "text": "Fraud prevention with Radar",
+      "text": "Stripe provides financial infrastructure to grow revenue.",
       "evidence": [
-        "fact-3"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Global payment solutions",
-      "evidence": [
-        "fact-4"
+        "fact-1",
+        "fact-2"
       ]
     }
   ],
   "pains": [
-    "Fraud prevention",
-    "Subscription management",
-    "Sales tax & VAT automation"
+    "Need for global payment solutions",
+    "Managing business finances",
+    "Fraud prevention"
   ],
   "proof": [
-    "8 sales reps available"
+    "Stripe App Marketplace",
+    "Partners",
+    "Documentation",
+    "API reference"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Stripe provides financial infrastructure to grow revenue.",
+      "text": "Stripe is a financial infrastructure company.",
       "page": "Homepage",
       "evidence": "Stripe | Financial Infrastructure to Grow Your Revenue"
     },
     {
       "id": "fact-2",
-      "text": "Stripe offers a range of products including Payments, Terminal, Radar, and more.",
-      "page": "Products",
-      "evidence": "Products Solutions Developers Resources Pricing"
+      "text": "Stripe's primary call to action is 'Contact sales'.",
+      "page": "Homepage",
+      "evidence": "Contact sales"
     },
     {
       "id": "fact-3",
-      "text": "Stripe Radar is used for fraud prevention.",
-      "page": "Radar",
-      "evidence": "Radar Fraud prevention"
+      "text": "Stripe offers global payment solutions.",
+      "page": "Global payments",
+      "evidence": "Global payments"
     },
     {
       "id": "fact-4",
       "text": "Stripe provides access to over 100 payment methods globally.",
-      "page": "Payment methods",
+      "page": "More",
       "evidence": "Payment methods Access to 100+ globally"
     },
     {
       "id": "fact-5",
-      "text": "Stripe offers subscription management through its Billing product.",
-      "page": "Billing",
-      "evidence": "Billing Subscription management"
+      "text": "Stripe offers fraud prevention through its Radar product.",
+      "page": "Global payments",
+      "evidence": "Radar Fraud prevention"
     },
     {
       "id": "fact-6",
-      "text": "Stripe supports enterprises and startups.",
-      "page": "By stage",
-      "evidence": "Enterprises Startups"
+      "text": "Stripe provides a prebuilt payment form called Checkout.",
+      "page": "Global payments",
+      "evidence": "Checkout Prebuilt payment form"
     },
     {
       "id": "fact-7",
-      "text": "Stripe provides solutions for ecommerce and in-app payments.",
-      "page": "By use case",
-      "evidence": "Ecommerce In-app payments"
+      "text": "Stripe offers subscription management through its Billing product.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Billing Subscription management"
     },
     {
       "id": "fact-8",
-      "text": "Stripe offers professional services and managed support plans.",
-      "page": "Support",
-      "evidence": "Professional services Managed support plans"
+      "text": "Stripe supports in-person payments through its Terminal product.",
+      "page": "Global payments",
+      "evidence": "Terminal In-person payments"
     },
     {
       "id": "fact-9",
-      "text": "Stripe has a developer blog and API reference.",
-      "page": "Resources",
-      "evidence": "Developer blog API reference"
+      "text": "Stripe offers a product for managing business finances called Financial Accounts.",
+      "page": "Money Management",
+      "evidence": "Financial Accounts Manage business finances"
     },
     {
       "id": "fact-10",
-      "text": "Stripe's primary call to action is to contact sales.",
-      "page": "Homepage",
-      "evidence": "Contact sales"
+      "text": "Stripe provides a platform for issuing physical and virtual cards.",
+      "page": "Money Management",
+      "evidence": "Issuing Physical and virtual cards"
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe offers a product for sales tax and VAT automation called Tax.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Tax Sales tax & VAT automation"
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe provides custom reports through its Stripe Sigma product.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Stripe Sigma Custom reports"
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe offers identity verification through its Identity product.",
+      "page": "More",
+      "evidence": "Identity Online identity verification"
+    },
+    {
+      "id": "fact-14",
+      "text": "Stripe has a startup incorporation service called Atlas.",
+      "page": "More",
+      "evidence": "Atlas Startup incorporation"
+    },
+    {
+      "id": "fact-15",
+      "text": "Stripe provides a service for linking financial account data called Financial Connections.",
+      "page": "More",
+      "evidence": "Financial Connections Linked financial account data"
+    },
+    {
+      "id": "fact-16",
+      "text": "Stripe's ecosystem includes a marketplace for apps.",
+      "page": "Ecosystem",
+      "evidence": "Stripe App Marketplace"
+    },
+    {
+      "id": "fact-17",
+      "text": "Stripe offers professional services.",
+      "page": "Resources",
+      "evidence": "Professional services"
+    },
+    {
+      "id": "fact-18",
+      "text": "Stripe has a developer blog.",
+      "page": "Guides",
+      "evidence": "Developer blog"
+    },
+    {
+      "id": "fact-19",
+      "text": "Stripe provides managed support plans.",
+      "page": "Resources",
+      "evidence": "Managed support plans"
+    },
+    {
+      "id": "fact-20",
+      "text": "Stripe offers a platform for building marketplaces.",
+      "page": "By use case",
+      "evidence": "Build a platform or marketplace"
     }
   ]
 }

@@ -218,30 +218,61 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                 <Badge variant="outline">{typo.fontFamily}</Badge>
               </div>
               <div className="space-y-3">
-                {typo.sizes?.map((size, sIdx) => (
-                  <div
-                    key={sIdx}
-                    className="p-4 rounded-lg bg-muted/50 border border-border"
-                  >
-                    <div className="flex items-baseline justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">
-                        {size.name}
-                      </span>
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {size.size} / {size.weight}
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        fontFamily: typo.fontFamily,
-                        fontSize: parseInt(size.size) > 36 ? "36px" : size.size,
-                        fontWeight: size.weight,
-                      }}
-                    >
-                      The quick brown fox
-                    </p>
-                  </div>
-                ))}
+                {typo.sizes && typeof typo.sizes === 'object' ? (
+                  // Handle both array format and object format (from manifest)
+                  Array.isArray(typo.sizes) ? (
+                    typo.sizes.map((size, sIdx) => (
+                      <div
+                        key={sIdx}
+                        className="p-4 rounded-lg bg-muted/50 border border-border"
+                      >
+                        <div className="flex items-baseline justify-between mb-1">
+                          <span className="text-xs text-muted-foreground">
+                            {size.name}
+                          </span>
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {size.size} / {size.weight}
+                          </span>
+                        </div>
+                        <p
+                          style={{
+                            fontFamily: typo.fontFamily,
+                            fontSize: parseInt(size.size) > 36 ? "36px" : size.size,
+                            fontWeight: size.weight,
+                          }}
+                        >
+                          The quick brown fox
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    // Object format: { h1: "48px", h2: "36px" }
+                    Object.entries(typo.sizes).map(([name, size], sIdx) => (
+                      <div
+                        key={sIdx}
+                        className="p-4 rounded-lg bg-muted/50 border border-border"
+                      >
+                        <div className="flex items-baseline justify-between mb-1">
+                          <span className="text-xs text-muted-foreground">
+                            {name}
+                          </span>
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {size} / {typo.weights?.[0] || '400'}
+                          </span>
+                        </div>
+                        <p
+                          style={{
+                            fontFamily: typo.fontFamily,
+                            fontSize: typeof size === 'string' && parseInt(size) > 36 ? "36px" : size,
+                            fontWeight: typo.weights?.[0] || '400',
+                          }}
+                        >
+                          The quick brown fox
+                        </p>
+                      </div>
+                    ))
+                  )
+                ) : null}
               </div>
             </div>
           )) : <p className="text-sm text-muted-foreground italic">No typography defined</p>}

@@ -218,7 +218,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           setManifest(prev => {
             if (!prev || prev.lastUpdated !== manifest.lastUpdated) {
               console.log('✅ [Manifest] Updated @', manifest.lastUpdated);
-              mapManifestToLegacyState(manifest);
+              // Note: No need to call mapManifestToLegacyState anymore
+              // The /api/workspace endpoint now returns data from manifest in legacy format
               // Keep UI value prop in sync with manifest
               setUiValueProp({
                 headline: manifest.strategy?.valueProp?.headline || '',
@@ -257,136 +258,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     return () => clearInterval(interval);
   }, [loadManifest]);
 
-  const mapManifestToLegacyState = (manifest: BrandManifest) => {
-    // Map Manifest -> WorkspaceData (Persona, ValueProp)
-    setWorkspaceData(prev => {
-      const newData = prev ? { ...prev } : {
-        persona: {} as any,
-        valueProp: {} as any,
-        designAssets: {} as any
-      };
-
-      newData.persona = {
-        ...newData.persona,
-        id: icpId, // Keep original ID
-        persona_name: manifest.strategy?.persona?.name || '',
-        persona_role: manifest.strategy?.persona?.role || '',
-        persona_company: manifest.strategy?.persona?.company || '',
-        title: manifest.strategy?.persona?.industry || '', // Mapping industry to title for now
-        location: manifest.strategy?.persona?.location || '',
-        country: manifest.strategy?.persona?.country || '',
-        pain_points: manifest.strategy?.persona?.painPoints || [],
-        goals: manifest.strategy?.persona?.goals || [],
-        description: `Targeting ${manifest.strategy?.persona?.role || 'users'} at ${manifest.strategy?.persona?.company || 'companies'}`
-      };
-
-      newData.valueProp = {
-        ...newData.valueProp,
-        headline: manifest.strategy?.valueProp?.headline || '',
-        subheadline: manifest.strategy?.valueProp?.subheadline || '',
-        summary: {
-          mainInsight: manifest.strategy?.valueProp?.subheadline || '',
-          approachStrategy: manifest.strategy?.valueProp?.solution || '',
-          expectedImpact: manifest.strategy?.valueProp?.outcome || ''
-        },
-        variations: (manifest.strategy?.valueProp?.benefits || []).map((b, i) => ({
-          id: `benefit-${i}`,
-          text: b
-        }))
-      };
-
-      return newData;
-    });
-
-    // Keep dedicated UI value prop in sync with manifest
-    setUiValueProp({
-      headline: manifest.strategy?.valueProp?.headline || '',
-      subheadline: manifest.strategy?.valueProp?.subheadline || '',
-      problem: manifest.strategy?.valueProp?.problem || '',
-      solution: manifest.strategy?.valueProp?.solution || '',
-      outcome: manifest.strategy?.valueProp?.outcome || '',
-      benefits: manifest.strategy?.valueProp?.benefits || [],
-      targetAudience: manifest.strategy?.valueProp?.targetAudience || ''
-    });
-
-    // Map Manifest -> DesignAssets (Brand, Style, Landing)
-    setDesignAssets(prev => {
-      const newAssets = prev ? { ...prev } : {
-        id: 'generated',
-        icp_id: icpId,
-        parent_flow: flowId,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        generation_metadata: {},
-        brand_guide: {} as any,
-        style_guide: {} as any,
-        landing_page: {} as any,
-        generation_state: { brand: true, style: true, landing: true }
-      };
-
-      newAssets.brand_guide = {
-        colors: {
-          primary: manifest.identity?.colors?.primary || [],
-          secondary: manifest.identity?.colors?.secondary || [],
-          accent: manifest.identity?.colors?.accent || [],
-          neutral: manifest.identity?.colors?.neutral || []
-        },
-        typography: [
-          {
-            category: 'heading',
-            fontFamily: manifest.identity?.typography?.heading?.family || 'Inter',
-            sizes: Object.entries(manifest.identity?.typography?.heading?.sizes || {}).map(([name, size]) => ({
-              name,
-              size,
-              weight: manifest.identity?.typography?.heading?.weights?.[0] || '700'
-            }))
-          },
-          {
-            category: 'body',
-            fontFamily: manifest.identity?.typography?.body?.family || 'Inter',
-            sizes: Object.entries(manifest.identity?.typography?.body?.sizes || {}).map(([name, size]) => ({
-              name,
-              size,
-              weight: manifest.identity?.typography?.body?.weights?.[0] || '400'
-            }))
-          }
-        ],
-        toneOfVoice: manifest.identity?.tone?.keywords || [],
-        logoVariations: manifest.identity?.logo?.variations || [],
-        personalityTraits: (manifest.identity?.tone?.personality || []).map((p, i) => ({
-          id: `trait-${i}`,
-          label: p.trait,
-          value: p.value,
-          leftLabel: p.leftLabel,
-          rightLabel: p.rightLabel
-        }))
-      };
-
-      newAssets.style_guide = {
-        buttons: [
-          { style: manifest.components?.buttons?.primary?.style || 'solid', label: 'Primary' },
-          { style: manifest.components?.buttons?.secondary?.style || 'outline', label: 'Secondary' }
-        ],
-        cards: [{ style: manifest.components?.cards?.style || 'flat' }],
-        borderRadius: manifest.components?.cards?.borderRadius || '8px',
-        shadows: [manifest.components?.cards?.shadow || 'sm'],
-        formElements: [],
-        spacing: []
-      };
-
-      newAssets.landing_page = {
-        hero: manifest.previews?.landingPage?.hero || { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
-        features: manifest.previews?.landingPage?.features || [],
-        socialProof: manifest.previews?.landingPage?.socialProof || [],
-        footer: manifest.previews?.landingPage?.footer || { sections: [] },
-        navigation: { logo: manifest.brandName || '', links: [] }
-      };
-
-      newAssets.generation_state = { brand: true, style: true, landing: true };
-
-      return newAssets;
-    });
-  };
+  // Removed mapManifestToLegacyState() - transformation now happens in /api/workspace
 
   // Initialize history when manifest first loads
   useEffect(() => {
@@ -415,11 +287,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     if (previousManifest) {
       console.log('↩️ [History] Undoing to previous state');
       setManifest(previousManifest);
-      mapManifestToLegacyState(previousManifest);
+      // Note: No need for mapManifestToLegacyState - next loadWorkspaceData will sync from manifest
 
       // Update undo/redo availability
       setCanUndo(manifestHistoryRef.current.canUndo());
       setCanRedo(manifestHistoryRef.current.canRedo());
+
+      // Reload workspace data from manifest
+      loadWorkspaceData();
 
       addToast('Undone', 'info');
     }
@@ -433,11 +308,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     if (nextManifest) {
       console.log('↪️ [History] Redoing to next state');
       setManifest(nextManifest);
-      mapManifestToLegacyState(nextManifest);
+      // Note: No need for mapManifestToLegacyState - next loadWorkspaceData will sync from manifest
 
       // Update undo/redo availability
       setCanUndo(manifestHistoryRef.current.canUndo());
       setCanRedo(manifestHistoryRef.current.canRedo());
+
+      // Reload workspace data from manifest
+      loadWorkspaceData();
 
       addToast('Redone', 'info');
     }
@@ -910,7 +788,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         }
 
         setManifest(updatedManifest);
-        mapManifestToLegacyState(updatedManifest);
+        // Reload workspace data from updated manifest
+        loadWorkspaceData();
 
         // Show success toast
         const updateType = updatedManifest.metadata.generationHistory.slice(-1)[0]?.action || 'update';

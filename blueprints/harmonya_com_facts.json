@@ -1,0 +1,201 @@
+{
+  "brand": {
+    "name": "Harmonya",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Get a Demo"
+  },
+  "structure": {
+    "nav": [
+      "Solutions",
+      "Use Cases",
+      "Resources",
+      "Events",
+      "About"
+    ],
+    "keyPages": [
+      {
+        "path": "/solutions/insights",
+        "title": "Insights Platform"
+      },
+      {
+        "path": "/solutions/product-enrichment",
+        "title": "Product Enrichment"
+      },
+      {
+        "path": "/solutions/attribution",
+        "title": "Attribution Management"
+      },
+      {
+        "path": "/solutions/product-matching",
+        "title": "Product Matching"
+      },
+      {
+        "path": "/use-cases/shopper-insights",
+        "title": "Shopper Insights"
+      },
+      {
+        "path": "/use-cases/product-catalog-enrichment",
+        "title": "Product Catalog Enrichment"
+      },
+      {
+        "path": "/use-cases/retail-media-optimization",
+        "title": "Retail Media Optimization"
+      },
+      {
+        "path": "/use-cases/retailer-omnichannel-strategy",
+        "title": "Retailer Omnichannel Strategy"
+      },
+      {
+        "path": "/content-library#w-tabs-0-data-w-pane-1",
+        "title": "Blog"
+      },
+      {
+        "path": "/content-library#w-tabs-0-data-w-pane-2",
+        "title": "Whitepapers"
+      },
+      {
+        "path": "/content-library#w-tabs-0-data-w-pane-3",
+        "title": "Videos"
+      },
+      {
+        "path": "/content-library#w-tabs-0-data-w-pane-4",
+        "title": "Case Studies"
+      },
+      {
+        "path": "/events",
+        "title": "Events"
+      },
+      {
+        "path": "/about",
+        "title": "About Us"
+      },
+      {
+        "path": "/careers",
+        "title": "Careers"
+      },
+      {
+        "path": "/get-a-demo",
+        "title": "Contact Us"
+      }
+    ],
+    "footer": [
+      "Solutions",
+      "Use Cases",
+      "Resources",
+      "Events",
+      "About"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Ecommerce",
+    "signals": [
+      "Domain uses .com",
+      "Content in English",
+      "Focus on ecommerce and retail"
+    ]
+  },
+  "audienceSignals": [
+    "Ecommerce teams",
+    "Retailers",
+    "CPGs"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Harmonya connects product data to consumer reviews for faster action and smarter competition.",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Enhance product catalogs with enriched attributes for better searchability and insights.",
+      "evidence": [
+        "fact-5",
+        "fact-9"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Harmonize product attributes across retailers without manual cleanup.",
+      "evidence": [
+        "fact-6"
+      ]
+    }
+  ],
+  "pains": [
+    "Manual cleanup of product data",
+    "Inconsistent product taxonomies across retailers"
+  ],
+  "proof": [
+    "Leading CPGs and retailers use Harmonya",
+    "AI-powered intelligence"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Harmonya offers a platform to explore which attributes drive growth.",
+      "page": "Solutions",
+      "evidence": "Explore which attributes drive growth."
+    },
+    {
+      "id": "fact-2",
+      "text": "Harmonya provides insights before competitors.",
+      "page": "Solutions",
+      "evidence": "Discover insights before your competitors."
+    },
+    {
+      "id": "fact-3",
+      "text": "Harmonya connects product data to consumer reviews.",
+      "page": "Solutions",
+      "evidence": "Harmonya connects product data to consumer reviews."
+    },
+    {
+      "id": "fact-4",
+      "text": "Harmonya offers product enrichment to make SKUs searchable and segmentable.",
+      "page": "Solutions",
+      "evidence": "Make every SKU searchable, segmentable, and insight-ready."
+    },
+    {
+      "id": "fact-5",
+      "text": "Product enrichment uses real-world language from shoppers.",
+      "page": "Solutions",
+      "evidence": "using real-world language from shoppers."
+    },
+    {
+      "id": "fact-6",
+      "text": "Harmonya harmonizes product attributes without spreadsheets.",
+      "page": "Solutions",
+      "evidence": "Harmonize product attributes across retailers, teams, and schemas-without spreadsheets."
+    },
+    {
+      "id": "fact-7",
+      "text": "Harmonya helps teams act faster and compete smarter.",
+      "page": "Solutions",
+      "evidence": "so you can act faster and compete smarter."
+    },
+    {
+      "id": "fact-8",
+      "text": "Harmonya's insights platform validates assumptions with consumer-centric data.",
+      "page": "Solutions",
+      "evidence": "Validate assumptions with consumer-centric product data."
+    },
+    {
+      "id": "fact-9",
+      "text": "Harmonya's product enrichment enhances catalogs with enriched attributes.",
+      "page": "Solutions",
+      "evidence": "Enhance your product catalog with enriched attributes."
+    },
+    {
+      "id": "fact-10",
+      "text": "Harmonya offers a product matching solution to link UPCs and ASINs.",
+      "page": "Solutions",
+      "evidence": "Link UPCs, ASINs, and other IDs to get a complete view of your market."
+    }
+  ]
+}

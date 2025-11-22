@@ -1,0 +1,191 @@
+{
+  "brand": {
+    "name": "Finnair",
+    "tones": [],
+    "primaryCTA": "Apply preferences"
+  },
+  "structure": {
+    "nav": [
+      "Flight bookings",
+      "Select country and language"
+    ],
+    "keyPages": [
+      {
+        "path": "https://www.finnair.com/",
+        "title": "Main Content"
+      },
+      {
+        "path": "https://www.finnair.com/en",
+        "title": "International Site"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Airline",
+    "signals": [
+      "Finland (EUR €)",
+      "Australia (AUD $)",
+      "Austria (EUR €)",
+      "Belgium (EUR €)",
+      "Canada (CAD $)",
+      "China (CNY ¥)",
+      "Czech Republic (CZK Kč)",
+      "Denmark (DKK kr)",
+      "Estonia (EUR €)",
+      "France (EUR €)",
+      "Germany (EUR €)",
+      "Hong Kong, China (HKD $)",
+      "Hungary (HUF Ft)",
+      "Iceland (EUR €)",
+      "India (INR ₹)",
+      "Ireland (EUR €)",
+      "Israel (USD $)",
+      "Italy (EUR €)",
+      "Japan (JPY ¥)",
+      "Korea (KRW ₩)",
+      "Latvia (EUR €)",
+      "Lithuania (EUR €)",
+      "The Netherlands (EUR €)",
+      "Norway (NOK kr)",
+      "Poland (PLN zł)",
+      "Russia",
+      "Singapore (SGD $)",
+      "Spain (EUR €)",
+      "Sweden (SEK kr)",
+      "Switzerland (CHF Fr)",
+      "Thailand (THB ฿)",
+      "United Kingdom (GBP £)",
+      "United States (USD $)"
+    ]
+  },
+  "audienceSignals": [
+    "Global travelers looking for flight bookings"
+  ],
+  "valueProps": [],
+  "pains": [],
+  "proof": [],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Finnair offers flight bookings.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Flight bookings"
+    },
+    {
+      "id": "fact-2",
+      "text": "Finnair allows users to select their country and language.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Please set your location and language."
+    },
+    {
+      "id": "fact-3",
+      "text": "Finnair's primary CTA is 'Apply preferences'.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Apply preferences"
+    },
+    {
+      "id": "fact-4",
+      "text": "Finnair provides a list of countries with corresponding currencies.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Location *"
+    },
+    {
+      "id": "fact-5",
+      "text": "Finnair's website has a navigation option for 'Flight bookings'.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Flight bookings"
+    },
+    {
+      "id": "fact-6",
+      "text": "Finnair's website has a navigation option for 'Select country and language'.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Select country and language"
+    },
+    {
+      "id": "fact-7",
+      "text": "Finnair serves a global market.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "International"
+    },
+    {
+      "id": "fact-8",
+      "text": "Finnair's website includes a link to the international site.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Go to the international site"
+    },
+    {
+      "id": "fact-9",
+      "text": "Finnair's target market includes countries using the Euro.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Finland (EUR €), Austria (EUR €), Belgium (EUR €), etc."
+    },
+    {
+      "id": "fact-10",
+      "text": "Finnair's target market includes countries using the US Dollar.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "United States (USD $), Israel (USD $)"
+    },
+    {
+      "id": "fact-11",
+      "text": "Finnair's target market includes countries using the British Pound.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "United Kingdom (GBP £)"
+    },
+    {
+      "id": "fact-12",
+      "text": "Finnair's target market includes countries using the Canadian Dollar.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Canada (CAD $)"
+    },
+    {
+      "id": "fact-13",
+      "text": "Finnair's target market includes countries using the Australian Dollar.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Australia (AUD $)"
+    },
+    {
+      "id": "fact-14",
+      "text": "Finnair's target market includes countries using the Japanese Yen.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Japan (JPY ¥)"
+    },
+    {
+      "id": "fact-15",
+      "text": "Finnair's target market includes countries using the Chinese Yuan.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "China (CNY ¥)"
+    },
+    {
+      "id": "fact-16",
+      "text": "Finnair's target market includes countries using the Korean Won.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Korea (KRW ₩)"
+    },
+    {
+      "id": "fact-17",
+      "text": "Finnair's target market includes countries using the Singapore Dollar.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Singapore (SGD $)"
+    },
+    {
+      "id": "fact-18",
+      "text": "Finnair's target market includes countries using the Swiss Franc.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Switzerland (CHF Fr)"
+    },
+    {
+      "id": "fact-19",
+      "text": "Finnair's target market includes countries using the Swedish Krona.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Sweden (SEK kr)"
+    },
+    {
+      "id": "fact-20",
+      "text": "Finnair's target market includes countries using the Norwegian Krone.",
+      "page": "Flight bookings | select country and language | Finnair",
+      "evidence": "Norway (NOK kr)"
+    }
+  ]
+}

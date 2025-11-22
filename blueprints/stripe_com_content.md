@@ -21,8 +21,6 @@ Stripe | Financial Infrastructure to Grow Your Revenue
 *   Resources
 *   [Pricing](https://stripe.com/pricing)
 
-[Sign in](https://dashboard.stripe.com/login)
-
 [Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
 
 [Sign in](https://dashboard.stripe.com/login)
@@ -221,6 +219,7 @@ By use case
 *   [Global businesses](https://stripe.com/use-cases/global-businesses)
 
 *   [In-app payments](https://stripe.com/use-cases/in-app-payments)
-*   [Marketplaces](https://stripe.com/use-c
+*   [Marketplaces](https://stripe.com/use-cases/marketplaces)
+*   [Platforms](https://stri
 
 [Content truncated for performance]

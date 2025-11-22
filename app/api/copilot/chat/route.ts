@@ -226,8 +226,26 @@ UPDATE WORKFLOWS
    - ACTION: Update identity.colors, identity.typography, identity.tone, and components.*.
 
 3. **MESSAGING** (updateType: "messaging")
-   - Triggers: Headline tweaks, tone adjustments.
+   - Triggers: Headline tweaks, tone adjustments, "generate value proposition".
    - ACTION: Update strategy.valueProp, identity.tone, previews.landingPage.
+   - VALUE PROP STRUCTURE (REQUIRED):
+     ```json
+     {
+       "strategy": {
+         "valueProp": {
+           "headline": "Clear, compelling main message",
+           "subheadline": "Supporting detail that elaborates",
+           "problem": "Specific pain point you're solving",
+           "solution": "How you solve it uniquely",
+           "outcome": "Result/benefit customers get",
+           "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"],
+           "targetAudience": "Who this is for (from persona)"
+         }
+       }
+     }
+     ```
+   - CRITICAL: ALL fields (headline, subheadline, problem, solution, outcome, benefits, targetAudience) are REQUIRED.
+   - Use persona.company, persona.role, and persona.painPoints to inform your value prop.
 
 4. **REFINEMENT** (updateType: "refinement")
    - Triggers: Small tweaks.
