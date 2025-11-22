@@ -123,38 +123,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ icp, valueProp, designAssets });
     }
 
-    // Fallback to legacy tables if manifest doesn't exist yet
-    console.log('⚠️ [Workspace API] Manifest not found, falling back to legacy tables');
-    
-    // Fetch ICP
-    const { data: icp, error: icpErr } = await supabase
-      .from('positioning_icps')
-      .select('*')
-      .eq('id', icpId)
-      .eq('parent_flow', flowId)
-      .single();
-
-    if (icpErr) {
-      return NextResponse.json({ error: "ICP not found", details: icpErr.message }, { status: 404 });
-    }
-
-    // Fetch Value Prop (single per ICP by constraint)
-    const { data: valueProp } = await supabase
-      .from('positioning_value_props')
-      .select('*')
-      .eq('icp_id', icpId)
-      .eq('parent_flow', flowId)
-      .maybeSingle();
-
-    // Fetch Design Assets (single per ICP by constraint)
-    const { data: designAssets } = await supabase
-      .from('positioning_design_assets')
-      .select('*')
-      .eq('icp_id', icpId)
-      .eq('parent_flow', flowId)
-      .maybeSingle();
-
-    return NextResponse.json({ icp, valueProp, designAssets });
+    // No manifest found - this flow needs to be regenerated
+    console.error('❌ [Workspace API] Manifest not found for flow:', flowId);
+    return NextResponse.json(
+      { error: "Workspace data not found. Please regenerate this flow's content." },
+      { status: 404 }
+    );
   } catch (error: any) {
     console.error('❌ [Workspace API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error', details: error?.message }, { status: 500 });
