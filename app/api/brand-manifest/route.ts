@@ -45,6 +45,19 @@ export async function GET(req: NextRequest) {
                 console.warn('⚠️ [Manifest] Service role key not found, using user session');
             }
 
+            // Check if design assets exist first - migration requires them
+            const { data: designAssetsCheck, error: assetsCheckError } = await migrationSupabase
+                .from('positioning_design_assets')
+                .select('id, generation_state')
+                .eq('parent_flow', flowId)
+                .single();
+
+            if (!designAssetsCheck || assetsCheckError) {
+                console.log('ℹ️ [Manifest] Design assets not generated yet - skipping migration');
+                return NextResponse.json({ error: 'Manifest not found. Generate design assets first.' }, { status: 404 });
+            }
+
+            // Only proceed with full migration if design assets exist
             // Fetch all necessary legacy data
             const [
                 { data: flow, error: flowError },
@@ -71,13 +84,14 @@ export async function GET(req: NextRequest) {
                 const workspaceData = {
                     persona: icp,
                     valueProp: valueProp ? {
-                        headline: valueProp.summary?.mainInsight, // Mapping summary to headline as fallback
-                        subheadline: valueProp.summary?.approachStrategy,
-                        problem: icp.pain_points?.join(', '),
-                        solution: valueProp.summary?.approachStrategy,
-                        outcome: valueProp.summary?.expectedImpact,
-                        benefits: valueProp.variations?.map((v: any) => v.text) || [],
-                        targetAudience: icp.title
+                        // Prefer flat fields first (from migration 012), fallback to nested structure
+                        headline: valueProp.headline || valueProp.summary?.mainInsight || '',
+                        subheadline: valueProp.subheadline || valueProp.summary?.approachStrategy || '',
+                        problem: valueProp.problem || (Array.isArray(icp.pain_points) ? icp.pain_points.join(', ') : ''),
+                        solution: valueProp.solution || valueProp.summary?.approachStrategy || '',
+                        outcome: valueProp.outcome || valueProp.summary?.expectedImpact || '',
+                        benefits: valueProp.benefits || (Array.isArray(valueProp.variations) ? valueProp.variations.map((v: any) => v.text) : []),
+                        targetAudience: valueProp.target_audience || icp.title || ''
                     } : {}
                 };
 

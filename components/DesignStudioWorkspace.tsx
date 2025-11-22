@@ -104,7 +104,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         const initialVp: UiValueProp = {
           headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
           subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
-          problem: valueProp?.problem || "",
+          problem: valueProp?.problem || (Array.isArray(valueProp?.summary?.painPointsAddressed) ? valueProp.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp?.pain_points) ? icp.pain_points.join(', ') : '') || "",
           solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
           outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
           benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
@@ -134,7 +134,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       const initialVp: UiValueProp = {
         headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
         subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
-        problem: valueProp?.problem || "",
+        problem: valueProp?.problem || (Array.isArray(valueProp?.summary?.painPointsAddressed) ? valueProp.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp?.pain_points) ? icp.pain_points.join(', ') : '') || "",
         solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
         outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
         benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],

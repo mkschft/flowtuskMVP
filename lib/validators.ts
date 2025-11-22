@@ -115,6 +115,16 @@ export const ValuePropSummarySchema = z.object({
 });
 
 export const ValuePropResponseSchema = z.object({
+  // Flat fields for direct UI consumption (OPTIONAL - extracted if missing)
+  // The API will extract these from nested structure if LLM doesn't provide them
+  headline: z.string().max(200).optional(),
+  subheadline: z.string().max(500).optional(),
+  problem: z.string().max(1000).optional(),
+  solution: z.string().max(1000).optional(),
+  outcome: z.string().max(500).optional(),
+  targetAudience: z.string().max(500).optional(),
+  benefits: z.array(z.string().max(500)).optional(),
+  // Nested fields for backward compatibility (REQUIRED)
   variables: z.array(ValuePropVariableSchema).min(1).max(20),
   variations: z.array(ValuePropVariationSchema).min(1).max(10),
   summary: ValuePropSummarySchema.optional(),

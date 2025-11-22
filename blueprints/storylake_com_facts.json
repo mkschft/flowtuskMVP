@@ -1,0 +1,192 @@
+{
+  "brand": {
+    "name": "Storylake",
+    "tones": [
+      "professional",
+      "expert"
+    ],
+    "primaryCTA": "Contact Us"
+  },
+  "structure": {
+    "nav": [
+      "Why Storylake",
+      "What we do",
+      "How we operate",
+      "Our experts",
+      "Find Your Expert",
+      "Blog"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Home"
+      },
+      {
+        "path": "/service/expert-content-service",
+        "title": "What we do"
+      },
+      {
+        "path": "/service/expert-content-creation-process",
+        "title": "How we operate"
+      },
+      {
+        "path": "/service/content-writing-experts",
+        "title": "Our experts"
+      },
+      {
+        "path": "/contact/step1",
+        "title": "Contact Us"
+      }
+    ],
+    "footer": [
+      "Terms and conditions",
+      "Privacy policy"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Content Creation",
+    "signals": [
+      "Your International Gateway to Premium Content from Experts",
+      "We make premium content creation from experts an easy side gig"
+    ]
+  },
+  "audienceSignals": [
+    "global brands",
+    "companies needing expert content",
+    "industries requiring high-quality content"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Premium content service provider",
+      "evidence": [
+        "fact-5",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Scalability and highest quality standards",
+      "evidence": [
+        "fact-10",
+        "fact-11"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Outsource content creation while maintaining control",
+      "evidence": [
+        "fact-14",
+        "fact-15"
+      ]
+    }
+  ],
+  "pains": [
+    "Difficulty in creating original premium content",
+    "Challenges in developing international content strategy",
+    "Need for expert healthcare content"
+  ],
+  "proof": [
+    "We create content with true dedication to Google’s E-E-A-T",
+    "Unique pool of industry experts"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Storylake is a premium content service provider.",
+      "page": "Home",
+      "evidence": "Storylake is the premium content service provider, empowering global brands to create subject matter expert content at scale."
+    },
+    {
+      "id": "fact-2",
+      "text": "Storylake offers a newsletter subscription.",
+      "page": "Home",
+      "evidence": "Subscribe to our newsletter to stay updated on the latest trends in expert content."
+    },
+    {
+      "id": "fact-3",
+      "text": "Storylake's primary call to action is 'Contact Us'.",
+      "page": "Home",
+      "evidence": "[Contact Us](https://storylake.com/contact/step1)"
+    },
+    {
+      "id": "fact-4",
+      "text": "Storylake serves global brands.",
+      "page": "Home",
+      "evidence": "Storylake is the premium content service provider, empowering global brands."
+    },
+    {
+      "id": "fact-5",
+      "text": "Storylake provides expert content creation services.",
+      "page": "What we do",
+      "evidence": "We make premium content creation from experts an easy side gig."
+    },
+    {
+      "id": "fact-6",
+      "text": "Storylake helps increase team effectiveness by outsourcing content creation.",
+      "page": "What we do",
+      "evidence": "Increase your team’s effectiveness and outsource your content creation to Storylake’s experts."
+    },
+    {
+      "id": "fact-7",
+      "text": "Storylake focuses on speed and quality in content creation.",
+      "page": "What we do",
+      "evidence": "Speed up content creation without compromising quality."
+    },
+    {
+      "id": "fact-8",
+      "text": "Storylake offers unmatched time to market for international expert content projects.",
+      "page": "What we do",
+      "evidence": "Accomplish unmatched time to market for your international expert content project."
+    },
+    {
+      "id": "fact-9",
+      "text": "Storylake uses an agile content marketing framework.",
+      "page": "What we do",
+      "evidence": "Elevate your output with our agile content marketing framework."
+    },
+    {
+      "id": "fact-10",
+      "text": "Storylake maintains high quality standards while scaling content.",
+      "page": "What we do",
+      "evidence": "Scalability and the highest quality standards are concurrently achievable with our services."
+    },
+    {
+      "id": "fact-11",
+      "text": "Storylake invests in acquiring and vetting subject matter experts.",
+      "page": "What we do",
+      "evidence": "At Storylake, we invest our time in acquiring, vetting, and retaining subject matter experts."
+    },
+    {
+      "id": "fact-12",
+      "text": "Storylake helps build a trustworthy brand.",
+      "page": "What we do",
+      "evidence": "Helping you build an exceptional and trustworthy brand that stays ahead of your international competition."
+    },
+    {
+      "id": "fact-13",
+      "text": "Storylake offers control over the scope of services and experts.",
+      "page": "What we do",
+      "evidence": "You pick the scope of services and experts; we make your content come to life."
+    },
+    {
+      "id": "fact-14",
+      "text": "Storylake is not a typical content agency.",
+      "page": "What we do",
+      "evidence": "We’re not just your next vanilla content agency."
+    },
+    {
+      "id": "fact-15",
+      "text": "Storylake's content creation is backed by industry experts.",
+      "page": "What we do",
+      "evidence": "Backed by a unique pool of industry experts who can scale your brand’s international content creation."
+    },
+    {
+      "id": "fact-16",
+      "text": "Storylake creates content with dedication to Google’s E-E-A-T.",
+      "page": "What we do",
+      "evidence": "We create content with true dedication to Google’s E-E-A-T."
+    }
+  ]
+}

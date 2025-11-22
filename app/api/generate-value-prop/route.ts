@@ -95,11 +95,46 @@ export async function POST(req: NextRequest) {
       if (icp.id && icp.parent_flow) {
         try {
           const supabase = await createClient();
+          
+          // Extract flat fields with comprehensive fallbacks
+          // If LLM returns flat fields, use them; otherwise extract from nested structure or variations
+          const headline = parsedResult.headline || 
+                          parsedResult.summary?.mainInsight || 
+                          parsedResult.variations?.[0]?.text || 
+                          '';
+          const subheadline = parsedResult.subheadline || 
+                             parsedResult.summary?.approachStrategy || 
+                             '';
+          const problem = parsedResult.problem || 
+                         (Array.isArray(parsedResult.summary?.painPointsAddressed) ? 
+                           parsedResult.summary.painPointsAddressed.join(', ') : '') || 
+                         (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
+          const solution = parsedResult.solution || 
+                          parsedResult.summary?.approachStrategy || 
+                          parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || 
+                          '';
+          const outcome = parsedResult.outcome || 
+                         parsedResult.summary?.expectedImpact || 
+                         '';
+          const targetAudience = parsedResult.targetAudience || icp.title || '';
+          const benefits = parsedResult.benefits || 
+                          (Array.isArray(parsedResult.variations) ? 
+                            parsedResult.variations.map((v: any) => v.text) : []);
+          
           const { error: saveError } = await supabase
             .from('positioning_value_props')
             .upsert({
               icp_id: icp.id,
               parent_flow: icp.parent_flow,
+              // Save flat fields for direct UI consumption
+              headline,
+              subheadline,
+              problem,
+              solution,
+              outcome,
+              target_audience: targetAudience,
+              benefits,
+              // Keep nested structure for compatibility
               summary: parsedResult.summary || {},
               variables: parsedResult.variables || [],
               variations: parsedResult.variations || [],
@@ -320,11 +355,45 @@ Important:
     if (icp.id && icp.parent_flow) {
       try {
         const supabase = await createClient();
+        
+        // Extract flat fields with comprehensive fallbacks
+        const headline = parsedResult.headline || 
+                        parsedResult.summary?.mainInsight || 
+                        parsedResult.variations?.[0]?.text || 
+                        '';
+        const subheadline = parsedResult.subheadline || 
+                           parsedResult.summary?.approachStrategy || 
+                           '';
+        const problem = parsedResult.problem || 
+                       (Array.isArray(parsedResult.summary?.painPointsAddressed) ? 
+                         parsedResult.summary.painPointsAddressed.join(', ') : '') || 
+                       (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
+        const solution = parsedResult.solution || 
+                        parsedResult.summary?.approachStrategy || 
+                        parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || 
+                        '';
+        const outcome = parsedResult.outcome || 
+                       parsedResult.summary?.expectedImpact || 
+                       '';
+        const targetAudience = parsedResult.targetAudience || icp.title || '';
+        const benefits = parsedResult.benefits || 
+                        (Array.isArray(parsedResult.variations) ? 
+                          parsedResult.variations.map((v: any) => v.text) : []);
+        
         const { error: saveError } = await supabase
           .from('positioning_value_props')
           .upsert({
             icp_id: icp.id,
             parent_flow: icp.parent_flow,
+            // Save flat fields for direct UI consumption
+            headline,
+            subheadline,
+            problem,
+            solution,
+            outcome,
+            target_audience: targetAudience,
+            benefits,
+            // Keep nested structure for compatibility
             summary: parsedResult.summary || {},
             variables: parsedResult.variables || [],
             variations: parsedResult.variations || [],

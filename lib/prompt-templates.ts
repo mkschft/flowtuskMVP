@@ -304,12 +304,20 @@ GUARDRAILS:
   const developer = `TASK: Generate value proposition variations mapped to the ICP's pains and goals.
 
 RULES:
-1. Create 5 distinct variations (benefit-first, pain-first, social proof, question, story)
-2. Each variation: 1-2 sentences max
-3. Map to ICP pains/goals AND website facts
-4. Include sourceFactIds for traceability
-5. Generate customizable variables (role, industry, region, pain, metric, method, solution)
-6. Provide compact summary (mainInsight, painPointsAddressed, expectedImpact)
+1. Generate flat fields for direct UI display:
+   - headline: Main value prop (1 punchy sentence, use best variation text)
+   - subheadline: Supporting detail (1-2 sentences expanding on headline)
+   - problem: Main pain point from ICP (1-2 sentences, cite ICP painPoints)
+   - solution: How the product solves it (1-2 sentences, cite facts)
+   - outcome: The transformation achieved (1 sentence with metrics)
+   - targetAudience: From ICP title (e.g., "${icp.title}")
+   - benefits: 3-5 specific benefits (extract from variations or facts)
+2. Create 5 distinct variations (benefit-first, pain-first, social proof, question, story)
+3. Each variation: 1-2 sentences max
+4. Map to ICP pains/goals AND website facts
+5. Include sourceFactIds for traceability
+6. Generate customizable variables (role, industry, region, pain, metric, method, solution)
+7. Provide compact summary (mainInsight, painPointsAddressed, expectedImpact)
 
 EVIDENCE REQUIREMENT (CRITICAL):
 - Every variation MUST cite sourceFactIds
@@ -337,6 +345,13 @@ Now generate variations following this example structure.
 
 SCHEMA:
 {
+  "headline": "Main value prop headline (1 sentence)",
+  "subheadline": "Supporting subheadline (1-2 sentences)",
+  "problem": "The main pain point addressed (1-2 sentences)",
+  "solution": "How the product/service solves it (1-2 sentences)",
+  "outcome": "The transformation/benefit achieved (1 sentence with metrics)",
+  "targetAudience": "Who this is for (e.g., 'Product managers at B2B SaaS startups')",
+  "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"],
   "summary": {
     "mainInsight": "1-2 sentences",
     "painPointsAddressed": ["pain1", "pain2", "pain3"],

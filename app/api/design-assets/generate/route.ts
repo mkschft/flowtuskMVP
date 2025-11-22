@@ -188,13 +188,14 @@ export async function POST(req: NextRequest) {
         const workspaceData = {
           persona: icp,
           valueProp: valueProp ? {
-            headline: valueProp.summary?.mainInsight,
-            subheadline: valueProp.summary?.approachStrategy,
-            problem: icp.pain_points?.join(', '),
-            solution: valueProp.summary?.approachStrategy,
-            outcome: valueProp.summary?.expectedImpact,
-            benefits: valueProp.variations?.map((v: any) => v.text) || [],
-            targetAudience: icp.title
+            // Prefer flat fields first, fallback to nested structure
+            headline: valueProp.headline || valueProp.summary?.mainInsight || '',
+            subheadline: valueProp.subheadline || valueProp.summary?.approachStrategy || '',
+            problem: valueProp.problem || (Array.isArray(icp.pain_points) ? icp.pain_points.join(', ') : ''),
+            solution: valueProp.solution || valueProp.summary?.approachStrategy || '',
+            outcome: valueProp.outcome || valueProp.summary?.expectedImpact || '',
+            benefits: valueProp.benefits || (Array.isArray(valueProp.variations) ? valueProp.variations.map((v: any) => v.text) : []),
+            targetAudience: valueProp.targetAudience || icp.title || ''
           } : {}
         };
 
