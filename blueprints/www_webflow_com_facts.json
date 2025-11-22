@@ -2,192 +2,157 @@
   "brand": {
     "name": "Webflow",
     "tones": [
-      "innovative",
-      "empowering",
-      "dynamic"
+      "creative",
+      "performance-driven"
     ],
     "primaryCTA": "Get started"
   },
   "structure": {
     "nav": [
-      "Platform",
-      "Solutions",
-      "Resources",
-      "Enterprise",
-      "Pricing",
-      "Site Settings"
+      "Log in",
+      "Contact Sales",
+      "Get started"
     ],
     "keyPages": [
       {
-        "path": "/platform",
-        "title": "Platform Overview"
+        "path": "/",
+        "title": "Home"
       },
       {
-        "path": "/solutions",
-        "title": "Solutions"
+        "path": "/state-of-the-website-2026",
+        "title": "State of the Website 2026"
       },
       {
-        "path": "/resources",
-        "title": "Resources"
+        "path": "/aeo-readiness",
+        "title": "AEO Readiness Assessment"
       },
       {
-        "path": "/enterprise",
-        "title": "Enterprise"
-      },
-      {
-        "path": "/pricing",
-        "title": "Pricing"
+        "path": "/web-apps",
+        "title": "Full-stack Web Apps"
       }
     ],
     "footer": [
+      "Contact Sales",
       "Get started",
-      "Login",
-      "Contact Sales"
+      "Start building",
+      "Start for free"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Web development",
+    "signals": [
+      "Trusted by teams at Ideo, Monday.com, BBDO, The New York Times, Ted"
     ]
   },
   "audienceSignals": [
-    "Marketers",
-    "Designers",
-    "Developers",
-    "Agencies",
-    "Startups",
-    "Classrooms"
+    "marketing teams",
+    "fintech",
+    "enterprise",
+    "AI startups",
+    "design agencies"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Webflow allows for the creation, management, and optimization of personalized web experiences.",
+      "text": "Create, manage, and optimize personalized web experiences",
       "evidence": [
         "fact-3",
-        "fact-4"
+        "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "Webflow provides a visual, composable CMS that drives results.",
+      "text": "AI-native platform for faster results",
       "evidence": [
-        "fact-6"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Webflow's AI-powered tools optimize content for both traditional and AI-driven search.",
-      "evidence": [
-        "fact-7"
+        "fact-4",
+        "fact-8"
       ]
     }
   ],
   "pains": [
-    "Technical complexity in web development",
-    "Need for dynamic digital experiences",
-    "Optimization for AI-driven search"
+    "Need for dynamic web experiences",
+    "Desire for faster web development"
   ],
   "proof": [
-    "300,000 brands use Webflow",
-    "10x in cost savings annually",
+    "Trusted by Ideo, Monday.com, BBDO, The New York Times, Ted",
+    "10x cost savings annually",
     "67% decrease in dev ticketing",
-    "$6M in cost savings annually",
-    "56% increase in form fills",
     "1,170% increase in traffic YoY",
-    "$200M in new pipeline generated post-site launch",
-    "+20% increase in site-wide conversion"
+    "$200M in new pipeline generated post-site launch"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Webflow is a visual website builder.",
+      "text": "Webflow is a platform for creating, managing, and optimizing web experiences.",
       "page": "Home",
-      "evidence": "Webflow: Create a custom website | Visual website builder"
-    },
-    {
-      "id": "fact-2",
-      "text": "Webflow offers an AI-native platform.",
-      "page": "Platform",
       "evidence": "With Webflow’s AI-native platform, you can create, manage, and optimize personalized web experiences."
     },
     {
+      "id": "fact-2",
+      "text": "Webflow is trusted by teams at Ideo, Monday.com, BBDO, The New York Times, and Ted.",
+      "page": "Home",
+      "evidence": "Trusted by teams at Ideo, Monday.com, BBDO, The New York Times, Ted"
+    },
+    {
       "id": "fact-3",
-      "text": "Webflow allows marketing teams to build, manage, and optimize dynamic web experiences.",
-      "page": "Platform",
+      "text": "Webflow offers an AI-native platform.",
+      "page": "Home",
       "evidence": "With Webflow’s AI-native platform, marketing teams can build, manage, and optimize dynamic web experiences."
     },
     {
       "id": "fact-4",
-      "text": "Webflow's platform is designed to drive real business results.",
-      "page": "Platform",
-      "evidence": "With Webflow’s AI-native platform, marketing teams can build, manage, and optimize dynamic web experiences that drive real business results."
+      "text": "Webflow's platform is designed to drive real business results faster.",
+      "page": "Home",
+      "evidence": "drive real results — faster than ever."
     },
     {
       "id": "fact-5",
-      "text": "Webflow's CMS is visual and composable.",
-      "page": "Platform",
-      "evidence": "Webflow’s visual, composable CMS lets you create and manage content that drives results."
+      "text": "Webflow provides an AI site builder in beta.",
+      "page": "Home",
+      "evidence": "AI site builder Beta"
     },
     {
       "id": "fact-6",
-      "text": "Webflow includes built-in SEO and AEO tools.",
-      "page": "Platform",
-      "evidence": "Webflow’s visual, composable CMS lets you create and manage content that drives results — while built-in SEO and AEO tools help you optimize content for both traditional and AI-driven search."
+      "text": "Webflow offers templates like 'Maeve' to start building.",
+      "page": "Home",
+      "evidence": "Start with a design that fits your needs."
     },
     {
       "id": "fact-7",
-      "text": "Webflow's platform includes AI-powered personalization and localization tools.",
-      "page": "Platform",
-      "evidence": "Webflow’s native analytics — along with AI-powered personalization and localization tools — empower you to discover what works, scale it globally, and drive revenue."
+      "text": "Webflow allows building custom sites from scratch.",
+      "page": "Home",
+      "evidence": "Build a custom site from scratch."
     },
     {
       "id": "fact-8",
-      "text": "Webflow is trusted by teams at 300,000 brands.",
+      "text": "Webflow's platform is suitable for fintech, enterprise, AI startups, and design agencies.",
       "page": "Home",
-      "evidence": "300,000 brands move the needle with Webflow"
+      "evidence": "Fintech EnterpriseAI startupDesign agency"
     },
     {
       "id": "fact-9",
-      "text": "Webflow offers a free start option.",
+      "text": "Webflow claims a 10x cost savings annually for some clients.",
       "page": "Home",
-      "evidence": "Get started — it&#x27;s free"
+      "evidence": "10x In cost savings annually"
     },
     {
       "id": "fact-10",
-      "text": "Webflow has a 10x in cost savings annually.",
+      "text": "Webflow reports a 67% decrease in dev ticketing for some clients.",
       "page": "Home",
-      "evidence": "10x In cost savings annually Read story"
+      "evidence": "67% decrease in dev ticketing"
     },
     {
       "id": "fact-11",
-      "text": "Webflow has a 67% decrease in dev ticketing.",
+      "text": "Webflow reports a 1,170% increase in traffic YoY for some clients.",
       "page": "Home",
-      "evidence": "67% decrease in dev ticketing Read story"
+      "evidence": "1,170% increase in traffic YoY"
     },
     {
       "id": "fact-12",
-      "text": "Webflow has achieved a $6M in cost savings annually.",
+      "text": "Webflow reports $200M in new pipeline generated post-site launch for some clients.",
       "page": "Home",
-      "evidence": "$6M in cost savings annually Read story"
-    },
-    {
-      "id": "fact-13",
-      "text": "Webflow has a 56% increase in form fills.",
-      "page": "Home",
-      "evidence": "56% increase in form fills Read story"
-    },
-    {
-      "id": "fact-14",
-      "text": "Webflow has a 1,170% increase in traffic YoY.",
-      "page": "Home",
-      "evidence": "1,170% increase in traffic YoY Read story"
-    },
-    {
-      "id": "fact-15",
-      "text": "Webflow has generated $200M in new pipeline post-site launch.",
-      "page": "Home",
-      "evidence": "$200M in new pipeline generated post-site launch Read story"
-    },
-    {
-      "id": "fact-16",
-      "text": "Webflow has a +20% increase in site-wide conversion.",
-      "page": "Home",
-      "evidence": "+20% increase in site-wide conversion Read story"
+      "evidence": "$200M in new pipeline generated post-site launch"
     }
   ]
 }

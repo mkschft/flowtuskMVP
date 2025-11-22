@@ -3,169 +3,148 @@
     "name": "Zipli",
     "tones": [
       "informative",
-      "professional"
+      "sustainable",
+      "community-focused"
     ],
-    "primaryCTA": "Facilitate efficient redistribution of surplus food"
+    "primaryCTA": "Book a demo"
   },
   "structure": {
     "nav": [
-      "Overview",
-      "Core Offering",
-      "Key Features and Benefits",
-      "Target Customers and Use Cases",
-      "Value Propositions"
+      "Product",
+      "Use cases",
+      "How it works",
+      "Contact"
     ],
     "keyPages": [
       {
-        "path": "/overview",
-        "title": "Zipli Overview"
+        "path": "/?max-length=12000#product",
+        "title": "Product"
       },
       {
-        "path": "/core-offering",
-        "title": "Core Offering"
+        "path": "/?max-length=12000#use-case",
+        "title": "Use cases"
       },
       {
-        "path": "/features-benefits",
-        "title": "Key Features and Benefits"
+        "path": "/?max-length=12000#how",
+        "title": "How it works"
       },
       {
-        "path": "/target-customers",
-        "title": "Target Customers and Use Cases"
-      },
-      {
-        "path": "/value-propositions",
-        "title": "Value Propositions"
+        "path": "/?max-length=12000#contact",
+        "title": "Contact"
       }
     ],
-    "footer": []
+    "footer": [
+      "Product",
+      "Use cases",
+      "How it works",
+      "Contact"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Food Waste Solutions",
+    "signals": [
+      "The website uses English language and targets cities, municipalities, HoReCa, retail, food producers, charities, and upcyclers globally."
+    ]
   },
   "audienceSignals": [
-    "B2B platform for food industry and municipalities",
-    "Cities and municipalities",
-    "HoReCa (Hotels, Restaurants, and Cafés) & Retail",
-    "Food Producers",
-    "Charities and Upcyclers"
+    "Cities & Municipalities",
+    "HoReCa & Retail",
+    "Food producers",
+    "Charities & Upcyclers"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Contributes to reducing food waste and achieving sustainability goals",
+      "text": "Zipli provides a real-time food tracking platform to cut waste costs and improve social wellbeing.",
       "evidence": [
-        "fact-9",
-        "fact-10"
+        "fact-3",
+        "fact-4"
       ]
     },
     {
       "id": "v2",
-      "text": "Empowers businesses and municipalities to support local communities and enhance social wellbeing",
+      "text": "Zipli automates redistribution logistics and compliance for HoReCa and retail.",
       "evidence": [
-        "fact-11",
-        "fact-12"
+        "fact-5"
       ]
     },
     {
       "id": "v3",
-      "text": "Streamlines the food donation process, reducing costs and improving compliance",
+      "text": "Zipli's mobile app matches excess food with organizations in need.",
       "evidence": [
-        "fact-13",
-        "fact-14"
+        "fact-9"
       ]
     }
   ],
   "pains": [
-    "Food waste in the food industry",
-    "Compliance with food donation regulations",
-    "High disposal costs for businesses"
+    "Mismatch in food systems where one third of all produced food goes to waste.",
+    "Cities and municipalities struggle to meet food waste reduction goals."
   ],
   "proof": [
-    "AI-powered data platform",
-    "Real-time food tracking",
-    "Automated redistribution logistics"
+    "AI-powered data platform for overview, insights, and action.",
+    "Auto-generated reports for ESG tracking."
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Zipli is a B2B platform designed to reduce food waste.",
-      "page": "Core Offering",
-      "evidence": "Zipli is a B2B platform designed to reduce food waste and improve sustainability within the food industry and municipalities."
+      "text": "One third of all produced food goes to waste.",
+      "page": "Rescuing surplus food at scale",
+      "evidence": "One third of all produced food goes to waste while millions of people cannot afford quality meals."
     },
     {
       "id": "fact-2",
-      "text": "Zipli provides a mobile app and an AI-powered data platform.",
-      "page": "Core Offering",
-      "evidence": "It provides a mobile app and an AI-powered data platform that facilitates the efficient redistribution of surplus food."
+      "text": "Zipli offers a real-time food tracking platform.",
+      "page": "How can we help?",
+      "evidence": "Meet climate, food waste, and social policy targets by utilizing Zipli's real-time food tracking platform and communication tool."
     },
     {
       "id": "fact-3",
-      "text": "Real-Time Food Tracking allows users to post donations or food requests.",
-      "page": "Key Features and Benefits",
-      "evidence": "Real-Time Food Tracking: Allows users to post donations or food requests, matching surplus food with those in need instantly."
+      "text": "Zipli helps cities and municipalities cut waste costs and improve ESG compliance.",
+      "page": "How can we help?",
+      "evidence": "Cut waste costs, strengthen ESG compliance, and improve social wellbeing."
     },
     {
       "id": "fact-4",
-      "text": "Automated Redistribution Logistics simplifies the logistics of food donations.",
-      "page": "Key Features and Benefits",
-      "evidence": "Automated Redistribution Logistics: Simplifies the logistics of food donations, ensuring compliance with food donation regulations."
+      "text": "Zipli automates redistribution logistics for HoReCa and retail.",
+      "page": "How can we help?",
+      "evidence": "Reduce disposal costs and simplify food donations by automating redistribution logistics and compliance."
     },
     {
       "id": "fact-5",
-      "text": "AI-Powered Insights offer actionable insights and auto-generated reports.",
-      "page": "Key Features and Benefits",
-      "evidence": "AI-Powered Insights: Offers actionable insights and auto-generated reports for tracking ESG metrics."
+      "text": "Zipli's mobile app matches excess food with organizations in need.",
+      "page": "Mobile app for every-day food matchmaking",
+      "evidence": "Our mobile app solves the daily headache of redirecting excess food to people in need."
     },
     {
       "id": "fact-6",
-      "text": "The mobile app provides a user-friendly interface for food matchmaking.",
-      "page": "Key Features and Benefits",
-      "evidence": "Mobile App: Provides a user-friendly interface for everyday food matchmaking between food providers and receivers."
+      "text": "Zipli provides AI-based recommendations to reduce waste.",
+      "page": "How it works",
+      "evidence": "And on top of it all, we provide users AI-based recommendations on measures to take to further reduce waste and meet impact goals."
     },
     {
       "id": "fact-7",
-      "text": "Zipli helps businesses lower disposal costs.",
-      "page": "Key Features and Benefits",
-      "evidence": "Cost Reduction: Helps businesses lower disposal costs and improve their brand image by contributing to social good."
+      "text": "Zipli offers auto-generated reports for ESG tracking.",
+      "page": "AI-powered data platform for overview, insights and action",
+      "evidence": "Use our auto-generated reports for ESG tracking and faster stakeholder communications."
     },
     {
       "id": "fact-8",
-      "text": "Zipli targets cities and municipalities to meet food waste reduction goals.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Cities and Municipalities: Aims to help local governments meet food waste reduction goals and enhance social wellbeing."
+      "text": "Zipli's platform helps food producers turn surplus into savings.",
+      "page": "How can we help?",
+      "evidence": "Turn extra food into good use by making donations easier to handle and report."
     },
     {
       "id": "fact-9",
-      "text": "Zipli supports HoReCa & Retail in building responsible brands.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "HoReCa (Hotels, Restaurants, and Cafés) & Retail: Supports businesses in building responsible brands by automating food donation processes."
+      "text": "Zipli provides a consistent and diverse supply of surplus food for charities and upcyclers.",
+      "page": "How can we help?",
+      "evidence": "Get access to consistent and diverse supply of surplus food."
     },
     {
       "id": "fact-10",
-      "text": "Zipli assists food producers in turning surplus food into savings.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Food Producers: Assists in turning surplus food into savings and ensuring compliance with food donation rules."
-    },
-    {
-      "id": "fact-11",
-      "text": "Zipli provides charities and upcyclers with reliable access to surplus food.",
-      "page": "Target Customers and Use Cases",
-      "evidence": "Charities and Upcyclers: Provides reliable access to surplus food, reducing sourcing stress and enabling impactful food innovations."
-    },
-    {
-      "id": "fact-12",
-      "text": "Zipli contributes to reducing food waste and achieving sustainability goals.",
-      "page": "Value Propositions",
-      "evidence": "Environmental Impact: Contributes to reducing food waste and achieving sustainability goals."
-    },
-    {
-      "id": "fact-13",
-      "text": "Zipli empowers businesses and municipalities to support local communities.",
-      "page": "Value Propositions",
-      "evidence": "Social Responsibility: Empowers businesses and municipalities to support local communities and enhance social wellbeing."
-    },
-    {
-      "id": "fact-14",
-      "text": "Zipli streamlines the food donation process, reducing costs and improving compliance.",
-      "page": "Value Propositions",
-      "evidence": "Operational Efficiency: Streamlines the food donation process, reducing costs and improving compliance."
+      "text": "Zipli's AI-powered platform offers real-time insights on food flows.",
+      "page": "AI-powered data platform for overview, insights and action",
+      "evidence": "Our real-time insights will help you get an overview on food flows and detailed data on your positive impact."
     }
   ]
 }

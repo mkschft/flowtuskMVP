@@ -2,197 +2,239 @@
   "brand": {
     "name": "Tax Star",
     "tones": [
-      "professional",
-      "efficient"
+      "Professional",
+      "Informative"
     ],
     "primaryCTA": "Book a Demo"
   },
   "structure": {
     "nav": [
-      "Book a Demo",
-      "Log In",
-      "Sign Up"
+      "By Role",
+      "By Use Case",
+      "Compliance Solutions",
+      "Other Tools",
+      "About",
+      "Resources",
+      "Pricing",
+      "Sign Up",
+      "Log In"
     ],
     "keyPages": [
       {
-        "path": "/compliance-toolkit",
-        "title": "Compliance ToolKit"
+        "path": "/accounting-practice-owners",
+        "title": "Accounting Practice Owners"
       },
       {
-        "path": "/corporate-tax",
-        "title": "Corporate Tax"
+        "path": "/tax-advisors",
+        "title": "Tax Advisors"
       },
       {
-        "path": "/e-invoicing",
-        "title": "E-Invoicing"
+        "path": "/by-role-erp-resellers",
+        "title": "ERP Resellers"
+      },
+      {
+        "path": "/corporate-tax-calculations",
+        "title": "Corporate Tax Calculations"
+      },
+      {
+        "path": "/internal-and-client-approvals",
+        "title": "Internal and Client Approvals"
+      },
+      {
+        "path": "/financial-statement-production",
+        "title": "Financial Statements"
+      },
+      {
+        "path": "/practice-and-deadline-management",
+        "title": "Practice Management & Deadline"
+      },
+      {
+        "path": "/e-invoice",
+        "title": "E-invoicing (UAE)"
       },
       {
         "path": "/zakat",
-        "title": "Zakat"
+        "title": "Zakat for Business (KSA)"
+      },
+      {
+        "path": "/about",
+        "title": "About us"
+      },
+      {
+        "path": "/faq",
+        "title": "FAQ"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact Us"
+      },
+      {
+        "path": "/partners",
+        "title": "Our Partners"
+      },
+      {
+        "path": "/security-and-certifications",
+        "title": "Security & Certifications"
+      },
+      {
+        "path": "/tutorials",
+        "title": "Video Tutorials"
+      },
+      {
+        "path": "/podcast",
+        "title": "Podcast"
+      },
+      {
+        "path": "/webinar",
+        "title": "Webinar"
+      },
+      {
+        "path": "/blog",
+        "title": "Blogs"
+      },
+      {
+        "path": "/press",
+        "title": "Press"
+      },
+      {
+        "path": "/corporatetaxpenalties",
+        "title": "Tax Penalties"
+      },
+      {
+        "path": "/corporate-tax-guide",
+        "title": "Corporate Tax Guide"
+      },
+      {
+        "path": "/pricing",
+        "title": "Pricing"
       }
     ],
     "footer": [
-      "Learn More",
-      "Explore E-Invoicing",
-      "Explore Zakat"
+      "About us",
+      "FAQ",
+      "Contact Us",
+      "Our Partners",
+      "Security & Certifications",
+      "Video Tutorials",
+      "Podcast",
+      "Webinar",
+      "Blogs",
+      "Press",
+      "Tax Penalties",
+      "Corporate Tax Guide",
+      "Pricing"
     ]
   },
   "targetMarket": {
     "primaryRegion": "UAE",
-    "industryFocus": "Tax Software",
+    "industryFocus": "Corporate Tax Compliance",
     "signals": [
-      "AI Powered Tax Software (UAE)",
-      "FTA-compliant",
-      "Zakat calculations built for KSA"
+      "Corporate Tax (UAE)",
+      "E-Invoicing (UAE)",
+      "Zakat for Business (KSA)",
+      "AED 5,000 penalty"
     ]
   },
   "audienceSignals": [
-    "Accountants",
-    "Corporate Tax Clients",
-    "Financial Professionals"
+    "Accounting Practice Owners",
+    "Tax Advisors",
+    "ERP Resellers"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Automated tax calculation saves time",
+      "text": "AI-powered Corporate Tax software for UAE businesses.",
       "evidence": [
-        "fact-12",
-        "fact-13"
+        "fact-1",
+        "fact-2"
       ]
     },
     {
       "id": "v2",
-      "text": "Ensures compliance and meets deadlines",
+      "text": "Automated returns and IFRS financial statement production.",
       "evidence": [
-        "fact-14"
+        "fact-3",
+        "fact-4"
       ]
     },
     {
       "id": "v3",
-      "text": "Scales operations without adding staff",
+      "text": "Smart reminders to avoid penalties.",
       "evidence": [
-        "fact-15"
+        "fact-5",
+        "fact-6"
       ]
     }
   ],
   "pains": [
-    "Manual tax calculations",
-    "Compliance penalties",
-    "Managing multiple clients efficiently"
+    "Compliance can feel stressful.",
+    "Failure to update registration documents results in hefty penalties."
   ],
   "proof": [
-    "Increase in number of clients by 50%",
-    "Time saved in calculation by 75%",
-    "Client testimonials from JRB Chartered Accountants and Gulf School Finance"
+    "AI-powered Corporate Tax software",
+    "FTA-compliant E-Invoicing",
+    "Zakat calculations for KSA"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star offers AI Powered Tax Software",
+      "text": "Tax Star is an AI-powered Corporate Tax software for UAE businesses.",
       "page": "Home",
-      "evidence": "AI Powered Tax Software (UAE)"
+      "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
     },
     {
       "id": "fact-2",
-      "text": "Tax Star provides an E-Invoicing solution",
+      "text": "Tax Star offers E-Invoicing in the UAE.",
       "page": "Home",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+      "evidence": "Alongside it, E-Invoicing in the UAE and Zakat in KSA complete the toolkit."
     },
     {
       "id": "fact-3",
-      "text": "Tax Star offers Zakat calculations for KSA",
+      "text": "Tax Star automates returns and IFRS financial statement production.",
       "page": "Home",
-      "evidence": "Zakat calculations built for KSA"
+      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
     },
     {
       "id": "fact-4",
-      "text": "Tax Star's software integrates with Zoho, QuickBooks, and Xero",
+      "text": "All companies are required to prepare Financial Statements and submit with their tax return.",
       "page": "Home",
-      "evidence": "Seamlessly integrate your existing accounting tools like Zoho, QuickBooks, and Xero"
+      "evidence": "As per Corp tax law, all companies are required to prepare Financial Statements and submit with their tax return."
     },
     {
       "id": "fact-5",
-      "text": "Tax Star helps avoid AED 5,000 penalty with document expiry reminders",
+      "text": "Failure to update registration documents within 20 days of expiry will result in AED 5,000 penalty.",
       "page": "Home",
-      "evidence": "Avoid the AED 5,000 penalty"
+      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
     },
     {
       "id": "fact-6",
-      "text": "Tax Star's Corporate Tax Calculator is AI powered",
+      "text": "Tax Star notifies you when documents are due on a timely basis.",
       "page": "Home",
-      "evidence": "AI Powered Corporate Tax Calculator"
+      "evidence": "Tax Star notifies you when they are due on a timely basis."
     },
     {
       "id": "fact-7",
-      "text": "Tax Star eliminates the need for spreadsheets",
+      "text": "Tax Star's E-Invoicing ensures seamless integration with corporate tax filing.",
       "page": "Home",
-      "evidence": "Eliminate Spreadsheets"
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant and ensures seamless integration with corporate tax filing."
     },
     {
       "id": "fact-8",
-      "text": "Tax Star offers ERP Integrations",
+      "text": "Zakat calculations are built for KSA compliance.",
       "page": "Home",
-      "evidence": "ERP Integrations"
+      "evidence": "Zakat calculations built for KSA, designed to align smoothly with your overall compliance reporting."
     },
     {
       "id": "fact-9",
-      "text": "Tax Star provides audit trails",
+      "text": "Tax Star's primary CTA is to book a demo.",
       "page": "Home",
-      "evidence": "Audit Trails"
+      "evidence": "[Book a Corporate Tax Demo](https://calendar.app.google/JC4VQuD3WcBHxwXKA)"
     },
     {
       "id": "fact-10",
-      "text": "Tax Star's software is used by companies like Alpha Pro Partners and Legends Accounting",
+      "text": "Tax Star provides a Corporate Tax Calculator.",
       "page": "Home",
-      "evidence": "Our Clients"
-    },
-    {
-      "id": "fact-11",
-      "text": "Tax Star's software automates corporate tax calculations",
-      "page": "Home",
-      "evidence": "Automate Corporate Tax Calculations"
-    },
-    {
-      "id": "fact-12",
-      "text": "Tax Star's software saves 40% of time on tax workflows",
-      "page": "Home",
-      "evidence": "Save 40% of your time by automating corporate tax workflows"
-    },
-    {
-      "id": "fact-13",
-      "text": "Tax Star's software allows handling 30-40% more clients",
-      "page": "Home",
-      "evidence": "Handle 30-40% more clients with automated workflows"
-    },
-    {
-      "id": "fact-14",
-      "text": "Tax Star ensures compliance and meets deadlines",
-      "page": "Home",
-      "evidence": "Ensure Compliance and Meet Deadlines"
-    },
-    {
-      "id": "fact-15",
-      "text": "Tax Star allows scaling without adding staff",
-      "page": "Home",
-      "evidence": "Scale Without Adding Staff"
-    },
-    {
-      "id": "fact-16",
-      "text": "Tax Star's software is described as reliable and user-friendly",
-      "page": "Home",
-      "evidence": "With seamless integration of tax computation and practice management, it's reliable, user-friendly"
-    },
-    {
-      "id": "fact-17",
-      "text": "Tax Star's software has transformed tax filings and financial reporting",
-      "page": "Home",
-      "evidence": "This software has transformed the way we handle tax filings and financial reporting"
-    },
-    {
-      "id": "fact-18",
-      "text": "Tax Star's software offers practice management tools",
-      "page": "Home",
-      "evidence": "The practice management tools allow me to keep track of everything in one place"
+      "evidence": "AI Powered Corporate Tax Calculator"
     }
   ]
 }

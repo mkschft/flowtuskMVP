@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS brand_manifest_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    flow_id TEXT NOT NULL,
+    flow_id UUID NOT NULL,
     manifest JSONB NOT NULL,
     action TEXT NOT NULL, -- e.g., 'color_update', 'market_shift', 'template_applied'
     description TEXT, -- Human-readable description of the change
