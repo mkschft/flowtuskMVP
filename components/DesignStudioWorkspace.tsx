@@ -77,6 +77,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
+  // Track if generation has been triggered to prevent infinite loops
+  const generationTriggeredRef = useRef(false);
+
   // Generation states
   const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
   const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
@@ -189,7 +192,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     } catch (err) {
       console.error("❌ [Manifest] Error loading manifest:", err);
     }
-  }, [flowId, designAssets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flowId]);
+  // Note: designAssets intentionally omitted to prevent infinite loop
 
   // Load data on mount
   useEffect(() => {
@@ -618,13 +623,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     };
   }, [workspaceData, uiValueProp, designAssets, chatMessages]);
 
-  // Trigger background generation after workspace data loads
+  // Trigger background generation after workspace data loads (only once)
   useEffect(() => {
-    if (workspaceData && !loading) {
+    if (workspaceData && !loading && !generationTriggeredRef.current) {
       console.log('🚀 [Design Studio] Triggering background generation...');
+      generationTriggeredRef.current = true;
       triggerBackgroundGeneration();
     }
-  }, [workspaceData, loading, triggerBackgroundGeneration]);
+  }, [workspaceData, loading]);
 
   const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
