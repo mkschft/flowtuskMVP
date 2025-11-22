@@ -1,0 +1,5 @@
+# Custom Rules for Flowtusk Development
+
+## Worktree Context
+- Always mention the current worktree directory and branch name at the start of responses when working in a git worktree
+- Format: "**Worktree**: `/path/to/worktree` | **Branch**: `branch-name`"
