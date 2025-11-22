@@ -1,0 +1,176 @@
+{
+  "brand": {
+    "name": "Hasan Jubair",
+    "tones": [
+      "Professional",
+      "Innovative",
+      "Strategic"
+    ],
+    "primaryCTA": "Build With Hasan"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "About",
+      "Speaker",
+      "Portfolio",
+      "Press & Media",
+      "Contact"
+    ],
+    "keyPages": [
+      {
+        "path": "https://hasanjubair.com/",
+        "title": "Home"
+      },
+      {
+        "path": "https://hasanjubair.com/about/",
+        "title": "About"
+      },
+      {
+        "path": "https://hasanjubair.com/speaker/",
+        "title": "Speaker"
+      },
+      {
+        "path": "https://hasanjubair.com/portfolio/",
+        "title": "Portfolio"
+      },
+      {
+        "path": "https://hasanjubair.com/press-media/",
+        "title": "Press & Media"
+      },
+      {
+        "path": "https://hasanjubair.com/contact/",
+        "title": "Contact"
+      }
+    ],
+    "footer": [
+      "Projukti Team",
+      "Build With Hasan",
+      "Rokomari",
+      "Daraz",
+      "LinkedIn",
+      "YouTube",
+      "Facebook",
+      "Instagram",
+      "TikTok",
+      "X",
+      "Terms & Conditions",
+      "Privacy Policy",
+      "Disclaimer"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "EdTech",
+    "signals": [
+      "Country Head of Codingal",
+      "Founder of Projukti Team Limited",
+      "Y Combinator",
+      "EdTech products"
+    ]
+  },
+  "audienceSignals": [
+    "EdTech startups",
+    "B2C companies",
+    "Entrepreneurs"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Launches Edtech products that combine strong pedagogy with measurable outcomes.",
+      "evidence": [
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Led Codingal to scale enrolments through partnerships and community.",
+      "evidence": [
+        "fact-6"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Guides Edtech startups on pricing, funnels, and AI automation to improve unit economics.",
+      "evidence": [
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for strong pedagogy in EdTech",
+    "Scaling enrolments",
+    "Improving unit economics in startups"
+  ],
+  "proof": [
+    "Featured on Prothom Alo",
+    "Featured on Kaler Kantho",
+    "Featured on Daily Star",
+    "Featured on Priyo",
+    "Featured on Techsohor",
+    "Featured on ATN",
+    "Featured on Inqilab"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Hasan Jubair is a Serial Edtech Entrepreneur.",
+      "page": "Home",
+      "evidence": "Serial Edtech Entrepreneur, CEO & Founder of Projukti Team Limited"
+    },
+    {
+      "id": "fact-2",
+      "text": "Hasan Jubair is the Country Head of Codingal.",
+      "page": "Home",
+      "evidence": "Country Head of Codingal (Y Combinator backed)"
+    },
+    {
+      "id": "fact-3",
+      "text": "Hasan Jubair is the CEO & Founder of Projukti Team Limited.",
+      "page": "Home",
+      "evidence": "CEO & Founder of Projukti Team Limited"
+    },
+    {
+      "id": "fact-4",
+      "text": "Hasan Jubair is an advisor and strategist.",
+      "page": "Home",
+      "evidence": "advisor, strategist"
+    },
+    {
+      "id": "fact-5",
+      "text": "Hasan Jubair launches Edtech products that combine strong pedagogy with measurable outcomes.",
+      "page": "Home",
+      "evidence": "Edtech Founder Hasan launches Edtech products that combine strong pedagogy with measurable outcomes."
+    },
+    {
+      "id": "fact-6",
+      "text": "Hasan Jubair led Codingal to scale enrolments through partnerships and community.",
+      "page": "Home",
+      "evidence": "Led Codingal, a YC backed startup, to scale enrolments through partnerships and community."
+    },
+    {
+      "id": "fact-7",
+      "text": "Hasan Jubair guides Edtech startups on pricing, funnels, and AI automation.",
+      "page": "Home",
+      "evidence": "Guides Edtech startups on pricing, funnels and Ai automation to improve unit economics."
+    },
+    {
+      "id": "fact-8",
+      "text": "Hasan Jubair's motto is 'Honesty first, skills next, success always.'",
+      "page": "Home",
+      "evidence": "“Honesty first, skills next, success always.”"
+    },
+    {
+      "id": "fact-9",
+      "text": "Hasan Jubair is featured on multiple media outlets including Prothom Alo and Kaler Kantho.",
+      "page": "Home",
+      "evidence": "As Featured On"
+    },
+    {
+      "id": "fact-10",
+      "text": "Hasan Jubair is building B2C Edtech companies from the ground-up.",
+      "page": "Home",
+      "evidence": "Building B2C Edtech Companies From The Ground-Up"
+    }
+  ]
+}

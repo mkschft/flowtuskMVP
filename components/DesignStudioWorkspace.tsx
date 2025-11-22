@@ -97,6 +97,17 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
         setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
         setDesignAssets(assets || null);
+        // Initialize UI value prop from server data (pre-manifest)
+        const initialVp: UiValueProp = {
+          headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
+          subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
+          problem: valueProp?.problem || "",
+          solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
+          outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
+          benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
+          targetAudience: valueProp?.targetAudience || icp?.title || "",
+        };
+        setUiValueProp(initialVp);
         setLoading(false);
         return;
       }
@@ -116,6 +127,17 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
       setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
       setDesignAssets(assets || null);
+      // Initialize UI value prop from fallback data
+      const initialVp: UiValueProp = {
+        headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
+        subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
+        problem: valueProp?.problem || "",
+        solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
+        outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
+        benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
+        targetAudience: valueProp?.targetAudience || icp?.title || "",
+      };
+      setUiValueProp(initialVp);
       setLoading(false);
     } catch (err) {
       console.error("❌ [Design Studio] Error loading data:", err);
@@ -129,18 +151,27 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       if (typeof document !== 'undefined' && document.hidden) return;
 
       const url = `/api/brand-manifest?flowId=${flowId}`;
-      // console.log('🔍 [Manifest] Fetching from:', url); // Reduced logging
 
       const res = await fetch(url);
 
       if (res.ok) {
         const { manifest } = await res.json();
         if (manifest) {
-          // Only update if version changed to avoid re-renders
+          // Update when lastUpdated changes (version is static at 1.0)
           setManifest(prev => {
-            if (prev?.version !== manifest.version) {
-              console.log('✅ [Manifest] Updated to v', manifest.version);
+            if (!prev || prev.lastUpdated !== manifest.lastUpdated) {
+              console.log('✅ [Manifest] Updated @', manifest.lastUpdated);
               mapManifestToLegacyState(manifest);
+              // Keep UI value prop in sync with manifest
+              setUiValueProp({
+                headline: manifest.strategy?.valueProp?.headline || '',
+                subheadline: manifest.strategy?.valueProp?.subheadline || '',
+                problem: manifest.strategy?.valueProp?.problem || '',
+                solution: manifest.strategy?.valueProp?.solution || '',
+                outcome: manifest.strategy?.valueProp?.outcome || '',
+                benefits: manifest.strategy?.valueProp?.benefits || [],
+                targetAudience: manifest.strategy?.valueProp?.targetAudience || ''
+              });
               return manifest;
             }
             return prev;
@@ -203,6 +234,17 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       };
 
       return newData;
+    });
+
+    // Keep dedicated UI value prop in sync with manifest
+    setUiValueProp({
+      headline: manifest.strategy?.valueProp?.headline || '',
+      subheadline: manifest.strategy?.valueProp?.subheadline || '',
+      problem: manifest.strategy?.valueProp?.problem || '',
+      solution: manifest.strategy?.valueProp?.solution || '',
+      outcome: manifest.strategy?.valueProp?.outcome || '',
+      benefits: manifest.strategy?.valueProp?.benefits || [],
+      targetAudience: manifest.strategy?.valueProp?.targetAudience || ''
     });
 
     // Map Manifest -> DesignAssets (Brand, Style, Landing)
@@ -654,6 +696,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: cleanMessages,
+          flowId,
+          icpId,
           context: workspaceData?.persona ? {
             persona: {
               name: workspaceData.persona.persona_name,
