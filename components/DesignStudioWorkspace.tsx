@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,8 @@ import type {
   PositioningDesignAssets,
   CopilotWorkspaceData,
 } from "@/lib/types/design-assets";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { ManifestHistory } from "@/lib/manifest-history";
 
 import { exportElementAsImage, exportElementAsPDF } from "@/lib/export-utils";
 
@@ -48,6 +50,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   // Data from database
   const [workspaceData, setWorkspaceData] = useState<CopilotWorkspaceData | null>(null);
   const [designAssets, setDesignAssets] = useState<PositioningDesignAssets | null>(null);
+  const [manifest, setManifest] = useState<BrandManifest | null>(null);
 
   // UI state: flattened value prop for instant updates
   const [uiValueProp, setUiValueProp] = useState<UiValueProp | null>(null);
@@ -69,66 +72,18 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [isChatVisible, setIsChatVisible] = useState(true);
 
+  // Manifest History Management
+  const manifestHistoryRef = useRef<ManifestHistory | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
   // Generation states
   const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
   const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
   const [isGeneratingLanding, setIsGeneratingLanding] = useState(false);
 
-  // Load data on mount
-  useEffect(() => {
-    loadWorkspaceData();
-  }, [icpId, flowId]);
-
-  // Initialize UI value prop from database
-  useEffect(() => {
-    if (workspaceData) {
-      setUiValueProp({
-        headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text ||
-          workspaceData.persona.description,
-        subheadline: workspaceData.valueProp?.summary?.mainInsight ||
-          `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
-        problem: workspaceData.persona.pain_points.join(", "),
-        solution: workspaceData.valueProp?.summary?.approachStrategy ||
-          `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
-        outcome: workspaceData.valueProp?.summary?.expectedImpact ||
-          `Proven results that help teams like yours achieve their goals faster`,
-        benefits: workspaceData.valueProp?.variations?.map(v => v.text) ||
-          workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
-        targetAudience: workspaceData.persona.title,
-      });
-    }
-  }, [workspaceData]);
-
-  // Trigger background generation after workspace loads
-  useEffect(() => {
-    if (workspaceData && !loading) {
-      triggerBackgroundGeneration();
-    }
-  }, [workspaceData, loading]);
-
-  // Debounced persistence: save UI changes to database after 2s of inactivity
-  useEffect(() => {
-    if (!uiValueProp || !workspaceData) return;
-
-    const timeout = setTimeout(async () => {
-      try {
-        console.log('💾 [Design Studio] Auto-saving value prop changes...');
-        // TODO: Implement /api/value-props/update endpoint
-        // await fetch('/api/value-props/update', {
-        //   method: 'PATCH',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ icpId, flowId, ...uiValueProp })
-        // });
-        console.log('✅ [Design Studio] Value prop auto-saved');
-      } catch (err) {
-        console.error('❌ [Design Studio] Auto-save failed:', err);
-      }
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }, [uiValueProp, icpId, flowId]);
-
-  const loadWorkspaceData = async () => {
+  // Load workspace data with useCallback
+  const loadWorkspaceData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -167,7 +122,219 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       setError(err instanceof Error ? err.message : "Failed to load data");
       setLoading(false);
     }
+  }, [icpId, flowId]);
+  const loadManifest = useCallback(async () => {
+    try {
+      // Skip if tab is not visible to save resources
+      if (typeof document !== 'undefined' && document.hidden) return;
+
+      const url = `/api/brand-manifest?flowId=${flowId}`;
+      // console.log('🔍 [Manifest] Fetching from:', url); // Reduced logging
+
+      const res = await fetch(url);
+
+      if (res.ok) {
+        const { manifest } = await res.json();
+        if (manifest) {
+          // Only update if version changed to avoid re-renders
+          setManifest(prev => {
+            if (prev?.version !== manifest.version) {
+              console.log('✅ [Manifest] Updated to v', manifest.version);
+              mapManifestToLegacyState(manifest);
+              return manifest;
+            }
+            return prev;
+          });
+        }
+      }
+    } catch (err) {
+      console.error("❌ [Manifest] Error loading manifest:", err);
+    }
+  }, [flowId]);
+
+  // Load data on mount
+  useEffect(() => {
+    loadWorkspaceData();
+    loadManifest();
+  }, [icpId, flowId, loadManifest]);
+
+  // Poll for manifest updates (every 30s instead of 5s)
+  useEffect(() => {
+    const interval = setInterval(loadManifest, 30000);
+    return () => clearInterval(interval);
+  }, [loadManifest]);
+
+  const mapManifestToLegacyState = (manifest: BrandManifest) => {
+    // Map Manifest -> WorkspaceData (Persona, ValueProp)
+    setWorkspaceData(prev => {
+      const newData = prev ? { ...prev } : {
+        persona: {} as any,
+        valueProp: {} as any,
+        designAssets: {} as any
+      };
+
+      newData.persona = {
+        ...newData.persona,
+        id: icpId, // Keep original ID
+        persona_name: manifest.strategy?.persona?.name || '',
+        persona_role: manifest.strategy?.persona?.role || '',
+        persona_company: manifest.strategy?.persona?.company || '',
+        title: manifest.strategy?.persona?.industry || '', // Mapping industry to title for now
+        location: manifest.strategy?.persona?.location || '',
+        country: manifest.strategy?.persona?.country || '',
+        pain_points: manifest.strategy?.persona?.painPoints || [],
+        goals: manifest.strategy?.persona?.goals || [],
+        description: `Targeting ${manifest.strategy?.persona?.role || 'users'} at ${manifest.strategy?.persona?.company || 'companies'}`
+      };
+
+      newData.valueProp = {
+        ...newData.valueProp,
+        headline: manifest.strategy?.valueProp?.headline || '',
+        subheadline: manifest.strategy?.valueProp?.subheadline || '',
+        summary: {
+          mainInsight: manifest.strategy?.valueProp?.subheadline || '',
+          approachStrategy: manifest.strategy?.valueProp?.solution || '',
+          expectedImpact: manifest.strategy?.valueProp?.outcome || ''
+        },
+        variations: (manifest.strategy?.valueProp?.benefits || []).map((b, i) => ({
+          id: `benefit-${i}`,
+          text: b
+        }))
+      };
+
+      return newData;
+    });
+
+    // Map Manifest -> DesignAssets (Brand, Style, Landing)
+    setDesignAssets(prev => {
+      const newAssets = prev ? { ...prev } : {
+        id: 'generated',
+        icp_id: icpId,
+        parent_flow: flowId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        generation_metadata: {},
+        brand_guide: {} as any,
+        style_guide: {} as any,
+        landing_page: {} as any,
+        generation_state: { brand: true, style: true, landing: true }
+      };
+
+      newAssets.brand_guide = {
+        colors: {
+          primary: manifest.identity?.colors?.primary || [],
+          secondary: manifest.identity?.colors?.secondary || [],
+          accent: manifest.identity?.colors?.accent || [],
+          neutral: manifest.identity?.colors?.neutral || []
+        },
+        typography: [
+          { category: 'heading', fontFamily: manifest.identity?.typography?.heading?.family || 'Inter' },
+          { category: 'body', fontFamily: manifest.identity?.typography?.body?.family || 'Inter' }
+        ],
+        toneOfVoice: manifest.identity?.tone?.keywords || [],
+        logoVariations: manifest.identity?.logo?.variations || [],
+        personalityTraits: (manifest.identity?.tone?.personality || []).map(p => p.trait)
+      };
+
+      newAssets.style_guide = {
+        buttons: [
+          { style: manifest.components?.buttons?.primary?.style || 'solid', label: 'Primary' },
+          { style: manifest.components?.buttons?.secondary?.style || 'outline', label: 'Secondary' }
+        ],
+        cards: [{ style: manifest.components?.cards?.style || 'flat' }],
+        borderRadius: manifest.components?.cards?.borderRadius || '8px',
+        shadows: [manifest.components?.cards?.shadow || 'sm'],
+        formElements: [],
+        spacing: []
+      };
+
+      newAssets.landing_page = {
+        hero: manifest.previews?.landingPage?.hero || { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
+        features: manifest.previews?.landingPage?.features || [],
+        socialProof: manifest.previews?.landingPage?.socialProof || [],
+        footer: manifest.previews?.landingPage?.footer || { sections: [] },
+        navigation: { logo: manifest.brandName || '', links: [] }
+      };
+
+      newAssets.generation_state = { brand: true, style: true, landing: true };
+
+      return newAssets;
+    });
   };
+
+  // Initialize history when manifest first loads
+  useEffect(() => {
+    if (manifest && !manifestHistoryRef.current) {
+      manifestHistoryRef.current = new ManifestHistory(manifest);
+      setCanUndo(false);
+      setCanRedo(false);
+      console.log('📚 [History] Initialized with current manifest');
+    }
+  }, [manifest]);
+
+  // Update history state when manifest changes (from AI updates)
+  useEffect(() => {
+    if (manifest && manifestHistoryRef.current) {
+      const history = manifestHistoryRef.current;
+      setCanUndo(history.canUndo());
+      setCanRedo(history.canRedo());
+    }
+  }, [manifest]);
+
+  // Undo handler
+  const handleUndo = useCallback(async () => {
+    if (!manifestHistoryRef.current) return;
+
+    const previousManifest = manifestHistoryRef.current.undo();
+    if (previousManifest) {
+      console.log('↩️ [History] Undoing to previous state');
+      setManifest(previousManifest);
+      mapManifestToLegacyState(previousManifest);
+
+      // Update undo/redo availability
+      setCanUndo(manifestHistoryRef.current.canUndo());
+      setCanRedo(manifestHistoryRef.current.canRedo());
+
+      addToast('Undone', 'info');
+    }
+  }, []);
+
+  // Redo handler
+  const handleRedo = useCallback(async () => {
+    if (!manifestHistoryRef.current) return;
+
+    const nextManifest = manifestHistoryRef.current.redo();
+    if (nextManifest) {
+      console.log('↪️ [History] Redoing to next state');
+      setManifest(nextManifest);
+      mapManifestToLegacyState(nextManifest);
+
+      // Update undo/redo availability
+      setCanUndo(manifestHistoryRef.current.canUndo());
+      setCanRedo(manifestHistoryRef.current.canRedo());
+
+      addToast('Redone', 'info');
+    }
+  }, []);
+
+  // Add keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Z or Cmd+Z for undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+      // Ctrl+Shift+Z or Cmd+Shift+Z for redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
 
   // Background generation orchestration
   const triggerBackgroundGeneration = async () => {
@@ -487,7 +654,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: cleanMessages,
-          context: workspaceData ? {
+          context: workspaceData?.persona ? {
             persona: {
               name: workspaceData.persona.persona_name,
               role: workspaceData.persona.persona_role,
@@ -583,6 +750,34 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const parseAndApplyUpdates = (response: string) => {
     try {
       // Check for function call format from new API
+      // Check for MANIFEST update signal
+      const manifestMatch = response.match(/__MANIFEST_UPDATED__(.+)/);
+      if (manifestMatch) {
+        const updatedManifest = JSON.parse(manifestMatch[1]);
+        console.log('🔄 [Design Studio] Received manifest update');
+
+        // Add to history before updating state
+        if (manifestHistoryRef.current) {
+          const updateType = updatedManifest.metadata.generationHistory.slice(-1)[0]?.action || 'update';
+          manifestHistoryRef.current.addToHistory(
+            updatedManifest,
+            updateType,
+            `AI updated: ${updateType}`
+          );
+          setCanUndo(manifestHistoryRef.current.canUndo());
+          setCanRedo(manifestHistoryRef.current.canRedo());
+        }
+
+        setManifest(updatedManifest);
+        mapManifestToLegacyState(updatedManifest);
+
+        // Show success toast
+        const updateType = updatedManifest.metadata.generationHistory.slice(-1)[0]?.action || 'update';
+        addToast(`Brand updated: ${updateType}`, "success");
+        return;
+      }
+
+      // Legacy fallback (should not be hit with new API)
       const functionCallMatch = response.match(/__FUNCTION_CALL__(.+)/);
       let updates;
 
@@ -1008,6 +1203,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             flowId={flowId}
             workspaceData={workspaceData}
             designAssets={designAssets}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={canUndo}
+            canRedo={canRedo}
           />
         </div>
 

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     // Demo mode support
     const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
     if (!user && !isDemoMode) {
@@ -175,6 +175,46 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`✅ [Design Assets Generate] ${tab} generated successfully`);
+
+    // Sync to Brand Manifest
+    try {
+      const { mapLegacyDataToManifest } = await import('@/lib/brand-manifest-utils');
+      const { fetchBrandManifest, createBrandManifest, updateBrandManifest } = await import('@/lib/brand-manifest');
+
+      // We need flow data for the title
+      const { data: flow } = await supabase.from('positioning_flows').select('title, id').eq('id', flowId).single();
+
+      if (flow) {
+        const workspaceData = {
+          persona: icp,
+          valueProp: valueProp ? {
+            headline: valueProp.summary?.mainInsight,
+            subheadline: valueProp.summary?.approachStrategy,
+            problem: icp.pain_points?.join(', '),
+            solution: valueProp.summary?.approachStrategy,
+            outcome: valueProp.summary?.expectedImpact,
+            benefits: valueProp.variations?.map((v: any) => v.text) || [],
+            targetAudience: icp.title
+          } : {}
+        };
+
+        const newManifest = mapLegacyDataToManifest(flow, workspaceData, updatedAssets);
+
+        // Check if manifest exists
+        const existing = await fetchBrandManifest(flowId, icpId);
+
+        if (existing) {
+          await updateBrandManifest(flowId, newManifest, `generated_${tab}`);
+        } else {
+          await createBrandManifest(flowId, icpId, newManifest);
+        }
+        console.log(`✅ [Design Assets Generate] Synced to Brand Manifest`);
+      }
+    } catch (syncError) {
+      console.error('❌ [Design Assets Generate] Failed to sync manifest:', syncError);
+      // Don't fail the request if sync fails, just log it
+    }
+
     return NextResponse.json({ designAssets: updatedAssets });
   } catch (error) {
     console.error('❌ [Design Assets Generate] Unexpected error:', error);

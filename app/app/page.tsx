@@ -19,10 +19,10 @@ import { nanoid } from "nanoid";
 import { flowsClient, type Flow } from "@/lib/flows-client";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
-import { 
-  migrateLocalStorageToDb, 
+import {
+  migrateLocalStorageToDb,
   needsMigration,
-  clearLocalStorageAfterMigration 
+  clearLocalStorageAfterMigration
 } from "@/lib/migrate-local-to-db";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingFlowsSkeleton } from "@/components/LoadingFlowsSkeleton";
@@ -77,7 +77,7 @@ function ChatPageContent() {
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   // DB Integration states
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -85,7 +85,7 @@ function ChatPageContent() {
   const [isMigrating, setIsMigrating] = useState(false);
   const [dbSyncEnabled, setDbSyncEnabled] = useState(true); // DB sync enabled
   const [dbConnectionHealthy, setDbConnectionHealthy] = useState<boolean | null>(null);
-  
+
   // New Hero UI states
   const useHeroUI = process.env.NEXT_PUBLIC_USE_HERO_UI === 'true';
   const [analysisStep, setAnalysisStep] = useState<'fetching' | 'extracting' | 'generating' | 'finalizing'>('fetching');
@@ -123,25 +123,25 @@ function ChatPageContent() {
       // Check auth
       const supabase = createClient();
       const { data: { user: authUser } } = await supabase.auth.getUser();
-      
+
       setUser(authUser);
-      
+
       // Demo mode bypass
       const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
-      
+
       if (!authUser && !isDemoMode) {
         console.log('🔒 [Auth] Not authenticated, redirecting to login');
         setAuthLoading(false);
         window.location.href = '/auth/login';
         return;
       }
-      
+
       console.log('✅ [Auth] User authenticated or demo mode');
-      
+
       // Test DB connection before proceeding
       const isHealthy = await testSupabaseConnection();
       setDbConnectionHealthy(isHealthy);
-      
+
       if (!isHealthy) {
         console.warn('⚠️ [DB Health] Connection failed, falling back to localStorage');
         setDbSyncEnabled(false);
@@ -149,7 +149,7 @@ function ChatPageContent() {
         setAuthLoading(false);
         return;
       }
-      
+
       // Check if migration needed
       if (needsMigration()) {
         console.log('📦 [Migration] LocalStorage data detected');
@@ -159,7 +159,7 @@ function ChatPageContent() {
         setAuthLoading(false);
         return;
       }
-      
+
       // Load flows from DB
       if (dbSyncEnabled && authUser) {
         console.log('🔵 [DB Sync] ENABLED - Loading from Supabase');
@@ -168,7 +168,7 @@ function ChatPageContent() {
         console.log('📦 [Storage] Using localStorage');
         loadFromLocalStorage();
       }
-      
+
       setAuthLoading(false);
     } catch (error) {
       console.error('❌ [Init] Failed to initialize:', error);
@@ -185,7 +185,7 @@ function ChatPageContent() {
   function loadFromLocalStorage() {
     const savedConversations = localStorage.getItem('flowtusk_conversations');
     const savedActiveId = localStorage.getItem('flowtusk_active_conversation');
-    
+
     if (savedConversations) {
       try {
         const parsed = JSON.parse(savedConversations);
@@ -204,10 +204,10 @@ function ChatPageContent() {
     try {
       setIsLoading(true);
       console.log('🔍 [DB] Loading flows from database...');
-      
+
       const flows = await flowsClient.listFlows();
       console.log(`✅ [DB] Loaded ${flows.length} flows from database`);
-      
+
       // Debug: Track evidence chain in loaded flows
       flows.forEach((flow, idx) => {
         const facts = (flow.facts_json as any)?.facts || [];
@@ -216,14 +216,30 @@ function ChatPageContent() {
           console.log(`📎 [Evidence] Flow ${idx + 1}: ${facts.length} facts, ICP has ${icpEvidence.length} evidence links`);
         }
       });
-      
+
       // Convert Flow to Conversation format
       const conversations = flows.map(flowToConversation);
-      
-      setConversations(conversations);
-      
-      if (conversations.length > 0 && !activeConversationId) {
-        setActiveConversationId(conversations[0].id);
+
+      // Detect and filter duplicate IDs
+      const seenIds = new Set<string>();
+      const duplicateIds = new Set<string>();
+      const uniqueConversations = conversations.filter(conv => {
+        if (seenIds.has(conv.id)) {
+          duplicateIds.add(conv.id);
+          return false;
+        }
+        seenIds.add(conv.id);
+        return true;
+      });
+
+      if (duplicateIds.size > 0) {
+        console.warn(`⚠️ [DB] Found ${duplicateIds.size} duplicate conversation IDs:`, Array.from(duplicateIds));
+      }
+
+      setConversations(uniqueConversations);
+
+      if (uniqueConversations.length > 0 && !activeConversationId) {
+        setActiveConversationId(uniqueConversations[0].id);
       }
     } catch (error) {
       console.error('❌ [DB] Failed to load flows:', error);
@@ -236,7 +252,7 @@ function ChatPageContent() {
 
   function flowToConversation(flow: Flow): Conversation {
     const generatedContent = (flow.generated_content as any) || {};
-    
+
     return {
       id: flow.id,
       title: flow.title,
@@ -276,7 +292,7 @@ function ChatPageContent() {
     if (!dbSyncEnabled || !activeConversationId || conversations.length === 0) {
       return;
     }
-    
+
     const conversation = conversations.find(c => c.id === activeConversationId);
     if (!conversation) return;
 
@@ -284,13 +300,13 @@ function ChatPageContent() {
     if (conversation.generationState?.isGenerating) {
       return;
     }
-    
+
     // Only auto-save if conversation has messages (meaning it's been initialized)
     // This prevents trying to update flows that don't exist in DB yet
     if (conversation.messages.length > 0) {
       debouncedSaveToDb(conversation);
     }
-    
+
     // Also save to localStorage as backup
     try {
       localStorage.setItem('flowtusk_conversations', JSON.stringify(conversations));
@@ -311,7 +327,7 @@ function ChatPageContent() {
         const evidence = (conversation.memory.selectedIcp as any)?.evidence || [];
         console.log(`💾 [DB Save] Selected ICP has ${evidence.length} evidence links`);
       }
-      
+
       // Sanitize data before saving to avoid size issues
       const sanitizedGeneratedContent = {
         // Only save essential message data (exclude large content if needed)
@@ -335,7 +351,7 @@ function ChatPageContent() {
         generationHistory: conversation.memory.generationHistory.slice(-10), // Keep only last 10
         userPreferences: conversation.memory.userPreferences,
       };
-      
+
       await flowsClient.debouncedUpdate(conversation.id, {
         // Don't update title to avoid 409 conflicts with other flows
         // (title is set once during creation via findOrCreateFlow)
@@ -345,7 +361,7 @@ function ChatPageContent() {
         generated_content: sanitizedGeneratedContent,
         step: determineCurrentStep(conversation),
       });
-      
+
       console.log('💾 [DB] Auto-saved to database');
     } catch (error) {
       console.error('❌ [DB] Auto-save failed:', error);
@@ -357,12 +373,12 @@ function ChatPageContent() {
 
   function determineCurrentStep(conversation: Conversation): string {
     const journey = conversation.userJourney;
-    
+
     if (journey.exported) return 'exported';
     if (journey.valuePropGenerated) return 'value_prop';
     if (journey.icpSelected) return 'icp_selected';
     if (journey.websiteAnalyzed) return 'analyzed';
-    
+
     return 'initial';
   }
 
@@ -425,16 +441,16 @@ function ChatPageContent() {
           title: `New conversation ${new Date().toLocaleDateString()}`,
           step: 'initial',
         });
-        
+
         const newConv = flowToConversation(flow);
         setConversations(prev => [newConv, ...prev]);
         setActiveConversationId(newConv.id);
         setSelectedIcp(null);
         setWebsiteUrl("");
-        
+
         // Initialize memory manager
         memoryManager.updateMemory(newConv.id, newConv.memory);
-        
+
         console.log('✅ [DB] Created new flow in database');
       } else {
         // Fallback to local-only mode
@@ -473,7 +489,7 @@ function ChatPageContent() {
         setActiveConversationId(newConvId);
         setSelectedIcp(null);
         setWebsiteUrl("");
-        
+
         // Initialize memory manager
         memoryManager.updateMemory(newConvId, newConv.memory);
       }
@@ -491,11 +507,11 @@ function ChatPageContent() {
         await flowsClient.softDeleteFlow(convId);
         console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
       }
-      
+
       // Remove from UI
       setConversations(prev => {
         const filtered = prev.filter(c => c.id !== convId);
-        
+
         // If we deleted the active conversation, switch to another one
         if (convId === activeConversationId) {
           // Try to switch to the next conversation, or create a new one if none exist
@@ -510,10 +526,10 @@ function ChatPageContent() {
             setTimeout(() => createNewConversation(), 0);
           }
         }
-        
+
         // Clean up memory manager
         memoryManager.clearMemory(convId);
-        
+
         console.log(`🗑️ [Conversation] Deleted conversation: ${convId}`);
         return filtered;
       });
@@ -550,11 +566,11 @@ function ChatPageContent() {
     setConversations(prev =>
       prev.map(conv =>
         conv.id === activeConversationId
-          ? { 
-              ...conv, 
-              generationState: { ...conv.generationState, ...updates },
-              lastGenerationTime: new Date()
-            }
+          ? {
+            ...conv,
+            generationState: { ...conv.generationState, ...updates },
+            lastGenerationTime: new Date()
+          }
           : conv
       )
     );
@@ -601,17 +617,17 @@ function ChatPageContent() {
 
   const canPerformAction = (action: string): boolean => {
     if (!activeConversation) return false;
-    
+
     const { generationState } = activeConversation;
-    
+
     // Check if generation is in progress
     if (generationState.isGenerating) {
       return false;
     }
-    
+
     // Use memory manager for dependency checking
     const memoryCanPerform = memoryManager.canPerformAction(activeConversationId, action);
-    
+
     // Additional checks for specific actions
     switch (action) {
       case 'select-icp':
@@ -640,11 +656,11 @@ function ChatPageContent() {
         messages: conv.messages.map(m =>
           m.id === messageId
             ? {
-                ...m,
-                thinking: m.thinking?.map(s =>
-                  s.id === stepId ? { ...s, ...updates } : s
-                ),
-              }
+              ...m,
+              thinking: m.thinking?.map(s =>
+                s.id === stepId ? { ...s, ...updates } : s
+              ),
+            }
             : m
         ),
       }))
@@ -672,7 +688,7 @@ function ChatPageContent() {
     // Ensure we have an active conversation and get the ID
     const convId = ensureActiveConversation();
     console.log('✅ [handleSendMessage] Active conversation ID:', convId);
-    
+
     // Wait a tick for state to settle if we just created a new conversation
     if (convId !== activeConversationId) {
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -695,12 +711,12 @@ function ChatPageContent() {
       const urlPattern = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&\/=]*/;
       if (urlPattern.test(userInput)) {
         let url = userInput.match(urlPattern)?.[0] || "";
-        
+
         // Normalize URL to ensure it has a protocol
         if (!/^https?:\/\//i.test(url)) {
           url = `https://${url}`;
         }
-        
+
         setWebsiteUrl(url);
         updateConversationTitle(new URL(url).hostname);
 
@@ -720,8 +736,8 @@ function ChatPageContent() {
 
         // Step 1: Analyze website
         const analyzeStart = Date.now();
-        updateThinkingStep(thinkingMsgId, 'analyze', { 
-          status: 'running', 
+        updateThinkingStep(thinkingMsgId, 'analyze', {
+          status: 'running',
           startTime: analyzeStart,
           substeps: ['Fetching website content...', 'Extracting structured facts with AI (15-30s)...']
         });
@@ -767,14 +783,14 @@ function ChatPageContent() {
         }
         console.log('📦 [Fetch] Parsing response JSON...');
         const { content, metadata, factsJson } = await analyzeRes.json();
-        
+
         const analyzeSubsteps = [
           `✅ Fetched ${Math.round(content.length / 1000)}k characters`,
           `✅ Extracted ${factsJson?.facts?.length || 0} facts from website`,
           metadata?.heroImage ? '✅ Found brand visuals' : '⚠️ No brand visuals detected'
         ];
-        
-        updateThinkingStep(thinkingMsgId, 'analyze', { 
+
+        updateThinkingStep(thinkingMsgId, 'analyze', {
           status: 'complete',
           duration: Date.now() - analyzeStart,
           substeps: analyzeSubsteps
@@ -785,13 +801,13 @@ function ChatPageContent() {
           prev.map(conv =>
             conv.id === activeConversationId
               ? {
-                  ...conv,
-                  memory: {
-                    ...conv.memory,
-                    websiteContent: content,
-                    factsJson: factsJson || undefined,
-                  }
+                ...conv,
+                memory: {
+                  ...conv.memory,
+                  websiteContent: content,
+                  factsJson: factsJson || undefined,
                 }
+              }
               : conv
           )
         );
@@ -805,22 +821,22 @@ function ChatPageContent() {
           facts_json: factsJson || undefined,
           step: 'analyzed'
         });
-        
+
         console.log(`✅ [Flow] ${isNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
-        
+
         // Store flow ID and align conversation ID with DB flow ID
         setConversations(prev =>
           prev.map(conv =>
             conv.id === activeConversationId
               ? {
-                  ...conv,
+                ...conv,
+                id: flow.id,
+                memory: {
+                  ...conv.memory,
                   id: flow.id,
-                  memory: {
-                    ...conv.memory,
-                    id: flow.id,
-                    flowId: flow.id,
-                  }
+                  flowId: flow.id,
                 }
+              }
               : conv
           )
         );
@@ -848,12 +864,12 @@ function ChatPageContent() {
             })
             .subscribe();
           realtimeChannelRef.current = channel;
-        } catch {}
+        } catch { }
 
         console.log('🎯 [Flow] Proceeding to Step 2: Extract visuals');
         // Step 2: Extract visuals
         const extractStart = Date.now();
-        updateThinkingStep(thinkingMsgId, 'extract', { 
+        updateThinkingStep(thinkingMsgId, 'extract', {
           status: 'running',
           startTime: extractStart,
           substeps: ['Analyzing brand colors', 'Extracting images']
@@ -862,7 +878,7 @@ function ChatPageContent() {
         // Store metadata
         // Note: metadata saved for future use
 
-        updateThinkingStep(thinkingMsgId, 'extract', { 
+        updateThinkingStep(thinkingMsgId, 'extract', {
           status: 'complete',
           duration: Date.now() - extractStart,
           substeps: [
@@ -874,7 +890,7 @@ function ChatPageContent() {
         console.log('🎯 [Flow] Proceeding to Step 3: Generate ICPs');
         // Step 3: Generate ICPs
         const icpStart = Date.now();
-        updateThinkingStep(thinkingMsgId, 'generate', { 
+        updateThinkingStep(thinkingMsgId, 'generate', {
           status: 'running',
           startTime: icpStart,
           substeps: ['Analyzing content patterns...', 'Generating customer profiles with AI (10-20s)...']
@@ -948,7 +964,7 @@ function ChatPageContent() {
           const json = await icpRes.json();
           icps = json.icps; brandColors = json.brandColors; summary = json.summary;
         }
-        
+
         // Store brand colors
         // Note: brandColors saved for future use
 
@@ -956,11 +972,11 @@ function ChatPageContent() {
         console.log('💾 [ICPs] Saving to database...');
         console.log('📋 [ICPs] FlowID:', flow.id);
         console.log('🔢 [ICPs] Count:', icps.length);
-        
+
         const saveIcpsRes = await fetch("/api/positioning-icps", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Idempotency-Key": flow.id },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             icps,
             flowId: flow.id,
             websiteUrl: url
@@ -984,7 +1000,7 @@ function ChatPageContent() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ step: 'icps' }),
             });
-          } catch {}
+          } catch { }
         } else {
           const errorData = await saveIcpsRes.json().catch(() => ({}));
           console.error('❌ [ICPs] Failed to save to database!');
@@ -994,7 +1010,7 @@ function ChatPageContent() {
           console.warn('⚠️ [ICPs] Using in-memory IDs as fallback');
         }
 
-        updateThinkingStep(thinkingMsgId, 'generate', { 
+        updateThinkingStep(thinkingMsgId, 'generate', {
           status: 'complete',
           duration: Date.now() - icpStart,
           substeps: [
@@ -1010,7 +1026,7 @@ function ChatPageContent() {
         const targetMarket = summary?.targetMarket || "";
         const painPoints = summary?.painPointsWithMetrics || [];
         const multiplier = summary?.opportunityMultiplier || "3";
-        
+
         const summaryText = `I've analyzed **${hostname}** and discovered key insights:
 
 ${businessDesc}${targetMarket ? ` ${targetMarket}` : ''}
@@ -1075,11 +1091,11 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
               prev.map(conv =>
                 conv.id === activeConversationId
                   ? {
-                      ...conv,
-                      messages: conv.messages.map(m =>
-                        m.id === assistantMsgId ? { ...m, content: assistantMessage } : m
-                      ),
-                    }
+                    ...conv,
+                    messages: conv.messages.map(m =>
+                      m.id === assistantMsgId ? { ...m, content: assistantMessage } : m
+                    ),
+                  }
                   : conv
               )
             );
@@ -1090,20 +1106,20 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
             const jsonMatch = assistantMessage.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               const parsed = JSON.parse(jsonMatch[0]);
-              
+
               setConversations(prev =>
                 prev.map(conv =>
                   conv.id === activeConversationId
                     ? {
-                        ...conv,
-                        messages: conv.messages.map(m =>
-                          m.id === assistantMsgId
-                            ? { ...m, content: parsed.message || assistantMessage }
-                            : m.component === "landing-preview"
+                      ...conv,
+                      messages: conv.messages.map(m =>
+                        m.id === assistantMsgId
+                          ? { ...m, content: parsed.message || assistantMessage }
+                          : m.component === "landing-preview"
                             ? { ...m, data: { ...m.data, ...parsed.updates } }
                             : m
-                        ),
-                      }
+                      ),
+                    }
                     : conv
                 )
               );
@@ -1382,7 +1398,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
     try {
       const activeConversation = conversations.find(c => c.id === activeConversationId);
       const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
-      
+
       if (!valuePropData) return;
 
       const response = await fetch("/api/generate-value-prop", {
@@ -1398,14 +1414,14 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Update the specific variation in the conversation state
         setConversations(prev => prev.map(conv => {
           if (conv.id !== activeConversationId) return conv;
-          
+
           const updatedValueProp = {
             ...valuePropData,
-            variations: valuePropData.variations.map((v, idx) => 
+            variations: valuePropData.variations.map((v, idx) =>
               idx === variationIndex ? data.variations[variationIndex] : v
             )
           };
@@ -1420,7 +1436,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
               }
             },
             messages: conv.messages.map(msg =>
-              msg.component === "value-prop" 
+              msg.component === "value-prop"
                 ? { ...msg, data: updatedValueProp }
                 : msg
             )
@@ -1436,7 +1452,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
   const handleConfirmValueProp = () => {
     const activeConversation = conversations.find(c => c.id === activeConversationId);
     const valuePropData = activeConversation?.generationState.generatedContent.valueProp;
-    
+
     if (!valuePropData) {
       console.error('No value prop data found');
       return;
@@ -1444,7 +1460,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
     // Get ICP from the valueProp data
     const icp = valuePropData.icp;
-    
+
     if (!icp) {
       console.error('No ICP found in value prop data');
       return;
@@ -1580,16 +1596,16 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     console.log('🚀 [Launch Copilot] Navigating to copilot for:', persona.personaName);
     console.log('🔍 [Launch Copilot] Persona ID:', persona.id);
     console.log('📊 [Launch Copilot] Full persona:', persona);
-    
+
     const flowId = activeConversation?.id;
     if (!flowId) {
       console.error('❌ [Launch Copilot] No active conversation found');
       return;
     }
-    
+
     console.log('✅ [Launch Copilot] FlowID:', flowId);
     console.log('🔗 [Launch Copilot] URL:', `/copilot?icpId=${persona.id}&flowId=${flowId}`);
-    
+
     // CHECK: Is this a temp ID (like "icp-18") or a UUID?
     if (persona.id && !persona.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
       console.error('❌ [Launch Copilot] PROBLEM: Using temporary ID instead of database UUID!');
@@ -1597,64 +1613,64 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       alert('Error: Persona not properly saved. Please refresh and try again.');
       return;
     }
-    
+
     router.push(`/copilot?icpId=${persona.id}&flowId=${flowId}`);
   };
 
   const handleExport = async (format: string, data: { personas: ICP[]; valuePropData: Record<string, ValuePropData> }) => {
     console.log('🚀 [handleExport] Starting export for format:', format);
     setIsLoading(true);
-    
+
     try {
       const exportData = {
         ...data,
         websiteUrl: activeConversation?.memory.websiteUrl || ''
       };
-      
+
       const response = await fetch(`/api/export/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(exportData)
       });
-      
+
       if (!response.ok) throw new Error(`Export failed: ${format}`);
-      
+
       const result = await response.json();
-      
+
       // Handle different export types
       if (format === 'google-slides') {
         // Open Google Slides template
         if (result.templateUrl) {
           window.open(result.templateUrl, '_blank');
         }
-        
+
         addMessage({
           id: nanoid(),
           role: "assistant",
           content: `✅ **Opening Google Slides template...**\n\n${result.message}\n\n${result.instructions}`
         });
-        
+
       } else if (format === 'linkedin') {
         // Copy first post to clipboard
         const firstPost = result.posts?.[0]?.post || result.combinedPost;
         await navigator.clipboard.writeText(firstPost);
-        
+
         addMessage({
           id: nanoid(),
           role: "assistant",
           content: `✅ **LinkedIn post copied to clipboard!**\n\nHere's what was copied:\n\n---\n\n${firstPost}\n\n---\n\n💡 ${result.tips?.[0] || 'Post during business hours for best engagement'}`
         });
-        
+
       } else if (format === 'plain-text') {
         // Copy to clipboard
         await navigator.clipboard.writeText(result.content);
-        
+
         addMessage({
           id: nanoid(),
           role: "assistant",
           content: `✅ **Plain text copied to clipboard!**\n\n📊 Stats:\n- ${result.characterCount} characters\n- ${result.lineCount} lines\n- ${data.personas.length} personas included\n\nYou can now paste this into any document, email, or notes app.`
         });
-        
+
       } else if (format === 'pdf') {
         addMessage({
           id: nanoid(),
@@ -1668,11 +1684,11 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
           content: `🔗 **Share link feature coming soon!**\n\nThis will let you create a public URL to share your positioning with team members or stakeholders.`
         });
       }
-      
+
       // Update user journey
       updateUserJourney({ exported: true });
       memoryManager.addGenerationRecord(activeConversationId, `export-${format}`, result);
-      
+
     } catch (error) {
       console.error('Export error:', error);
       addMessage({
@@ -1708,14 +1724,13 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
-          {conversations.map(conv => (
+          {conversations.map((conv, index) => (
             <div
-              key={conv.id}
-              className={`group relative w-full rounded-lg text-sm transition-colors ${
-                conv.id === activeConversationId
-                  ? "bg-muted"
-                  : "hover:bg-muted/50"
-              }`}
+              key={`${conv.id}-${index}`}
+              className={`group relative w-full rounded-lg text-sm transition-colors ${conv.id === activeConversationId
+                ? "bg-muted"
+                : "hover:bg-muted/50"
+                }`}
             >
               <button
                 onClick={() => {
@@ -1759,25 +1774,25 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       setIsMigrating(true);
       console.log('🚀 [Migration] Starting migration...');
       const report = await migrateLocalStorageToDb();
-      
+
       console.log('📊 [Migration] Report:', report);
-      
+
       if (report.success > 0) {
         alert(`✅ Migrated ${report.success}/${report.total} flows successfully!\n\n` +
-              `Evidence integrity: ${report.evidenceIntegrityCheck.withEvidence}/${report.evidenceIntegrityCheck.total} flows have evidence.`);
-        
+          `Evidence integrity: ${report.evidenceIntegrityCheck.withEvidence}/${report.evidenceIntegrityCheck.total} flows have evidence.`);
+
         // Clear localStorage after confirmation
         if (confirm('Migration successful! Clear localStorage?')) {
           clearLocalStorageAfterMigration();
         }
-        
+
         // Reload from DB
         await loadFlowsFromDB();
       }
-      
+
       if (report.failed > 0) {
-        alert(`⚠️ ${report.failed} flows failed to migrate:\n` + 
-              report.failedItems.map(item => `- ${item.title}: ${item.error}`).join('\n'));
+        alert(`⚠️ ${report.failed} flows failed to migrate:\n` +
+          report.failedItems.map(item => `- ${item.title}: ${item.error}`).join('\n'));
       }
     } catch (error) {
       console.error('❌ [Migration] Migration failed:', error);
@@ -1810,13 +1825,13 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }
 
     setSelectedIcp(icp);
-    updateGenerationState({ 
-      isGenerating: true, 
+    updateGenerationState({
+      isGenerating: true,
       generationId: `value-prop-${icp.id}`,
       currentStep: 'value-prop'
     });
     updateUserJourney({ icpSelected: true });
-    
+
     // Record ICP selection
     memoryManager.addGenerationRecord(activeConversationId, 'select-icp', { icpId: icp.id, icpTitle: icp.title } as Record<string, unknown>);
 
@@ -1904,7 +1919,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
     } catch (error) {
       console.error("Error:", error);
-      
+
       // Remove loading message
       setConversations(prev =>
         prev.map(conv =>
@@ -1913,7 +1928,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
             : conv
         )
       );
-      
+
       // Show error message with more details
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       addMessage({
@@ -1921,12 +1936,12 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         role: "assistant",
         content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
       });
-      
+
       memoryManager.addGenerationRecord(activeConversationId, 'value-prop', { error: true }, false);
     } finally {
-      updateGenerationState({ 
-        isGenerating: false, 
-        generationId: undefined 
+      updateGenerationState({
+        isGenerating: false,
+        generationId: undefined
       });
     }
   };
@@ -1934,28 +1949,28 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
   // ============================================================================
   // Hero UI Handlers (for new UI components)
   // ============================================================================
-  
+
   const handleHeroCopy = () => {
     console.log('📋 [Hero UI] Copied ICP to clipboard');
   };
-  
+
   const handleHeroShare = () => {
     console.log('🔗 [Hero UI] Share link generated');
     // TODO: Implement share link generation
   };
-  
+
   const handleViewAll = () => {
     setShowExpandedResults(true);
     console.log('👀 [Hero UI] Expanded to view all ICPs');
   };
-  
+
   const handleRegenerateICP = async (prompt: string, currentICP: ICP) => {
     console.log('🔄 [Hero UI] Regenerating ICP with prompt:', prompt);
     // TODO: Implement regeneration logic using /api/chat
     // This would call the chat API with the prompt and current ICP context
     // then update heroICP with the new result
   };
-  
+
   const handleHeroExport = (format: string) => {
     console.log('📥 [Hero UI] Exporting as:', format);
     // Reuse existing export logic
@@ -2054,9 +2069,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
             {activeConversation?.messages.map(message => (
               <div
                 key={message.id}
-                className={`flex w-full flex-col gap-2 ${
-                  message.role === "user" ? "items-end" : "items-start"
-                }`}
+                className={`flex w-full flex-col gap-2 ${message.role === "user" ? "items-end" : "items-start"
+                  }`}
               >
                 {message.role === "user" ? (
                   <div className="bg-muted text-foreground max-w-[85%] rounded-3xl px-5 py-2.5 text-sm">
@@ -2066,7 +2080,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                   <div className="w-full space-y-4">
                     {/* Thinking Block */}
                     {message.content === "thinking" && message.thinking && (
-                      <ThinkingBlock 
+                      <ThinkingBlock
                         thinking={message.thinking}
                         onCancel={currentAbortController ? () => {
                           currentAbortController.abort();
@@ -2075,7 +2089,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                         } : undefined}
                       />
                     )}
-                    
+
                     {/* Status Messages (Legacy - fallback) */}
                     {message.content === "crawling_website" && (
                       <SystemMessage variant="loading" icon={<Search className="h-4 w-4" />}>
@@ -2103,21 +2117,21 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                         Crafting your landing page...
                       </SystemMessage>
                     )}
-                    
+
                     {/* Regular text content */}
-                    {message.content && 
-                     !message.content.startsWith("crawl_complete:") &&
-                     !["crawling_website", "generating_icps", "crafting_landing_page", "thinking"].includes(message.content) && (
-                      <div className="text-sm leading-relaxed whitespace-pre-line">
-                        {message.content.split('**').map((part, i) => 
-                          i % 2 === 0 ? (
-                            <span key={i}>{part}</span>
-                          ) : (
-                            <strong key={i} className="font-semibold">{part}</strong>
-                          )
-                        )}
-                      </div>
-                    )}
+                    {message.content &&
+                      !message.content.startsWith("crawl_complete:") &&
+                      !["crawling_website", "generating_icps", "crafting_landing_page", "thinking"].includes(message.content) && (
+                        <div className="text-sm leading-relaxed whitespace-pre-line">
+                          {message.content.split('**').map((part, i) =>
+                            i % 2 === 0 ? (
+                              <span key={i}>{part}</span>
+                            ) : (
+                              <strong key={i} className="font-semibold">{part}</strong>
+                            )
+                          )}
+                        </div>
+                      )}
 
                     {/* ICP Cards */}
                     {message.component === "icps" && message.data && (
@@ -2129,21 +2143,21 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                           )
                         ).map((icp, idx) => {
                           const colors = [
-                            { 
+                            {
                               gradient: "from-pink-500/10 to-purple-500/10",
                               border: "border-pink-200 dark:border-pink-800",
                               badge: "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300",
                               avatar: "ring-pink-200 dark:ring-pink-800",
                               progress: "bg-gradient-to-r from-pink-500 to-purple-500"
                             },
-                            { 
+                            {
                               gradient: "from-purple-500/10 to-blue-500/10",
                               border: "border-purple-200 dark:border-purple-800",
                               badge: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
                               avatar: "ring-purple-200 dark:ring-purple-800",
                               progress: "bg-gradient-to-r from-purple-500 to-blue-500"
                             },
-                            { 
+                            {
                               gradient: "from-blue-500/10 to-cyan-500/10",
                               border: "border-blue-200 dark:border-blue-800",
                               badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
@@ -2152,13 +2166,13 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             }
                           ];
                           const color = colors[idx % colors.length];
-                          
+
                           // Generate consistent avatar
                           const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(icp.personaName || icp.title)}`;
-                          
+
                           // Calculate match score based on data richness
                           const matchScore = Math.min(84 + idx * 4 + (icp.painPoints.length * 2), 98);
-                          
+
                           return (
                             <Card
                               key={icp.id}
@@ -2175,20 +2189,20 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             >
                               {/* Gradient background */}
                               <div className={`absolute inset-0 bg-gradient-to-br ${color.gradient}`} />
-                              
+
                               <div className="relative p-3 sm:p-4 space-y-2 sm:space-y-3">
                                 {/* Persona Header */}
                                 <div className="flex items-start gap-3">
                                   {/* Avatar with online indicator */}
                                   <div className="relative shrink-0">
-                                    <img 
+                                    <img
                                       src={avatarUrl}
                                       alt={icp.personaName}
                                       className={`w-12 h-12 rounded-xl ring-2 ${color.avatar} ring-offset-2 ring-offset-background group-hover:scale-110 transition-transform`}
                                     />
                                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                                   </div>
-                                  
+
                                   <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-sm mb-0.5 truncate">
                                       {icp.personaName}
@@ -2256,7 +2270,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                       <span className="font-semibold text-foreground">12+ LinkedIn profiles</span> found
                                     </p>
                                   </div>
-                                  <Button 
+                                  <Button
                                     size="sm"
                                     variant="default"
                                     className={`w-full h-8 text-xs hover:shadow-lg transition-all font-semibold`}
@@ -2333,13 +2347,13 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                               prev.map(conv =>
                                 conv.id === activeConversationId
                                   ? {
-                                      ...conv,
-                                      messages: conv.messages.map(m =>
-                                        m.id === message.id
-                                          ? { ...m, data: { ...showcaseData, selectedPersonaId: personaId } }
-                                          : m
-                                      ),
-                                    }
+                                    ...conv,
+                                    messages: conv.messages.map(m =>
+                                      m.id === message.id
+                                        ? { ...m, data: { ...showcaseData, selectedPersonaId: personaId } }
+                                        : m
+                                    ),
+                                  }
                                   : conv
                               )
                             );
@@ -2357,15 +2371,15 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
             ))}
 
             {isLoading && !activeConversation?.messages.some(m =>
-              m.content.includes("🔍") || 
-              m.content.includes("✨") || 
+              m.content.includes("🔍") ||
+              m.content.includes("✨") ||
               m.content.includes("🧠")
             ) && (
-              <div className="flex items-start gap-2">
-                <Loader2 className="h-4 w-4 animate-spin mt-1" />
-                <span className="text-sm text-muted-foreground">Thinking...</span>
-              </div>
-            )}
+                <div className="flex items-start gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin mt-1" />
+                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                </div>
+              )}
           </div>
         </ScrollArea>
 
@@ -2383,8 +2397,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                 !websiteUrl
                   ? "Paste any website URL (e.g., https://yoursite.com)..."
                   : selectedIcp
-                  ? "Ask me to refine the page..."
-                  : "What would you like to do?"
+                    ? "Ask me to refine the page..."
+                    : "What would you like to do?"
               }
               disabled={isLoading}
               className="border-0 pr-11 sm:pr-12 focus-visible:ring-0 bg-transparent text-sm sm:text-base"

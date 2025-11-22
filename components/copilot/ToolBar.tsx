@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Share2, UserPlus, ChevronDown } from "lucide-react";
+import { Share2, UserPlus, ChevronDown, Undo2, Redo2 } from "lucide-react";
 import { ExportDropdown } from "./ExportDropdown";
 import { ExportToFigmaButton } from "./ExportToFigmaButton";
 import type { TabType } from "@/components/DesignStudioWorkspace";
@@ -21,6 +21,10 @@ type ToolBarProps = {
   flowId: string;
   workspaceData: any;
   designAssets: any;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 };
 
 // Mock team members
@@ -29,9 +33,47 @@ const teamMembers = [
   { name: "Alex", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", role: "Editor" },
 ];
 
-export function ToolBar({ activeTab, onExport, onShare, flowId, workspaceData, designAssets }: ToolBarProps) {
+export function ToolBar({
+  activeTab,
+  onExport,
+  onShare,
+  flowId,
+  workspaceData,
+  designAssets,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
+}: ToolBarProps) {
   return (
     <div className="flex items-center gap-3">
+      {/* Undo/Redo Controls */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo (Ctrl+Z)"
+          className="gap-2"
+        >
+          <Undo2 className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Redo (Ctrl+Shift+Z)"
+          className="gap-2"
+        >
+          <Redo2 className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* Divider */}
+      <div className="h-6 w-px bg-border" />
+
       {/* Team Members */}
       <div className="flex items-center -space-x-2">
         {teamMembers.map((member, idx) => (

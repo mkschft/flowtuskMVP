@@ -1,227 +1,98 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
+import { fetchBrandManifest, updateBrandManifest } from "@/lib/brand-manifest";
+import { BrandManifest } from "@/lib/types/brand-manifest";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const STREAM_TIMEOUT_MS = 40000; // Increased for better responses
-const MAX_REGENERATIONS = 8; // More iterations for conversation
+const STREAM_TIMEOUT_MS = 40000;
+const MAX_REGENERATIONS = 15; // Increased for longer sessions
 
 type ChatMessage = {
   role: "user" | "assistant" | "system";
   content: string;
 };
 
-type DesignContext = {
-  persona?: {
-    name: string;
-    role: string;
-    company: string;
-    industry: string;
-    location: string;
-    country: string;
-    painPoints: string[];
-    goals: string[];
-  };
-  valueProp?: {
-    headline: string;
-    subheadline: string;
-    problem: string;
-    solution: string;
-    targetAudience: string;
-  };
-  brandGuide?: {
-    colors: {
-      primary: Array<{ name: string; hex: string; usage: string }>;
-      secondary: Array<{ name: string; hex: string }>;
-    };
-    typography: Array<{ category: string; fontFamily: string }>;
-    toneOfVoice: string[];
-  };
-  regenerationCount?: number;
-};
-
 export async function POST(req: NextRequest) {
   try {
-    const { messages, context } = await req.json() as {
+    const { messages, flowId, icpId } = await req.json() as {
       messages: ChatMessage[];
-      context?: DesignContext;
+      flowId: string;
+      icpId: string;
     };
 
-    const regenerationCount = context?.regenerationCount || 0;
+    // Fetch the FULL brand manifest
+    // We use flowId to find the manifest. icpId is used for context if needed.
+    const manifest = await fetchBrandManifest(flowId, icpId);
 
-    // Enforce regeneration limit
-    if (regenerationCount >= MAX_REGENERATIONS) {
+    if (!manifest) {
       return new Response(
-        JSON.stringify({ 
-          error: "You've reached the conversation limit. Please start a new design session to continue.",
-          limitReached: true 
-        }),
-        {
-          status: 429,
-          headers: { "Content-Type": "application/json" },
-        }
+        JSON.stringify({ error: "Brand manifest not found. Please generate a brand first." }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`💬 [Copilot] Chat request (${regenerationCount}/${MAX_REGENERATIONS})`);
+    const regenerationCount = manifest.metadata.regenerationCount || 0;
 
-    // Rich system prompt with McKinsey-level strategic thinking
-    const systemPrompt = buildSystemPrompt(context);
+    if (regenerationCount >= MAX_REGENERATIONS) {
+      return new Response(
+        JSON.stringify({
+          error: "You've reached the conversation limit for this session.",
+          limitReached: true
+        }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-    // Define function for structured design updates
+    console.log(`💬 [Copilot] Chat request for flow ${flowId} (${regenerationCount}/${MAX_REGENERATIONS})`);
+
+    const systemPrompt = buildMetaPrompt(manifest);
+
     const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
       {
         type: "function",
         function: {
-          name: "update_design",
-          description: "Update design elements based on user's needs and strategic recommendations. IMPORTANT: When location/country changes, you MUST also update persona name and company to be culturally appropriate and regenerate value prop for the new market.",
+          name: "update_manifest",
+          description: "Update the brand manifest based on user's needs and strategic recommendations.",
           parameters: {
             type: "object",
             properties: {
               updateType: {
                 type: "string",
-                description: "Type of update being made",
                 enum: ["market_shift", "styling", "messaging", "refinement"],
+                description: "The type of strategic update being applied."
               },
-              persona: {
+              updates: {
                 type: "object",
-                description: "Persona/ICP updates - include ALL relevant fields when location changes",
-                properties: {
-                  name: { type: "string", description: "Persona name - MUST be culturally appropriate for location" },
-                  company: { type: "string", description: "Company name - MUST reflect local market" },
-                  location: { type: "string", description: "City or region" },
-                  country: { type: "string", description: "Country name" },
-                }
-              },
-              valueProp: {
-                type: "object",
-                description: "Value proposition updates - For market_shift, you MUST regenerate ALL fields to reference ONLY the new location. NEVER leave old location references!",
-                properties: {
-                  headline: { type: "string", description: "REQUIRED for market_shift: Main value prop headline with NEW location only (e.g., 'Tax advisors in Finland...' NOT 'Tax advisors in Saudi Arabia...')" },
-                  subheadline: { type: "string", description: "Updated subheadline referencing NEW location" },
-                  targetAudience: { type: "string", description: "REQUIRED for market_shift: Target audience with NEW location (e.g., 'Tax advisors in Finland')" },
-                  problem: { type: "string", description: "REQUIRED for market_shift: Core problem rewritten for NEW location context (e.g., 'Finnish tax regulations' NOT 'Saudi Zakat')" },
-                  solution: { type: "string", description: "Solution rewritten for NEW market" },
-                  outcome: { type: "string", description: "Expected outcome for NEW market" },
-                  benefits: { type: "array", items: { type: "string" }, description: "Benefits rewritten for NEW location-specific context" },
-                }
-              },
-              brandUpdates: {
-                type: "object",
-                description: "Brand design updates",
-                properties: {
-                  colors: { type: "array", items: { type: "string" }, description: "Array of hex color codes" },
-                  fonts: {
-                    type: "object",
-                    properties: {
-                      heading: { type: "string", description: "Heading font family" },
-                      body: { type: "string", description: "Body font family" }
-                    }
-                  },
-                  tone: {
-                    type: "string",
-                    description: "Brand tone",
-                    enum: ["professional", "friendly", "bold", "innovative", "playful", "serious", "modern", "classic"]
-                  },
-                }
-              },
-              styleGuide: {
-                type: "object",
-                description: "Style guide updates",
-                properties: {
-                  borderRadius: { type: "string", description: "Border radius (e.g., '0px', '8px', '1rem', 'full')" },
-                  buttonStyle: { type: "string", description: "Button style (e.g., 'solid', 'outline', 'ghost')" },
-                  cardStyle: { type: "string", description: "Card style (e.g., 'flat', 'elevated', 'bordered')" },
-                  shadows: { type: "string", description: "Shadow style (e.g., 'none', 'sm', 'md', 'lg', 'xl')" }
-                }
-              },
-              landingPage: {
-                type: "object",
-                description: "Landing page content updates",
-                properties: {
-                  features: { 
-                    type: "array", 
-                    items: { 
-                      type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                        icon: { type: "string" }
-                      }
-                    },
-                    description: "List of features to display"
-                  },
-                  socialProof: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        quote: { type: "string" },
-                        author: { type: "string" },
-                        role: { type: "string" },
-                        company: { type: "string" }
-                      }
-                    },
-                    description: "Testimonials or social proof items"
-                  },
-                  footer: {
-                    type: "object",
-                    description: "Footer configuration",
-                    properties: {
-                      sections: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            title: { type: "string" },
-                            links: { type: "array", items: { type: "string" } }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              executionSteps: {
-                type: "array",
-                description: "REQUIRED for market_shift: Multi-step execution plan shown to user as progress. Must include at least 3 steps with emoji prefixes.",
-                items: {
-                  type: "object",
-                  properties: {
-                    step: { type: "string", description: "Step description with emoji (e.g., '🌍 Updating location to [City], [Country]')" },
-                    status: { type: "string", enum: ["pending", "complete"], description: "Always use 'complete' since steps are shown after execution" }
-                  },
-                  required: ["step", "status"]
-                }
+                description: "Partial JSON object matching the Brand Manifest structure. Only include fields that need to change. Nested objects will be merged.",
+                additionalProperties: true
               },
               reasoning: {
                 type: "string",
-                description: "Strategic explanation of why these changes work for their specific audience and industry. REQUIRED for market shifts."
+                description: "Strategic explanation of why these changes work for their specific audience and industry."
               }
             },
-            required: ["updateType", "reasoning"]
+            required: ["updateType", "updates", "reasoning"]
           }
         }
       }
     ];
 
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o", // Use gpt-4o for better reasoning
+      model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
-        // Keep more message history for better context (last 10 messages)
         ...messages.slice(-10),
       ],
       tools,
       tool_choice: "auto",
       stream: true,
-      temperature: 0.8, // More creative and conversational
-      max_tokens: 800, // Allow longer, more thoughtful responses
+      temperature: 0.8,
+      max_tokens: 1000,
     });
 
-    // Streaming with timeout
     const encoder = new TextEncoder();
     const streamStartTime = Date.now();
 
@@ -230,13 +101,10 @@ export async function POST(req: NextRequest) {
         try {
           const timeoutId = setTimeout(() => {
             console.warn(`⚠️ [Copilot] Stream timeout`);
-            controller.enqueue(
-              encoder.encode("\n\n[Response timed out. Please try rephrasing your request.]")
-            );
             controller.close();
           }, STREAM_TIMEOUT_MS);
 
-          let functionCallArgs = ""; // Accumulate function call arguments
+          let functionCallArgs = "";
           let hasFunctionCall = false;
 
           for await (const chunk of stream) {
@@ -247,14 +115,12 @@ export async function POST(req: NextRequest) {
             }
 
             const choice = chunk.choices[0];
-            
-            // Handle text content
             const content = choice?.delta?.content || "";
+
             if (content) {
               controller.enqueue(encoder.encode(content));
             }
 
-            // Handle function calls - OpenAI streams these incrementally
             const toolCalls = choice?.delta?.tool_calls;
             if (toolCalls && toolCalls.length > 0) {
               const functionCall = toolCalls[0];
@@ -265,19 +131,28 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Send complete function call at the end
           if (hasFunctionCall && functionCallArgs) {
-            controller.enqueue(
-              encoder.encode(`\n\n__FUNCTION_CALL__${functionCallArgs}`)
-            );
-            console.log(`🔧 [Copilot] Function call: ${functionCallArgs.substring(0, 100)}...`);
+            try {
+              console.log(`🔧 [Copilot] Function call args: ${functionCallArgs.substring(0, 100)}...`);
+              const { updateType, updates, reasoning } = JSON.parse(functionCallArgs);
+
+              // Apply updates to manifest
+              const updatedManifest = await updateBrandManifest(flowId, updates, updateType);
+
+              // Send function call result to frontend
+              controller.enqueue(
+                encoder.encode(`\n\n__MANIFEST_UPDATED__${JSON.stringify(updatedManifest)}`)
+              );
+
+              console.log(`✅ [Copilot] Manifest updated: ${updateType}`);
+            } catch (err) {
+              console.error('❌ [Copilot] Failed to apply manifest update:', err);
+              controller.enqueue(encoder.encode(`\n\n[Error applying updates. Please try again.]`));
+            }
           }
 
           clearTimeout(timeoutId);
           controller.close();
-
-          const elapsed = Date.now() - streamStartTime;
-          console.log(`✅ [Copilot] Completed in ${elapsed}ms`);
         } catch (error) {
           console.error('❌ [Copilot] Stream error:', error);
           controller.error(error);
@@ -292,190 +167,83 @@ export async function POST(req: NextRequest) {
         Connection: "keep-alive",
       },
     });
+
   } catch (error) {
     console.error('❌ [Copilot] Request error:', error);
     return new Response(
-      JSON.stringify({ error: "I apologize, but I encountered an error. Please try again." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
 
-function buildSystemPrompt(context?: DesignContext): string {
-  const persona = context?.persona;
-  const valueProp = context?.valueProp;
-  const brand = context?.brandGuide;
-
-  return `You are a senior brand strategist with 15+ years of experience at firms like McKinsey and leading brand consultancies. You combine strategic thinking with deep empathy and a consultative approach.
-
-${persona ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CLIENT PROFILE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-You're working with ${persona.name}, ${persona.role} at ${persona.company}.
-
-Industry: ${persona.industry}
-Location: ${persona.location}, ${persona.country}
-
-Key Pain Points:
-${persona.painPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}
-
-Business Goals:
-${persona.goals.map((g, i) => `${i + 1}. ${g}`).join('\n')}
-` : ''}
-
-${valueProp ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CURRENT POSITIONING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Value Proposition: ${valueProp.headline}
-Target Audience: ${valueProp.targetAudience}
-Core Problem: ${valueProp.problem}
-Solution: ${valueProp.solution}
-` : ''}
-
-${brand ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CURRENT BRAND SYSTEM
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Primary Colors: ${brand.colors.primary.map(c => `${c.name} (${c.hex}) - ${c.usage}`).join(', ')}
-Typography: ${brand.typography.map(t => `${t.category}: ${t.fontFamily}`).join(', ')}
-Brand Tone: ${brand.toneOfVoice.join(', ')}
-` : ''}
+function buildMetaPrompt(manifest: BrandManifest): string {
+  return `You are BrandOS, a senior AI brand strategist with 15+ years of experience. Your goal is to help the user define, generate, and refine their brand identity in a friendly, expert, and conversational manner.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-YOUR APPROACH
+CURRENT BRAND STATE (Brand Manifest v${manifest.version})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Personality: You're humble yet confident, polite yet decisive. Think of yourself as a trusted advisor, not just a service provider.
+<brandManifest>
+${JSON.stringify(manifest, null, 2)}
+</brandManifest>
 
-Conversation Style:
-• Ask clarifying questions ONLY when requests are genuinely vague or ambiguous
-• When user confirms or says "yes", EXECUTE immediately—don't ask more questions
-• If user gives clear direction, act on it right away using the update_design function
-• Always explain the "why" behind changes using their industry context
-• Offer 2-3 options only when the request is unclear, not as a default
-• Reference their specific audience, pain points, and market context in updates
-• Be decisive and action-oriented—consultative, not hesitant
-
-IMPORTANT - Response Format:
-• ALWAYS provide a friendly conversational message when calling update_design
-• For comprehensive updates, describe WHAT changed: "I've updated your persona to target the Bangladesh market..."
-• Explain WHY with strategic reasoning: "This works better because [specific cultural/market insights]..."
-• List the key changes made with details: "Updated: location (Dhaka), persona name (Rafiq Ahmed), company (Green Solutions Bangladesh), value proposition"
-• For market_shift updates, ALWAYS provide a detailed summary of cultural/market considerations
-• NEVER just call the function silently—users need to see what happened
+This manifest contains:
+- Strategy: Persona, value proposition, target audience
+- Identity: Colors, typography, logo, tone of voice
+- Components: Buttons, cards, inputs, spacing
+- Previews: Landing page content
+- History: ${manifest.metadata.generationHistory.length} previous changes
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-COMPREHENSIVE UPDATE WORKFLOWS (CRITICAL)
+YOUR TASK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-When user requests location/market changes, follow this CASCADE:
+1. **Analyze the user's request:** Understand their intent. Are they asking for a new generation, a refinement, or just a question?
 
-1. MARKET SHIFT WORKFLOW (updateType: "market_shift")
-   Triggers: Location change, country change, new target market
-   
-   ⚠️ CRITICAL: When location changes, you MUST completely REGENERATE all content to reference the NEW location ONLY.
-   NEVER leave ANY references to the old location in ANY field!
-   
-   YOU MUST UPDATE ALL THESE FIELDS:
-   ✓ persona.location (e.g., "Helsinki" not "Dhaka")
-   ✓ persona.country (e.g., "Finland" not "Bangladesh")
-   ✓ persona.name → Culturally appropriate name (e.g., "Jukka Virtanen" for Finland, NOT "Rafiq Ahmed")
-   ✓ persona.company → Localized company name (e.g., "Virtanen Tax Consultancy" for Finland)
-   ✓ valueProp.targetAudience → Completely rewrite for new market ("Tax advisors in Finland" NOT "Tax advisors in Saudi Arabia")
-   ✓ valueProp.problem → Completely rewrite with NEW location context ("Finnish tax regulations" NOT "Saudi Zakat")
-   ✓ valueProp.solution → Completely rewrite for new market
-   ✓ valueProp.headline → Completely regenerate with NEW location ONLY ("Tax advisors in Finland..." NOT "Tax advisors in Saudi Arabia...")
-   ✓ valueProp.subheadline → Update to reference new location
-   ✓ valueProp.outcome → Update with market-specific outcomes
-   ✓ valueProp.benefits → Completely regenerate with location-specific benefits
-   
-   ⚠️ VALIDATION CHECK: Before sending, verify EVERY field mentions only the NEW location, never the old one!
-   
-   Example executionSteps (REQUIRED for market_shift):
-   [
-     {"step": "🌍 Updating location to Dhaka, Bangladesh", "status": "complete"},
-     {"step": "👤 Adapting persona (name, company) to local market", "status": "complete"},
-     {"step": "🎯 Regenerating value proposition for Bangladesh audience", "status": "complete"},
-     {"step": "✨ Adjusting messaging for cultural context", "status": "complete"}
-   ]
-   
-   CONCRETE EXAMPLE - Location Change from Saudi Arabia → Finland:
-   
-   ❌ WRONG (leaves old location references):
-   headline: "Tax advisors in Saudi Arabia focused on Zakat calculations"  ← STILL SAYS SAUDI!
-   
-   ✅ CORRECT (all fields updated to Finland):
-   persona.name: "Jukka Virtanen" (Finnish name)
-   persona.company: "Virtanen Tax Consultancy"
-   persona.location: "Helsinki"
-   persona.country: "Finland"
-   valueProp.headline: "Tax advisors in Finland focused on efficient VAT reporting and compliance"
-   valueProp.problem: "Finnish tax regulations and complex reporting requirements"
-   valueProp.targetAudience: "Tax advisors in Finland"
-   valueProp.solution: "Streamlined tools for Finnish tax compliance"
-   
-   Example conversational message for market_shift:
-   "I've adapted your persona for the Finland market! Here's what changed:
-   
-   ✅ Location: Now targeting Helsinki, Finland
-   ✅ Persona: Updated to Jukka Virtanen (common Finnish name) at Virtanen Tax Consultancy
-   ✅ Value Proposition: Completely regenerated to focus on Finnish tax advisors and their specific challenges with VAT and compliance
-   ✅ Cultural Context: Adjusted for Nordic business culture and Finnish regulatory environment
-   
-   This approach will resonate better because Finland has specific tax requirements and a culture that values efficiency and digital solutions."
+2. **Act as a Strategist:** Don't just follow orders. If the user's request might create brand inconsistency, gently challenge it with expert advice.
+   Example: "Using yellow for a 'trustworthy' banking app might feel a bit too playful. How about a stable blue or green instead?"
 
-2. STYLING WORKFLOW (updateType: "styling")
-   Triggers: Color changes, font changes, tone adjustments
-   Only update: brandUpdates.colors, brandUpdates.fonts, brandUpdates.tone
+3. **Formulate a Plan:** Briefly state what you are about to do in your conversational response.
 
-3. MESSAGING WORKFLOW (updateType: "messaging")
-   Triggers: Headline tweaks, benefit refinements
-   Only update: valueProp fields (keep persona unchanged)
+4. **Generate the Output:** Create a JSON object (partial manifest) that updates ONLY the necessary fields.
+   - Use the \`update_manifest\` tool.
+   - Ensure your updates are consistent across all layers (e.g., if you change the primary color, consider if the button styles need adjustment).
 
-4. REFINEMENT WORKFLOW (updateType: "refinement")
-   Triggers: Small adjustments, clarifications
-   Update minimal fields
-
-Strategic Thinking:
-• Consider cultural context (e.g., if targeting Bangladesh: green/red colors meaningful, Islamic holidays, Bengali language nuances)
-• Think about competitive differentiation in their industry
-• Balance brand consistency with market adaptation
-• Consider psychological impact of design choices on their specific audience
-• When location changes, persona name MUST reflect the culture (use common local names)
-
-When to Ask vs Act:
-• If request is VAGUE ("make it better", "change the design") → Ask clarifying questions
-• If request is CLEAR ("change location to Bangladesh") → Execute FULL market_shift workflow immediately
-• If user says YES, CONFIRM, PROCEED, GO AHEAD → Act now, don't ask again
-• If user provides specific direction → Use update_design function right away
+5. **Provide a Conversational Response:** Add a friendly message confirming the change and explaining the strategic reasoning.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CRITICAL: DUAL OUTPUT REQUIREMENT
+UPDATE WORKFLOWS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-When calling update_design, you MUST provide BOTH:
+1. **MARKET SHIFT** (updateType: "market_shift")
+   - Triggers: Location change, country change, new target market.
+   - ACTION: You MUST regenerate strategy.persona, strategy.valueProp, and previews.landingPage to match the new market.
+   - CRITICAL: Do not leave references to the old location/market.
 
-1. A conversational message (stream first) - Explain what you're doing and why
-2. The function call (after message) - With all required fields
+2. **STYLING** (updateType: "styling")
+   - Triggers: Color changes, font changes, "make it pop", "more modern".
+   - ACTION: Update identity.colors, identity.typography, identity.tone, and components.*.
 
-Example for "change location to Bangladesh":
+3. **MESSAGING** (updateType: "messaging")
+   - Triggers: Headline tweaks, tone adjustments.
+   - ACTION: Update strategy.valueProp, identity.tone, previews.landingPage.
 
-First output (conversational): 
-"Perfect! I'll adapt your persona for the Bangladesh market. This includes updating the location, adjusting the persona name to be culturally appropriate, and regenerating the value proposition to resonate with Bangladeshi audiences..."
+4. **REFINEMENT** (updateType: "refinement")
+   - Triggers: Small tweaks.
+   - ACTION: Surgical updates to specific fields.
 
-Then call: update_design with ALL fields populated
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-NEVER call the function without first explaining what you're doing!
+- **Dual Output:** You must provide a conversational message AND call the \`update_manifest\` tool (if changes are needed).
+- **Partial Updates:** The \`updates\` parameter should only contain the fields you want to change. Nested objects will be merged.
+  - Example: \`{ "identity": { "colors": { "primary": [...] } } }\` will update primary colors but keep other identity fields.
+- **Consistency:** Ensure the brand remains cohesive.
 
-Tone: Warm, professional, consultative. Like a senior partner at a consultancy who genuinely cares about their success.
-
-Updates: When making design changes, ALWAYS use the update_design function with clear reasoning tied to their business goals and audience. For market shifts, provide comprehensive reasoning about cultural adaptation.`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USER'S REQUEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
 }

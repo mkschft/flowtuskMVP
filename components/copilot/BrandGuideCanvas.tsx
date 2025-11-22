@@ -4,10 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Palette, 
-  Type, 
-  Image as ImageIcon, 
+import {
+  Palette,
+  Type,
+  Image as ImageIcon,
   MessageSquare,
   Copy,
   Check,
@@ -27,6 +27,15 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [lightMode, setLightMode] = useState(true);
   const { brandGuide } = project;
+
+  // Safe access helpers
+  const primaryColors = brandGuide?.colors?.primary || [];
+  const secondaryColors = brandGuide?.colors?.secondary || [];
+  const accentColors = brandGuide?.colors?.accent || [];
+  const typography = brandGuide?.typography || [];
+  const logoVariations = brandGuide?.logoVariations || [];
+  const toneOfVoice = brandGuide?.toneOfVoice || [];
+  const personalityTraits = brandGuide?.personalityTraits || [];
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -80,7 +89,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               Primary
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {brandGuide.colors.primary.map((color, idx) => (
+              {primaryColors.length > 0 ? primaryColors.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
                     className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
@@ -110,7 +119,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                   <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
-              ))}
+              )) : <p className="text-sm text-muted-foreground italic">No primary colors defined</p>}
             </div>
           </div>
 
@@ -120,7 +129,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               Secondary
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {brandGuide.colors.secondary.map((color, idx) => (
+              {secondaryColors.length > 0 ? secondaryColors.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
                     className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
@@ -148,7 +157,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                   <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
-              ))}
+              )) : <p className="text-sm text-muted-foreground italic">No secondary colors defined</p>}
             </div>
           </div>
 
@@ -158,7 +167,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               Accent
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {brandGuide.colors.accent.map((color, idx) => (
+              {accentColors.length > 0 ? accentColors.map((color, idx) => (
                 <div key={idx} className="group">
                   <div
                     className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
@@ -186,7 +195,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                   <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}>{color.hex}</p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
-              ))}
+              )) : <p className="text-sm text-muted-foreground italic">No accent colors defined</p>}
             </div>
           </div>
         </div>
@@ -200,7 +209,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
         </div>
 
         <div className="space-y-6">
-          {brandGuide.typography.map((typo, idx) => (
+          {typography.length > 0 ? typography.map((typo, idx) => (
             <div key={idx}>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -209,7 +218,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                 <Badge variant="outline">{typo.fontFamily}</Badge>
               </div>
               <div className="space-y-3">
-                {typo.sizes.map((size, sIdx) => (
+                {typo.sizes?.map((size, sIdx) => (
                   <div
                     key={sIdx}
                     className="p-4 rounded-lg bg-muted/50 border border-border"
@@ -235,7 +244,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                 ))}
               </div>
             </div>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic">No typography defined</p>}
         </div>
       </Card>
 
@@ -247,7 +256,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {brandGuide.logoVariations.map((logo, idx) => (
+          {logoVariations.length > 0 ? logoVariations.map((logo, idx) => (
             <div
               key={idx}
               className="p-6 rounded-lg border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
@@ -260,7 +269,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
               <p className="font-semibold text-sm">{logo.name}</p>
               <p className="text-xs text-muted-foreground">{logo.description}</p>
             </div>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic col-span-4">No logo variations defined</p>}
         </div>
       </Card>
 
@@ -272,7 +281,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
-          {brandGuide.toneOfVoice.map((tone, idx) => (
+          {toneOfVoice.length > 0 ? toneOfVoice.map((tone, idx) => (
             <Badge
               key={idx}
               variant="secondary"
@@ -280,7 +289,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
             >
               {tone}
             </Badge>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic">No tone of voice defined</p>}
         </div>
       </Card>
 
@@ -292,7 +301,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
         </div>
 
         <div className="space-y-6">
-          {brandGuide.personalityTraits.map((trait) => (
+          {personalityTraits.length > 0 ? personalityTraits.map((trait) => (
             <div key={trait.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold text-foreground">
@@ -302,7 +311,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                   {trait.value}
                 </span>
               </div>
-              
+
               <Slider
                 value={[trait.value]}
                 max={100}
@@ -310,13 +319,13 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                 className="w-full"
                 disabled
               />
-              
+
               <div className="flex items-start justify-between text-xs">
                 <span className="text-muted-foreground">{trait.leftLabel}</span>
                 <span className="text-muted-foreground">{trait.rightLabel}</span>
               </div>
             </div>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic">No personality traits defined</p>}
         </div>
       </Card>
     </div>

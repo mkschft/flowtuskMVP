@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { generateManifestFromDesignStudio } from "@/lib/brand-manifest";
+import { generateManifestFromDesignStudio } from "@/lib/brand-manifest-utils";
 import { Copy, Check, Figma } from "lucide-react";
 import { toast } from "sonner";
 
