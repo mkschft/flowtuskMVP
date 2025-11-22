@@ -10,8 +10,8 @@ export function LandingCanvasSkeleton() {
       {/* Hero Section */}
       <Card className="p-8 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Globe className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Globe className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Hero Section</h3>
         </div>
 
         <div className="space-y-4 text-center max-w-3xl mx-auto">
@@ -27,7 +27,7 @@ export function LandingCanvasSkeleton() {
 
       {/* Features Grid */}
       <Card className="p-6 bg-background border-2">
-        <Skeleton className="h-6 w-32 mb-6" />
+        <h3 className="font-bold text-lg mb-6">Features</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -43,7 +43,7 @@ export function LandingCanvasSkeleton() {
 
       {/* Social Proof */}
       <Card className="p-6 bg-background border-2">
-        <Skeleton className="h-6 w-32 mb-6" />
+        <h3 className="font-bold text-lg mb-6">Testimonials</h3>
 
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -57,7 +57,7 @@ export function LandingCanvasSkeleton() {
 
       {/* Pricing (Optional) */}
       <Card className="p-6 bg-background border-2">
-        <Skeleton className="h-6 w-24 mb-6" />
+        <h3 className="font-bold text-lg mb-6">Pricing</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (

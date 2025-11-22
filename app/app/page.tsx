@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu, Trash2 } from "lucide-react";
+import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu, Trash2, Settings } from "lucide-react";
 import { LinkedInProfileDrawer } from "@/components/LinkedInProfileDrawer";
 import { ValuePropBuilderWrapper } from "@/components/ValuePropBuilderWrapper";
 import { PersonaShowcase } from "@/components/PersonaShowcase";
@@ -1703,8 +1703,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
   // Sidebar content (reused in desktop & mobile)
   const SidebarContent = () => (
-    <>
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b shrink-0">
         <div className="flex items-center gap-2 font-semibold mb-4">
           <Image src="/logo.svg" alt="Flowtusk" width={20} height={20} className="shrink-0" />
           <span>Flowtusk</span>
@@ -1722,7 +1722,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {conversations.map((conv, index) => (
             <div
@@ -1737,7 +1737,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                   setActiveConversationId(conv.id);
                   setSidebarOpen(false); // Close mobile drawer on selection
                 }}
-                className="w-full text-left px-3 py-2 pr-10"
+                className="w-full text-left px-3 py-2 pr-12"
               >
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 shrink-0" />
@@ -1751,7 +1751,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     deleteConversation(conv.id);
                   }
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
                 title="Delete conversation"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -1760,7 +1760,31 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
           ))}
         </div>
       </ScrollArea>
-    </>
+
+      {/* Profile Section */}
+      <div className="p-3 border-t shrink-0">
+        <button
+          onClick={() => {
+            router.push('/profile');
+            setSidebarOpen(false); // Close mobile drawer
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-xs">
+            {user?.email?.[0].toUpperCase() || 'U'}
+          </div>
+          <div className="flex-1 text-left overflow-hidden">
+            <div className="font-medium truncate text-sm">
+              {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+            </div>
+            <div className="text-xs text-muted-foreground truncate">
+              {user?.email || 'user@example.com'}
+            </div>
+          </div>
+          <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
+        </button>
+      </div>
+    </div>
   );
 
   // Show loading skeleton while checking auth

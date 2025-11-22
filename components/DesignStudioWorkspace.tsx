@@ -91,15 +91,53 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     setError(null);
 
     try {
+      console.log('📦 [Design Studio] Loading workspace data...', { icpId, flowId });
+
       // Unified workspace fetch (single request)
       const wsRes = await fetch(`/api/workspace?icpId=${icpId}&flowId=${flowId}`);
 
       if (wsRes.ok) {
         const { icp, valueProp, designAssets: assets } = await wsRes.json();
+
+        console.log('✅ [Design Studio] Workspace data loaded:', {
+          hasIcp: !!icp,
+          icpTitle: icp?.title,
+          hasValueProp: !!valueProp,
+          valuePropHeadline: valueProp?.headline,
+          valuePropProblem: valueProp?.problem,
+          hasDesignAssets: !!assets
+        });
+
         if (!icp) throw new Error("Persona not found");
 
         setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
         setDesignAssets(assets || null);
+
+        // Check if value prop needs generation
+        const needsValueProp = !valueProp || (!valueProp.headline && !valueProp.problem && !valueProp.summary);
+
+        if (needsValueProp) {
+          console.warn('⚠️ [Value Prop] Missing value prop data, triggering generation...');
+          console.log('📊 [Value Prop] ICP details:', {
+            id: icp.id,
+            title: icp.title,
+            painPoints: icp.pain_points?.length || 0,
+            goals: icp.goals?.length || 0
+          });
+
+          // Trigger value prop generation in background
+          // Note: This requires authentication, so it will only work for logged-in users
+          // The generation will happen server-side and update the database
+          try {
+            console.log('🚀 [Value Prop] Starting generation...');
+            // For now, just log - actual generation would need to be triggered
+            // through the app flow or a dedicated endpoint
+            console.warn('⚠️ [Value Prop] Auto-generation not yet implemented - please use chat to trigger');
+          } catch (genError) {
+            console.error('❌ [Value Prop] Generation failed:', genError);
+          }
+        }
+
         // Initialize UI value prop from server data (pre-manifest)
         const initialVp: UiValueProp = {
           headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
@@ -110,6 +148,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
           targetAudience: valueProp?.targetAudience || icp?.title || "",
         };
+
+        console.log('💾 [Value Prop] UI state initialized:', {
+          headline: initialVp.headline || '(empty)',
+          problem: initialVp.problem || '(empty)',
+          solution: initialVp.solution || '(empty)',
+          outcome: initialVp.outcome || '(empty)',
+          benefitsCount: initialVp.benefits.length,
+          targetAudience: initialVp.targetAudience || '(empty)'
+        });
+
         setUiValueProp(initialVp);
         setLoading(false);
         return;
@@ -284,12 +332,34 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           neutral: manifest.identity?.colors?.neutral || []
         },
         typography: [
-          { category: 'heading', fontFamily: manifest.identity?.typography?.heading?.family || 'Inter' },
-          { category: 'body', fontFamily: manifest.identity?.typography?.body?.family || 'Inter' }
+          {
+            category: 'heading',
+            fontFamily: manifest.identity?.typography?.heading?.family || 'Inter',
+            sizes: Object.entries(manifest.identity?.typography?.heading?.sizes || {}).map(([name, size]) => ({
+              name,
+              size,
+              weight: manifest.identity?.typography?.heading?.weights?.[0] || '700'
+            }))
+          },
+          {
+            category: 'body',
+            fontFamily: manifest.identity?.typography?.body?.family || 'Inter',
+            sizes: Object.entries(manifest.identity?.typography?.body?.sizes || {}).map(([name, size]) => ({
+              name,
+              size,
+              weight: manifest.identity?.typography?.body?.weights?.[0] || '400'
+            }))
+          }
         ],
         toneOfVoice: manifest.identity?.tone?.keywords || [],
         logoVariations: manifest.identity?.logo?.variations || [],
-        personalityTraits: (manifest.identity?.tone?.personality || []).map(p => p.trait)
+        personalityTraits: (manifest.identity?.tone?.personality || []).map((p, i) => ({
+          id: `trait-${i}`,
+          label: p.trait,
+          value: p.value,
+          leftLabel: p.leftLabel,
+          rightLabel: p.rightLabel
+        }))
       };
 
       newAssets.style_guide = {

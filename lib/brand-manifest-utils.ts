@@ -67,17 +67,19 @@ export function mapLegacyDataToManifest(
                     family: designAssets?.brand_guide?.typography?.find((t: any) => t.category === 'body')?.fontFamily || 'Inter',
                     weights: ['400'],
                     sizes: { base: '16px', small: '14px' }
-                },
-                logo: { variations: [] },
-                tone: {
-                    keywords: designAssets?.brand_guide?.toneOfVoice || [],
-                    personality: []
                 }
-            } as any,
-            logo: { variations: [] },
+            },
+            logo: {
+                variations: designAssets?.brand_guide?.logoVariations || []
+            },
             tone: {
                 keywords: designAssets?.brand_guide?.toneOfVoice || [],
-                personality: []
+                personality: (designAssets?.brand_guide?.personalityTraits || []).map((trait: any) => ({
+                    trait: trait.label || trait,
+                    value: trait.value || 50,
+                    leftLabel: trait.leftLabel || '',
+                    rightLabel: trait.rightLabel || ''
+                }))
             }
         },
 

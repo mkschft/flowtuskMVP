@@ -10,8 +10,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Buttons */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Square className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-24" />
+          <Square className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Buttons</h3>
         </div>
 
         <div className="space-y-4">
@@ -30,8 +30,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Cards */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Layers className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-24" />
+          <Layers className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Cards</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -47,8 +47,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Form Elements */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <FormInput className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <FormInput className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Form Elements</h3>
         </div>
 
         <div className="space-y-6">
@@ -67,8 +67,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Spacing System */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Ruler className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Ruler className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Spacing System</h3>
         </div>
 
         <div className="space-y-3">
@@ -84,8 +84,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Border Radius */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Circle className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Circle className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Border Radius</h3>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -102,8 +102,8 @@ export function StyleGuideCanvasSkeleton() {
       {/* Shadows */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Layers className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Layers className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Shadows</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

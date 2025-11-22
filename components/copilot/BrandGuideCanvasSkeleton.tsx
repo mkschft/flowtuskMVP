@@ -10,14 +10,16 @@ export function BrandGuideCanvasSkeleton() {
       {/* Colors Section */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Palette className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Palette className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Color Palette</h3>
         </div>
 
         <div className="space-y-6">
-          {/* Primary Colors Skeleton */}
+          {/* Primary Colors */}
           <div>
-            <Skeleton className="h-4 w-24 mb-3" />
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Primary
+            </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="space-y-2">
@@ -29,9 +31,11 @@ export function BrandGuideCanvasSkeleton() {
             </div>
           </div>
 
-          {/* Secondary Colors Skeleton */}
+          {/* Secondary Colors */}
           <div>
-            <Skeleton className="h-4 w-24 mb-3" />
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Secondary
+            </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[1, 2].map((i) => (
                 <div key={i} className="space-y-2">
@@ -43,9 +47,11 @@ export function BrandGuideCanvasSkeleton() {
             </div>
           </div>
 
-          {/* Accent Colors Skeleton */}
+          {/* Accent Colors */}
           <div>
-            <Skeleton className="h-4 w-24 mb-3" />
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Accent
+            </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[1, 2].map((i) => (
                 <div key={i} className="space-y-2">
@@ -62,14 +68,16 @@ export function BrandGuideCanvasSkeleton() {
       {/* Typography */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <Type className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <Type className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Typography</h3>
         </div>
 
         <div className="space-y-6">
-          {[1, 2, 3].map((i) => (
+          {['Heading', 'Body'].map((category, i) => (
             <div key={i}>
-              <Skeleton className="h-4 w-24 mb-3" />
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                {category}
+              </h4>
               <div className="space-y-3">
                 {[1, 2, 3].map((j) => (
                   <Skeleton key={j} className="h-16 rounded-lg" />
@@ -83,8 +91,8 @@ export function BrandGuideCanvasSkeleton() {
       {/* Logo Variations */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <ImageIcon className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <ImageIcon className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -101,8 +109,8 @@ export function BrandGuideCanvasSkeleton() {
       {/* Tone of Voice */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-32" />
+          <MessageSquare className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Tone of Voice</h3>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -115,21 +123,21 @@ export function BrandGuideCanvasSkeleton() {
       {/* Brand Personality */}
       <Card className="p-6 bg-background border-2">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5 text-purple-600 animate-pulse" />
-          <Skeleton className="h-6 w-40" />
+          <MessageSquare className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-lg">Brand Personality</h3>
         </div>
 
         <div className="space-y-6">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="space-y-2">
               <div className="flex items-center justify-between">
-                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-4 w-8" />
               </div>
               <Skeleton className="h-2 w-full" />
               <div className="flex items-center justify-between">
-                <Skeleton className="h-3 w-12" />
-                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-3 w-20" />
               </div>
             </div>
           ))}
