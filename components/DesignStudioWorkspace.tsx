@@ -145,10 +145,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       setLoading(false);
     }
   }, [icpId, flowId]);
-  const loadManifest = useCallback(async () => {
+  const loadManifest = useCallback(async (skipIfNoAssets = false) => {
     try {
       // Skip if tab is not visible to save resources
       if (typeof document !== 'undefined' && document.hidden) return;
+
+      // Skip if design assets don't exist yet (prevents failed migration attempts)
+      if (skipIfNoAssets && !designAssets?.generation_state?.brand) {
+        console.log('⏭️ [Manifest] Skipping - design assets not generated yet');
+        return;
+      }
 
       const url = `/api/brand-manifest?flowId=${flowId}`;
 
@@ -177,17 +183,20 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             return prev;
           });
         }
+      } else if (res.status === 404) {
+        console.log('ℹ️ [Manifest] Not found (will be created after brand generation)');
       }
     } catch (err) {
       console.error("❌ [Manifest] Error loading manifest:", err);
     }
-  }, [flowId]);
+  }, [flowId, designAssets]);
 
   // Load data on mount
   useEffect(() => {
     loadWorkspaceData();
-    loadManifest();
-  }, [icpId, flowId, loadManifest]);
+    // Skip manifest loading if no design assets exist yet
+    loadManifest(true);
+  }, [icpId, flowId, loadWorkspaceData, loadManifest]);
 
   // Poll for manifest updates (every 30s instead of 5s)
   useEffect(() => {
@@ -379,7 +388,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   }, [handleUndo, handleRedo]);
 
   // Background generation orchestration
-  const triggerBackgroundGeneration = async () => {
+  const triggerBackgroundGeneration = useCallback(async () => {
     if (!workspaceData) return;
 
     const hasDesignAssets = designAssets !== null;
@@ -471,6 +480,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             s.id === 'brand' ? { ...s, status: 'complete' as const } : s
           ));
 
+          // Load manifest now that brand guide exists
+          console.log('🔄 [Design Studio] Loading brand manifest after generation...');
+          await loadManifest(false);
+
           // Step 2: Generate Style Guide (sequential)
           await generateStyleGuide();
 
@@ -493,7 +506,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         await generateLandingPage();
       }
     }
-  };
+  }, [workspaceData, designAssets, icpId, flowId, loadManifest]);
 
   const generateStyleGuide = async () => {
     console.log('🎨 [Design Studio] Starting style guide generation...');
@@ -604,6 +617,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       },
     };
   }, [workspaceData, uiValueProp, designAssets, chatMessages]);
+
+  // Trigger background generation after workspace data loads
+  useEffect(() => {
+    if (workspaceData && !loading) {
+      console.log('🚀 [Design Studio] Triggering background generation...');
+      triggerBackgroundGeneration();
+    }
+  }, [workspaceData, loading, triggerBackgroundGeneration]);
 
   const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;

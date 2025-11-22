@@ -1,0 +1,178 @@
+{
+  "brand": {
+    "name": "প্রথম আলো",
+    "tones": [
+      "informative",
+      "neutral"
+    ],
+    "primaryCTA": "Login"
+  },
+  "structure": {
+    "nav": [
+      "সর্বশেষ",
+      "বাংলাদেশ",
+      "রাজনীতি",
+      "বিশ্ব",
+      "বাণিজ্য",
+      "মতামত",
+      "খেলা",
+      "বিনোদন",
+      "চাকরি",
+      "জীবনযাপন",
+      "ভিডিও"
+    ],
+    "keyPages": [
+      {
+        "path": "/collection/latest",
+        "title": "সর্বশেষ"
+      },
+      {
+        "path": "/bangladesh",
+        "title": "বাংলাদেশ"
+      },
+      {
+        "path": "/politics",
+        "title": "রাজনীতি"
+      },
+      {
+        "path": "/world",
+        "title": "বিশ্ব"
+      },
+      {
+        "path": "/business",
+        "title": "বাণিজ্য"
+      },
+      {
+        "path": "/opinion",
+        "title": "মতামত"
+      },
+      {
+        "path": "/sports",
+        "title": "খেলা"
+      },
+      {
+        "path": "/entertainment",
+        "title": "বিনোদন"
+      },
+      {
+        "path": "/chakri",
+        "title": "চাকরি"
+      },
+      {
+        "path": "/lifestyle",
+        "title": "জীবনযাপন"
+      },
+      {
+        "path": "/video",
+        "title": "ভিডিও"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Login"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Bangladesh",
+    "industryFocus": "News Media",
+    "signals": [
+      "বাংলাদেশ",
+      "ঢাকাবাসী",
+      "নরসিংদী",
+      "গাজীপুর",
+      "ভুটানের প্রধানমন্ত্রীর শ্রদ্ধা নিবেদন"
+    ]
+  },
+  "audienceSignals": [
+    "Bangladeshi citizens",
+    "Bengali speakers"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Provides up-to-date news coverage",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Covers a wide range of topics including politics, business, sports, and entertainment",
+      "evidence": [
+        "fact-2",
+        "fact-5"
+      ]
+    }
+  ],
+  "pains": [
+    "Misinformation on social media",
+    "Natural disasters like earthquakes"
+  ],
+  "proof": [
+    "Images of earthquake aftermath",
+    "Live updates on cricket matches"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "প্রথম আলো is a Bangla news website.",
+      "page": "Homepage",
+      "evidence": "প্রথম আলো | বাংলা নিউজ পেপার"
+    },
+    {
+      "id": "fact-2",
+      "text": "The website covers topics such as politics, business, sports, and entertainment.",
+      "page": "Homepage",
+      "evidence": "রাজনীতি, বাণিজ্য, খেলা, বিনোদন"
+    },
+    {
+      "id": "fact-3",
+      "text": "The website provides live updates on events such as cricket matches.",
+      "page": "Sports Page",
+      "evidence": "মিরপুরে সিরিজের দ্বিতীয় ও শেষ টেস্টে আয়ারল্যান্ডের মুখোমুখি বাংলাদেশ।"
+    },
+    {
+      "id": "fact-4",
+      "text": "The website is primarily targeted at Bangladeshi citizens.",
+      "page": "Homepage",
+      "evidence": "ঢাকাবাসী, নরসিংদী"
+    },
+    {
+      "id": "fact-5",
+      "text": "The website includes sections for opinion and lifestyle.",
+      "page": "Homepage",
+      "evidence": "মতামত, জীবনযাপন"
+    },
+    {
+      "id": "fact-6",
+      "text": "The website has a login feature for users.",
+      "page": "Homepage",
+      "evidence": "Login"
+    },
+    {
+      "id": "fact-7",
+      "text": "The website reports on natural disasters such as earthquakes.",
+      "page": "Bangladesh Page",
+      "evidence": "ভূমিকম্পে মৃত্যু: নরসিংদীর নাসির ‘আমাকে ধর’ বলতে বলতে লুটিয়ে পড়েন"
+    },
+    {
+      "id": "fact-8",
+      "text": "The website uses Bengali as its primary language.",
+      "page": "Homepage",
+      "evidence": "প্রথম আলো | বাংলা নিউজ পেপার"
+    },
+    {
+      "id": "fact-9",
+      "text": "The website has a section for video content.",
+      "page": "Homepage",
+      "evidence": "ভিডিও"
+    },
+    {
+      "id": "fact-10",
+      "text": "The website includes a search feature.",
+      "page": "Homepage",
+      "evidence": "খুঁজুন"
+    }
+  ]
+}
