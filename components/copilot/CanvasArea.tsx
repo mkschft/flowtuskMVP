@@ -101,7 +101,7 @@ export function CanvasArea({
 
       {/* Canvas Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
+        <div className="p-6" id="design-canvas-content">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

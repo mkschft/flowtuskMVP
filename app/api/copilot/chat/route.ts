@@ -127,6 +127,63 @@ export async function POST(req: NextRequest) {
                   },
                 }
               },
+              styleGuide: {
+                type: "object",
+                description: "Style guide updates",
+                properties: {
+                  borderRadius: { type: "string", description: "Border radius (e.g., '0px', '8px', '1rem', 'full')" },
+                  buttonStyle: { type: "string", description: "Button style (e.g., 'solid', 'outline', 'ghost')" },
+                  cardStyle: { type: "string", description: "Card style (e.g., 'flat', 'elevated', 'bordered')" },
+                  shadows: { type: "string", description: "Shadow style (e.g., 'none', 'sm', 'md', 'lg', 'xl')" }
+                }
+              },
+              landingPage: {
+                type: "object",
+                description: "Landing page content updates",
+                properties: {
+                  features: { 
+                    type: "array", 
+                    items: { 
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        description: { type: "string" },
+                        icon: { type: "string" }
+                      }
+                    },
+                    description: "List of features to display"
+                  },
+                  socialProof: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        quote: { type: "string" },
+                        author: { type: "string" },
+                        role: { type: "string" },
+                        company: { type: "string" }
+                      }
+                    },
+                    description: "Testimonials or social proof items"
+                  },
+                  footer: {
+                    type: "object",
+                    description: "Footer configuration",
+                    properties: {
+                      sections: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            title: { type: "string" },
+                            links: { type: "array", items: { type: "string" } }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
               executionSteps: {
                 type: "array",
                 description: "REQUIRED for market_shift: Multi-step execution plan shown to user as progress. Must include at least 3 steps with emoji prefixes.",

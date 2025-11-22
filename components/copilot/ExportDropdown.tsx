@@ -115,6 +115,11 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
               <FileText className="w-4 h-4 mr-2" />
               Export to Notion
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleExport("pdf", "Exporting view as PDF...")}>
+              <File className="w-4 h-4 mr-2" />
+              Export View as PDF
+            </DropdownMenuItem>
           </>
         )}
 
@@ -140,6 +145,10 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
             <DropdownMenuItem onClick={() => handleExport("pdf", "Downloading brand-guide.pdf...")}>
               <File className="w-4 h-4 mr-2" />
               Export Brand PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("brand-png", "Exporting view as PNG...")}>
+              <Camera className="w-4 h-4 mr-2" />
+              Export View as PNG
             </DropdownMenuItem>
           </>
         )}
@@ -167,6 +176,15 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
               <HardDrive className="w-4 h-4 mr-2" />
               Download Design Tokens (JSON)
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleExport("style-pdf", "Exporting view as PDF...")}>
+              <File className="w-4 h-4 mr-2" />
+              Export View as PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("style-png", "Exporting view as PNG...")}>
+              <Camera className="w-4 h-4 mr-2" />
+              Export View as PNG
+            </DropdownMenuItem>
           </>
         )}
 
@@ -188,6 +206,11 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
             <DropdownMenuItem onClick={() => handleExport("mobile", "Downloading mobile-preview.png...")}>
               <Smartphone className="w-4 h-4 mr-2" />
               Export Mobile Preview
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+             <DropdownMenuItem onClick={() => handleExport("landing-pdf", "Exporting view as PDF...")}>
+              <File className="w-4 h-4 mr-2" />
+              Export View as PDF
             </DropdownMenuItem>
           </>
         )}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Share2, UserPlus, ChevronDown } from "lucide-react";
 import { ExportDropdown } from "./ExportDropdown";
+import { ExportToFigmaButton } from "./ExportToFigmaButton";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import {
   DropdownMenu,
@@ -17,6 +18,9 @@ type ToolBarProps = {
   activeTab: TabType;
   onExport: (format: string, message: string) => void;
   onShare: () => void;
+  flowId: string;
+  workspaceData: any;
+  designAssets: any;
 };
 
 // Mock team members
@@ -25,7 +29,7 @@ const teamMembers = [
   { name: "Alex", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", role: "Editor" },
 ];
 
-export function ToolBar({ activeTab, onExport, onShare }: ToolBarProps) {
+export function ToolBar({ activeTab, onExport, onShare, flowId, workspaceData, designAssets }: ToolBarProps) {
   return (
     <div className="flex items-center gap-3">
       {/* Team Members */}
@@ -43,7 +47,7 @@ export function ToolBar({ activeTab, onExport, onShare }: ToolBarProps) {
             />
           </div>
         ))}
-        
+
         {/* Add Member Button */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -74,6 +78,11 @@ export function ToolBar({ activeTab, onExport, onShare }: ToolBarProps) {
 
       {/* Export & Share */}
       <div className="flex items-center gap-2">
+        <ExportToFigmaButton
+          flowId={flowId}
+          workspaceData={workspaceData}
+          designAssets={designAssets}
+        />
         <ExportDropdown activeTab={activeTab} onExport={onExport} />
         <Button variant="outline" size="sm" className="gap-2" onClick={onShare}>
           <Share2 className="w-4 h-4" />

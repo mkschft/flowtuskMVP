@@ -1,3 +1,224 @@
-Chat with Stripe sales Stripe | Financial Infrastructure to Grow Your Revenue Stripe logo Products Solutions Developers Resources Pricing Dashboard&nbsp; Sign in&nbsp; Sign in&nbsp; Contact sales &nbsp; Open mobile navigation Stripe logo Back Close mobile navigation Products Solutions Developers Resources Pricing Sign in Global payments Payments Payments &nbsp; Online payments Payment Links &nbsp; No-code payments Checkout &nbsp; Pre-built payment form Elements &nbsp; Flexible UI components Terminal Terminal &nbsp; In-person payments Radar Radar &nbsp; Fraud prevention Authorization Boost Authorization Boost &nbsp; Acceptance optimisations Money Management Connect Connect &nbsp; Payments for platforms Issuing Issuing &nbsp; Physical and virtual cards Payouts Global Payouts &nbsp; Send money to third parties Revenue and Finance Automation Billing Billing &nbsp; Subscription management Usage-based &nbsp; Metered billing Invoicing &nbsp; One-time or recurring Tax Tax &nbsp; Sales tax &amp; VAT automation Revenue Recognition Revenue Recognition &nbsp; Accounting automation Stripe Sigma Stripe Sigma &nbsp; Custom reports Data Pipeline &nbsp; Data sync More Payment methods&nbsp; Access to 100+ globally Link&nbsp; Accelerated checkout Financial Connections&nbsp; Linked financial account data Identity&nbsp; Online identity verification Atlas&nbsp; Start-up incorporation By stage Enterprises &nbsp; Startups &nbsp; By use case Crypto &nbsp; E-commerce &nbsp; Embedded finance &nbsp; Finance automation &nbsp; Global businesses &nbsp; Marketplaces &nbsp; Platforms &nbsp; SaaS &nbsp; By industry AI companies &nbsp; Creator economy &nbsp; Hospitality, travel and leisure &nbsp; Insurance &nbsp; Media and entertainment &nbsp; Non-profits &nbsp; Retail &nbsp; Ecosystem Stripe App Marketplace &nbsp; Partners &nbsp; Documentation &nbsp; Resources API reference &nbsp; Libraries and SDKs &nbsp; App integrations &nbsp; Guides Accept online payments &nbsp; Implement a prebuilt checkout &nbsp; Build a platform or marketplace &nbsp; API status &nbsp; Developer blog &nbsp; Support centre &nbsp; Managed support plans &nbsp; Professional services &nbsp; Contact sales &nbsp; Blog &nbsp; Customer stories &nbsp; Guides &nbsp; Sessions conference &nbsp; Jobs &nbsp; Newsroom &nbsp; Stripe Press &nbsp; Become a partner &nbsp; Start now&nbsp; Contact sales&nbsp; Global payments Payments Payments &nbsp; Online payments Payment Links &nbsp; No-code payments Checkout &nbsp; Pre-built payment form Elements &nbsp; Flexible UI components Terminal Terminal &nbsp; In-person payments Radar Radar &nbsp; Fraud prevention Authorization Authorization Boost &nbsp; Acceptance optimisations Money Management Connect Connect &nbsp; Payments for platforms Issuing Issuing &nbsp; Physical and virtual cards Payouts Global Payouts &nbsp; Send money to third parties Revenue and Finance Automation Billing Billing &nbsp; Subscription management Usage-based &nbsp; Metered billing Invoicing &nbsp; One-time or recurring Tax Tax &nbsp; Sales tax &amp; VAT automation Revenue Recognition Revenue Recognition &nbsp; Accounting automation Stripe Sigma Stripe Sigma &nbsp; Custom reports Data Pipeline &nbsp; Data sync More Payment methods&nbsp; Access to 100+ globally Link&nbsp; Accelerated checkout Financial Connections&nbsp; Linked financial account data Identity&nbsp; Online identity verification Atlas&nbsp; Start-up incorporation Climate&nbsp; Carbon removal By stage Enterprises &nbsp; Startups &nbsp; By use case Crypto &nbsp; E-commerce &nbsp; Embedded finance &nbsp; Finance automation &nbsp; Global businesses &nbsp; Marketplaces &nbsp; Platforms &nbsp; SaaS &nbsp; By industry AI companies &nbsp; Creator economy &nbsp; Hospitality, travel and leisure &nbsp; Insurance &nbsp; Media and entertainment &nbsp; Non-profits &nbsp; Retail &nbsp; Ecosystem Stripe App Marketplace &nbsp; Partners &nbsp; Documentation&nbsp; Start integrating Stripe’s products and tools Resources API reference&nbsp; Libraries and SDKs&nbsp; App integrations&nbsp; Code samples&nbsp; Stripe Apps&nbsp; Guides Accept online payments&nbsp; Implement a prebuilt checkout&nbsp; Set up in-person payments&nbsp; Build a platform or marketplace&nbsp; Manage subscriptions&nbsp; Offer usage-based billing&nbsp; API status&nbsp; Developer blog&nbsp; Support centre&nbsp; Managed support plans&nbsp; Professional services&nbsp; Contact sales&nbsp; Blog&nbsp; Customer stories&nbsp; Guides&nbsp; Sessions conference&nbsp; Jobs&nbsp; Newsroom&nbsp; Stripe Press&nbsp; Become a partner&nbsp; Financial infrastructure to grow your revenue Financial infrastructure to grow your revenue Financial infrastructure to grow your revenue Join the millions of companies that use Stripe to accept payments online and in person, embed financial services, power custom revenue models, and build a more profitable business. Start now&nbsp; Contact sales&nbsp; Start now&nbsp; Contact sales&nbsp; Rocket Rides Search Today Net volume €3,528,198.72 14:00 Yesterday €2,931,556.34 00:00 Now, 14:00 23:59 EUR Balance €553,257.51 Available to pay out View Payouts €102,633.07 Expected today View Net volume from sales +32.8% €39,274.29 €29,573.54 20 Apr Today Updated today 07:50 New customers +32.1% 37 28 20 Apr Today Updated today 07:50 Invoices Paid €25,000.00 Open €20,000.00 Past due €1,000.00 Updated today 07:50 Abstraction Magazine €19 per month Or pay with card Email Card Information Number MM / YY CVC Country or region Finland Postcode Pay Cancel Nordea Esimerkkikatu 23 Helsinki Billing Matti Meikäläinen Esimerkkikatu 23 00500 Helsinki Finland Contact matti.meikalainen@example.com +358 44 555 9997 Pay total €55.00 OpenAI logo Amazon logo Google logo Anthropic logo Marriott logo Shopify logo Airbnb logo URBN logo Mousedown/⌘ FF/Rewind Right/left Stretch Up/down Amplitude -/+ Zoom P Pause/play 1 Red on/off 2 Blue on/off 3 Yellow on/off 4 Purple on/off Modular solutions A fully integrated suite of financial and payments products Reduce costs, grow revenue, and run your business more efficiently on a fully integrated, AI-powered platform. Use Stripe to handle all of your payments-related needs, manage revenue operations, and launch (or invent) new business models. Atlas Billing Capital Checkout Climate Connect Elements Identity Invoicing Issuing Payments Radar Sigma Tax Terminal Treasury Payments Tax Radar Terminal Wood Chair 001 US$149 €135.00 ¥199.00 €135.00 US$149 Pay US$149 €135.00 zahlen 支付 ¥199.00 Betaal €135.00 Pay US$149 Billing Invoicing RevRec Sigma Quantum Abstraction Typographic Quantum Products Pricing Contact Standard Up to 5 users €49 /month Subscribe This includes: 12 months historical data 4 hr data refresh 500+ third party integrations Professional Popular! Up to 25 users €149 /month Subscribe This includes: 24 months historical data 1 hr data refresh 1,000+ third party integrations Simple reporting Enterprise Unlimited users €299 /month Subscribe This includes: Unlimited historical data 15 min data refresh 2,000+ third party integrations Advanced reporting Priority support Basic Digital access €9 /month Subscribe This includes: Unlimited access to web content Exclusive subscriber content Premium Popular! Digital and print access €19 /month Subscribe This includes: Unlimited access to web content Monthly print issues Exclusive subscriber content Web 50-499 users €99 /month Subscribe This includes: Up to 3 fonts 50k requests 5 domains Unlimited seats Connect Payouts Terminal Elements #9125 Hanako Yamada Processing Completed €150.00 #9124 Jacques Muller Processing Completed €200.00 #9125 Hanako Yamada Processing Completed €150.00 #9124 Jacques Muller Processing Completed €200.00 €150.00 €200.00 €145.50 €194.00 €4.50 €6.00 Buyers Platform Sellers or service providers Orders Today Yesterday Older than 2 days #9125 Hanako Yamada Processing €150.00 #9124 Jacques Muller Processing €200.00 #9123 Matti Meikäläinen On Hold €178.00 #9122 Elli Esimerkki Completed €200.00 #9121 Anna Nowak Comp
+Chat with Stripe sales 
+
+Stripe | Financial Infrastructure to Grow Your Revenue
+
+===============
+
+[](https://stripe.com/)
+=======================
+
+*   Products
+*   Solutions
+*   Developers
+*   Resources
+*   [Pricing](https://stripe.com/pricing)
+
+[Support](https://support.stripe.com/)[Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
+
+[Sign in](https://dashboard.stripe.com/login)
+
+[Contact sales](https://stripe.com/contact/sales)
+
+[](https://stripe.com/?max-length=12000# "Open mobile navigation")
+
+[](https://stripe.com/)
+
+Back
+
+*   Products  
+*   Solutions  
+*   Developers  
+*   Resources  
+*   [Pricing](https://stripe.com/pricing)
+*   [Support](https://support.stripe.com/)
+*   [Sign in](https://dashboard.stripe.com/login)
+
+Global payments
+===============
+
+*   [Payments Online payments](https://stripe.com/payments)
+
+    *   [Payment Links No-code payments](https://stripe.com/payments/payment-links)
+    *   [Checkout Prebuilt payment form](https://stripe.com/payments/checkout)
+    *   [Elements Flexible UI components](https://stripe.com/payments/elements)
+
+*   [Terminal In-person payments](https://stripe.com/terminal)
+*   [Radar Fraud prevention](https://stripe.com/radar)
+*   [Authorization Boost Acceptance optimizations](https://stripe.com/authorization-boost)
+
+Money Management
+================
+
+*   [Connect Payments for platforms](https://stripe.com/connect)
+*   [Financial Accounts Manage business finances](https://stripe.com/financial-accounts)
+*   [Issuing Physical and virtual cards](https://stripe.com/issuing)
+*   [Global Payouts Send money to third parties](https://stripe.com/payouts)
+*   [Capital for platforms Customer financing](https://stripe.com/capital/platforms)
+
+Revenue and Finance Automation
+==============================
+
+*   [Billing Subscription management](https://stripe.com/billing)
+
+    *   [Usage-based Metered billing](https://stripe.com/billing/usage-based-billing)
+    *   [Invoicing One-time or recurring](https://stripe.com/invoicing)
+
+*   [Tax Sales tax & VAT automation](https://stripe.com/tax)
+*   [Revenue Recognition Accounting automation](https://stripe.com/revenue-recognition)
+*   [Stripe Sigma Custom reports](https://stripe.com/sigma)
+*   [Data Pipeline Data sync](https://stripe.com/data-pipeline)
+
+More
+====
+
+    *   [Payment methods Access to 100+ globally](https://stripe.com/payments/payment-methods)
+    *   [Link Accelerated checkout](https://stripe.com/payments/link)
+    *   [Financial Connections Linked financial account data](https://stripe.com/financial-connections)
+    *   [Identity Online identity verification](https://stripe.com/identity)
+    *   [Atlas Startup incorporation](https://stripe.com/atlas)
+
+By stage
+========
+
+*   [Enterprises](https://stripe.com/enterprise)
+*   [Startups](https://stripe.com/startups)
+
+By use case
+===========
+
+*   [Crypto](https://stripe.com/use-cases/crypto)
+*   [Ecommerce](https://stripe.com/use-cases/ecommerce)
+*   [Embedded finance](https://stripe.com/use-cases/embedded-finance)
+*   [Finance automation](https://stripe.com/use-cases/finance-automation)
+*   [Global businesses](https://stripe.com/use-cases/global-businesses)
+*   [In-app payments](https://stripe.com/use-cases/in-app-payments)
+*   [Marketplaces](https://stripe.com/use-cases/marketplaces)
+*   [Platforms](https://stripe.com/use-cases/platforms)
+*   [SaaS](https://stripe.com/use-cases/saas)
+
+By industry
+===========
+
+*   [AI companies](https://stripe.com/use-cases/ai)
+*   [Creator economy](https://stripe.com/use-cases/creator-economy)
+*   [Hospitality, travel, and leisure](https://stripe.com/industries/travel)
+*   [Insurance](https://stripe.com/industries/insurance)
+*   [Media and entertainment](https://stripe.com/industries/media-entertainment)
+*   [Nonprofits](https://stripe.com/industries/nonprofits)
+*   [Retail](https://stripe.com/industries/retail)
+
+Ecosystem
+=========
+
+*   [Stripe App Marketplace](https://marketplace.stripe.com/)
+*   [Partners](https://stripe.com/partners)
+
+*   [Documentation](https://docs.stripe.com/)
+
+Resources
+=========
+
+*   [API reference](https://docs.stripe.com/api)
+*   [Libraries and SDKs](https://docs.stripe.com/development)
+*   [App integrations](https://marketplace.stripe.com/)
+
+Guides
+======
+
+*   [Accept online payments](https://docs.stripe.com/payments)
+*   [Implement a prebuilt checkout](https://docs.stripe.com/payments/checkout)
+*   [Build a platform or marketplace](https://docs.stripe.com/connect)
+
+*   [API status](https://status.stripe.com/)
+*   [Developer blog](https://stripe.dev/)
+
+*   [Support center](https://support.stripe.com/?referrerLocale=en-us)
+*   [Managed support plans](https://stripe.com/support-plans)
+*   [Professional services](https://stripe.com/professional-services)
+*   [Contact sales](https://stripe.com/contact/sales)
+*   [Blog](https://stripe.com/blog)
+*   [Customer stories](https://stripe.com/customers)
+*   [Guides](https://stripe.com/guides)
+*   [Sessions conference](https://stripe.com/sessions)
+
+*   [Jobs](https://stripe.com/jobs)
+*   [Newsroom](https://stripe.com/newsroom)
+*   [Stripe Press](https://press.stripe.com/)
+*   [Become a partner](https://stripe.com/partners/become-a-partner)
+
+[Start now](https://stripe.com/register)[Contact sales](https://stripe.com/contact/sales)
+
+Global payments
+===============
+
+*   [Payments Online payments](https://stripe.com/payments)
+
+    *   [Payment Links No-code payments](https://stripe.com/payments/payment-links)
+    *   [Checkout Prebuilt payment form](https://stripe.com/payments/checkout)
+    *   [Elements Flexible UI components](https://stripe.com/payments/elements)
+
+*   [Terminal In-person payments](https://stripe.com/terminal)
+*   [Radar Fraud prevention](https://stripe.com/radar)
+*   [Authorization Boost Acceptance optimizations](https://stripe.com/authorization-boost)
+
+Money Management
+================
+
+*   [Connect Payments for platforms](https://stripe.com/connect)
+*   [Financial Accounts Manage business finances](https://stripe.com/financial-accounts)
+*   [Issuing Physical and virtual cards](https://stripe.com/issuing)
+
+*   [Global Payouts Send money to third parties](https://stripe.com/payouts)
+*   [Capital Business financing](https://stripe.com/capital/platforms)
+
+Revenue and Finance Automation
+==============================
+
+*   [Billing Subscription management](https://stripe.com/billing)
+
+    *   [Usage-based Metered billing](https://stripe.com/billing/usage-based-billing)
+    *   [Invoicing One-time or recurring](https://stripe.com/invoicing)
+
+*   [Tax Sales tax & VAT automation](https://stripe.com/tax)
+
+*   [Revenue Recognition Accounting automation](https://stripe.com/revenue-recognition)
+*   [Stripe Sigma Custom reports](https://stripe.com/sigma)
+*   [Data Pipeline Data sync](https://stripe.com/data-pipeline)
+
+More
+----
+
+*   [Payment methods Access to 100+ globally](https://stripe.com/payments/payment-methods)
+*   [Link Accelerated checkout](https://stripe.com/payments/link)
+*   [Financial Connections Linked financial account data](https://stripe.com/financial-connections)
+*   [Identity Online identity verification](https://stripe.com/identity)
+*   [Atlas Startup incorporation](https://stripe.com/atlas)
+*   [Climate Carbon removal](https://stripe.com/climate)
+
+By stage
+========
+
+*   [Enterprises](https://stripe.com/enterprise)
+
+*   [Startups](https://stripe.com/startups)
+
+By use case
+===========
+
+*   [Crypto](https://stripe.com/use-cases/crypto)
+*   [Ecommerce](https://stripe.com/use-cases/ecommerce)
+*   [Embedded finance](https://stripe.com/use-cases/embedded-finance)
+*   [Finance automation](https://stripe.com/use-cases/finance-automation)
+*   [Global businesses](https://stripe.com/use-cases/global-businesses)
+
+*   [In-app payments](https://stripe.com/use-cases/in-app-payments)
+*   [Marketplaces](https://stripe.com/use-cases/marketplaces)
+*   [Platforms](https://stripe.com/use-cases/platforms)
+*   [SaaS](https://stripe.com/use-cases/saas)
+
+By industry
+===========
+
+*  
 
 [Content truncated for performance]

@@ -17,6 +17,8 @@ import type {
   CopilotWorkspaceData,
 } from "@/lib/types/design-assets";
 
+import { exportElementAsImage, exportElementAsPDF } from "@/lib/export-utils";
+
 export type TabType = "value-prop" | "brand" | "style" | "landing";
 
 const MAX_REGENERATIONS = 4;
@@ -42,14 +44,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const [activeTab, setActiveTab] = useState<TabType>("value-prop");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Data from database
   const [workspaceData, setWorkspaceData] = useState<CopilotWorkspaceData | null>(null);
   const [designAssets, setDesignAssets] = useState<PositioningDesignAssets | null>(null);
-  
+
   // UI state: flattened value prop for instant updates
   const [uiValueProp, setUiValueProp] = useState<UiValueProp | null>(null);
-  
+
   const handleBackToConversations = () => {
     router.push(`/app?flowId=${flowId}`);
     setTimeout(() => {
@@ -58,15 +60,15 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       }
     }, 100);
   };
-  
+
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [generationSteps, setGenerationSteps] = useState<Array<{id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete'}>>([]);
+  const [generationSteps, setGenerationSteps] = useState<Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>>([]);
   const [toasts, setToasts] = useState<ToastProps[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [regenerationCount, setRegenerationCount] = useState(0);
   const [isChatVisible, setIsChatVisible] = useState(true);
-  
+
   // Generation states
   const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
   const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
@@ -76,38 +78,38 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   useEffect(() => {
     loadWorkspaceData();
   }, [icpId, flowId]);
-  
+
   // Initialize UI value prop from database
   useEffect(() => {
     if (workspaceData) {
       setUiValueProp({
-        headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text || 
-                  workspaceData.persona.description,
-        subheadline: workspaceData.valueProp?.summary?.mainInsight || 
-                     `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
+        headline: workspaceData.valueProp?.variations?.find(v => v.id === 'benefit-first')?.text ||
+          workspaceData.persona.description,
+        subheadline: workspaceData.valueProp?.summary?.mainInsight ||
+          `Transform how ${workspaceData.persona.title} solve their biggest challenges`,
         problem: workspaceData.persona.pain_points.join(", "),
-        solution: workspaceData.valueProp?.summary?.approachStrategy || 
-                  `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
-        outcome: workspaceData.valueProp?.summary?.expectedImpact || 
-                 `Proven results that help teams like yours achieve their goals faster`,
-        benefits: workspaceData.valueProp?.variations?.map(v => v.text) || 
-                  workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
+        solution: workspaceData.valueProp?.summary?.approachStrategy ||
+          `Tailored solutions designed specifically for ${workspaceData.persona.persona_company}`,
+        outcome: workspaceData.valueProp?.summary?.expectedImpact ||
+          `Proven results that help teams like yours achieve their goals faster`,
+        benefits: workspaceData.valueProp?.variations?.map(v => v.text) ||
+          workspaceData.persona.pain_points.map(p => `Solve: ${p}`),
         targetAudience: workspaceData.persona.title,
       });
     }
   }, [workspaceData]);
-  
+
   // Trigger background generation after workspace loads
   useEffect(() => {
     if (workspaceData && !loading) {
       triggerBackgroundGeneration();
     }
   }, [workspaceData, loading]);
-  
+
   // Debounced persistence: save UI changes to database after 2s of inactivity
   useEffect(() => {
     if (!uiValueProp || !workspaceData) return;
-    
+
     const timeout = setTimeout(async () => {
       try {
         console.log('💾 [Design Studio] Auto-saving value prop changes...');
@@ -122,7 +124,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         console.error('❌ [Design Studio] Auto-save failed:', err);
       }
     }, 2000);
-    
+
     return () => clearTimeout(timeout);
   }, [uiValueProp, icpId, flowId]);
 
@@ -166,43 +168,43 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       setLoading(false);
     }
   };
-  
+
   // Background generation orchestration
   const triggerBackgroundGeneration = async () => {
     if (!workspaceData) return;
-    
+
     const hasDesignAssets = designAssets !== null;
     const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
-    
+
     console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
-    
+
     // Initialize generation steps based on current state
     const steps = [
-      { 
-        id: 'brand', 
-        label: 'Brand Guide', 
-        icon: '🎨', 
-        status: generationState.brand ? 'complete' as const : 'pending' as const 
+      {
+        id: 'brand',
+        label: 'Brand Guide',
+        icon: '🎨',
+        status: generationState.brand ? 'complete' as const : 'pending' as const
       },
-      { 
-        id: 'style', 
-        label: 'Style Guide', 
-        icon: '✨', 
-        status: generationState.style ? 'complete' as const : 'pending' as const 
+      {
+        id: 'style',
+        label: 'Style Guide',
+        icon: '✨',
+        status: generationState.style ? 'complete' as const : 'pending' as const
       },
-      { 
-        id: 'landing', 
-        label: 'Landing Page', 
-        icon: '🚀', 
-        status: generationState.landing ? 'complete' as const : 'pending' as const 
+      {
+        id: 'landing',
+        label: 'Landing Page',
+        icon: '🚀',
+        status: generationState.landing ? 'complete' as const : 'pending' as const
       }
     ];
-    
+
     setGenerationSteps(steps);
-    
+
     const needsGeneration = !generationState.brand || !generationState.style || !generationState.landing;
     const allComplete = generationState.brand && generationState.style && generationState.landing;
-    
+
     if (needsGeneration) {
       // Show welcome with progress component in chat
       setChatMessages(prev => {
@@ -226,43 +228,43 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         }];
       });
     }
-    
+
     // If all assets already generated, nothing to do
     if (generationState.brand && generationState.style && generationState.landing) {
       console.log('✅ [Design Studio] All design assets already generated');
       return;
     }
-    
+
     // Step 1: Generate Brand Guide (if not exists)
     if (!generationState.brand) {
       console.log('🎨 [Design Studio] Starting brand guide generation...');
       setIsGeneratingBrand(true);
-      
+
       // Update step to loading
-      setGenerationSteps(prev => prev.map(s => 
+      setGenerationSteps(prev => prev.map(s =>
         s.id === 'brand' ? { ...s, status: 'loading' as const } : s
       ));
-      
+
       try {
         const brandRes = await fetch('/api/design-assets/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ icpId, flowId, tab: 'brand' })
         });
-        
+
         if (brandRes.ok) {
           const { designAssets: updatedAssets } = await brandRes.json();
           setDesignAssets(updatedAssets);
           console.log('✅ [Design Studio] Brand guide generated');
-          
+
           // Update step to complete
-          setGenerationSteps(prev => prev.map(s => 
+          setGenerationSteps(prev => prev.map(s =>
             s.id === 'brand' ? { ...s, status: 'complete' as const } : s
           ));
-          
+
           // Step 2: Generate Style Guide (sequential)
           await generateStyleGuide();
-          
+
           // Step 3: Generate Landing Page (sequential)
           await generateLandingPage();
         } else {
@@ -283,30 +285,30 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       }
     }
   };
-  
+
   const generateStyleGuide = async () => {
     console.log('🎨 [Design Studio] Starting style guide generation...');
     setIsGeneratingStyle(true);
-    
+
     // Update step to loading
-    setGenerationSteps(prev => prev.map(s => 
+    setGenerationSteps(prev => prev.map(s =>
       s.id === 'style' ? { ...s, status: 'loading' as const } : s
     ));
-    
+
     try {
       const styleRes = await fetch('/api/design-assets/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ icpId, flowId, tab: 'style' })
       });
-      
+
       if (styleRes.ok) {
         const { designAssets: updatedAssets } = await styleRes.json();
         setDesignAssets(updatedAssets);
         console.log('✅ [Design Studio] Style guide generated');
-        
+
         // Update step to complete
-        setGenerationSteps(prev => prev.map(s => 
+        setGenerationSteps(prev => prev.map(s =>
           s.id === 'style' ? { ...s, status: 'complete' as const } : s
         ));
       } else {
@@ -318,30 +320,30 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       setIsGeneratingStyle(false);
     }
   };
-  
+
   const generateLandingPage = async () => {
     console.log('🎨 [Design Studio] Starting landing page generation...');
     setIsGeneratingLanding(true);
-    
+
     // Update step to loading
-    setGenerationSteps(prev => prev.map(s => 
+    setGenerationSteps(prev => prev.map(s =>
       s.id === 'landing' ? { ...s, status: 'loading' as const } : s
     ));
-    
+
     try {
       const landingRes = await fetch('/api/design-assets/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ icpId, flowId, tab: 'landing' })
       });
-      
+
       if (landingRes.ok) {
         const { designAssets: updatedAssets } = await landingRes.json();
         setDesignAssets(updatedAssets);
         console.log('✅ [Design Studio] Landing page generated');
-        
+
         // Update step to complete and mark all done
-        setGenerationSteps(prev => prev.map(s => 
+        setGenerationSteps(prev => prev.map(s =>
           s.id === 'landing' ? { ...s, status: 'complete' as const } : s
         ));
       } else {
@@ -358,7 +360,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   // Use useMemo to recompute when uiValueProp or other dependencies change
   const currentProject: DesignProject | null = useMemo(() => {
     if (!workspaceData || !uiValueProp) return null;
-    
+
     return {
       id: workspaceData.persona.id,
       name: workspaceData.persona.persona_company.split('(')[0].trim(),
@@ -403,11 +405,35 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  const handleExport = (format: string, message: string) => {
+  const handleExport = async (format: string, message: string) => {
     addToast(message, "download");
-    setTimeout(() => {
-      addToast(`✓ ${format} export completed`, "success");
-    }, 1500);
+
+    try {
+      const elementId = "design-canvas-content";
+      const fileName = `${currentProject?.name || 'design'}-${activeTab}`;
+
+      // Handle PDF export
+      if (format.includes("pdf")) {
+        await exportElementAsPDF(elementId, fileName);
+        addToast(`✓ PDF export completed`, "success");
+        return;
+      }
+
+      // Handle PNG/Image export
+      if (format.includes("png") || format.includes("mobile") || format.includes("image")) {
+        await exportElementAsImage(elementId, fileName);
+        addToast(`✓ PNG export completed`, "success");
+        return;
+      }
+
+      // Fallback for simulated/other formats
+      setTimeout(() => {
+        addToast(`✓ ${format} export completed`, "success");
+      }, 1500);
+    } catch (error) {
+      console.error("Export failed:", error);
+      addToast("Export failed. Please try again.", "info");
+    }
   };
 
   const handleShare = () => {
@@ -425,21 +451,21 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       role: "user",
       content: message,
     };
-    
+
     setChatMessages((prev) => [...prev, userMessage]);
     setIsStreaming(true);
-    
+
     // Show preparing indicator for complex requests
-    const isComplexRequest = message.toLowerCase().includes('change') || 
-                            message.toLowerCase().includes('update') || 
-                            message.toLowerCase().includes('location') ||
-                            message.toLowerCase().includes('market');
-    
+    const isComplexRequest = message.toLowerCase().includes('change') ||
+      message.toLowerCase().includes('update') ||
+      message.toLowerCase().includes('location') ||
+      message.toLowerCase().includes('market');
+
     if (isComplexRequest) {
       // Add temporary loading message
-      setChatMessages((prev) => [...prev, { 
-        role: 'ai', 
-        content: '⚡ Analyzing your request...' 
+      setChatMessages((prev) => [...prev, {
+        role: 'ai',
+        content: '⚡ Analyzing your request...'
       }]);
     }
 
@@ -448,14 +474,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       const cleanMessages = [...chatMessages, userMessage]
         .filter(msg => {
           // Remove progress markers - these are internal UI state
-          return msg.content !== '__GENERATION_PROGRESS__' && 
-                 msg.content !== '__UPDATE_PROGRESS__';
+          return msg.content !== '__GENERATION_PROGRESS__' &&
+            msg.content !== '__UPDATE_PROGRESS__';
         })
         .map(msg => ({
           role: msg.role === "ai" ? "assistant" : msg.role,
           content: msg.content
         }));
-      
+
       const response = await fetch("/api/copilot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -516,7 +542,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       }
 
       console.log("📖 [Chat] Starting to read stream...");
-      
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
@@ -544,7 +570,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       } else {
         console.warn("⚠️ [Chat] Empty response from AI");
       }
-      
+
       setRegenerationCount(prev => prev + 1);
     } catch (error) {
       console.error("Chat error:", error);
@@ -559,7 +585,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       // Check for function call format from new API
       const functionCallMatch = response.match(/__FUNCTION_CALL__(.+)/);
       let updates;
-      
+
       if (functionCallMatch) {
         // Parse function call arguments (new structured format)
         const parsed = JSON.parse(functionCallMatch[1]);
@@ -568,7 +594,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         // Fallback: Look for legacy JSON format
         const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
         if (!jsonMatch) return;
-        
+
         const parsed = JSON.parse(jsonMatch[0]);
         updates = parsed.updates;
       }
@@ -577,10 +603,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
       // Apply updates to project state
       if (!workspaceData || !designAssets) return;
-      
+
       const updateType = updates.updateType || 'refinement';
       console.log(`🔄 [Design Studio] Applying ${updateType} updates`, updates);
-      
+
       // Show progress steps for complex updates
       if (updateType === 'market_shift') {
         // Add progress indicator to chat (append to existing messages)
@@ -594,10 +620,10 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           const filtered = prev.filter(m => m.content !== '__UPDATE_PROGRESS__');
           return [...filtered, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
         });
-        
+
         // Use AI-provided steps or generate fallback steps
         let executionSteps;
-        
+
         if (updates.executionSteps && updates.executionSteps.length > 0) {
           // Use AI-provided steps
           executionSteps = updates.executionSteps.map((step: any, idx: number) => ({
@@ -609,7 +635,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         } else {
           // Fallback: Auto-generate steps based on what changed
           const steps = [];
-          
+
           if (updates.persona?.location || updates.persona?.country) {
             const loc = updates.persona.location || '';
             const country = updates.persona.country || '';
@@ -620,7 +646,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               status: 'complete' as const
             });
           }
-          
+
           if (updates.persona?.name || updates.persona?.company) {
             steps.push({
               id: 'persona',
@@ -629,7 +655,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               status: 'complete' as const
             });
           }
-          
+
           if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
             steps.push({
               id: 'valueprop',
@@ -638,7 +664,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               status: 'complete' as const
             });
           }
-          
+
           if (steps.length === 0) {
             // Generic fallback
             steps.push(
@@ -646,21 +672,21 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               { id: 'update2', label: 'Applying changes', icon: '✨', status: 'complete' as const }
             );
           }
-          
+
           executionSteps = steps;
         }
-        
+
         setGenerationSteps(executionSteps);
       }
-      
+
       // Track what changed for comprehensive summary
       const changedFields: string[] = [];
-      
+
       // === PERSONA UPDATES (for market_shift and other workflows) ===
       if (updates.persona) {
         setWorkspaceData((prev: any) => {
           if (!prev) return prev;
-          
+
           const personaUpdates: any = {};
           if (updates.persona.name) {
             personaUpdates.persona_name = updates.persona.name;
@@ -678,7 +704,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             personaUpdates.country = updates.persona.country;
             changedFields.push(`country to "${updates.persona.country}"`);
           }
-          
+
           return {
             ...prev,
             persona: {
@@ -688,7 +714,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           };
         });
       }
-      
+
       // Backwards compatibility: handle legacy flat location/country fields
       if (updates.location || updates.country) {
         setWorkspaceData((prev: any) => {
@@ -711,13 +737,13 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           };
         });
       }
-      
+
       // === VALUE PROP UPDATES ===
       if (updates.valueProp) {
         const vp = updates.valueProp;
         setUiValueProp((prev: any) => {
           if (!prev) return prev;
-          
+
           const vpUpdates: any = {};
           if (vp.headline) { vpUpdates.headline = vp.headline; changedFields.push('headline'); }
           if (vp.subheadline) { vpUpdates.subheadline = vp.subheadline; changedFields.push('subheadline'); }
@@ -726,16 +752,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           if (vp.outcome) { vpUpdates.outcome = vp.outcome; changedFields.push('outcome'); }
           if (vp.targetAudience) { vpUpdates.targetAudience = vp.targetAudience; changedFields.push('target audience'); }
           if (vp.benefits && Array.isArray(vp.benefits)) { vpUpdates.benefits = vp.benefits; changedFields.push('benefits'); }
-          
+
           return { ...prev, ...vpUpdates };
         });
       }
-      
+
       // Backwards compatibility: handle legacy flat value prop fields
       if (updates.targetAudience || updates.problem || updates.solution || updates.outcome || updates.benefits || updates.headline) {
         setUiValueProp((prev: any) => {
           if (!prev) return prev;
-          
+
           const legacyVpUpdates: any = {};
           if (updates.headline) { legacyVpUpdates.headline = updates.headline; changedFields.push('headline'); }
           if (updates.subheadline) { legacyVpUpdates.subheadline = updates.subheadline; changedFields.push('subheadline'); }
@@ -744,11 +770,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           if (updates.outcome) { legacyVpUpdates.outcome = updates.outcome; changedFields.push('outcome'); }
           if (updates.targetAudience) { legacyVpUpdates.targetAudience = updates.targetAudience; changedFields.push('target audience'); }
           if (updates.benefits && Array.isArray(updates.benefits)) { legacyVpUpdates.benefits = updates.benefits; changedFields.push('benefits'); }
-          
+
           return { ...prev, ...legacyVpUpdates };
         });
       }
-      
+
       // === BRAND UPDATES ===
       if (updates.brandUpdates) {
         setDesignAssets((prev: any) => {
@@ -780,7 +806,39 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           return updated;
         });
       }
-      
+
+
+      // === STYLE GUIDE UPDATES ===
+      if (updates.styleGuide) {
+        setDesignAssets((prev: any) => {
+          if (!prev || !prev.style_guide) return prev;
+          const updated = { ...prev };
+          const sg = updates.styleGuide;
+
+          if (sg.borderRadius) { updated.style_guide.borderRadius = sg.borderRadius; changedFields.push('border radius'); }
+          if (sg.buttonStyle) { updated.style_guide.buttons = [{ variant: 'primary', style: sg.buttonStyle }]; changedFields.push('button style'); }
+          if (sg.cardStyle) { updated.style_guide.cards = [{ variant: 'default', style: sg.cardStyle }]; changedFields.push('card style'); }
+          if (sg.shadows) { updated.style_guide.shadows = sg.shadows; changedFields.push('shadows'); }
+
+          return updated;
+        });
+      }
+
+      // === LANDING PAGE UPDATES ===
+      if (updates.landingPage) {
+        setDesignAssets((prev: any) => {
+          if (!prev || !prev.landing_page) return prev;
+          const updated = { ...prev };
+          const lp = updates.landingPage;
+
+          if (lp.features) { updated.landing_page.features = lp.features; changedFields.push('features'); }
+          if (lp.socialProof) { updated.landing_page.socialProof = lp.socialProof; changedFields.push('testimonials'); }
+          if (lp.footer) { updated.landing_page.footer = lp.footer; changedFields.push('footer'); }
+
+          return updated;
+        });
+      }
+
       // Backwards compatibility: handle legacy flat colors/fonts
       setDesignAssets((prev: any) => {
         if (!prev) return prev;
@@ -824,11 +882,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
         return hasChanges ? updated : prev;
       });
-      
+
       // === SHOW COMPREHENSIVE UPDATE TOAST & SUMMARY ===
       if (changedFields.length > 0) {
         const uniqueFields = [...new Set(changedFields)];
-        
+
         // Show toast notification
         if (updateType === 'market_shift') {
           addToast(`🌍 Market shift complete! Updated: ${uniqueFields.slice(0, 3).join(', ')}${uniqueFields.length > 3 ? '...' : ''}`, "success");
@@ -837,7 +895,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         } else {
           addToast(`✓ Updated: ${uniqueFields.join(', ')}`, "success");
         }
-        
+
         // Add summary message to chat for complex updates
         if (updateType === 'market_shift' && uniqueFields.length >= 3) {
           setTimeout(() => {
@@ -847,7 +905,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               if (lastMsg?.content.includes('✅ Updated:')) {
                 return prev; // Summary already added
               }
-              
+
               // Build comprehensive summary
               const summaryParts = [];
               if (updates.persona) {
@@ -861,19 +919,19 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
                 summaryParts.push(`✅ **Value Proposition**: Regenerated for new market`);
               }
-              
+
               const summaryMessage = `\n\n**🎉 Update Complete!**\n\n${summaryParts.join('\n')}\n\n${updates.reasoning || 'Changes applied successfully.'}`;
-              
+
               return [...prev, { role: 'ai', content: summaryMessage }];
             });
-            
+
             // Clear progress steps after showing summary
             setTimeout(() => {
               setGenerationSteps([]);
             }, 500);
           }, 300);
         }
-        
+
         // Switch to appropriate tab based on update type
         if (updateType === 'market_shift' || updates.valueProp || updates.targetAudience) {
           setTimeout(() => setActiveTab("value-prop"), 800);
@@ -881,7 +939,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
           setTimeout(() => setActiveTab("brand"), 500);
         }
       }
-      
+
       console.log(`✅ [Design Studio] Applied updates:`, changedFields);
     } catch (error) {
       // Silently fail - not all responses will have JSON
@@ -941,18 +999,24 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             Back to Conversations
           </Button>
           <div className="flex-1" />
-          
+
           {/* Toolbar with Team & Actions */}
-          <ToolBar activeTab={activeTab} onExport={handleExport} onShare={handleShare} />
+          <ToolBar
+            activeTab={activeTab}
+            onExport={handleExport}
+            onShare={handleShare}
+            flowId={flowId}
+            workspaceData={workspaceData}
+            designAssets={designAssets}
+          />
         </div>
 
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden relative">
           {/* Left: Chat Panel - Fixed Width with Slide Animation */}
           <div
-            className={`transition-all duration-300 ease-in-out ${
-              isChatVisible ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
-            } overflow-hidden flex-shrink-0`}
+            className={`transition-all duration-300 ease-in-out ${isChatVisible ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
+              } overflow-hidden flex-shrink-0`}
           >
             <ChatPanel
               messages={chatMessages}
