@@ -154,10 +154,37 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Ensure border utilities get proper border color */
+@layer utilities {
+  /* Apply theme border color to elements with border width utilities */
+  .border-r,
+  .border-l,
+  .border-t,
+  .border-b,
+  .border-x,
+  .border-y,
+  .border {
+    border-color: var(--border);
+  }
+  
+  /* But allow explicit border color classes to override */
+  [class*="border-border"],
+  [class*="border-input"],
+  [class*="border-transparent"],
+  [class*="border-primary"],
+  [class*="border-secondary"],
+  [class*="border-muted"],
+  [class*="border-accent"],
+  [class*="border-destructive"] {
+    /* Explicit color classes will override via Tailwind */
   }
 }
 
