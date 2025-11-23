@@ -11,13 +11,21 @@ import {
   Circle
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { getPrimaryColor, getSecondaryColor, getGradientBgStyle } from "@/lib/utils/color-utils";
 
 type StyleGuideCanvasProps = {
   project: DesignProject;
+  manifest?: BrandManifest | null;
 };
 
-export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
+export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
   const { styleGuide, valueProp } = project;
+
+  // Get dynamic colors from manifest
+  const primaryColor = getPrimaryColor(manifest);
+  const secondaryColor = getSecondaryColor(manifest);
+  const gradientBgStyle = getGradientBgStyle(manifest, "to-br");
 
   // Safe access helpers with Array guards
   const buttons = Array.isArray(styleGuide?.buttons) ? styleGuide.buttons : [];
@@ -32,7 +40,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       {/* Call-to-action Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Square className="w-5 h-5 text-purple-600" />
+          <Square className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Call-to-action</h3>
         </div>
 
@@ -78,7 +86,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       {/* Inputs Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <FormInput className="w-5 h-5 text-purple-600" />
+          <FormInput className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Inputs</h3>
         </div>
 
@@ -96,7 +104,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Active</h4>
             </div>
-            <Input placeholder="Enter text..." className="ring-2 ring-purple-600" />
+            <Input placeholder="Enter text..." style={{ borderColor: primaryColor, boxShadow: `0 0 0 2px ${primaryColor}33` }} />
           </div>
 
           {/* Error State */}
@@ -122,7 +130,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       {/* Spacing System */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Ruler className="w-5 h-5 text-purple-600" />
+          <Ruler className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Spacing Scale</h3>
         </div>
 
@@ -134,10 +142,11 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
               </div>
               <div className="flex-1 flex items-center gap-2">
                 <div
-                  className="bg-purple-500 rounded"
+                  className="rounded"
                   style={{
                     width: space.value,
                     height: "24px",
+                    backgroundColor: primaryColor,
                   }}
                 />
                 <span className="font-mono text-xs text-muted-foreground">
@@ -152,7 +161,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       {/* Border Radius */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Circle className="w-5 h-5 text-purple-600" />
+          <Circle className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Border Radius</h3>
         </div>
 
@@ -160,8 +169,11 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
           {borderRadius.length > 0 ? borderRadius.map((radius, idx) => (
             <div key={idx} className="text-center space-y-2">
               <div
-                className="w-full aspect-square bg-gradient-to-br from-purple-500 to-pink-500 mx-auto"
-                style={{ borderRadius: radius.value }}
+                className="w-full aspect-square mx-auto"
+                style={{ 
+                  borderRadius: radius.value,
+                  ...gradientBgStyle
+                }}
               />
               <p className="font-mono text-xs font-semibold">{radius.name}</p>
               <p className="font-mono text-xs text-muted-foreground">{radius.value}</p>

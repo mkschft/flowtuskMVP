@@ -308,6 +308,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             isGeneratingBrand={isGeneratingBrand}
             isGeneratingStyle={isGeneratingStyle}
             isGeneratingLanding={isGeneratingLanding}
+            manifest={manifest}
           />
 
         </div>

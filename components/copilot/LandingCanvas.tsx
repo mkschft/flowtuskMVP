@@ -16,9 +16,12 @@ import {
   Menu
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { getPrimaryColor, getSecondaryColor, getTextGradientStyle, getGradientBgStyle, getLightShade } from "@/lib/utils/color-utils";
 
 type LandingCanvasProps = {
   project: DesignProject;
+  manifest?: BrandManifest | null;
 };
 
 // Icon mapping for features
@@ -37,8 +40,16 @@ const iconMap: Record<string, React.ReactNode> = {
   refresh: <ArrowRight className="w-6 h-6" />,
 };
 
-export function LandingCanvas({ project }: LandingCanvasProps) {
+export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
   const { landingPage } = project;
+
+  // Get dynamic colors from manifest
+  const primaryColor = getPrimaryColor(manifest);
+  const secondaryColor = getSecondaryColor(manifest);
+  const textGradientStyle = getTextGradientStyle(manifest);
+  const gradientBgStyle = getGradientBgStyle(manifest, "to-r");
+  const lightPrimaryBg = getLightShade(primaryColor, 0.1);
+  const lightSecondaryBg = getLightShade(secondaryColor, 0.1);
 
   // Safe access helpers
   const navigation = landingPage?.navigation || { logo: "", links: [] };
@@ -95,7 +106,10 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
             <Badge className="mb-6" variant="secondary">
               ✨ New: AI-powered features
             </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6"
+              style={textGradientStyle}
+            >
               {hero.headline}
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
@@ -112,7 +126,12 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
             </div>
 
             {/* Hero Image Placeholder */}
-            <div className="mt-12 rounded-xl border border-border bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/30 dark:to-pink-950/30 aspect-video flex items-center justify-center">
+            <div 
+              className="mt-12 rounded-xl border border-border aspect-video flex items-center justify-center"
+              style={{ 
+                background: `linear-gradient(135deg, ${lightPrimaryBg} 0%, ${lightSecondaryBg} 100%)`
+              }}
+            >
               <div className="text-center">
                 <Layers className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground">Product Screenshot</p>
@@ -149,8 +168,11 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, idx) => (
                 <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4 text-purple-600">
-                    {iconMap[feature.icon] || <Sparkles className="w-6 h-6" />}
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                    style={{ backgroundColor: lightPrimaryBg }}
+                  >
+                    {iconMap[feature.icon] || <Sparkles className="w-6 h-6" style={{ color: primaryColor }} />}
                   </div>
                   <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
@@ -189,7 +211,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
                 {socialProof
                   .filter((item) => item.type === "stat")
                   .map((stat, idx) => (
-                    <p key={idx} className="text-lg font-semibold text-purple-600">
+                    <p key={idx} className="text-lg font-semibold" style={{ color: primaryColor }}>
                       {stat.content}
                     </p>
                   ))}
@@ -244,7 +266,10 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
           )}
 
           {/* CTA Section */}
-          <section className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-20">
+          <section 
+            className="text-white py-20"
+            style={gradientBgStyle}
+          >
             <div className="container mx-auto px-6 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
                 Ready to get started?

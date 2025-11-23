@@ -16,16 +16,26 @@ import {
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { ICP } from "@/lib/types/database";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { getPrimaryColor, getSecondaryColor, getTextGradientStyle, getLightShade } from "@/lib/utils/color-utils";
 import { useState } from "react";
 
 type ValuePropCanvasProps = {
   project: DesignProject;
   persona: ICP;
+  manifest?: BrandManifest | null;
 };
 
-export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
+export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { valueProp } = project;
+
+  // Get dynamic colors from manifest
+  const primaryColor = getPrimaryColor(manifest);
+  const secondaryColor = getSecondaryColor(manifest);
+  const textGradientStyle = getTextGradientStyle(manifest);
+  const lightPrimaryBg = getLightShade(primaryColor, 0.1);
+  const lightPrimaryRing = getLightShade(primaryColor, 0.2);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -54,7 +64,12 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Persona Card with Avatar */}
       <Card className="p-6 bg-background border relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 pointer-events-none" />
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `linear-gradient(135deg, ${lightPrimaryBg} 0%, ${getLightShade(secondaryColor, 0.05)} 100%)`
+          }}
+        />
 
         <div className="relative">
           <div className="flex items-start gap-4 mb-6">
@@ -63,8 +78,12 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
               <img
                 src={avatarUrl}
                 alt="Persona Avatar"
-                className="w-20 h-20 rounded-full ring-2 ring-purple-200 dark:ring-purple-800 ring-offset-2 ring-offset-background bg-white"
-                style={{ filter: 'contrast(1.2)' }}
+                className="w-20 h-20 rounded-full ring-2 ring-offset-2 ring-offset-background bg-white"
+                style={{ 
+                  filter: 'contrast(1.2)',
+                  borderColor: lightPrimaryRing,
+                  boxShadow: `0 0 0 2px ${lightPrimaryRing}`
+                }}
               />
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border border-background" />
             </div>
@@ -83,7 +102,13 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
                     {personaCompany}
                   </p>
                 </div>
-                <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 shrink-0">
+                <Badge 
+                  className="shrink-0"
+                  style={{
+                    backgroundColor: lightPrimaryBg,
+                    color: primaryColor,
+                  }}
+                >
                   <Sparkles className="w-3 h-3 mr-1" />
                   ICP Match: {fitScore}%
                 </Badge>
@@ -99,7 +124,10 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
           <div className="space-y-4 pt-4 border-t">
             <Badge className="mb-2">Key Pain Point</Badge>
             <div className="group relative">
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 
+                className="text-3xl sm:text-4xl font-bold"
+                style={textGradientStyle}
+              >
                 {personaValueProp}
               </h1>
               <Button
@@ -147,22 +175,22 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
         <ValuePropTable
           rows={[
             {
-              icon: <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              icon: <Target className="w-5 h-5" style={{ color: primaryColor }} />,
               label: "Who",
               content: valueProp.targetAudience,
             },
             {
-              icon: <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              icon: <Zap className="w-5 h-5" style={{ color: primaryColor }} />,
               label: "Pain",
               content: valueProp.problem,
             },
             {
-              icon: <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              icon: <CheckCircle className="w-5 h-5" style={{ color: primaryColor }} />,
               label: "Solution",
               content: valueProp.solution,
             },
             {
-              icon: <Rocket className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+              icon: <Rocket className="w-5 h-5" style={{ color: primaryColor }} />,
               label: "Why Us",
               content: valueProp.outcome,
             },
@@ -179,8 +207,11 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
               key={idx}
               className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border group relative hover:bg-muted transition-colors"
             >
-              <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+              <div 
+                className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: lightPrimaryBg }}
+              >
+                <Check className="w-3 h-3" style={{ color: primaryColor }} />
               </div>
               <p className="text-sm flex-1">{benefit}</p>
               <Button

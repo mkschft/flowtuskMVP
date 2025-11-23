@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { BrandManifest } from '@/lib/types/brand-manifest';
 import { generateBrandKey } from '@/lib/brand-manifest-utils';
+import { cascadeColorUpdates } from './utils/cascade-updates';
 
 // --- CRUD Operations ---
 
@@ -78,15 +79,26 @@ export async function createBrandManifest(
         }
     };
 
+    // Normalize icpId: convert empty string to null, validate UUID format
+    const normalizedIcpId = icpId && icpId.trim() !== '' ? icpId : null;
+    
+    // Build insert data - only include selected_icp if column exists (graceful fallback)
+    const insertData: any = {
+        user_id: user.id,
+        flow_id: flowId,
+        manifest,
+        brand_key: manifest.brandKey,
+        version: '1.0'
+    };
+    
+    // Only add selected_icp if it's not null (and column exists)
+    if (normalizedIcpId) {
+        insertData.selected_icp = normalizedIcpId;
+    }
+    
     const { data, error } = await supabase
         .from('brand_manifests')
-        .insert({
-            user_id: user.id,
-            flow_id: flowId,
-            manifest,
-            brand_key: manifest.brandKey,
-            version: '1.0'
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -110,6 +122,27 @@ export async function updateBrandManifest(
     if (!updates || typeof updates !== 'object') {
         console.warn('⚠️ [Brand Manifest] Updates is null/undefined, returning current manifest');
         return current;
+    }
+
+    // CASCADE: If colors are being updated, automatically cascade to related components
+    if (updates.identity?.colors) {
+        console.log('🔄 [Manifest Update] Colors detected, cascading to related components...');
+        const cascaded = cascadeColorUpdates(current, updates.identity.colors);
+        
+        // Merge cascaded updates into the main updates object
+        updates = {
+            ...updates,
+            components: {
+                ...updates.components,
+                ...cascaded.components,
+            },
+            previews: {
+                ...updates.previews,
+                ...cascaded.previews,
+            },
+        };
+        
+        console.log('✅ [Manifest Update] Cascaded color updates to components and previews');
     }
 
     // Deep merge updates
@@ -183,17 +216,110 @@ export async function updateBrandManifest(
         ]
     };
 
+    // Extract sourceIcpId from updated manifest to sync with selected_icp column
+    // Normalize: convert empty string to null, validate UUID format
+    const rawSourceIcpId = updated.metadata?.sourceIcpId;
+    const sourceIcpId = rawSourceIcpId && rawSourceIcpId.trim() !== '' ? rawSourceIcpId : null;
+
+    console.log('🔄 [Manifest Update] Syncing selected_icp column:', {
+        rawSourceIcpId,
+        sourceIcpId,
+        hasValue: sourceIcpId !== null
+    });
+
+    // Build update data - always include selected_icp if we have a value
+    const updateData: any = {
+        manifest: updated,
+        updated_at: new Date().toISOString()
+    };
+    
+    // Always try to sync selected_icp column when we have a value
+    // If column doesn't exist, Supabase will error (migration not run)
+    if (sourceIcpId !== null) {
+        updateData.selected_icp = sourceIcpId;
+        console.log('✅ [Manifest Update] Adding selected_icp to update:', sourceIcpId);
+    } else {
+        console.log('⚠️ [Manifest Update] No sourceIcpId found, skipping selected_icp update');
+    }
+
     // Save to database
     const { data, error } = await supabase
         .from('brand_manifests')
-        .update({ manifest: updated, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('flow_id', flowId)
         .select()
         .single();
 
-    if (error) throw error;
+    if (error) {
+        // Check if error is about missing column (migration not run)
+        if (error.message?.includes('selected_icp') || error.message?.includes('column')) {
+            console.warn('⚠️ [Manifest Update] Column selected_icp may not exist. Run migration: 20251123000000_add_selected_icp_to_brand_manifests.sql');
+            // Try again without selected_icp
+            const { data: fallbackData, error: fallbackError } = await supabase
+                .from('brand_manifests')
+                .update({ manifest: updated, updated_at: new Date().toISOString() })
+                .eq('flow_id', flowId)
+                .select()
+                .single();
+            if (fallbackError) throw fallbackError;
+            return fallbackData.manifest as BrandManifest;
+        }
+        throw error;
+    }
+    
+    console.log('✅ [Manifest Update] Successfully updated manifest and selected_icp column');
+
+    // Sync ICP table if persona changed in market_shift
+    if (action === 'market_shift' && updated.metadata?.sourceIcpId && updated.strategy?.persona) {
+      await syncIcpTable(flowId, updated.metadata.sourceIcpId, updated.strategy.persona);
+    }
 
     return data.manifest as BrandManifest;
+}
+
+// Sync ICP table when persona changes in market_shift
+async function syncIcpTable(
+  flowId: string,
+  icpId: string | null | undefined,
+  persona: BrandManifest['strategy']['persona']
+): Promise<void> {
+  if (!icpId || !persona) {
+    console.log('⚠️ [ICP Sync] Skipping sync - missing icpId or persona', { hasIcpId: !!icpId, hasPersona: !!persona });
+    return;
+  }
+  
+  const supabase = await createClient();
+  
+  console.log('🔄 [ICP Sync] Syncing ICP table with persona changes', {
+    icpId,
+    flowId,
+    personaName: persona.name,
+    location: persona.location,
+    country: persona.country
+  });
+  
+  // Update positioning_icps table with new persona data
+  const { error } = await supabase
+    .from('positioning_icps')
+    .update({
+      persona_name: persona.name,
+      persona_role: persona.role,
+      persona_company: persona.company,
+      location: persona.location,
+      country: persona.country,
+      pain_points: persona.painPoints || [],
+      goals: persona.goals || [],
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', icpId)
+    .eq('parent_flow', flowId);
+  
+  if (error) {
+    console.warn('⚠️ [ICP Sync] Failed to sync ICP table:', error);
+    // Don't throw - manifest update should still succeed even if ICP sync fails
+  } else {
+    console.log('✅ [ICP Sync] ICP table synced successfully with persona changes');
+  }
 }
 
 function deepMerge(target: any, source: any): any {

@@ -16,17 +16,23 @@ import {
   Shuffle
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { getPrimaryColor } from "@/lib/utils/color-utils";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 type BrandGuideCanvasProps = {
   project: DesignProject;
+  manifest?: BrandManifest | null;
 };
 
-export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
+export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [lightMode, setLightMode] = useState(true);
   const { brandGuide } = project;
+
+  // Get dynamic colors from manifest
+  const primaryColor = getPrimaryColor(manifest);
 
   // Safe access helpers with Array guards
   const primaryColors = Array.isArray(brandGuide?.colors?.primary) ? brandGuide.colors.primary : [];
@@ -49,7 +55,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       <Card className="p-6 bg-background border">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5 text-purple-600" />
+            <Palette className="w-5 h-5" style={{ color: primaryColor }} />
             <h3 className="font-bold text-lg">Color Palette</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -116,7 +122,15 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-${idx}`)}>{color.hex}</p>
+                  <p 
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    onClick={() => handleCopy(color.hex, `color-${idx}`)}
+                  >
+                    {color.hex}
+                  </p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No primary colors defined</p>}
@@ -154,7 +168,15 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}>{color.hex}</p>
+                  <p 
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}
+                  >
+                    {color.hex}
+                  </p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No secondary colors defined</p>}
@@ -192,7 +214,15 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p className="font-mono text-xs font-semibold cursor-pointer hover:text-purple-600 transition-colors" onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}>{color.hex}</p>
+                  <p 
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                    style={{ color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}
+                  >
+                    {color.hex}
+                  </p>
                   <p className="text-xs text-muted-foreground">{color.name}</p>
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No accent colors defined</p>}
@@ -204,7 +234,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       {/* Typography */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Type className="w-5 h-5 text-purple-600" />
+          <Type className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Typography</h3>
         </div>
 
@@ -282,7 +312,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       {/* Logo Variations */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <ImageIcon className="w-5 h-5 text-purple-600" />
+          <ImageIcon className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
@@ -307,7 +337,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       {/* Tone of Voice */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5 text-purple-600" />
+          <MessageSquare className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Tone of Voice</h3>
         </div>
 
@@ -327,7 +357,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       {/* Brand Personality */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5 text-purple-600" />
+          <MessageSquare className="w-5 h-5" style={{ color: primaryColor }} />
           <h3 className="font-bold text-lg">Brand Personality</h3>
         </div>
 

@@ -11,6 +11,8 @@ import { LandingCanvasSkeleton } from "./LandingCanvasSkeleton";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { ICP } from "@/lib/types/database";
+import type { BrandManifest } from "@/lib/types/brand-manifest";
+import { getPrimaryColor } from "@/lib/utils/color-utils";
 import { AnimatePresence, motion } from "motion/react";
 import { Sparkles, Palette, Layout, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +25,7 @@ type CanvasAreaProps = {
   isGeneratingBrand?: boolean;
   isGeneratingStyle?: boolean;
   isGeneratingLanding?: boolean;
+  manifest?: BrandManifest | null;
 };
 
 export function CanvasArea({
@@ -33,7 +36,10 @@ export function CanvasArea({
   isGeneratingBrand = false,
   isGeneratingStyle = false,
   isGeneratingLanding = false,
+  manifest,
 }: CanvasAreaProps) {
+  // Get dynamic colors from manifest for tab styling
+  const primaryColor = getPrimaryColor(manifest);
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       {/* Top Navigation Bar */}
@@ -47,9 +53,10 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "value-prop"
-                ? "bg-background text-purple-600 shadow-sm"
+                ? "bg-background shadow-sm"
                 : "text-muted-foreground"
             )}
+            style={activeTab === "value-prop" ? { color: primaryColor } : undefined}
           >
             <Sparkles className="w-3 h-3" />
             Value Prop
@@ -61,9 +68,10 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "brand"
-                ? "bg-background text-purple-600 shadow-sm"
+                ? "bg-background shadow-sm"
                 : "text-muted-foreground"
             )}
+            style={activeTab === "brand" ? { color: primaryColor } : undefined}
           >
             <Palette className="w-3 h-3" />
             Brand Guide
@@ -75,9 +83,10 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "style"
-                ? "bg-background text-purple-600 shadow-sm"
+                ? "bg-background shadow-sm"
                 : "text-muted-foreground"
             )}
+            style={activeTab === "style" ? { color: primaryColor } : undefined}
           >
             <Layout className="w-3 h-3" />
             Style Guide
@@ -89,9 +98,10 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "landing"
-                ? "bg-background text-purple-600 shadow-sm"
+                ? "bg-background shadow-sm"
                 : "text-muted-foreground"
             )}
+            style={activeTab === "landing" ? { color: primaryColor } : undefined}
           >
             <Globe className="w-3 h-3" />
             Landing
@@ -110,10 +120,10 @@ export function CanvasArea({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {activeTab === "value-prop" && <ValuePropCanvas project={project} persona={persona} />}
-              {activeTab === "brand" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} />)}
-              {activeTab === "style" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} />)}
-              {activeTab === "landing" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} />)}
+              {activeTab === "value-prop" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
+              {activeTab === "brand" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
+              {activeTab === "style" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} manifest={manifest} />)}
+              {activeTab === "landing" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} manifest={manifest} />)}
             </motion.div>
           </AnimatePresence>
         </div>
