@@ -150,6 +150,11 @@ export function useChatStreaming(
 
             // Parse updates from AI response if JSON is present
             if (aiResponse.trim()) {
+                console.log("📤 [Chat] Calling onUpdate with response", {
+                    responseLength: aiResponse.length,
+                    hasManifestUpdate: aiResponse.includes('__MANIFEST_UPDATED__'),
+                    hasFunctionCall: aiResponse.includes('__FUNCTION_CALL__')
+                });
                 onUpdate(aiResponse);
             } else {
                 console.warn("⚠️ [Chat] Empty response from AI");

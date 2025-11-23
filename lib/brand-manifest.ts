@@ -114,6 +114,59 @@ export async function updateBrandManifest(
 
     // Deep merge updates
     const updated = deepMerge(current, updates);
+    
+    // Ensure colors are always arrays (fix any wrong format that might have been saved)
+    if (updated.identity?.colors) {
+        const ensureColorArray = (value: any, colorType: string): { name: string; hex: string; usage?: string }[] => {
+            if (Array.isArray(value)) {
+                // Validate array items have correct structure
+                return value.map((item: any) => {
+                    if (typeof item === 'string') {
+                        return { name: 'Color', hex: item };
+                    }
+                    if (typeof item === 'object' && item.hex) {
+                        return {
+                            name: item.name || 'Color',
+                            hex: item.hex,
+                            usage: item.usage
+                        };
+                    }
+                    return item;
+                });
+            }
+            if (typeof value === 'string') {
+                console.log(`🔧 [Manifest] Normalizing ${colorType} color from string to array: ${value}`);
+                return [{ name: 'Color', hex: value }];
+            }
+            if (typeof value === 'object' && value.hex) {
+                console.log(`🔧 [Manifest] Normalizing ${colorType} color from object to array`);
+                return [value];
+            }
+            // Handle object with hex values like { primary: "#FF6B9D" }
+            if (typeof value === 'object' && !Array.isArray(value)) {
+                console.log(`🔧 [Manifest] Normalizing ${colorType} color from object format to array`);
+                return Object.entries(value).map(([key, hex]) => ({
+                    name: key.charAt(0).toUpperCase() + key.slice(1),
+                    hex: String(hex),
+                    usage: `${key} color`
+                }));
+            }
+            return [];
+        };
+        
+        const beforePrimary = JSON.stringify(updated.identity.colors.primary);
+        updated.identity.colors = {
+            primary: ensureColorArray(updated.identity.colors.primary, 'primary'),
+            secondary: ensureColorArray(updated.identity.colors.secondary, 'secondary'),
+            accent: ensureColorArray(updated.identity.colors.accent, 'accent'),
+            neutral: ensureColorArray(updated.identity.colors.neutral, 'neutral'),
+        };
+        const afterPrimary = JSON.stringify(updated.identity.colors.primary);
+        
+        if (beforePrimary !== afterPrimary) {
+            console.log(`✅ [Manifest] Colors normalized - primary before: ${beforePrimary}, after: ${afterPrimary}`);
+        }
+    }
 
     // Update metadata with null safety
     updated.lastUpdated = new Date().toISOString();
@@ -147,14 +200,34 @@ function deepMerge(target: any, source: any): any {
     const output = { ...target };
     if (isObject(target) && isObject(source)) {
         Object.keys(source).forEach(key => {
-            if (isObject(source[key])) {
+            const sourceValue = source[key];
+            const targetValue = target[key];
+            
+            // Special handling for colors - always replace arrays, never merge objects into arrays
+            if (key === 'colors' && isObject(sourceValue) && isObject(targetValue)) {
+                // Colors should always be arrays, so replace entirely
+                output[key] = {
+                    primary: Array.isArray(sourceValue.primary) ? sourceValue.primary : (targetValue.primary || []),
+                    secondary: Array.isArray(sourceValue.secondary) ? sourceValue.secondary : (targetValue.secondary || []),
+                    accent: Array.isArray(sourceValue.accent) ? sourceValue.accent : (targetValue.accent || []),
+                    neutral: Array.isArray(sourceValue.neutral) ? sourceValue.neutral : (targetValue.neutral || []),
+                };
+            }
+            // Arrays should be replaced, not merged
+            else if (Array.isArray(sourceValue)) {
+                output[key] = sourceValue;
+            }
+            // Objects should be merged recursively
+            else if (isObject(sourceValue)) {
                 if (!(key in target)) {
-                    Object.assign(output, { [key]: source[key] });
+                    Object.assign(output, { [key]: sourceValue });
                 } else {
-                    output[key] = deepMerge(target[key], source[key]);
+                    output[key] = deepMerge(targetValue, sourceValue);
                 }
-            } else {
-                Object.assign(output, { [key]: source[key] });
+            }
+            // Primitives should be replaced
+            else {
+                Object.assign(output, { [key]: sourceValue });
             }
         });
     }

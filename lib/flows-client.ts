@@ -158,23 +158,71 @@ export class FlowsClient {
   }
 
   /**
+   * Normalize URL for comparison (remove trailing slashes, normalize protocol)
+   */
+  private normalizeUrl(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      // Remove trailing slash, normalize protocol
+      return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname.replace(/\/$/, '')}`;
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Check if a URL has already been crawled (has website_analysis)
+   * Returns the flow if it exists with analysis data, null otherwise
+   */
+  async findExistingCrawl(website_url: string): Promise<Flow | null> {
+    try {
+      const normalizedUrl = this.normalizeUrl(website_url);
+      const flows = await this.listFlows({ archived: false });
+      const existingFlow = flows.find(
+        f => f.website_url && 
+        this.normalizeUrl(f.website_url) === normalizedUrl &&
+        f.website_analysis && 
+        (f.website_analysis as any)?.facts?.length > 0
+      );
+      return existingFlow || null;
+    } catch (error) {
+      console.error('❌ [Flows Client] Error checking existing crawl:', error);
+      return null;
+    }
+  }
+
+  /**
    * Find an existing flow by website URL, or create a new one if not found
    * This prevents duplicate flows for the same website
    */
   async findOrCreateFlow(input: CreateFlowInput & { website_url: string }): Promise<{ flow: Flow; isNew: boolean }> {
     try {
-      // First, try to find existing flow by website URL
+      // Normalize URL for comparison
+      const normalizedUrl = this.normalizeUrl(input.website_url);
+      
+      // First, try to find existing flow by website URL (normalized)
       const flows = await this.listFlows({ archived: false });
-      const existingFlow = flows.find(f => f.website_url === input.website_url);
+      const existingFlow = flows.find(f => {
+        if (!f.website_url) return false;
+        return this.normalizeUrl(f.website_url) === normalizedUrl;
+      });
       
       if (existingFlow) {
         console.log('✅ [DB] Found existing flow for website:', existingFlow.id);
-        // Update the existing flow with new data if provided
-        if (input.facts_json || input.step) {
-          const updated = await this.updateFlow(existingFlow.id, {
-            facts_json: input.facts_json,
-            step: input.step,
-          });
+        // Always update website_url if existing flow is missing it (data integrity fix)
+        // Also update if new data is provided
+        const needsUpdate = !existingFlow.website_url || input.facts_json || input.step || input.website_url;
+        
+        if (needsUpdate) {
+          const updateData: UpdateFlowInput = {};
+          if (input.facts_json) updateData.facts_json = input.facts_json;
+          if (input.step) updateData.step = input.step;
+          // Always set website_url if: provided in input OR existing flow is missing it
+          if (input.website_url || !existingFlow.website_url) {
+            updateData.website_url = input.website_url;
+          }
+          
+          const updated = await this.updateFlow(existingFlow.id, updateData);
           return { flow: updated, isNew: false };
         }
         return { flow: existingFlow, isNew: false };
@@ -189,7 +237,12 @@ export class FlowsClient {
       if (error instanceof Error && error.message.includes('already exists')) {
         console.warn('⚠️ [DB] Conflict detected, retrying find...');
         const flows = await this.listFlows({ archived: false });
-        const existingFlow = flows.find(f => f.website_url === input.website_url || f.title === input.title);
+        const normalizedUrl = this.normalizeUrl(input.website_url);
+        const existingFlow = flows.find(f => {
+          if (f.website_url && this.normalizeUrl(f.website_url) === normalizedUrl) return true;
+          if (f.title === input.title) return true;
+          return false;
+        });
         if (existingFlow) {
           return { flow: existingFlow, isNew: false };
         }

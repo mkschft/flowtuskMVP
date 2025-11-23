@@ -76,6 +76,14 @@ export class GenerationManager {
     this.pendingGenerations.clear();
     this.completedGenerations.clear();
   }
+
+  getStats() {
+    return {
+      cached: this.cache.size,
+      pending: this.pendingGenerations.size,
+      completed: this.completedGenerations.size,
+    };
+  }
 }
 
 // Export singleton instance

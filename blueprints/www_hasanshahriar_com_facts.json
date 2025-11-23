@@ -28,7 +28,7 @@
         "title": "Industries"
       },
       {
-        "path": "/?max-length=12000#",
+        "path": "/",
         "title": "Get in touch"
       }
     ],
@@ -43,7 +43,8 @@
     "industryFocus": "B2B digital transformation",
     "signals": [
       "based in Finland",
-      "helping generate over 10,000 impactful leads in 8 countries"
+      "Helsinki",
+      "8 countries"
     ]
   },
   "audienceSignals": [
@@ -55,41 +56,47 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Scalable digital solutions for B2B companies",
+      "text": "Scalable digital solutions for B2B growth",
       "evidence": [
         "fact-1",
-        "fact-3"
+        "fact-2"
       ]
     },
     {
       "id": "v2",
-      "text": "Proven execution with strategic innovation",
+      "text": "Experience in building websites for 100+ companies",
       "evidence": [
-        "fact-2",
         "fact-4"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Over 10,000 impactful leads generated",
+      "evidence": [
+        "fact-5"
       ]
     }
   ],
   "pains": [
-    "Need for scalable web and AI applications",
-    "Requirement for digital transformation"
+    "Need for scalable digital solutions",
+    "Engagement and growth challenges in B2B"
   ],
   "proof": [
     "7+ years of experience",
-    "100+ websites built",
-    "10,000 impactful leads generated"
+    "100+ startups, agencies, and enterprises",
+    "10,000+ leads"
   ],
   "facts": [
     {
       "id": "fact-1",
       "text": "We architect scalable digital solutions that transform how B2B companies engage customers and accelerate growth.",
-      "page": "Home",
+      "page": "Homepage",
       "evidence": "We architect scalable digital solutions that transform how B2B companies engage customers and accelerate growth."
     },
     {
       "id": "fact-2",
       "text": "Our technology-first approach combines strategic innovation with proven execution to deliver outcomes that matter.",
-      "page": "Home",
+      "page": "Homepage",
       "evidence": "Our technology-first approach combines strategic innovation with proven execution to deliver outcomes that matter."
     },
     {
@@ -100,45 +107,45 @@
     },
     {
       "id": "fact-4",
-      "text": "Specializes in helping B2B companies to grow with scalable full stack web and AI applications.",
+      "text": "Hasan Shahriar has built websites for 100+ startups, agencies, and enterprises.",
       "page": "About Hasan",
-      "evidence": "We specialize in helping B2B companies to grow with scalable full stack web and AI applications."
+      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries."
     },
     {
       "id": "fact-5",
-      "text": "7+ years of experience in digital transformation.",
+      "text": "Hasan Shahriar has helped generate over 10,000 impactful leads.",
       "page": "About Hasan",
-      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries, helping generate over 10,000 impactful leads."
+      "evidence": "helping generate over 10,000 impactful leads."
     },
     {
       "id": "fact-6",
-      "text": "Built websites for 100+ startups, agencies, and enterprises.",
+      "text": "Hasan Shahriar operates in 8 countries.",
       "page": "About Hasan",
-      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries, helping generate over 10,000 impactful leads."
+      "evidence": "in 8 countries"
     },
     {
       "id": "fact-7",
-      "text": "Generated over 10,000 impactful leads.",
-      "page": "About Hasan",
-      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries, helping generate over 10,000 impactful leads."
+      "text": "The website features case studies of companies like KONE, The Guestbook, Arkken, Storylake, and Krusti Foodkits.",
+      "page": "Featured work",
+      "evidence": "Featured work"
     },
     {
       "id": "fact-8",
-      "text": "Based in Helsinki, Finland.",
-      "page": "Footer",
-      "evidence": "Made with ❤️ in Helsinki 🇫🇮"
+      "text": "Hasan Shahriar offers services in B2B digital transformation.",
+      "page": "Homepage",
+      "evidence": "B2B digital transformation that drives measurable growth"
     },
     {
       "id": "fact-9",
-      "text": "Contact options include email, Twitter, LinkedIn, and Discord.",
-      "page": "Get in touch",
-      "evidence": "Send me email or DM me in Twitter, LinkedIn or Discord"
+      "text": "Hasan Shahriar invites potential clients to book a call or meet in Helsinki.",
+      "page": "About Hasan",
+      "evidence": "Book a call to learn more, or if you’re in Helsinki, let’s meet up for coffee ☕"
     },
     {
       "id": "fact-10",
-      "text": "Featured work includes projects with KONE, The Guestbook, Arkken, Storylake, and Krusti Foodkits.",
-      "page": "Featured work",
-      "evidence": "How KONE innovation integrated Webflow to their stack to speed up digital marketing and content creation"
+      "text": "Contact options include email, Twitter, LinkedIn, and Discord.",
+      "page": "Contact",
+      "evidence": "Send me email or DM me in Twitter, LinkedIn or Discord"
     }
   ]
 }

@@ -13,8 +13,6 @@ Stripe | Financial Infrastructure to Grow Your Revenue
 *   Resources
 *   [Pricing](https://stripe.com/pricing)
 
-[Sign in](https://dashboard.stripe.com/login)
-
 [Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
 
 [Sign in](https://dashboard.stripe.com/login)
@@ -220,6 +218,7 @@ By use case
 By industry
 ===========
 
-*   [AI companies](https://stripe.com
+*   [AI companies](https://stripe.com/use-cases/ai)
+*   [Creator economy](https://st
 
 [Content truncated for performance]

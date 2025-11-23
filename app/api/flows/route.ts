@@ -114,6 +114,15 @@ export async function POST(req: NextRequest) {
       },
     };
 
+    // Validation: If website_analysis exists, website_url must also exist
+    if (flowData.website_analysis && !flowData.website_url) {
+      console.error('❌ [Flows API] Validation failed: website_url required when website_analysis provided');
+      return NextResponse.json(
+        { error: 'website_url is required when website_analysis (facts_json) is provided' },
+        { status: 400 }
+      );
+    }
+
     // Add user_id if authenticated
     if (user) {
       flowData.user_id = user.id;

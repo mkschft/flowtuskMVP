@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
         // Fetch legacy data
         // 1. Flow
-        const { data: flow } = await supabase.from('flows').select('*').eq('id', flowId).single();
+        const { data: flow } = await supabase.from('positioning_flows').select('*').eq('id', flowId).single();
         if (!flow) return NextResponse.json({ error: 'Flow not found' }, { status: 404 });
 
         // 2. ICP (Persona)

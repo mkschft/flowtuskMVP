@@ -94,7 +94,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     setActiveTab,
     addToast,
     addToHistory,
-    reloadWorkspace
+    reloadWorkspace,
+    flowId,
+    icpId
   );
 
   // 6. Project Data Mapping (Computed)
@@ -135,7 +137,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         footer: { sections: [] },
       },
     };
-  }, [workspaceData, uiValueProp, designAssets, chatMessages]);
+  }, [workspaceData, uiValueProp, designAssets, chatMessages, manifest]);
 
   // 7. Chat Streaming
   const {

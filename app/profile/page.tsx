@@ -11,6 +11,7 @@ import { User, Mail, Loader2, Check, Menu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { toast } from "sonner";
 
 type UserProfile = {
     id: string;
@@ -58,9 +59,14 @@ export default function ProfilePage() {
                 setTheme(data.profile.preferences?.theme || "system");
                 setDefaultExportFormat(data.profile.preferences?.defaultExportFormat || "google-slides");
                 setEmailNotifications(data.profile.preferences?.emailNotifications ?? true);
+            } else {
+                const errorData = await response.json();
+                console.error('Error loading profile:', errorData);
+                toast.error(`Failed to load profile: ${errorData.error || 'Unknown error'}`);
             }
         } catch (error) {
             console.error('Error loading profile:', error);
+            toast.error('Failed to load profile. Please refresh the page.');
         } finally {
             setLoading(false);
         }
@@ -85,11 +91,20 @@ export default function ProfilePage() {
             });
 
             if (response.ok) {
+                const data = await response.json();
+                // Reload profile to show updated values
+                await loadProfile();
                 setSaved(true);
+                toast.success("Profile updated successfully");
                 setTimeout(() => setSaved(false), 3000);
+            } else {
+                const errorData = await response.json();
+                console.error('Error saving profile:', errorData);
+                toast.error(`Failed to save: ${errorData.error || 'Unknown error'}`);
             }
         } catch (error) {
             console.error('Error saving profile:', error);
+            toast.error('Failed to save profile. Please try again.');
         } finally {
             setSaving(false);
         }

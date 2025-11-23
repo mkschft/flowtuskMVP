@@ -136,15 +136,47 @@ export async function POST(req: NextRequest) {
               console.log(`🔧 [Copilot] Function call args: ${functionCallArgs.substring(0, 100)}...`);
               const { updateType, updates, reasoning } = JSON.parse(functionCallArgs);
 
+              // VALIDATION: Check if updates are actually provided
+              if (!updates || (typeof updates === 'object' && Object.keys(updates).length === 0)) {
+                console.error('❌ [Copilot] CRITICAL: Updates object is empty or missing!');
+                console.error('❌ [Copilot] Full parsed function call:', JSON.stringify({ updateType, updates, reasoning }, null, 2));
+                
+                // Still send current manifest to frontend for consistency
+                const currentManifest = await fetchBrandManifest(flowId, '');
+                if (currentManifest) {
+                  const manifestUpdateSignal = `\n\n__MANIFEST_UPDATED__${JSON.stringify(currentManifest)}`;
+                  controller.enqueue(encoder.encode(manifestUpdateSignal));
+                  console.log(`📤 [Copilot] Sent current manifest (no updates to apply)`);
+                }
+                return; // Don't try to save empty updates
+              }
+
+              console.log(`🔄 [Copilot] Applying manifest update...`, {
+                updateType,
+                hasUpdates: !!updates,
+                updatesKeys: updates ? Object.keys(updates) : [],
+                flowId
+              });
+
               // Apply updates to manifest
               const updatedManifest = await updateBrandManifest(flowId, updates, updateType);
 
-              // Send function call result to frontend
-              controller.enqueue(
-                encoder.encode(`\n\n__MANIFEST_UPDATED__${JSON.stringify(updatedManifest)}`)
-              );
+              console.log(`✅ [Copilot] Manifest updated in DB`, {
+                updateType,
+                hasStrategy: !!updatedManifest.strategy,
+                hasIdentity: !!updatedManifest.identity,
+                hasComponents: !!updatedManifest.components,
+                lastUpdated: updatedManifest.lastUpdated
+              });
 
-              console.log(`✅ [Copilot] Manifest updated: ${updateType}`);
+              // Send function call result to frontend
+              const manifestUpdateSignal = `\n\n__MANIFEST_UPDATED__${JSON.stringify(updatedManifest)}`;
+              controller.enqueue(encoder.encode(manifestUpdateSignal));
+
+              console.log(`📤 [Copilot] Manifest update signal sent to frontend`, {
+                signalLength: manifestUpdateSignal.length,
+                updateType
+              });
             } catch (err) {
               console.error('❌ [Copilot] Failed to apply manifest update:', err);
               controller.enqueue(encoder.encode(`\n\n[Error applying updates. Please try again.]`));

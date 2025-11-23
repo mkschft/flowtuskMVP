@@ -3,6 +3,176 @@ import type { CopilotWorkspaceData, PositioningDesignAssets } from "@/lib/types/
 import type { UiValueProp } from "@/lib/hooks/design-studio/use-workspace-data";
 import type { ChatMessage } from "@/lib/design-studio-mock-data";
 
+// --- Manifest to DesignAssets Converter ---
+
+/**
+ * Converts BrandManifest to PositioningDesignAssets format
+ * This ensures UI components get immediate updates without waiting for API calls
+ */
+function convertManifestToDesignAssets(
+    manifest: BrandManifest,
+    flowId: string,
+    icpId: string,
+    existingDesignAssets: PositioningDesignAssets | null
+): PositioningDesignAssets {
+    // Normalization helpers (same as workspace API)
+    const normalizeColorArray = (colors: any): { name: string; hex: string; usage?: string }[] => {
+        if (!colors) return [];
+        if (Array.isArray(colors)) return colors;
+        if (typeof colors === 'string') return [{ name: 'Color', hex: colors }];
+        if (typeof colors === 'object' && colors.hex) return [colors];
+        return [];
+    };
+
+    const normalizeStringArrayField = (value: any): string[] => {
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        if (typeof value === 'string') return [value];
+        return [];
+    };
+
+    const normalizeArrayField = (value: any): any[] => {
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        return [];
+    };
+
+    const normalizeSpacing = (spacing: any): { name: string; value: string }[] => {
+        if (!spacing) return [];
+        if (Array.isArray(spacing)) return spacing;
+        if (typeof spacing === 'object') {
+            return Object.entries(spacing).map(([key, value]) => ({
+                name: key,
+                value: String(value)
+            }));
+        }
+        return [];
+    };
+
+    const normalizeBorderRadius = (borderRadius: any): { name: string; value: string }[] => {
+        if (!borderRadius) return [];
+        if (Array.isArray(borderRadius)) return borderRadius;
+        if (typeof borderRadius === 'string') {
+            const baseValue = parseInt(borderRadius) || 8;
+            return [
+                { name: 'sm', value: `${Math.floor(baseValue * 0.5)}px` },
+                { name: 'md', value: `${baseValue}px` },
+                { name: 'lg', value: `${Math.floor(baseValue * 1.5)}px` },
+                { name: 'xl', value: `${baseValue * 2}px` }
+            ];
+        }
+        return [];
+    };
+
+    const normalizeButtons = (buttons: any): { variant: string; description: string }[] => {
+        if (!buttons) return [];
+        if (Array.isArray(buttons)) return buttons;
+        const result = [];
+        if (buttons.primary) {
+            result.push({
+                variant: 'Primary',
+                description: buttons.primary.description || 'Main call-to-action button'
+            });
+        }
+        if (buttons.secondary) {
+            result.push({
+                variant: 'Secondary',
+                description: buttons.secondary.description || 'Secondary action button'
+            });
+        }
+        if (buttons.outline) {
+            result.push({
+                variant: 'Outline',
+                description: buttons.outline.description || 'Subtle action button'
+            });
+        }
+        return result;
+    };
+
+    const normalizePersonalityTraits = (traits: any): { id: string; label: string; value: number; leftLabel: string; rightLabel: string }[] => {
+        if (!traits) return [];
+        if (!Array.isArray(traits)) return [];
+        return traits.map((trait, idx) => ({
+            id: `trait-${idx}`,
+            label: trait.trait || trait.label || 'Personality',
+            value: trait.value || 50,
+            leftLabel: trait.leftLabel || '',
+            rightLabel: trait.rightLabel || ''
+        }));
+    };
+
+    // Preserve existing ID and timestamps if available
+    const baseDesignAssets: PositioningDesignAssets = existingDesignAssets || {
+        id: 'from-manifest',
+        icp_id: icpId,
+        parent_flow: flowId,
+        brand_guide: null,
+        style_guide: null,
+        landing_page: null,
+        generation_state: { brand: false, style: false, landing: false },
+        generation_metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
+
+    return {
+        ...baseDesignAssets,
+        id: existingDesignAssets?.id || 'from-manifest',
+        icp_id: icpId,
+        parent_flow: flowId,
+        brand_guide: {
+            colors: {
+                primary: normalizeColorArray(manifest.identity?.colors?.primary),
+                secondary: normalizeColorArray(manifest.identity?.colors?.secondary),
+                accent: normalizeColorArray(manifest.identity?.colors?.accent),
+                neutral: normalizeColorArray(manifest.identity?.colors?.neutral)
+            },
+            typography: [
+                {
+                    category: 'heading',
+                    fontFamily: manifest.identity?.typography?.heading?.family || 'Inter',
+                    weights: manifest.identity?.typography?.heading?.weights || ['700'],
+                    sizes: manifest.identity?.typography?.heading?.sizes || {}
+                },
+                {
+                    category: 'body',
+                    fontFamily: manifest.identity?.typography?.body?.family || 'Inter',
+                    weights: manifest.identity?.typography?.body?.weights || ['400'],
+                    sizes: manifest.identity?.typography?.body?.sizes || {}
+                }
+            ],
+            toneOfVoice: normalizeStringArrayField(manifest.identity?.tone?.keywords),
+            personalityTraits: normalizePersonalityTraits(manifest.identity?.tone?.personality),
+            logoVariations: normalizeArrayField(manifest.identity?.logo?.variations)
+        },
+        style_guide: {
+            buttons: normalizeButtons(manifest.components?.buttons),
+            cards: manifest.components?.cards ? [{ variant: 'default', description: 'Card component', ...manifest.components.cards }] : [],
+            spacing: normalizeSpacing(manifest.components?.spacing?.scale),
+            borderRadius: normalizeBorderRadius(manifest.components?.cards?.borderRadius),
+            formElements: [],
+            shadows: []
+        },
+        landing_page: {
+            navigation: {
+                logo: manifest.brandName || manifest.previews?.landingPage?.navigation?.logo || '',
+                links: manifest.previews?.landingPage?.navigation?.links || []
+            },
+            hero: manifest.previews?.landingPage?.hero || { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
+            features: manifest.previews?.landingPage?.features || [],
+            socialProof: manifest.previews?.landingPage?.socialProof || [],
+            footer: manifest.previews?.landingPage?.footer || { sections: [] }
+        },
+        generation_state: {
+            brand: true,
+            style: true,
+            landing: true
+        },
+        generation_metadata: manifest.metadata || {},
+        updated_at: new Date().toISOString()
+    };
+}
+
 // --- Types ---
 
 export type ToastType = "success" | "info" | "download" | "link";
@@ -79,16 +249,33 @@ export interface UpdateContext {
     addToast: (message: string, type: ToastType) => void;
     addToHistory: (manifest: BrandManifest, type: string, description: string) => void;
     loadWorkspaceData: () => Promise<void>;
+    
+    // Additional context for manifest conversion
+    flowId?: string;
+    icpId?: string;
 }
 
 // --- Parsing Functions ---
 
 export function parseUpdateResponse(response: string): ParsedUpdate | null {
     try {
+        console.log('🔍 [Parse Update] Checking response for updates...', {
+            responseLength: response.length,
+            hasManifestSignal: response.includes('__MANIFEST_UPDATED__'),
+            hasFunctionCallSignal: response.includes('__FUNCTION_CALL__')
+        });
+        
         // Check for MANIFEST update signal
         const manifestMatch = response.match(/__MANIFEST_UPDATED__(.+)/);
         if (manifestMatch) {
+            console.log('✅ [Parse Update] Found __MANIFEST_UPDATED__ signal');
             const updatedManifest = JSON.parse(manifestMatch[1]);
+            console.log('✅ [Parse Update] Manifest parsed successfully', {
+                hasStrategy: !!updatedManifest.strategy,
+                hasIdentity: !!updatedManifest.identity,
+                hasComponents: !!updatedManifest.components,
+                updateType: updatedManifest.metadata?.generationHistory?.slice(-1)[0]?.action
+            });
             return { type: 'manifest', data: updatedManifest };
         }
 
@@ -119,22 +306,115 @@ export function applyManifestUpdate(
     manifest: BrandManifest,
     context: UpdateContext
 ) {
-    console.log('🔄 [Design Studio] Received manifest update');
-
-    // Add to history
     const updateType = manifest.metadata?.generationHistory?.slice(-1)[0]?.action || 'update';
+    
+    console.log('🔄 [Manifest Update] Starting real-time update', {
+        updateType,
+        hasManifest: !!manifest,
+        flowId: context.flowId,
+        icpId: context.icpId,
+        timestamp: new Date().toISOString()
+    });
+
+    // Step 1: Update manifest state immediately
+    console.log('📦 [Manifest Update] Setting manifest state...');
+    context.setManifest(manifest);
+
+    // Step 2: Convert manifest to designAssets format IMMEDIATELY (no API call needed)
+    if (context.flowId && context.icpId) {
+        console.log('🔄 [Manifest Update] Converting manifest to designAssets...');
+        const updatedDesignAssets = convertManifestToDesignAssets(
+            manifest,
+            context.flowId,
+            context.icpId,
+            context.designAssets
+        );
+        
+        console.log('✅ [Manifest Update] DesignAssets converted', {
+            hasBrandGuide: !!updatedDesignAssets.brand_guide,
+            hasStyleGuide: !!updatedDesignAssets.style_guide,
+            hasLandingPage: !!updatedDesignAssets.landing_page,
+            primaryColors: updatedDesignAssets.brand_guide?.colors.primary.length || 0
+        });
+        
+        // Update designAssets state immediately
+        // Create new object reference to ensure React detects the change
+        context.setDesignAssets({ ...updatedDesignAssets });
+        
+        // Also update workspaceData if it exists
+        if (context.workspaceData) {
+            context.setWorkspaceData({
+                ...context.workspaceData,
+                designAssets: { ...updatedDesignAssets }  // ← Add spread here too
+            });
+        }
+    } else {
+        console.warn('⚠️ [Manifest Update] Missing flowId or icpId, skipping designAssets conversion');
+    }
+
+    // Step 3: Update UI value prop from manifest immediately
+    console.log('📝 [Manifest Update] Updating UI value prop...');
+    const valueProp = manifest.strategy?.valueProp;
+    if (valueProp) {
+        context.setUiValueProp({
+            headline: valueProp.headline || '',
+            subheadline: valueProp.subheadline || '',
+            problem: valueProp.problem || '',
+            solution: valueProp.solution || '',
+            outcome: valueProp.outcome || '',
+            benefits: valueProp.benefits || [],
+            targetAudience: valueProp.targetAudience || ''
+        });
+        console.log('✅ [Manifest Update] UI value prop updated', {
+            hasHeadline: !!valueProp.headline,
+            hasProblem: !!valueProp.problem,
+            benefitsCount: valueProp.benefits?.length || 0
+        });
+    }
+
+    // Step 4: Add to history
+    console.log('📚 [Manifest Update] Adding to history...');
     context.addToHistory(
         manifest,
         updateType,
         `AI updated: ${updateType}`
     );
 
-    context.setManifest(manifest);
-    // Reload workspace data from updated manifest
-    context.loadWorkspaceData();
+    // Step 5: Determine which tab to switch to based on update type
+    const tabMap: Record<string, "value-prop" | "brand" | "style" | "landing"> = {
+        'market_shift': 'value-prop',
+        'messaging': 'value-prop',
+        'styling': 'brand',
+        'refinement': 'brand'
+    };
+    const targetTab = tabMap[updateType] || 'brand';
+    console.log('🎯 [Manifest Update] Switching to tab:', targetTab);
+    setTimeout(() => context.setActiveTab(targetTab), 300);
 
-    // Show success toast
-    context.addToast(`Brand updated: ${updateType}`, "success");
+    // Step 6: Show success toast
+    const changedFields: string[] = [];
+    if (valueProp?.headline) changedFields.push('headline');
+    if (manifest.identity?.colors?.primary?.length) changedFields.push('colors');
+    if (manifest.identity?.typography) changedFields.push('typography');
+    if (manifest.components) changedFields.push('components');
+    
+    const toastMessage = changedFields.length > 0
+        ? `✨ Updated: ${changedFields.slice(0, 3).join(', ')}${changedFields.length > 3 ? '...' : ''}`
+        : `Brand updated: ${updateType}`;
+    
+    context.addToast(toastMessage, "success");
+    console.log('✅ [Manifest Update] Toast shown:', toastMessage);
+
+    // Step 7: Reload workspace data in background (for consistency, but not blocking)
+    // This ensures the API state matches, but UI already updated from manifest
+    console.log('🔄 [Manifest Update] Reloading workspace data in background...');
+    context.loadWorkspaceData().then(() => {
+        console.log('✅ [Manifest Update] Workspace data reloaded (background sync complete)');
+    }).catch((err) => {
+        console.warn('⚠️ [Manifest Update] Background workspace reload failed (non-critical):', err);
+    });
+
+    console.log('🎉 [Manifest Update] Real-time update complete!');
 }
 
 export function applyLegacyUpdate(

@@ -44,6 +44,7 @@ import { ThinkingBlock } from "@/components/app/ThinkingBlock";
 import { SmartButton } from "@/components/app/SmartButton";
 import { MemoryStatusIndicator } from "@/components/app/MemoryStatusIndicator";
 import { AppSidebar } from "@/components/AppSidebar";
+import { initializeCache, invalidateFlowCache } from "@/lib/utils/cache-manager";
 
 type OldGenerationState = {
   currentStep: GenerationStep;
@@ -95,6 +96,23 @@ function ChatPageContent() {
 
   async function checkAuthAndLoadFlows() {
     try {
+      // ✅ Initialize cache management (checks version, clears if stale)
+      await initializeCache();
+      
+      // ✅ CLEANUP: Clear all state first for fresh start
+      console.log('🧹 [Init] Clearing state for fresh start...');
+      setConversations([]);
+      setActiveConversationId("");
+      setInput("");
+      setWebsiteUrl("");
+      setSelectedIcp(null);
+      setIsLoading(false);
+      setAnalysisStep('fetching');
+      setAnalysisProgress(0);
+      setShowExpandedResults(false);
+      setHeroICP(null);
+      setAllICPs([]);
+      
       // Check auth
       const supabase = createClient();
       const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -113,7 +131,7 @@ function ChatPageContent() {
 
       console.log('✅ [Auth] User authenticated or demo mode');
 
-      // Load flows from DB
+      // Load flows from DB (this will populate conversations)
       await loadFlowsFromDB();
       setAuthLoading(false);
     } catch (error) {
@@ -124,6 +142,7 @@ function ChatPageContent() {
 
   const realtimeChannelRef = useRef<any>(null);
   const thinkingMsgIdRef = useRef<string | null>(null);
+  const isSubmittingRef = useRef(false); // ✅ Prevent duplicate submissions
 
   async function loadFlowsFromDB() {
     try {
@@ -145,20 +164,47 @@ function ChatPageContent() {
       // Convert Flow to Conversation format
       const conversations = flows.map(flowToConversation);
 
-      // Detect and filter duplicate IDs
+      // ✅ Enhanced deduplication: Remove duplicates by ID AND by website_url
       const seenIds = new Set<string>();
+      const seenUrls = new Map<string, string>(); // url -> id (keep most recent)
       const duplicateIds = new Set<string>();
-      const uniqueConversations = conversations.filter(conv => {
+      const duplicateUrls = new Set<string>();
+      
+      // Sort by created_at DESC to keep most recent when duplicates found
+      const sortedConversations = [...conversations].sort((a, b) => {
+        const aTime = new Date(a.created_at || 0).getTime();
+        const bTime = new Date(b.created_at || 0).getTime();
+        return bTime - aTime;
+      });
+      
+      const uniqueConversations = sortedConversations.filter(conv => {
+        // Check ID duplicates
         if (seenIds.has(conv.id)) {
           duplicateIds.add(conv.id);
           return false;
         }
         seenIds.add(conv.id);
+        
+        // Check URL duplicates (keep the most recent)
+        const url = conv.memory?.websiteUrl;
+        if (url) {
+          const existingId = seenUrls.get(url);
+          if (existingId && existingId !== conv.id) {
+            duplicateUrls.add(url);
+            console.warn(`⚠️ [DB] Duplicate URL found: ${url}, keeping most recent (${conv.id})`);
+            return false; // Remove older duplicate
+          }
+          seenUrls.set(url, conv.id);
+        }
+        
         return true;
       });
 
       if (duplicateIds.size > 0) {
         console.warn(`⚠️ [DB] Found ${duplicateIds.size} duplicate conversation IDs:`, Array.from(duplicateIds));
+      }
+      if (duplicateUrls.size > 0) {
+        console.warn(`⚠️ [DB] Found ${duplicateUrls.size} duplicate URLs:`, Array.from(duplicateUrls));
       }
 
       setConversations(uniqueConversations);
@@ -234,6 +280,17 @@ function ChatPageContent() {
 
   async function debouncedSaveToDb(conversation: Conversation) {
     try {
+      // Skip auto-save if conversation ID is not a UUID (still local nanoid)
+      // UUIDs are 36 chars with dashes (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+      // nanoids are shorter (typically 21 chars, no dashes)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conversation.id);
+      if (!isUUID) {
+        console.log(`⏭️ [DB Save] Skipping auto-save for local-only conversation (ID: ${conversation.id.slice(0, 8)}..., not yet in DB)`);
+        return;
+      }
+      
+      console.log(`💾 [DB Save] Auto-saving flow ${conversation.id.slice(0, 8)}... (UUID confirmed)`);
+
       // Debug: Track evidence chain integrity
       if (conversation.memory.factsJson) {
         const facts = (conversation.memory.factsJson as any)?.facts || [];
@@ -245,6 +302,16 @@ function ChatPageContent() {
       }
 
       // Sanitize data before saving to avoid size issues
+      // Ensure generationState exists with defaults
+      const safeGenerationState = conversation.generationState || {
+        currentStep: 'analysis',
+        completedSteps: [],
+        generatedContent: {},
+        isGenerating: false,
+        generationId: undefined,
+        lastGenerationTime: undefined,
+      };
+
       const sanitizedGeneratedContent = {
         // Only save essential message data (exclude large content if needed)
         messages: conversation.messages.map(msg => ({
@@ -256,22 +323,31 @@ function ChatPageContent() {
           data: msg.data ? (typeof msg.data === 'object' ? { _ref: msg.id } : msg.data) : undefined
         })),
         generationState: {
-          ...conversation.generationState,
+          ...safeGenerationState,
           // Remove heavy nested content from generatedContent
-          generatedContent: conversation.generationState.generatedContent ? {
-            icps: conversation.generationState.generatedContent.icps ? { _count: (conversation.generationState.generatedContent.icps as any[]).length } : undefined,
-            valueProp: conversation.generationState.generatedContent.valueProp ? { _exists: true } : undefined,
+          generatedContent: safeGenerationState.generatedContent ? {
+            icps: safeGenerationState.generatedContent.icps ? { _count: (safeGenerationState.generatedContent.icps as any[]).length } : undefined,
+            valueProp: safeGenerationState.generatedContent.valueProp ? { _exists: true } : undefined,
           } : {}
         },
-        userJourney: conversation.userJourney,
-        generationHistory: conversation.memory.generationHistory.slice(-10), // Keep only last 10
-        userPreferences: conversation.memory.userPreferences,
+        userJourney: conversation.userJourney || {
+          websiteAnalyzed: false,
+          icpSelected: false,
+          valuePropGenerated: false,
+          exported: false,
+        },
+        generationHistory: (conversation.memory?.generationHistory || []).slice(-10), // Keep only last 10
+        userPreferences: conversation.memory?.userPreferences || {
+          preferredContentType: '',
+          lastAction: '',
+        },
       };
 
       await flowsClient.debouncedUpdate(conversation.id, {
         // Don't update title to avoid 409 conflicts with other flows
         // (title is set once during creation via findOrCreateFlow)
-        website_url: conversation.memory.websiteUrl,
+        // Always include website_url if available (important for data integrity)
+        website_url: conversation.memory.websiteUrl || undefined,
         facts_json: conversation.memory.factsJson,
         selected_icp: conversation.memory.selectedIcp ?? undefined,
         generated_content: sanitizedGeneratedContent,
@@ -349,30 +425,67 @@ function ChatPageContent() {
 
   const createNewConversation = async () => {
     try {
-      // Create in DB
-      const flow = await flowsClient.createFlow({
+      // ✅ Don't create DB flow yet - just create local conversation
+      // DB flow will be created when user analyzes a URL
+      const newConv: Conversation = {
+        id: nanoid(),
         title: `New conversation ${new Date().toLocaleDateString()}`,
-        step: 'initial',
-      });
+        messages: [],
+        createdAt: new Date(),
+        generationState: {
+          currentStep: 'analysis',
+          completedSteps: [],
+          generatedContent: {},
+          isGenerating: false,
+          generationId: undefined,
+          lastGenerationTime: undefined,
+        },
+        userJourney: {
+          websiteAnalyzed: false,
+          icpSelected: false,
+          valuePropGenerated: false,
+          exported: false,
+        },
+        memory: {
+          id: '',
+          websiteUrl: '',
+          factsJson: undefined,
+          selectedIcp: null,
+          generationHistory: [],
+          userPreferences: {
+            preferredContentType: '',
+            lastAction: '',
+          },
+        },
+      };
 
-      const newConv = flowToConversation(flow);
       setConversations(prev => [newConv, ...prev]);
       setActiveConversationId(newConv.id);
       setSelectedIcp(null);
       setWebsiteUrl("");
 
-      console.log('✅ [DB] Created new flow in database');
+      console.log('✅ [Conversation] Created new local conversation (no DB flow yet)');
     } catch (error) {
-      console.error('❌ [DB] Failed to create flow:', error);
-      alert('Failed to create new flow. Please try again.');
+      console.error('❌ [Conversation] Failed to create:', error);
     }
   };
 
   const deleteConversation = async (convId: string) => {
     try {
-      // Soft delete in DB
-      await flowsClient.softDeleteFlow(convId);
-      console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
+      // Only try to delete from DB if it's a UUID (exists in database)
+      // Local-only conversations (nanoids) don't need DB deletion
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(convId);
+      
+      if (isUUID) {
+        // Soft delete in DB
+        await flowsClient.softDeleteFlow(convId);
+        console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
+        
+        // Invalidate cache for this flow
+        invalidateFlowCache(convId);
+      } else {
+        console.log(`🗑️ [Conversation] Deleting local-only conversation (not in DB): ${convId}`);
+      }
 
       // Remove from UI
       setConversations(prev => {
@@ -508,6 +621,13 @@ function ChatPageContent() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // ✅ Prevent duplicate submissions
+    if (isSubmittingRef.current) {
+      console.warn('⚠️ [Submit] Already processing, ignoring duplicate submission');
+      return;
+    }
+    
     console.log('📨 [handleSendMessage] Called with input:', input.substring(0, 100) + (input.length > 100 ? '...' : ''));
     console.log('📊 [handleSendMessage] State:', { inputLength: input.length, isLoading, hasInput: !!input.trim() });
 
@@ -515,6 +635,9 @@ function ChatPageContent() {
       console.warn('⚠️ [handleSendMessage] Skipping - no input or already loading');
       return;
     }
+    
+    // Mark as submitting
+    isSubmittingRef.current = true;
 
     // Ensure we have an active conversation and get the ID
     const convId = ensureActiveConversation();
@@ -577,46 +700,80 @@ function ChatPageContent() {
         console.log('⏱️ [Fetch] Starting website analysis with 60s timeout:', url);
         const controller = new AbortController();
         setCurrentAbortController(controller);
-        const fetchStartTime = Date.now();
-        const timeoutId = setTimeout(() => {
-          const elapsed = Date.now() - fetchStartTime;
-          console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (60s limit reached)`);
-          controller.abort();
-        }, 60000);
+        // Check if URL has already been crawled
+        console.log('🔍 [Cache] Checking if URL already crawled...');
+        const existingCrawl = await flowsClient.findExistingCrawl(url);
+        
+        let content: string;
+        let metadata: any;
+        let factsJson: any;
+        let wasCached = false;
 
-        let analyzeRes;
-        try {
-          analyzeRes = await fetch("/api/analyze-website", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url }),
-            signal: controller.signal,
-          });
-          const elapsed = Date.now() - fetchStartTime;
-          console.log(`✅ [Fetch] Analysis completed in ${elapsed}ms`);
+        if (existingCrawl && existingCrawl.website_analysis) {
+          // Reuse existing crawl data
+          console.log('✅ [Cache] Found existing crawl, reusing data');
+          wasCached = true;
+          const analysis = existingCrawl.website_analysis as any;
+          factsJson = analysis;
+          content = 'Cached analysis - raw content not stored'; // Placeholder for UI
+          metadata = {
+            url: existingCrawl.website_url,
+            cached: true,
+            heroImage: analysis.brand?.heroImage || null
+          };
+          
+          // Clear timeout since we're not making an API call
           clearTimeout(timeoutId);
           setCurrentAbortController(null);
-        } catch (fetchError) {
-          const elapsed = Date.now() - fetchStartTime;
-          clearTimeout(timeoutId);
-          setCurrentAbortController(null);
-          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-            console.error(`❌ [Timeout] Request aborted after ${elapsed}ms`);
-            throw new Error("Analysis cancelled. The website may be too large or slow to respond.");
+        } else {
+          // Need to scrape - proceed with API call
+          console.log('📡 [Cache] No existing crawl found, scraping now...');
+          const fetchStartTime = Date.now();
+          const timeoutId = setTimeout(() => {
+            const elapsed = Date.now() - fetchStartTime;
+            console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (60s limit reached)`);
+            controller.abort();
+          }, 60000);
+
+          let analyzeRes;
+          try {
+            analyzeRes = await fetch("/api/analyze-website", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url }),
+              signal: controller.signal,
+            });
+            const elapsed = Date.now() - fetchStartTime;
+            console.log(`✅ [Fetch] Analysis completed in ${elapsed}ms`);
+            clearTimeout(timeoutId);
+            setCurrentAbortController(null);
+          } catch (fetchError) {
+            const elapsed = Date.now() - fetchStartTime;
+            clearTimeout(timeoutId);
+            setCurrentAbortController(null);
+            if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+              console.error(`❌ [Timeout] Request aborted after ${elapsed}ms`);
+              throw new Error("Analysis cancelled. The website may be too large or slow to respond.");
+            }
+            console.error(`❌ [Fetch] Error after ${elapsed}ms:`, fetchError);
+            throw fetchError;
           }
-          console.error(`❌ [Fetch] Error after ${elapsed}ms:`, fetchError);
-          throw fetchError;
-        }
 
-        if (!analyzeRes.ok) {
-          console.error('❌ [Fetch] Response not OK:', analyzeRes.status, analyzeRes.statusText);
-          throw new Error("Failed to analyze website");
+          if (!analyzeRes.ok) {
+            console.error('❌ [Fetch] Response not OK:', analyzeRes.status, analyzeRes.statusText);
+            throw new Error("Failed to analyze website");
+          }
+          console.log('📦 [Fetch] Parsing response JSON...');
+          const response = await analyzeRes.json();
+          content = response.content;
+          metadata = response.metadata;
+          factsJson = response.factsJson;
         }
-        console.log('📦 [Fetch] Parsing response JSON...');
-        const { content, metadata, factsJson } = await analyzeRes.json();
 
         const analyzeSubsteps = [
-          `✅ Fetched ${Math.round(content.length / 1000)}k characters`,
+          wasCached 
+            ? `✅ Using cached analysis (${factsJson?.facts?.length || 0} facts)`
+            : `✅ Fetched ${Math.round(content.length / 1000)}k characters`,
           `✅ Extracted ${factsJson?.facts?.length || 0} facts from website`,
           metadata?.heroImage ? '✅ Found brand visuals' : '⚠️ No brand visuals detected'
         ];
@@ -644,35 +801,46 @@ function ChatPageContent() {
         );
 
         // Find or create flow in database (prevents duplicates)
+        // If we used cached data, the flow already exists, so we just need to ensure it's up to date
         console.log('💾 [Flow] Finding or creating flow in database...');
         const hostTitle = new URL(url).hostname;
         const { flow, isNew } = await flowsClient.findOrCreateFlow({
           title: hostTitle,
-          website_url: url,
+          website_url: url, // Always ensure website_url is set
           facts_json: factsJson || undefined,
           step: 'analyzed'
         });
+        
+        // If flow was found but website_url was missing, log it (should be fixed by the update)
+        if (!isNew && !flow.website_url) {
+          console.warn('⚠️ [Flow] Found flow without website_url, should be updated now');
+        }
 
         console.log(`✅ [Flow] ${isNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
+        console.log(`🔄 [ID Sync] Updating conversation ID from ${activeConversationId.slice(0, 8)}... to ${flow.id.slice(0, 8)}...`);
 
         // Store flow ID and align conversation ID with DB flow ID
-        setConversations(prev =>
-          prev.map(conv =>
+        setConversations(prev => {
+          const updated = prev.map(conv =>
             conv.id === activeConversationId
               ? {
-                ...conv,
-                id: flow.id,
-                memory: {
-                  ...conv.memory,
+                  ...conv,
                   id: flow.id,
-                  flowId: flow.id,
+                  memory: {
+                    ...conv.memory,
+                    id: flow.id,
+                    flowId: flow.id,
+                    websiteUrl: url, // Ensure website_url is set in memory
+                  }
                 }
-              }
               : conv
-          )
-        );
+          );
+          console.log(`✅ [ID Sync] Conversation ID updated. Active conversation now has DB ID: ${flow.id.slice(0, 8)}...`);
+          return updated;
+        });
         // Make the new DB flow the active conversation
         setActiveConversationId(flow.id);
+        console.log(`✅ [ID Sync] Active conversation ID set to: ${flow.id.slice(0, 8)}...`);
 
         // Subscribe to realtime updates for this flow (step transitions)
         try {
@@ -1020,6 +1188,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
         content: userMessage,
       });
     } finally {
+      isSubmittingRef.current = false; // ✅ Reset submission guard
       setIsLoading(false);
     }
   };

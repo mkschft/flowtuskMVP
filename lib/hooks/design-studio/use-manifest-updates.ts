@@ -23,11 +23,20 @@ export function useManifestUpdates(
     setActiveTab: (tab: "value-prop" | "brand" | "style" | "landing") => void,
     addToast: (message: string, type: ToastType) => void,
     addToHistory: (manifest: BrandManifest, type: string, description: string) => void,
-    loadWorkspaceData: () => Promise<void>
+    loadWorkspaceData: () => Promise<void>,
+    flowId: string,
+    icpId: string
 ) {
     const parseAndApplyUpdates = useCallback((response: string) => {
+        console.log('📥 [Manifest Updates] Parsing response...', { responseLength: response.length });
+        
         const parsed = parseUpdateResponse(response);
-        if (!parsed) return;
+        if (!parsed) {
+            console.log('⚠️ [Manifest Updates] No updates found in response');
+            return;
+        }
+
+        console.log('✅ [Manifest Updates] Update parsed', { type: parsed.type });
 
         const context: UpdateContext = {
             workspaceData,
@@ -41,12 +50,16 @@ export function useManifestUpdates(
             setActiveTab,
             addToast,
             addToHistory,
-            loadWorkspaceData
+            loadWorkspaceData,
+            flowId,
+            icpId
         };
 
         if (parsed.type === 'manifest') {
+            console.log('🎯 [Manifest Updates] Applying manifest update...');
             applyManifestUpdate(parsed.data, context);
         } else {
+            console.log('🎯 [Manifest Updates] Applying legacy update...');
             applyLegacyUpdate(parsed.data, context);
         }
     }, [
@@ -61,7 +74,9 @@ export function useManifestUpdates(
         setActiveTab,
         addToast,
         addToHistory,
-        loadWorkspaceData
+        loadWorkspaceData,
+        flowId,
+        icpId
     ]);
 
     return { parseAndApplyUpdates };

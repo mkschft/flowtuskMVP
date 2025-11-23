@@ -1,0 +1,171 @@
+{
+  "brand": {
+    "name": "Warmly AI",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Explore AI Agents"
+  },
+  "structure": {
+    "nav": [
+      "AI Agents",
+      "Solutions",
+      "Data Sources & Integrations",
+      "Features",
+      "Resources",
+      "Partners",
+      "About"
+    ],
+    "keyPages": [
+      {
+        "path": "/p/ai-agents/ai-data-agent",
+        "title": "AI Signal Agent"
+      },
+      {
+        "path": "/p/solutions/person-based-signals",
+        "title": "Person-Based Signals"
+      },
+      {
+        "path": "/p/product/intent-signals/website-intent",
+        "title": "1st Party Web Intent"
+      },
+      {
+        "path": "/p/product/intent-signals/social-signal-monitoring",
+        "title": "2nd Party Social Activity"
+      },
+      {
+        "path": "/p/product/intent-signals/bombora-buyer-intent",
+        "title": "3rd Party Research Intent"
+      },
+      {
+        "path": "/p/product/intent-signals/coldly-contact-database",
+        "title": "Coldly Contact Database"
+      },
+      {
+        "path": "/p/product/intent-signals/integration",
+        "title": "Integrations"
+      },
+      {
+        "path": "/p/resources/warmly-academy",
+        "title": "Academy"
+      },
+      {
+        "path": "/p/resources/playbooks",
+        "title": "Playbooks"
+      },
+      {
+        "path": "/p/resources/blog",
+        "title": "Blog"
+      }
+    ],
+    "footer": [
+      "Customers",
+      "Pricing",
+      "Career",
+      "Reviews"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "B2B Sales and Marketing",
+    "signals": [
+      "AI Agents",
+      "Solutions",
+      "Data Sources & Integrations"
+    ]
+  },
+  "audienceSignals": [
+    "B2B companies",
+    "Sales teams",
+    "Marketing teams"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Real-time person-based signals for targeting",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "AI-driven lead engagement and nurturing",
+      "evidence": [
+        "fact-5",
+        "fact-8"
+      ]
+    }
+  ],
+  "pains": [
+    "Inefficient lead engagement",
+    "Lack of real-time targeting"
+  ],
+  "proof": [
+    "250M+ cold contacts database",
+    "AI-trained SDRs"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Warmly AI is a person level intent platform.",
+      "page": "Homepage",
+      "evidence": "Warmly AI - Person Level Intent Platform"
+    },
+    {
+      "id": "fact-2",
+      "text": "Warmly AI offers AI Signal Agent for monitoring live buying signals.",
+      "page": "AI Agents",
+      "evidence": "AI Signal Agent Monitor Live Buying Signals"
+    },
+    {
+      "id": "fact-3",
+      "text": "Person-Based Signals provide real-time targeting.",
+      "page": "Solutions",
+      "evidence": "Person-Based Signals Target with real-time signals"
+    },
+    {
+      "id": "fact-4",
+      "text": "1st Party Web Intent is a feature offered by Warmly AI.",
+      "page": "Solutions",
+      "evidence": "1st Party Web Intent"
+    },
+    {
+      "id": "fact-5",
+      "text": "AI Inbound Agent facilitates more effective lead engagement.",
+      "page": "AI Agents",
+      "evidence": "AI Inbound Agent Facilitate More Effective Lead Engagement"
+    },
+    {
+      "id": "fact-6",
+      "text": "Coldly Contact Database contains over 250M cold contacts.",
+      "page": "Data Sources & Integrations",
+      "evidence": "Coldly Contact Database Export lists of 250M+ cold contacts & companies"
+    },
+    {
+      "id": "fact-7",
+      "text": "Warmly AI provides integrations with various data and workflow tools.",
+      "page": "Data Sources & Integrations",
+      "evidence": "Integrations Connect to all your favorite data & workflow tools"
+    },
+    {
+      "id": "fact-8",
+      "text": "AI Nurture Agent automates lead follow-ups.",
+      "page": "AI Agents",
+      "evidence": "AI Nurture Agent Automate Lead Follow-ups"
+    },
+    {
+      "id": "fact-9",
+      "text": "Warmly AI offers a New Hire Signal solution.",
+      "page": "Solutions",
+      "evidence": "New Hire Signal New Hire"
+    },
+    {
+      "id": "fact-10",
+      "text": "Warmly AI's AI Chatbot is always on for intelligent lead engagement.",
+      "page": "Features",
+      "evidence": "AI Chatbot Always on intelligent lead engagement"
+    }
+  ]
+}
