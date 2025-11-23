@@ -60,6 +60,10 @@ export async function createBrandManifest(
         },
         previews: initialData.previews || {
             landingPage: {
+                navigation: {
+                    logo: initialData.brandName || 'Brand',
+                    links: ['Product', 'Features', 'Pricing', 'About']
+                },
                 hero: { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
                 features: [],
                 socialProof: [],
