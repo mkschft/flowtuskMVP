@@ -2006,7 +2006,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:flex md:w-64 border-r flex-col">
+      <div className="hidden md:flex md:w-64 border-r flex-col h-full">
         <SidebarContent />
       </div>
 

@@ -43,7 +43,7 @@ export function AppSidebar({
     const isProfilePage = pathname === '/profile';
 
     return (
-        <div className={cn("flex flex-col h-full bg-background border-r", className)}>
+        <div className={cn("flex flex-col h-full bg-background border-r overflow-hidden", className)}>
             <div className="p-4 border-b shrink-0">
                 <div className="flex items-center gap-2 font-semibold mb-4">
                     <Image src="/logo.svg" alt="Flowtusk" width={20} height={20} className="shrink-0" />
