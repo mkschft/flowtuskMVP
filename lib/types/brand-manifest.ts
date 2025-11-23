@@ -75,6 +75,7 @@ export interface BrandManifest {
     // Previews Layer (Generated Content)
     previews: {
         landingPage: {
+            navigation: { logo: string; links: string[] };
             hero: { headline: string; subheadline: string; cta: { primary: string; secondary: string } };
             features: { title: string; description: string; icon: string }[];
             socialProof: { quote: string; author: string; role: string; company: string }[];
