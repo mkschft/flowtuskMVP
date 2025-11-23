@@ -22,8 +22,11 @@ export async function GET(
         .single();
 
     if (error || !data) {
+        console.error('❌ [Brand Key API] Manifest not found:', brandKey, error);
         return NextResponse.json({ error: 'Manifest not found' }, { status: 404 });
     }
+
+    console.log('✅ [Brand Key API] Manifest fetched successfully:', brandKey);
 
     const response = NextResponse.json({
         success: true,
@@ -31,18 +34,25 @@ export async function GET(
         created_at: data.created_at
     });
 
-    // Allow CORS for Figma plugin
-    response.headers.set('Access-Control-Allow-Origin', '*');
+    // CORS headers for Figma plugin (runs with origin: null)
+    const origin = req.headers.get('origin') || 'null';
+    response.headers.set('Access-Control-Allow-Origin', origin === 'null' ? '*' : origin);
     response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'false');
 
     return response;
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(req: NextRequest) {
     const response = NextResponse.json({}, { status: 200 });
-    response.headers.set('Access-Control-Allow-Origin', '*');
+
+    // CORS headers for preflight
+    const origin = req.headers.get('origin') || 'null';
+    response.headers.set('Access-Control-Allow-Origin', origin === 'null' ? '*' : origin);
     response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'false');
+
     return response;
 }
