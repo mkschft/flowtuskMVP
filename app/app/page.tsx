@@ -43,6 +43,7 @@ import { generationManager } from "@/lib/generation-manager";
 import { ThinkingBlock } from "@/components/app/ThinkingBlock";
 import { SmartButton } from "@/components/app/SmartButton";
 import { MemoryStatusIndicator } from "@/components/app/MemoryStatusIndicator";
+import { AppSidebar } from "@/components/AppSidebar";
 
 type OldGenerationState = {
   currentStep: GenerationStep;
@@ -1561,89 +1562,24 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
   };
 
   // Sidebar content (reused in desktop & mobile)
+  // Sidebar content (reused in desktop & mobile)
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b shrink-0">
-        <div className="flex items-center gap-2 font-semibold mb-4">
-          <Image src="/logo.svg" alt="Flowtusk" width={20} height={20} className="shrink-0" />
-          <span>Flowtusk</span>
-        </div>
-        <Button
-          onClick={() => {
-            createNewConversation();
-            setSidebarOpen(false); // Close mobile drawer on action
-          }}
-          className="w-full"
-          variant="outline"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New conversation
-        </Button>
-      </div>
-
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="p-2 space-y-1">
-          {conversations.map((conv, index) => (
-            <div
-              key={`${conv.id}-${index}`}
-              className={`group relative w-full rounded-lg text-sm transition-colors ${conv.id === activeConversationId
-                ? "bg-muted"
-                : "hover:bg-muted/50"
-                }`}
-            >
-              <button
-                onClick={() => {
-                  setActiveConversationId(conv.id);
-                  setSidebarOpen(false); // Close mobile drawer on selection
-                }}
-                className="w-full text-left px-3 py-2 pr-12"
-              >
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{conv.title}</span>
-                </div>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (window.confirm(`Delete "${conv.title}"?`)) {
-                    deleteConversation(conv.id);
-                  }
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
-                title="Delete conversation"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-
-      {/* Profile Section */}
-      <div className="p-3 border-t shrink-0">
-        <button
-          onClick={() => {
-            router.push('/profile');
-            setSidebarOpen(false); // Close mobile drawer
-          }}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-xs">
-            {user?.email?.[0].toUpperCase() || 'U'}
-          </div>
-          <div className="flex-1 text-left overflow-hidden">
-            <div className="font-medium truncate text-sm">
-              {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-            </div>
-            <div className="text-xs text-muted-foreground truncate">
-              {user?.email || 'user@example.com'}
-            </div>
-          </div>
-          <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
-        </button>
-      </div>
-    </div>
+    <AppSidebar
+      user={user}
+      conversations={conversations}
+      activeConversationId={activeConversationId}
+      onNewConversation={() => {
+        createNewConversation();
+        setSidebarOpen(false);
+      }}
+      onSelectConversation={(id: string) => {
+        setActiveConversationId(id);
+        setSidebarOpen(false);
+      }}
+      onDeleteConversation={deleteConversation}
+      onCloseMobileDrawer={() => setSidebarOpen(false)}
+      className="h-full border-none"
+    />
   );
 
   // Show loading skeleton while checking auth
@@ -1664,7 +1600,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
       setSelectedIcp(icp);
       updateUserJourney({ icpSelected: true });
-      
+
       // Navigate to copilot if manifest already exists
       const manifestRes = await fetch(`/api/brand-manifest?flowId=${activeConversationId}`);
       if (manifestRes.ok) {
