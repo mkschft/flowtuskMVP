@@ -115,13 +115,13 @@ export async function updateBrandManifest(
     // Deep merge updates
     const updated = deepMerge(current, updates);
 
-    // Update metadata
+    // Update metadata with null safety
     updated.lastUpdated = new Date().toISOString();
     updated.metadata = {
-        ...current.metadata,
-        regenerationCount: (current.metadata.regenerationCount || 0) + 1,
+        ...(current.metadata || {}),
+        regenerationCount: ((current.metadata?.regenerationCount) || 0) + 1,
         generationHistory: [
-            ...(current.metadata.generationHistory || []),
+            ...(current.metadata?.generationHistory || []),
             {
                 timestamp: new Date().toISOString(),
                 action,

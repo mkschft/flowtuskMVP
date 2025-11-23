@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const regenerationCount = manifest.metadata.regenerationCount || 0;
+    const regenerationCount = manifest.metadata?.regenerationCount || 0;
 
     if (regenerationCount >= MAX_REGENERATIONS) {
       return new Response(
@@ -193,7 +193,7 @@ This manifest contains:
 - Identity: Colors, typography, logo, tone of voice
 - Components: Buttons, cards, inputs, spacing
 - Previews: Landing page content
-- History: ${manifest.metadata.generationHistory.length} previous changes
+- History: ${manifest.metadata?.generationHistory?.length || 0} previous changes
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 YOUR TASK

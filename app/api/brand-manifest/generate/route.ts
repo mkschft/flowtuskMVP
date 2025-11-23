@@ -148,6 +148,11 @@ function applyDotNotationUpdates(target: any, updates: Record<string, any>): any
 }
 
 async function generateBrandGuide(manifest: any) {
+  // Validate manifest has required data
+  if (!manifest?.strategy?.persona || !manifest?.strategy?.valueProp) {
+    throw new Error('Manifest missing required strategy data (persona or valueProp). Cannot generate brand guide.');
+  }
+
   const persona = manifest.strategy.persona;
   const valueProp = manifest.strategy.valueProp;
 
@@ -263,6 +268,11 @@ Return ONLY valid JSON in this format:
 }
 
 async function generateStyleGuide(manifest: any) {
+  // Validate manifest exists
+  if (!manifest?.brandName) {
+    throw new Error('Manifest missing brandName. Cannot generate style guide.');
+  }
+
   const prompt = `Generate a style guide for ${manifest.brandName} with button, card, and input styles.
 
 IMPORTANT: You MUST include a spacing scale with at least xs, sm, md, lg, and xl values.
@@ -315,6 +325,11 @@ Return ONLY valid JSON:
 }
 
 async function generateLandingPage(manifest: any) {
+  // Validate manifest has required data
+  if (!manifest?.strategy?.persona || !manifest?.strategy?.valueProp) {
+    throw new Error('Manifest missing required strategy data. Cannot generate landing page.');
+  }
+
   const persona = manifest.strategy.persona;
   const valueProp = manifest.strategy.valueProp;
 
