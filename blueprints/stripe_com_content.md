@@ -13,7 +13,7 @@ Stripe | Financial Infrastructure to Grow Your Revenue
 *   Resources
 *   [Pricing](https://stripe.com/pricing)
 
-[Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
+[Support](https://support.stripe.com/)[Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
 
 [Sign in](https://dashboard.stripe.com/login)
 
@@ -30,6 +30,7 @@ Back
 *   Developers  
 *   Resources  
 *   [Pricing](https://stripe.com/pricing)
+*   [Support](https://support.stripe.com/)
 *   [Sign in](https://dashboard.stripe.com/login)
 
 Global payments
@@ -218,7 +219,6 @@ By use case
 By industry
 ===========
 
-*   [AI companies](https://stripe.com/use-cases/ai)
-*   [Creator economy](https://st
+*  
 
 [Content truncated for performance]

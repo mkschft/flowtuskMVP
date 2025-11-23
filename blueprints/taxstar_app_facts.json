@@ -5,7 +5,7 @@
       "Professional",
       "Informative"
     ],
-    "primaryCTA": "Book a Demo"
+    "primaryCTA": "Book a Corporate Tax Demo"
   },
   "structure": {
     "nav": [
@@ -113,13 +113,6 @@
       "Contact Us",
       "Our Partners",
       "Security & Certifications",
-      "Video Tutorials",
-      "Podcast",
-      "Webinar",
-      "Blogs",
-      "Press",
-      "Tax Penalties",
-      "Corporate Tax Guide",
       "Pricing"
     ]
   },
@@ -129,8 +122,7 @@
     "signals": [
       "Corporate Tax (UAE)",
       "E-Invoicing (UAE)",
-      "Zakat for Business (KSA)",
-      "AED 5,000 penalty"
+      "Zakat for Business (KSA)"
     ]
   },
   "audienceSignals": [
@@ -141,99 +133,146 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "AI-powered Corporate Tax software for UAE businesses.",
+      "text": "AI-powered Corporate Tax software for UAE businesses",
       "evidence": [
-        "fact-1",
-        "fact-5"
+        "fact-5",
+        "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "Automated returns and IFRS financial statement production.",
+      "text": "Automated returns and smart reminders",
       "evidence": [
-        "fact-7",
-        "fact-8"
+        "fact-9",
+        "fact-11"
       ]
     },
     {
       "id": "v3",
-      "text": "E-Invoicing ensures FTA-compliance and seamless integration.",
+      "text": "E-Invoicing that keeps invoices FTA-compliant",
       "evidence": [
-        "fact-9",
-        "fact-10"
+        "fact-13"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Zakat calculations for KSA",
+      "evidence": [
+        "fact-15"
       ]
     }
   ],
   "pains": [
-    "Compliance stress",
-    "Hefty penalties for document expiry",
-    "Errors in financial statements"
+    "Compliance can feel stressful",
+    "Failure to update registration documents results in penalties"
   ],
   "proof": [
-    "AI-powered",
-    "FTA-compliant",
-    "IFRS financial statement"
+    "AI-powered Corporate Tax software",
+    "FTA-compliant E-Invoicing",
+    "Zakat calculations for KSA"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star is an AI-powered Corporate Tax software for UAE businesses.",
+      "text": "Tax Star is a Corporate Tax Software.",
       "page": "Home",
-      "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
+      "evidence": "Tax Star | Corporate Tax Software"
     },
     {
       "id": "fact-2",
-      "text": "Tax Star offers a Corporate Tax Calculator.",
-      "page": "Home",
-      "evidence": "Corporate Tax Calculator"
+      "text": "The website offers resources like Video Tutorials, Podcast, and Webinar.",
+      "page": "Resources",
+      "evidence": "Resources: Video Tutorials, Podcast, Webinar"
     },
     {
       "id": "fact-3",
-      "text": "Tax Star provides E-Invoicing that is FTA-compliant.",
+      "text": "The primary call to action is 'Book a Corporate Tax Demo'.",
       "page": "Home",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+      "evidence": "[Book a Corporate Tax Demo](https://calendar.app.google/JC4VQuD3WcBHxwXKA)"
     },
     {
       "id": "fact-4",
-      "text": "Tax Star offers Zakat calculations for KSA.",
-      "page": "Home",
-      "evidence": "Zakat calculations built for KSA"
+      "text": "The software includes a Corporate Tax Calculator.",
+      "page": "Features",
+      "evidence": "Corporate Tax Calculator"
     },
     {
       "id": "fact-5",
-      "text": "Tax Star's ecosystem includes E-Invoicing in the UAE and Zakat in KSA.",
+      "text": "The software is AI-powered.",
       "page": "Home",
-      "evidence": "Alongside it, E-Invoicing in the UAE and Zakat in KSA complete the toolkit"
+      "evidence": "AI-powered Corporate Tax software"
     },
     {
       "id": "fact-6",
-      "text": "Tax Star offers a free trial for its AI-powered tax software.",
+      "text": "The software is designed for UAE businesses.",
       "page": "Home",
-      "evidence": "Start Free Trial"
+      "evidence": "Corporate Tax software for UAE businesses"
     },
     {
       "id": "fact-7",
-      "text": "Tax Star automates returns and IFRS financial statement production.",
+      "text": "The toolkit includes E-Invoicing in the UAE and Zakat in KSA.",
       "page": "Home",
-      "evidence": "Automated returns, IFRS financial statement"
+      "evidence": "E-Invoicing in the UAE and Zakat in KSA"
     },
     {
       "id": "fact-8",
-      "text": "Tax Star provides smart reminders for document expiry.",
-      "page": "Home",
-      "evidence": "smart reminders with Tax Star"
+      "text": "The software offers automated returns.",
+      "page": "Features",
+      "evidence": "Automated returns"
     },
     {
       "id": "fact-9",
-      "text": "Tax Star's E-Invoicing ensures seamless integration with corporate tax filing.",
-      "page": "Home",
-      "evidence": "ensures seamless integration with corporate tax filing"
+      "text": "The software includes IFRS financial statement production.",
+      "page": "Features",
+      "evidence": "IFRS financial statement"
     },
     {
       "id": "fact-10",
-      "text": "Failure to update registration documents within 20 days of expiry results in AED 5,000 penalty.",
-      "page": "Home",
-      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
+      "text": "The software provides smart reminders.",
+      "page": "Features",
+      "evidence": "smart reminders"
+    },
+    {
+      "id": "fact-11",
+      "text": "Failure to update registration documents results in a AED 5,000 penalty.",
+      "page": "Features",
+      "evidence": "Avoid the AED 5,000 penalty"
+    },
+    {
+      "id": "fact-12",
+      "text": "The software notifies users about document expiry.",
+      "page": "Features",
+      "evidence": "Tax Star notifies you when they are due"
+    },
+    {
+      "id": "fact-13",
+      "text": "E-Invoicing ensures FTA compliance.",
+      "page": "Features",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+    },
+    {
+      "id": "fact-14",
+      "text": "The software integrates with corporate tax filing.",
+      "page": "Features",
+      "evidence": "ensures seamless integration with corporate tax filing"
+    },
+    {
+      "id": "fact-15",
+      "text": "Zakat calculations are designed for KSA.",
+      "page": "Features",
+      "evidence": "Zakat calculations built for KSA"
+    },
+    {
+      "id": "fact-16",
+      "text": "The software helps in reducing errors in financial statements.",
+      "page": "Features",
+      "evidence": "Eliminate word and excel and reduce errors"
+    },
+    {
+      "id": "fact-17",
+      "text": "The website has a section for 'Our Clients'.",
+      "page": "Clients",
+      "evidence": "Our Clients"
     }
   ]
 }

@@ -722,8 +722,7 @@ function ChatPageContent() {
             heroImage: analysis.brand?.heroImage || null
           };
           
-          // Clear timeout since we're not making an API call
-          clearTimeout(timeoutId);
+          // No timeout was created, so just clear the abort controller
           setCurrentAbortController(null);
         } else {
           // Need to scrape - proceed with API call
@@ -1768,6 +1767,22 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     if (isGenerationCompleted('value-prop', { icp: icp.id })) {
       console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
       setSelectedIcp(icp);
+      
+      // Update conversation memory with selected ICP so it persists to DB
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+                ...conv,
+                memory: {
+                  ...conv.memory,
+                  selectedIcp: icp
+                }
+              }
+            : conv
+        )
+      );
+      
       updateUserJourney({ icpSelected: true });
 
       // Navigate to copilot if manifest already exists
@@ -1788,6 +1803,22 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }
 
     setSelectedIcp(icp);
+    
+    // Update conversation memory with selected ICP so it persists to DB
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === activeConversationId
+          ? {
+              ...conv,
+              memory: {
+                ...conv.memory,
+                selectedIcp: icp
+              }
+            }
+          : conv
+      )
+    );
+    
     updateGenerationState({
       isGenerating: true,
       generationId: `value-prop-${icp.id}`,

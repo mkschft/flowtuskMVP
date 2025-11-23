@@ -170,9 +170,18 @@ export async function POST(req: NextRequest) {
             manifest: result
         });
 
-    } catch (error) {
-        console.error('Server error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    } catch (error: any) {
+        console.error('❌ [Manifest POST] Server error:', error);
+        console.error('❌ [Manifest POST] Error details:', {
+            message: error?.message,
+            code: error?.code,
+            details: error?.details,
+            hint: error?.hint
+        });
+        return NextResponse.json({ 
+            error: 'Internal server error', 
+            details: error?.message || 'Unknown error'
+        }, { status: 500 });
     }
 }
 

@@ -102,7 +102,7 @@ export function AppSidebar({
                                             onDeleteConversation(conv.id);
                                         }
                                     }}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all pointer-events-none group-hover:pointer-events-auto"
                                     title="Delete conversation"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />

@@ -125,7 +125,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
             <Badge className="mb-2">Key Pain Point</Badge>
             <div className="group relative">
               <h1 
-                className="text-3xl sm:text-4xl font-bold"
+                className="text-3xl sm:text-4xl font-bold select-none"
                 style={textGradientStyle}
               >
                 {personaValueProp}

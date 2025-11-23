@@ -38,10 +38,23 @@ export function useChatStreaming(
         setIsStreaming(true);
 
         // Show preparing indicator for complex requests
-        const isComplexRequest = message.toLowerCase().includes('change') ||
-            message.toLowerCase().includes('update') ||
-            message.toLowerCase().includes('location') ||
-            message.toLowerCase().includes('market');
+        // Detect various user input patterns
+        const lowerMessage = message.toLowerCase().trim();
+        const isComplexRequest = 
+            lowerMessage.includes('change') ||
+            lowerMessage.includes('update') ||
+            lowerMessage.includes('modify') ||
+            lowerMessage.includes('adjust') ||
+            lowerMessage.includes('make') ||
+            lowerMessage.includes('set') ||
+            lowerMessage.includes('location') ||
+            lowerMessage.includes('market') ||
+            lowerMessage.includes('color') ||
+            lowerMessage.includes('font') ||
+            lowerMessage.includes('typography') ||
+            lowerMessage.includes('headline') ||
+            lowerMessage.includes('tone') ||
+            lowerMessage.includes('style');
 
         if (isComplexRequest) {
             // Add temporary loading message
@@ -117,6 +130,8 @@ export function useChatStreaming(
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let aiResponse = "";
+            let streamTimeout: NodeJS.Timeout | null = null;
+            const STREAM_READ_TIMEOUT = 45000; // 45 seconds
 
             if (!reader) {
                 console.error("❌ [Chat] No reader available from response");
@@ -127,25 +142,46 @@ export function useChatStreaming(
 
             console.log("📖 [Chat] Starting to read stream...");
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    console.log("✅ [Chat] Stream complete", { responseLength: aiResponse.length });
-                    break;
-                }
+            // Set timeout for stream reading
+            streamTimeout = setTimeout(() => {
+                console.warn("⚠️ [Chat] Stream read timeout - closing reader");
+                reader.cancel();
+            }, STREAM_READ_TIMEOUT);
 
-                const chunk = decoder.decode(value, { stream: true });
-                aiResponse += chunk;
-
-                // Update AI message in real-time
-                setChatMessages((prev) => {
-                    const lastMsg = prev[prev.length - 1];
-                    if (lastMsg?.role === "ai") {
-                        // Replace last AI message (could be loading indicator or partial response)
-                        return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) {
+                        console.log("✅ [Chat] Stream complete", { 
+                            responseLength: aiResponse.length,
+                            hasManifestUpdate: aiResponse.includes('__MANIFEST_UPDATED__')
+                        });
+                        break;
                     }
-                    return [...prev, { role: "ai", content: aiResponse }];
-                });
+
+                    if (value) {
+                        const chunk = decoder.decode(value, { stream: true });
+                        aiResponse += chunk;
+
+                        // Update AI message in real-time (but limit frequency to avoid too many re-renders)
+                        setChatMessages((prev) => {
+                            const lastMsg = prev[prev.length - 1];
+                            if (lastMsg?.role === "ai") {
+                                // Replace last AI message (could be loading indicator or partial response)
+                                return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
+                            }
+                            return [...prev, { role: "ai", content: aiResponse }];
+                        });
+                    }
+                }
+            } catch (streamError) {
+                console.error("❌ [Chat] Stream reading error:", streamError);
+                // Continue processing what we have so far
+            } finally {
+                if (streamTimeout) {
+                    clearTimeout(streamTimeout);
+                }
             }
 
             // Parse updates from AI response if JSON is present
@@ -153,11 +189,15 @@ export function useChatStreaming(
                 console.log("📤 [Chat] Calling onUpdate with response", {
                     responseLength: aiResponse.length,
                     hasManifestUpdate: aiResponse.includes('__MANIFEST_UPDATED__'),
-                    hasFunctionCall: aiResponse.includes('__FUNCTION_CALL__')
+                    hasFunctionCall: aiResponse.includes('__FUNCTION_CALL__'),
+                    preview: aiResponse.substring(0, 200)
                 });
+                
+                // Always call onUpdate - it will handle parsing and validation
                 onUpdate(aiResponse);
             } else {
                 console.warn("⚠️ [Chat] Empty response from AI");
+                onToast("Received empty response. Please try again.", "info");
             }
 
             setRegenerationCount(prev => prev + 1);

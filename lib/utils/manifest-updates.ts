@@ -258,44 +258,108 @@ export interface UpdateContext {
 // --- Parsing Functions ---
 
 export function parseUpdateResponse(response: string): ParsedUpdate | null {
+    if (!response || typeof response !== 'string' || response.trim().length === 0) {
+        console.warn('⚠️ [Parse Update] Empty or invalid response');
+        return null;
+    }
+
     try {
         console.log('🔍 [Parse Update] Checking response for updates...', {
             responseLength: response.length,
             hasManifestSignal: response.includes('__MANIFEST_UPDATED__'),
-            hasFunctionCallSignal: response.includes('__FUNCTION_CALL__')
+            hasFunctionCallSignal: response.includes('__FUNCTION_CALL__'),
+            firstChars: response.substring(0, 100)
         });
         
-        // Check for MANIFEST update signal
-        const manifestMatch = response.match(/__MANIFEST_UPDATED__(.+)/);
-        if (manifestMatch) {
-            console.log('✅ [Parse Update] Found __MANIFEST_UPDATED__ signal');
-            const updatedManifest = JSON.parse(manifestMatch[1]);
-            console.log('✅ [Parse Update] Manifest parsed successfully', {
-                hasStrategy: !!updatedManifest.strategy,
-                hasIdentity: !!updatedManifest.identity,
-                hasComponents: !!updatedManifest.components,
-                updateType: updatedManifest.metadata?.generationHistory?.slice(-1)[0]?.action
-            });
-            return { type: 'manifest', data: updatedManifest };
+        // Method 1: Check for MANIFEST update signal (primary method)
+        const manifestMatch = response.match(/__MANIFEST_UPDATED__([\s\S]*?)(?=\n\n__|$)/);
+        if (manifestMatch && manifestMatch[1]) {
+            try {
+                console.log('✅ [Parse Update] Found __MANIFEST_UPDATED__ signal');
+                const manifestJson = manifestMatch[1].trim();
+                
+                // Try to parse the JSON
+                let updatedManifest;
+                try {
+                    updatedManifest = JSON.parse(manifestJson);
+                } catch (parseError) {
+                    // If parsing fails, try to extract JSON from potentially malformed string
+                    console.warn('⚠️ [Parse Update] Initial parse failed, trying to extract JSON...');
+                    const jsonExtract = manifestJson.match(/\{[\s\S]*\}/);
+                    if (jsonExtract) {
+                        updatedManifest = JSON.parse(jsonExtract[0]);
+                        console.log('✅ [Parse Update] Recovered JSON from malformed string');
+                    } else {
+                        throw parseError;
+                    }
+                }
+                
+                // Validate manifest structure
+                if (!updatedManifest || typeof updatedManifest !== 'object') {
+                    console.error('❌ [Parse Update] Parsed manifest is not an object');
+                    return null;
+                }
+                
+                console.log('✅ [Parse Update] Manifest parsed successfully', {
+                    hasStrategy: !!updatedManifest.strategy,
+                    hasIdentity: !!updatedManifest.identity,
+                    hasComponents: !!updatedManifest.components,
+                    updateType: updatedManifest.metadata?.generationHistory?.slice(-1)[0]?.action
+                });
+                
+                return { type: 'manifest', data: updatedManifest };
+            } catch (error) {
+                console.error('❌ [Parse Update] Failed to parse manifest from signal:', error);
+                // Continue to try other methods
+            }
         }
 
-        // Legacy fallback
-        const functionCallMatch = response.match(/__FUNCTION_CALL__(.+)/);
-        if (functionCallMatch) {
-            const parsed = JSON.parse(functionCallMatch[1]);
-            return { type: 'legacy', data: parsed };
+        // Method 2: Legacy function call signal
+        const functionCallMatch = response.match(/__FUNCTION_CALL__([\s\S]*?)(?=\n\n__|$)/);
+        if (functionCallMatch && functionCallMatch[1]) {
+            try {
+                const parsed = JSON.parse(functionCallMatch[1].trim());
+                console.log('✅ [Parse Update] Found legacy function call signal');
+                return { type: 'legacy', data: parsed };
+            } catch (error) {
+                console.warn('⚠️ [Parse Update] Failed to parse function call signal:', error);
+            }
         }
 
-        // Fallback: Look for legacy JSON format
-        const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
-        if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            return { type: 'legacy', data: parsed.updates };
+        // Method 3: Look for standalone JSON objects with "updates" key
+        const updatesJsonMatch = response.match(/\{[\s\S]*?"updates"[\s\S]*?\}/);
+        if (updatesJsonMatch) {
+            try {
+                const parsed = JSON.parse(updatesJsonMatch[0]);
+                if (parsed.updates) {
+                    console.log('✅ [Parse Update] Found legacy updates format');
+                    return { type: 'legacy', data: parsed.updates };
+                }
+            } catch (error) {
+                console.warn('⚠️ [Parse Update] Failed to parse legacy updates format:', error);
+            }
         }
 
+        // Method 4: Look for any complete JSON object that might be a manifest
+        // This is a last resort for malformed responses
+        const anyJsonMatch = response.match(/\{[\s\S]{100,}\}/); // At least 100 chars to avoid false positives
+        if (anyJsonMatch) {
+            try {
+                const parsed = JSON.parse(anyJsonMatch[0]);
+                // Check if it looks like a manifest (has strategy, identity, or components)
+                if (parsed.strategy || parsed.identity || parsed.components) {
+                    console.log('✅ [Parse Update] Found manifest-like JSON object');
+                    return { type: 'manifest', data: parsed };
+                }
+            } catch (error) {
+                // Ignore - this is just a fallback
+            }
+        }
+
+        console.log('⚠️ [Parse Update] No valid update format found in response');
         return null;
     } catch (error) {
-        console.error("Error parsing update response:", error);
+        console.error("❌ [Parse Update] Error parsing update response:", error);
         return null;
     }
 }

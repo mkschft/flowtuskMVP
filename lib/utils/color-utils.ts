@@ -76,7 +76,7 @@ export function getTextGradientStyle(manifest: BrandManifest | null | undefined)
   const primary = getPrimaryColor(manifest);
   const secondary = getSecondaryColor(manifest);
   return {
-    background: `linear-gradient(90deg, ${primary} 0%, ${secondary} 100%)`,
+    backgroundImage: `linear-gradient(90deg, ${primary} 0%, ${secondary} 100%)`,
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
