@@ -62,12 +62,12 @@ export function Navigation() {
             className={`flex-col items-center flex-grow gap-4 lg:gap-4 flex overflow-hidden lg:pb-0 lg:flex lg:justify-end lg:flex-row ${open ? 'h-auto' : 'h-0'} lg:h-auto`}>
             <div className="inline-flex items-center gap-3 list-none py-px lg:ml-auto">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="btn-secondary flex items-center justify-center h-9 px-5 py-2 text-sm font-medium rounded-md transition-all hover:bg-base-100">
                 Sign In
               </Link>
               <Link
-                href="/signup"
+                href="/auth/sign-up"
                 className="flex items-center justify-center focus:ring-2 focus:outline-none focus:ring-purple-500/50 h-9 px-5 py-2 text-sm font-semibold text-white rounded-md transition-all hover:shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)' }}>
                 Sign Up
