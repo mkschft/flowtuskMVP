@@ -1,3 +1,10 @@
+// Figma Plugin Main Code
+// Handles manifest import and component creation
+
+import { transformBrandGuideToFigma, transformLandingPageToFigma } from './transformers';
+import { buildFigmaNode } from './builders';
+import { fillTemplate, fillPainPointsList, fillGoalsList } from './template-filler';
+
 // Show the plugin UI
 figma.showUI(__html__, { width: 400, height: 500 });
 
@@ -10,28 +17,81 @@ figma.ui.onmessage = async (msg) => {
 
     if (msg.type === 'import-manifest') {
         try {
-            const { manifest } = msg;
+            const { manifest, selectedComponents } = msg;
 
+            // Create Figma styles (existing functionality)
             figma.ui.postMessage({ type: 'status', message: 'Creating color styles...' });
-            await createColorStyles(manifest.design_tokens.colors);
+            await createColorStyles(manifest.identity.colors);
 
             figma.ui.postMessage({ type: 'status', message: 'Creating text styles...' });
-            await createTextStyles(manifest.design_tokens.typography);
+            await createTextStyles(manifest.identity.typography);
 
-            figma.ui.postMessage({ type: 'status', message: 'Building brand page...' });
-            await createBrandLibraryPage(manifest);
+            // NEW: Create component pages if selected
+            if (selectedComponents?.brandGuide) {
+                figma.ui.postMessage({ type: 'status', message: 'Building Brand Guide...' });
+                const brandGuideFrame = transformBrandGuideToFigma(manifest);
+                const brandGuidePage = figma.createPage();
+                brandGuidePage.name = `Brand Guide - ${manifest.brandName}`;
+                const builtFrame = await buildFigmaNode(brandGuideFrame);
+                brandGuidePage.appendChild(builtFrame);
+            }
+
+            if (selectedComponents?.landingPage) {
+                figma.ui.postMessage({ type: 'status', message: 'Building Landing Page...' });
+                const landingPageFrame = transformLandingPageToFigma(manifest);
+                const landingPage = figma.createPage();
+                landingPage.name = `Landing Page - ${manifest.brandName}`;
+                const builtFrame = await buildFigmaNode(landingPageFrame);
+                landingPage.appendChild(builtFrame);
+                figma.currentPage = landingPage;
+                figma.viewport.scrollAndZoomIntoView([builtFrame]);
+            }
 
             figma.ui.postMessage({
                 type: 'success',
-                message: '✅ Brand System imported successfully!'
+                message: '✅ Brand System and Components imported successfully!'
             });
 
-            figma.notify('✅ Brand System imported successfully!');
+            figma.notify('✅ Import complete!');
 
         } catch (error: any) {
+            console.error('Import error:', error);
             figma.ui.postMessage({
                 type: 'error',
                 message: error.message || 'Failed to import brand system'
+            });
+        }
+    }
+
+    if (msg.type === 'fill-template') {
+        try {
+            const { manifest } = msg;
+
+            figma.ui.postMessage({ type: 'status', message: 'Scanning template...' });
+
+            // Fill main text fields
+            const result = await fillTemplate(manifest);
+
+            figma.ui.postMessage({ type: 'status', message: 'Filling pain points...' });
+            const painPoints = await fillPainPointsList(manifest);
+
+            figma.ui.postMessage({ type: 'status', message: 'Filling goals...' });
+            const goals = await fillGoalsList(manifest);
+
+            const total = result.filled + painPoints + goals;
+
+            figma.ui.postMessage({
+                type: 'success',
+                message: `✅ Filled ${total} fields in template!`
+            });
+
+            figma.notify(`✅ Template filled: ${total} fields updated`);
+
+        } catch (error: any) {
+            console.error('Template fill error:', error);
+            figma.ui.postMessage({
+                type: 'error',
+                message: error.message || 'Failed to fill template'
             });
         }
     }
@@ -54,121 +114,94 @@ async function createColorStyles(colors: any) {
         }];
     };
 
-    // Primary
-    if (colors.primary) createStyle('Brand/Primary', colors.primary.hex);
-    if (colors.secondary) createStyle('Brand/Secondary', colors.secondary.hex);
-    if (colors.accent) createStyle('Brand/Accent', colors.accent.hex);
+    // Primary colors (array of color tokens)
+    if (colors.primary && colors.primary.length > 0) {
+        colors.primary.forEach((color: any, idx: number) => {
+            createStyle(`Brand/Primary/${color.name || `Color ${idx + 1}`}`, color.hex);
+        });
+    }
 
-    // Neutrals
-    if (colors.neutral) {
-        Object.entries(colors.neutral).forEach(([key, hex]) => {
-            createStyle(`Neutral/${key}`, hex as string);
+    // Secondary colors
+    if (colors.secondary && colors.secondary.length > 0) {
+        colors.secondary.forEach((color: any, idx: number) => {
+            createStyle(`Brand/Secondary/${color.name || `Color ${idx + 1}`}`, color.hex);
+        });
+    }
+
+    // Accent colors
+    if (colors.accent && colors.accent.length > 0) {
+        colors.accent.forEach((color: any, idx: number) => {
+            createStyle(`Brand/Accent/${color.name || `Color ${idx + 1}`}`, color.hex);
+        });
+    }
+
+    // Neutral colors
+    if (colors.neutral && colors.neutral.length > 0) {
+        colors.neutral.forEach((color: any, idx: number) => {
+            createStyle(`Brand/Neutral/${color.name || `Color ${idx + 1}`}`, color.hex);
         });
     }
 }
 
+
 async function createTextStyles(typography: any) {
     // Helper to load font and create style
     const createStyle = async (name: string, family: string, weight: string, size: number, lineHeight?: number) => {
-        await figma.loadFontAsync({ family, style: weight });
+        try {
+            await figma.loadFontAsync({ family, style: weight });
 
-        const style = figma.createTextStyle();
-        style.name = name;
-        style.fontName = { family, style: weight };
-        style.fontSize = size;
-        if (lineHeight) {
-            style.lineHeight = { value: lineHeight * 100, unit: 'PERCENT' };
+            const style = figma.createTextStyle();
+            style.name = name;
+            style.fontName = { family, style: weight };
+            style.fontSize = size;
+            if (lineHeight) {
+                style.lineHeight = { value: lineHeight * 100, unit: 'PERCENT' };
+            }
+        } catch (e) {
+            console.error(`Could not create text style ${name}:`, e);
         }
     };
 
     // Headings
-    const hFont = typography.heading.font;
-    const hWeight = typography.heading.weight === 700 ? 'Bold' : 'Regular'; // Simplified mapping
+    const heading = typography.heading;
+    const hWeight = heading.weights && heading.weights[0] ? mapFontWeight(heading.weights[0]) : 'Bold';
 
-    // We need to try/catch font loading as it might fail if font not available
     try {
-        await figma.loadFontAsync({ family: hFont, style: hWeight });
+        await figma.loadFontAsync({ family: heading.family, style: hWeight });
 
-        const sizes = typography.heading.sizes;
-        await createStyle('Heading/H1', hFont, hWeight, sizes.h1, 1.2);
-        await createStyle('Heading/H2', hFont, hWeight, sizes.h2, 1.3);
-        await createStyle('Heading/H3', hFont, hWeight, sizes.h3, 1.4);
-        await createStyle('Heading/H4', hFont, hWeight, sizes.h4 || 24, 1.4);
+        const sizes = heading.sizes;
+        if (sizes.h1) await createStyle('Heading/H1', heading.family, hWeight, parseInt(sizes.h1), 1.2);
+        if (sizes.h2) await createStyle('Heading/H2', heading.family, hWeight, parseInt(sizes.h2), 1.3);
+        if (sizes.h3) await createStyle('Heading/H3', heading.family, hWeight, parseInt(sizes.h3), 1.4);
+        if (sizes.h4) await createStyle('Heading/H4', heading.family, hWeight, parseInt(sizes.h4 || '24'), 1.4);
     } catch (e) {
-        console.error(`Could not load font ${hFont}`, e);
-        figma.notify(`Could not load font ${hFont}. Using Inter instead.`);
+        console.error(`Could not load  font ${heading.family}`, e);
+        figma.notify(`Could not load font ${heading.family}. Using Inter instead.`);
     }
 
     // Body
-    const bFont = typography.body.font;
-    const bWeight = typography.body.weight === 400 ? 'Regular' : 'Bold';
+    const body = typography.body;
+    const bWeight = body.weights && body.weights[0] ? mapFontWeight(body.weights[0]) : 'Regular';
 
     try {
-        await figma.loadFontAsync({ family: bFont, style: bWeight });
+        await figma.loadFontAsync({ family: body.family, style: bWeight });
 
-        const sizes = typography.body.sizes;
-        await createStyle('Body/Base', bFont, bWeight, sizes.base, 1.5);
-        await createStyle('Body/Small', bFont, bWeight, sizes.small, 1.5);
+        const sizes = body.sizes;
+        if (sizes.base) await createStyle('Body/Base', body.family, bWeight, parseInt(sizes.base), 1.5);
+        if (sizes.small) await createStyle('Body/Small', body.family, bWeight, parseInt(sizes.small), 1.5);
     } catch (e) {
-        console.error(`Could not load font ${bFont}`, e);
+        console.error(`Could not load font ${body.family}`, e);
     }
 }
 
-async function createBrandLibraryPage(manifest: any) {
-    const page = figma.createPage();
-    page.name = `Brand System - ${manifest.identity.brand_name}`;
+// Helper to map font weight to Figma style
+function mapFontWeight(weight: string | number): string {
+    const weightNum = typeof weight === 'string' ? parseInt(weight) : weight;
 
-    let yOffset = 0;
-
-    // Title
-    await figma.loadFontAsync({ family: "Inter", style: "Bold" });
-    const title = figma.createText();
-    title.characters = manifest.identity.brand_name;
-    title.fontSize = 64;
-    title.y = yOffset;
-    page.appendChild(title);
-    yOffset += 100;
-
-    const tagline = figma.createText();
-    tagline.characters = manifest.identity.tagline;
-    tagline.fontSize = 24;
-    tagline.y = yOffset;
-    page.appendChild(tagline);
-    yOffset += 150;
-
-    // Colors Section
-    const colorFrame = figma.createFrame();
-    colorFrame.name = "Colors";
-    colorFrame.y = yOffset;
-    colorFrame.resize(800, 200);
-    colorFrame.fills = []; // Transparent
-
-    let xOffset = 0;
-    const addSwatch = (name: string, hex: string) => {
-        const rect = figma.createRectangle();
-        rect.resize(100, 100);
-        rect.x = xOffset;
-        rect.fills = [{ type: 'SOLID', color: hexToRgb(hex) }];
-        rect.cornerRadius = 8;
-
-        const label = figma.createText();
-        label.characters = name;
-        label.x = xOffset;
-        label.y = 110;
-        label.fontSize = 12;
-
-        colorFrame.appendChild(rect);
-        colorFrame.appendChild(label);
-        xOffset += 120;
-    };
-
-    if (manifest.design_tokens.colors.primary) addSwatch("Primary", manifest.design_tokens.colors.primary.hex);
-    if (manifest.design_tokens.colors.secondary) addSwatch("Secondary", manifest.design_tokens.colors.secondary.hex);
-    if (manifest.design_tokens.colors.accent) addSwatch("Accent", manifest.design_tokens.colors.accent.hex);
-
-    page.appendChild(colorFrame);
-
-    figma.currentPage = page;
+    if (weightNum >= 700) return 'Bold';
+    if (weightNum >= 600) return 'SemiBold';
+    if (weightNum >= 500) return 'Medium';
+    return 'Regular';
 }
 
 function hexToRgb(hex: string): { r: number, g: number, b: number } {
