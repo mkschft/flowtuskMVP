@@ -40,7 +40,7 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      
+
       // Redirect to intended page or default to /app
       const redirectTo = searchParams.get("redirectTo") || "/app";
       router.push(redirectTo);
@@ -96,7 +96,12 @@ export function LoginForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full h-11 font-semibold text-white transition-all hover:shadow-lg focus:ring-2 focus:ring-purple-500/50"
+                style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)' }}
+                disabled={isLoading}
+              >
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
             </div>
