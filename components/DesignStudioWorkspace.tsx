@@ -163,33 +163,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         return;
       }
 
-      // Fallback for compatibility: fetch the three endpoints separately
-      console.warn('⚠️ [Design Studio] Workspace API fallback path');
-      const icpResponse = await fetch(`/api/positioning-icps?id=${icpId}&flowId=${flowId}`);
-      if (!icpResponse.ok) throw new Error("Failed to load persona data");
-      const { icp } = await icpResponse.json();
-      if (!icp) throw new Error("Persona not found");
-
-      const valuePropResponse = await fetch(`/api/value-props?icpId=${icpId}&flowId=${flowId}`);
-      const { valueProp } = await valuePropResponse.json();
-
-      const designAssetsResponse = await fetch(`/api/design-assets?icpId=${icpId}&flowId=${flowId}`);
-      const { designAssets: assets } = await designAssetsResponse.json();
-
-      setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
-      setDesignAssets(assets || null);
-      // Initialize UI value prop from fallback data
-      const initialVp: UiValueProp = {
-        headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
-        subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
-        problem: valueProp?.problem || (Array.isArray(valueProp?.summary?.painPointsAddressed) ? valueProp.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp?.pain_points) ? icp.pain_points.join(', ') : '') || "",
-        solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
-        outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
-        benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
-        targetAudience: valueProp?.targetAudience || icp?.title || "",
-      };
-      setUiValueProp(initialVp);
-      setLoading(false);
+      // If workspace API fails, there's no data to load
+      throw new Error("Failed to load workspace data");
     } catch (err) {
       console.error("❌ [Design Studio] Error loading data:", err);
       setError(err instanceof Error ? err.message : "Failed to load data");
@@ -349,13 +324,26 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
     console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
 
+    // 🔍 Check if brand guide actually has data (not just the flag)
+    const hasBrandData = (manifest?.identity?.tone?.keywords?.length ?? 0) > 0 ||
+      (manifest?.identity?.logo?.variations?.length ?? 0) > 0 ||
+      (manifest?.identity?.colors?.accent?.length ?? 0) > 0;
+
+    const needsBrandGeneration = !generationState.brand || !hasBrandData;
+
+    console.log('🔍 [Design Studio] Brand data check:', {
+      flagSet: generationState.brand,
+      hasData: hasBrandData,
+      needsGeneration: needsBrandGeneration
+    });
+
     // Initialize generation steps based on current state
     const steps = [
       {
         id: 'brand',
         label: 'Brand Guide',
         icon: '🎨',
-        status: generationState.brand ? 'complete' as const : 'pending' as const
+        status: (generationState.brand && hasBrandData) ? 'complete' as const : 'pending' as const
       },
       {
         id: 'style',
@@ -373,8 +361,8 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
     setGenerationSteps(steps);
 
-    const needsGeneration = !generationState.brand || !generationState.style || !generationState.landing;
-    const allComplete = generationState.brand && generationState.style && generationState.landing;
+    const needsGeneration = needsBrandGeneration || !generationState.style || !generationState.landing;
+    const allComplete = generationState.brand && hasBrandData && generationState.style && generationState.landing;
 
     if (needsGeneration) {
       // Show welcome with progress component in chat
@@ -400,15 +388,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       });
     }
 
-    // If all assets already generated, nothing to do
-    if (generationState.brand && generationState.style && generationState.landing) {
-      console.log('✅ [Design Studio] All design assets already generated');
+    // If all assets already generated with actual data, nothing to do
+    if (generationState.brand && hasBrandData && generationState.style && generationState.landing) {
+      console.log('✅ [Design Studio] All design assets already generated with data');
       return;
     }
 
-    // Step 1: Generate Brand Guide (if not exists)
-    if (!generationState.brand) {
-      console.log('🎨 [Design Studio] Starting brand guide generation...');
+    // Step 1: Generate Brand Guide (if not exists OR if data is missing)
+    if (needsBrandGeneration) {
+      console.log('🎨 [Design Studio] Starting brand guide generation...',
+        generationState.brand ? '(re-generating due to missing data)' : '(first generation)');
       setIsGeneratingBrand(true);
 
       // Update step to loading
@@ -417,15 +406,16 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       ));
 
       try {
-        const brandRes = await fetch('/api/design-assets/generate', {
+        const brandRes = await fetch('/api/brand-manifest/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ icpId, flowId, tab: 'brand' })
+          body: JSON.stringify({ icpId, flowId, section: 'brand' })
         });
 
         if (brandRes.ok) {
-          const { designAssets: updatedAssets } = await brandRes.json();
-          setDesignAssets(updatedAssets);
+          const { manifest } = await brandRes.json();
+          // Reload workspace data to get updated manifest
+          await loadWorkspaceData();
           console.log('✅ [Design Studio] Brand guide generated');
 
           // Update step to complete
@@ -459,7 +449,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         await generateLandingPage();
       }
     }
-  }, [workspaceData, designAssets, icpId, flowId, loadManifest]);
+  }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest]);
 
   const generateStyleGuide = async () => {
     console.log('🎨 [Design Studio] Starting style guide generation...');
@@ -471,15 +461,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     ));
 
     try {
-      const styleRes = await fetch('/api/design-assets/generate', {
+      const styleRes = await fetch('/api/brand-manifest/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icpId, flowId, tab: 'style' })
+        body: JSON.stringify({ icpId, flowId, section: 'style' })
       });
 
       if (styleRes.ok) {
-        const { designAssets: updatedAssets } = await styleRes.json();
-        setDesignAssets(updatedAssets);
+        await loadWorkspaceData();
         console.log('✅ [Design Studio] Style guide generated');
 
         // Update step to complete
@@ -506,15 +495,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     ));
 
     try {
-      const landingRes = await fetch('/api/design-assets/generate', {
+      const landingRes = await fetch('/api/brand-manifest/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icpId, flowId, tab: 'landing' })
+        body: JSON.stringify({ icpId, flowId, section: 'landing' })
       });
 
       if (landingRes.ok) {
-        const { designAssets: updatedAssets } = await landingRes.json();
-        setDesignAssets(updatedAssets);
+        await loadWorkspaceData();
         console.log('✅ [Design Studio] Landing page generated');
 
         // Update step to complete and mark all done
