@@ -104,14 +104,23 @@ export function mapLegacyDataToManifest(
 
         previews: {
             landingPage: {
+                navigation: {
+                    logo: designAssets?.landing_page?.navigation?.logo || workspaceData?.persona?.persona_company || 'Brand',
+                    links: designAssets?.landing_page?.navigation?.links || ['Product', 'Features', 'Pricing', 'About']
+                },
                 hero: {
                     headline: designAssets?.landing_page?.hero?.headline || '',
                     subheadline: designAssets?.landing_page?.hero?.subheadline || '',
-                    cta: { primary: 'Get Started', secondary: 'Learn More' }
+                    cta: {
+                        primary: 'Get Started',
+                        secondary: 'Learn More'
+                    }
                 },
                 features: designAssets?.landing_page?.features || [],
-                socialProof: designAssets?.landing_page?.socialProof || [],
-                footer: designAssets?.landing_page?.footer || { sections: [] }
+                socialProof: designAssets?.landing_page?.social_proof || [],
+                footer: {
+                    sections: designAssets?.landing_page?.footer?.sections || []
+                }
             }
         },
 
