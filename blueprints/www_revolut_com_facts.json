@@ -1,0 +1,190 @@
+{
+  "brand": {
+    "name": "Revolut",
+    "tones": [
+      "informative",
+      "engaging"
+    ],
+    "primaryCTA": "Sign up"
+  },
+  "structure": {
+    "nav": [
+      "Personal",
+      "Business",
+      "Kids & Teens",
+      "Company",
+      "Log in",
+      "Sign up"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Revolut Home"
+      },
+      {
+        "path": "/business/",
+        "title": "Business"
+      },
+      {
+        "path": "/discover-our-company/",
+        "title": "Company"
+      },
+      {
+        "path": "/savings/",
+        "title": "Savings"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "United Kingdom",
+    "industryFocus": "FinTech",
+    "signals": [
+      "You’re on the United Kingdom website.",
+      "Join 65+ million customers worldwide and 12 million in the UK"
+    ]
+  },
+  "audienceSignals": [
+    "Personal finance users",
+    "Business users",
+    "Kids & Teens"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Move freely between countries and currencies",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Earn points on purchases",
+      "evidence": [
+        "fact-12",
+        "fact-13"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Grow savings with up to 4.5% AER",
+      "evidence": [
+        "fact-15",
+        "fact-16"
+      ]
+    }
+  ],
+  "pains": [
+    "Managing finances across multiple currencies",
+    "Maximizing savings interest rates"
+  ],
+  "proof": [
+    "65+ million customers worldwide",
+    "12 million customers in the UK",
+    "#3 most downloaded finance app",
+    "4.6 out of 5 on Trustpilot",
+    "Best International Payments Provider 2025",
+    "Best Consumer Banking Mobile App 2025",
+    "Customer Satisfaction — Gold",
+    "Consumer Guardian Badge 2025"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Revolut is an all-in-one finance app.",
+      "page": "Home",
+      "evidence": "Revolut | All-in-one finance app for your money"
+    },
+    {
+      "id": "fact-2",
+      "text": "Revolut has a UK-specific website.",
+      "page": "Home",
+      "evidence": "You’re on the United Kingdom website."
+    },
+    {
+      "id": "fact-3",
+      "text": "Revolut allows movement between countries and currencies.",
+      "page": "Home",
+      "evidence": "Home or away, local or global —move freely between countries and currencies."
+    },
+    {
+      "id": "fact-4",
+      "text": "Revolut offers a free sign-up.",
+      "page": "Home",
+      "evidence": "Sign up for free, in a tap."
+    },
+    {
+      "id": "fact-5",
+      "text": "Revolut has 65+ million customers worldwide.",
+      "page": "Home",
+      "evidence": "Join 65+ million customers worldwide"
+    },
+    {
+      "id": "fact-6",
+      "text": "Revolut has 12 million customers in the UK.",
+      "page": "Home",
+      "evidence": "12 million in the UK"
+    },
+    {
+      "id": "fact-7",
+      "text": "Revolut is the #3 most downloaded finance app.",
+      "page": "Home",
+      "evidence": "#3 most downloaded finance app"
+    },
+    {
+      "id": "fact-8",
+      "text": "Revolut has a Trustpilot rating of 4.6 out of 5.",
+      "page": "Home",
+      "evidence": "4.6 out of 5 on Trustpilot"
+    },
+    {
+      "id": "fact-9",
+      "text": "Revolut won Best International Payments Provider 2025.",
+      "page": "Home",
+      "evidence": "Best International Payments Provider 2025"
+    },
+    {
+      "id": "fact-10",
+      "text": "Revolut won Best Consumer Banking Mobile App 2025.",
+      "page": "Home",
+      "evidence": "Best Consumer Banking Mobile App 2025"
+    },
+    {
+      "id": "fact-11",
+      "text": "Revolut received Customer Satisfaction — Gold.",
+      "page": "Home",
+      "evidence": "Customer Satisfaction — Gold"
+    },
+    {
+      "id": "fact-12",
+      "text": "Revolut offers points on purchases redeemable for Airline Miles.",
+      "page": "Home",
+      "evidence": "Earn points on your purchases with one of our debit cards. Then redeem them for Airline Miles and more."
+    },
+    {
+      "id": "fact-13",
+      "text": "Some Revolut cards are available on paid plans only.",
+      "page": "Home",
+      "evidence": "Some cards available on paid plans only."
+    },
+    {
+      "id": "fact-14",
+      "text": "Revolut offers virtual cards for Apple or Google Wallet.",
+      "page": "Home",
+      "evidence": "Create and add virtual cards to Apple or Google Wallet to start paying right away."
+    },
+    {
+      "id": "fact-15",
+      "text": "Revolut offers up to 4.5% AER on savings.",
+      "page": "Savings",
+      "evidence": "Grow your money with up to 4.5% AER/Gross (variable) interest rate on Savings, paid every day."
+    },
+    {
+      "id": "fact-16",
+      "text": "Revolut's savings interest rate is variable.",
+      "page": "Savings",
+      "evidence": "The interest rate is variable and subject to your selected plan."
+    }
+  ]
+}

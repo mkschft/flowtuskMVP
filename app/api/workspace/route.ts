@@ -2,6 +2,103 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { fetchBrandManifest } from "@/lib/brand-manifest";
 
+// Normalization helpers to ensure Canvas components receive correct data types
+function normalizeColorArray(colors: any): { name: string; hex: string; usage?: string }[] {
+  if (!colors) return [];
+  if (Array.isArray(colors)) return colors;
+  if (typeof colors === 'string') {
+    // Handle string hex codes from old data
+    return [{ name: 'Color', hex: colors }];
+  }
+  if (typeof colors === 'object' && colors.hex) {
+    // Handle single object from old data
+    return [colors];
+  }
+  return [];
+}
+
+function normalizeStringArrayField(value: any): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') return [value];
+  return [];
+}
+
+function normalizeArrayField(value: any): any[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  return [];
+}
+
+function normalizeSpacing(spacing: any): { name: string; value: string }[] {
+  if (!spacing) return [];
+  if (Array.isArray(spacing)) return spacing;
+  // Convert object like { sm: "8px", md: "16px" } to array
+  if (typeof spacing === 'object') {
+    return Object.entries(spacing).map(([key, value]) => ({
+      name: key,
+      value: String(value)
+    }));
+  }
+  return [];
+}
+
+function normalizeBorderRadius(borderRadius: any): { name: string; value: string }[] {
+  if (!borderRadius) return [];
+  if (Array.isArray(borderRadius)) return borderRadius;
+  if (typeof borderRadius === 'string') {
+    // Create a simple scale from a single value
+    const baseValue = parseInt(borderRadius) || 8;
+    return [
+      { name: 'sm', value: `${Math.floor(baseValue * 0.5)}px` },
+      { name: 'md', value: `${baseValue}px` },
+      { name: 'lg', value: `${Math.floor(baseValue * 1.5)}px` },
+      { name: 'xl', value: `${baseValue * 2}px` }
+    ];
+  }
+  return [];
+}
+
+function normalizeButtons(buttons: any): { variant: string; description: string }[] {
+  if (!buttons) return [];
+  if (Array.isArray(buttons)) return buttons;
+  
+  // Convert object like { primary: {...}, secondary: {...} } to array
+  const result = [];
+  if (buttons.primary) {
+    result.push({
+      variant: 'Primary',
+      description: buttons.primary.description || 'Main call-to-action button'
+    });
+  }
+  if (buttons.secondary) {
+    result.push({
+      variant: 'Secondary',
+      description: buttons.secondary.description || 'Secondary action button'
+    });
+  }
+  if (buttons.outline) {
+    result.push({
+      variant: 'Outline',
+      description: buttons.outline.description || 'Subtle action button'
+    });
+  }
+  return result;
+}
+
+function normalizePersonalityTraits(traits: any): { id: string; label: string; value: number; leftLabel: string; rightLabel: string }[] {
+  if (!traits) return [];
+  if (!Array.isArray(traits)) return [];
+  
+  return traits.map((trait, idx) => ({
+    id: `trait-${idx}`,
+    label: trait.trait || trait.label || 'Personality',
+    value: trait.value || 50,
+    leftLabel: trait.leftLabel || '',
+    rightLabel: trait.rightLabel || ''
+  }));
+}
+
 // GET /api/workspace?icpId=...&flowId=...
 // Returns a consolidated workspace payload from brand_manifests
 // Legacy format for backward compatibility
@@ -28,6 +125,16 @@ export async function GET(req: NextRequest) {
 
     if (manifest) {
       console.log('✅ [Workspace API] Using brand manifest as source');
+      
+      // 🔍 DEBUG: Log what data exists in manifest
+      console.log('🔍 [DEBUG] Manifest Data Check:');
+      console.log('  - identity.colors.primary:', Array.isArray(manifest.identity?.colors?.primary) ? manifest.identity.colors.primary.length + ' items' : 'not an array');
+      console.log('  - identity.colors.accent:', Array.isArray(manifest.identity?.colors?.accent) ? manifest.identity.colors.accent.length + ' items' : 'not an array');
+      console.log('  - identity.tone.keywords:', Array.isArray(manifest.identity?.tone?.keywords) ? manifest.identity.tone.keywords.length + ' items' : 'not an array');
+      console.log('  - identity.tone.personality:', Array.isArray(manifest.identity?.tone?.personality) ? manifest.identity.tone.personality.length + ' items' : 'not an array');
+      console.log('  - identity.logo.variations:', Array.isArray(manifest.identity?.logo?.variations) ? manifest.identity.logo.variations.length + ' items' : 'not an array');
+      console.log('  - components.spacing.scale:', manifest.components?.spacing?.scale ? 'exists' : 'missing');
+      console.log('  - components.cards.borderRadius:', manifest.components?.cards?.borderRadius || 'missing');
       
       // Map manifest to legacy format for backward compatibility
       const icp = {
@@ -74,7 +181,12 @@ export async function GET(req: NextRequest) {
         icp_id: icpId,
         parent_flow: flowId,
         brand_guide: {
-          colors: manifest.identity?.colors || { primary: [], secondary: [], accent: [], neutral: [] },
+          colors: {
+            primary: normalizeColorArray(manifest.identity?.colors?.primary),
+            secondary: normalizeColorArray(manifest.identity?.colors?.secondary),
+            accent: normalizeColorArray(manifest.identity?.colors?.accent),
+            neutral: normalizeColorArray(manifest.identity?.colors?.neutral)
+          },
           typography: [
             {
               category: 'heading',
@@ -89,18 +201,15 @@ export async function GET(req: NextRequest) {
               sizes: manifest.identity?.typography?.body?.sizes || {}
             }
           ],
-          toneOfVoice: manifest.identity?.tone?.keywords || [],
-          personalityTraits: manifest.identity?.tone?.personality || [],
-          logoVariations: manifest.identity?.logo?.variations || []
+          toneOfVoice: normalizeStringArrayField(manifest.identity?.tone?.keywords),
+          personalityTraits: normalizePersonalityTraits(manifest.identity?.tone?.personality),
+          logoVariations: normalizeArrayField(manifest.identity?.logo?.variations)
         },
         style_guide: {
-          buttons: [
-            { type: 'primary', ...manifest.components?.buttons?.primary },
-            { type: 'secondary', ...manifest.components?.buttons?.secondary },
-            { type: 'outline', ...manifest.components?.buttons?.outline }
-          ],
+          buttons: normalizeButtons(manifest.components?.buttons),
           cards: [manifest.components?.cards],
-          borderRadius: manifest.components?.cards?.borderRadius || '12px'
+          spacing: normalizeSpacing(manifest.components?.spacing?.scale),
+          borderRadius: normalizeBorderRadius(manifest.components?.cards?.borderRadius)
         },
         landing_page: {
           navigation: {

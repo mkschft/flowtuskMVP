@@ -102,6 +102,12 @@ export async function updateBrandManifest(
     const current = await fetchBrandManifest(flowId, '');
     if (!current) throw new Error('Manifest not found');
 
+    // Handle null/undefined updates
+    if (!updates || typeof updates !== 'object') {
+        console.warn('⚠️ [Brand Manifest] Updates is null/undefined, returning current manifest');
+        return current;
+    }
+
     // Deep merge updates
     const updated = deepMerge(current, updates);
 
@@ -115,7 +121,7 @@ export async function updateBrandManifest(
             {
                 timestamp: new Date().toISOString(),
                 action,
-                changedFields: Object.keys(updates)
+                changedFields: Object.keys(updates || {})
             }
         ]
     };

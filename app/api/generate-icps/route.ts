@@ -4,6 +4,7 @@ import { executeWithRetryAndTimeout, truncateInput } from "@/lib/api-handler";
 import { validateICPResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildICPPrompt, type FactsJSON } from "@/lib/prompt-templates";
+import { randomUUID } from "crypto";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,9 +75,15 @@ export async function POST(req: NextRequest) {
             const completion = result.data;
             const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
+            // Generate proper UUIDs for each ICP (replace any temp IDs)
+            const icpsWithUUIDs = (parsedResult.icps || []).map((icp: any) => ({
+              ...icp,
+              id: randomUUID() // Generate database UUID
+            }));
+
             // Validate
             const validation = validateICPResponse({
-              icps: parsedResult.icps || [],
+              icps: icpsWithUUIDs,
               summary: parsedResult.summary,
             });
 
@@ -88,7 +95,7 @@ export async function POST(req: NextRequest) {
             }
 
             send('done', {
-              icps: parsedResult.icps || [],
+              icps: icpsWithUUIDs,
               brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
               summary: parsedResult.summary || {
                 businessDescription: "",
@@ -173,9 +180,15 @@ export async function POST(req: NextRequest) {
       const completion = result.data;
       const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
+      // Generate proper UUIDs for each ICP (replace any temp IDs)
+      const icpsWithUUIDs = (parsedResult.icps || []).map((icp: any) => ({
+        ...icp,
+        id: randomUUID() // Generate database UUID
+      }));
+
       // Validate response structure
       const validation = validateICPResponse({
-        icps: parsedResult.icps || [],
+        icps: icpsWithUUIDs,
         summary: parsedResult.summary,
       });
 
@@ -200,17 +213,18 @@ export async function POST(req: NextRequest) {
         }, { status: errorResponse.status });
       }
 
-      console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles with evidence tracking');
+      console.log('✅ [Generate ICPs] Generated', icpsWithUUIDs.length, 'profiles with database UUIDs');
+      console.log('🔑 [Generate ICPs] Sample ICP ID:', icpsWithUUIDs[0]?.id);
 
       // Log evidence tracking
-      parsedResult.icps?.forEach((icp: any) => {
+      icpsWithUUIDs.forEach((icp: any) => {
         if (icp.evidence && icp.evidence.length > 0) {
           console.log(`📎 [ICP: ${icp.title}] Evidence: ${icp.evidence.join(', ')}`);
         }
       });
 
       return NextResponse.json({
-        icps: parsedResult.icps || [],
+        icps: icpsWithUUIDs,
         brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
         summary: parsedResult.summary || {
           businessDescription: "",
@@ -304,8 +318,14 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
     const completion = result.data;
     const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
+    // Generate proper UUIDs for each ICP (fallback flow)
+    const icpsWithUUIDs = (parsedResult.icps || []).map((icp: any) => ({
+      ...icp,
+      id: randomUUID() // Generate database UUID
+    }));
+
     const validation = validateICPResponse({
-      icps: parsedResult.icps || [],
+      icps: icpsWithUUIDs,
       summary: parsedResult.summary,
     });
 
@@ -330,10 +350,11 @@ IMPORTANT: Keep painPoints very SHORT (1-3 words max) like "Time constraints", "
       }, { status: errorResponse.status });
     }
 
-    console.log('✅ [Generate ICPs] Generated', parsedResult.icps?.length || 0, 'profiles');
+    console.log('✅ [Generate ICPs] Generated', icpsWithUUIDs.length, 'ICPs with database UUIDs (fallback mode)');
+    console.log('🔑 [Generate ICPs] Sample ICP ID:', icpsWithUUIDs[0]?.id);
 
     return NextResponse.json({
-      icps: parsedResult.icps || [],
+      icps: icpsWithUUIDs,
       brandColors: parsedResult.brandColors || { primary: "#FF6B9D", secondary: "#A78BFA" },
       summary: parsedResult.summary || {
         businessDescription: "",

@@ -1,0 +1,196 @@
+{
+  "brand": {
+    "name": "Tech Solutions Inc.",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "Contact Us"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "About Us",
+      "Services",
+      "Contact",
+      "Blog"
+    ],
+    "keyPages": [
+      {
+        "path": "/home",
+        "title": "Home"
+      },
+      {
+        "path": "/about-us",
+        "title": "About Us"
+      },
+      {
+        "path": "/services",
+        "title": "Services"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact"
+      },
+      {
+        "path": "/blog",
+        "title": "Blog"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Terms of Service",
+      "Careers",
+      "Sitemap"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Technology",
+    "signals": [
+      "Global presence",
+      "International clients"
+    ]
+  },
+  "audienceSignals": [
+    "Businesses seeking tech solutions",
+    "IT departments",
+    "CIOs and CTOs"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Innovative technology solutions",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Global reach with local expertise",
+      "evidence": [
+        "fact-5",
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for scalable tech solutions",
+    "Complex IT challenges"
+  ],
+  "proof": [
+    "ISO 9001 certified",
+    "Trusted by Fortune 500 companies"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "The company is named Tech Solutions Inc.",
+      "page": "Home",
+      "evidence": "Welcome to Tech Solutions Inc."
+    },
+    {
+      "id": "fact-2",
+      "text": "The primary call to action is 'Contact Us'.",
+      "page": "Home",
+      "evidence": "Get in touch with us today."
+    },
+    {
+      "id": "fact-3",
+      "text": "The tone of the website is professional.",
+      "page": "About Us",
+      "evidence": "Our professional team is here to help."
+    },
+    {
+      "id": "fact-4",
+      "text": "The website has a navigation menu with five items.",
+      "page": "Home",
+      "evidence": "Home, About Us, Services, Contact, Blog"
+    },
+    {
+      "id": "fact-5",
+      "text": "The company has a global presence.",
+      "page": "About Us",
+      "evidence": "We serve clients worldwide."
+    },
+    {
+      "id": "fact-6",
+      "text": "The footer includes a Privacy Policy link.",
+      "page": "Home",
+      "evidence": "Privacy Policy"
+    },
+    {
+      "id": "fact-7",
+      "text": "The company offers innovative technology solutions.",
+      "page": "Services",
+      "evidence": "Our innovative solutions are designed to meet your needs."
+    },
+    {
+      "id": "fact-8",
+      "text": "The company is ISO 9001 certified.",
+      "page": "About Us",
+      "evidence": "We are ISO 9001 certified."
+    },
+    {
+      "id": "fact-9",
+      "text": "The company is trusted by Fortune 500 companies.",
+      "page": "About Us",
+      "evidence": "Trusted by Fortune 500 companies."
+    },
+    {
+      "id": "fact-10",
+      "text": "The website includes a Careers page link in the footer.",
+      "page": "Home",
+      "evidence": "Careers"
+    },
+    {
+      "id": "fact-11",
+      "text": "The website targets businesses seeking tech solutions.",
+      "page": "Services",
+      "evidence": "Solutions for businesses of all sizes."
+    },
+    {
+      "id": "fact-12",
+      "text": "The website includes a Sitemap link in the footer.",
+      "page": "Home",
+      "evidence": "Sitemap"
+    },
+    {
+      "id": "fact-13",
+      "text": "The website includes a Terms of Service link in the footer.",
+      "page": "Home",
+      "evidence": "Terms of Service"
+    },
+    {
+      "id": "fact-14",
+      "text": "The website's primary region is global.",
+      "page": "About Us",
+      "evidence": "We operate on a global scale."
+    },
+    {
+      "id": "fact-15",
+      "text": "The website serves IT departments.",
+      "page": "Services",
+      "evidence": "Solutions tailored for IT departments."
+    },
+    {
+      "id": "fact-16",
+      "text": "The website serves CIOs and CTOs.",
+      "page": "Services",
+      "evidence": "Our solutions are designed for CIOs and CTOs."
+    },
+    {
+      "id": "fact-17",
+      "text": "The website addresses the need for scalable tech solutions.",
+      "page": "Services",
+      "evidence": "Scalable solutions for growing businesses."
+    },
+    {
+      "id": "fact-18",
+      "text": "The website addresses complex IT challenges.",
+      "page": "Services",
+      "evidence": "Solving complex IT challenges with ease."
+    }
+  ]
+}

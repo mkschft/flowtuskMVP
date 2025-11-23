@@ -117,41 +117,33 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
 
   resetRegenerationCount: () => set({ regenerationCount: 0 }),
 
-  // Load data
+  // Load data from brand_manifests via /api/workspace
   loadWorkspaceData: async (icpId: string, flowId: string) => {
     set({ loading: true, error: null, icpId, flowId });
 
     try {
-      // Fetch ICP data
-      const icpResponse = await fetch(`/api/positioning-icps?id=${icpId}&flowId=${flowId}`);
-      if (!icpResponse.ok) {
-        throw new Error("Failed to load persona data");
+      // Unified workspace fetch from brand_manifests
+      const wsResponse = await fetch(`/api/workspace?icpId=${icpId}&flowId=${flowId}`);
+      if (!wsResponse.ok) {
+        throw new Error("Failed to load workspace data");
       }
-      const { icp } = await icpResponse.json();
+      const { icp, valueProp, designAssets } = await wsResponse.json();
 
       if (!icp) {
         throw new Error("Persona not found");
       }
 
-      // Fetch value prop
-      const valuePropResponse = await fetch(`/api/value-props?icpId=${icpId}&flowId=${flowId}`);
-      const { valueProp } = await valuePropResponse.json();
-
-      // Fetch design assets
-      const designAssetsResponse = await fetch(`/api/design-assets?icpId=${icpId}&flowId=${flowId}`);
-      const { designAssets: assets } = await designAssetsResponse.json();
-
       set({
         workspaceData: {
           persona: icp,
           valueProp: valueProp || null,
-          designAssets: assets || null,
+          designAssets: designAssets || null,
         },
-        designAssets: assets || null,
+        designAssets: designAssets || null,
         loading: false,
       });
 
-      console.log('✅ [CopilotStore] Loaded workspace data');
+      console.log('✅ [CopilotStore] Loaded workspace data from brand_manifests');
     } catch (err) {
       console.error("❌ [CopilotStore] Error loading data:", err);
       set({

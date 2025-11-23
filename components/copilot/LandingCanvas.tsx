@@ -39,6 +39,14 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function LandingCanvas({ project }: LandingCanvasProps) {
   const { landingPage } = project;
+  
+  // Safe access helpers
+  const navigation = landingPage?.navigation || { logo: "", links: [] };
+  const hero = landingPage?.hero || { headline: "", subheadline: "", cta: { primary: "", secondary: "" } };
+  const features = landingPage?.features || [];
+  const socialProof = landingPage?.socialProof || [];
+  const pricing = landingPage?.pricing || [];
+  const footer = landingPage?.footer || { sections: [] };
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -64,9 +72,9 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
           {/* Navigation */}
           <nav className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-              <div className="font-bold text-xl">{landingPage.navigation.logo}</div>
+              <div className="font-bold text-xl">{navigation.logo}</div>
               <div className="hidden md:flex items-center gap-6 text-sm">
-                {landingPage.navigation.links.map((link, idx) => (
+                {navigation.links.map((link, idx) => (
                   <a key={idx} href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                     {link}
                   </a>
@@ -88,18 +96,18 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
               ✨ New: AI-powered features
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              {landingPage.hero.headline}
+              {hero.headline}
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              {landingPage.hero.subheadline}
+              {hero.subheadline}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="gap-2">
-                {landingPage.hero.cta.primary}
+                {hero.cta.primary}
                 <ArrowRight className="w-4 h-4" />
               </Button>
               <Button size="lg" variant="outline">
-                {landingPage.hero.cta.secondary}
+                {hero.cta.secondary}
               </Button>
             </div>
 
@@ -139,7 +147,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {landingPage.features.map((feature, idx) => (
+              {features.map((feature, idx) => (
                 <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
                   <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4 text-purple-600">
                     {iconMap[feature.icon] || <Sparkles className="w-6 h-6" />}
@@ -162,7 +170,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                {landingPage.socialProof
+                {socialProof
                   .filter((item) => item.type === "testimonial")
                   .map((testimonial, idx) => (
                     <Card key={idx} className="p-6">
@@ -178,7 +186,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
 
               {/* Stats */}
               <div className="mt-12 text-center">
-                {landingPage.socialProof
+                {socialProof
                   .filter((item) => item.type === "stat")
                   .map((stat, idx) => (
                     <p key={idx} className="text-lg font-semibold text-purple-600">
@@ -190,7 +198,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
           </section>
 
           {/* Pricing (if available) */}
-          {landingPage.pricing && landingPage.pricing.length > 0 && (
+          {pricing && pricing.length > 0 && (
             <section className="container mx-auto px-6 py-20">
               <div className="text-center mb-12">
                 <Badge className="mb-4">Pricing</Badge>
@@ -203,7 +211,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {landingPage.pricing.map((tier, idx) => (
+                {pricing.map((tier, idx) => (
                   <Card
                     key={idx}
                     className={`p-6 ${
@@ -247,10 +255,10 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary">
-                  {landingPage.hero.cta.primary}
+                  {hero.cta.primary}
                 </Button>
                 <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10">
-                  {landingPage.hero.cta.secondary}
+                  {hero.cta.secondary}
                 </Button>
               </div>
             </div>
@@ -260,7 +268,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
           <footer className="border-t bg-muted/30 py-12">
             <div className="container mx-auto px-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                {landingPage.footer.sections.map((section, idx) => (
+                {footer.sections.map((section, idx) => (
                   <div key={idx}>
                     <h4 className="font-bold mb-3">{section.title}</h4>
                     <ul className="space-y-2">

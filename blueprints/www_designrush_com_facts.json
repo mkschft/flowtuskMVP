@@ -1,0 +1,150 @@
+{
+  "brand": {
+    "name": "DesignRush",
+    "tones": [
+      "Trusted",
+      "Professional"
+    ],
+    "primaryCTA": "GET STARTED It's free"
+  },
+  "structure": {
+    "nav": [
+      "AGENCY DIRECTORY",
+      "Marketplace",
+      "Awards",
+      "Trending Brands"
+    ],
+    "keyPages": [
+      {
+        "path": "/agency/digital-agencies",
+        "title": "Digital Agencies"
+      },
+      {
+        "path": "/agency/logo-branding",
+        "title": "Branding Agencies"
+      },
+      {
+        "path": "/agency/website-design-development",
+        "title": "Web Design Companies"
+      },
+      {
+        "path": "/agency/digital-marketing",
+        "title": "Digital Marketing Agencies"
+      },
+      {
+        "path": "/agency/software-development",
+        "title": "Software Development Companies"
+      },
+      {
+        "path": "/marketplace",
+        "title": "Marketplace"
+      },
+      {
+        "path": "/best-designs",
+        "title": "Awards"
+      }
+    ],
+    "footer": [
+      "List Your Agency",
+      "Find An Agency",
+      "Login"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "B2B Services",
+    "signals": [
+      "B2B Marketplace",
+      "Verified Agencies"
+    ]
+  },
+  "audienceSignals": [
+    "Businesses looking for agency services",
+    "Companies seeking award-winning designs"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "DesignRush ranks verified agencies",
+      "evidence": [
+        "fact-1"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "DesignRush provides a free service to find the right agency partner",
+      "evidence": [
+        "fact-5"
+      ]
+    }
+  ],
+  "pains": [
+    "Difficulty in finding trusted agency partners"
+  ],
+  "proof": [
+    "Award Winners by Category",
+    "Monthly evaluation of designs"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "DesignRush ranks verified agencies.",
+      "page": "Homepage",
+      "evidence": "Trusted B2B Marketplace Ranking Verified Agencies"
+    },
+    {
+      "id": "fact-2",
+      "text": "DesignRush offers a directory of agencies in various categories.",
+      "page": "Homepage",
+      "evidence": "AGENCY DIRECTORY"
+    },
+    {
+      "id": "fact-3",
+      "text": "DesignRush evaluates and recognizes award-winning designs monthly.",
+      "page": "Awards",
+      "evidence": "Each month we evaluate and recognize award-winning designs in these industries."
+    },
+    {
+      "id": "fact-4",
+      "text": "DesignRush provides a list of award winners by category.",
+      "page": "Awards",
+      "evidence": "Award Winners by Category"
+    },
+    {
+      "id": "fact-5",
+      "text": "DesignRush offers a free service to find the right service provider for projects.",
+      "page": "Homepage",
+      "evidence": "Share your requirements & we’ll find the right service provider for your project"
+    },
+    {
+      "id": "fact-6",
+      "text": "DesignRush has a section for trending brands.",
+      "page": "Homepage",
+      "evidence": "Trending Brands"
+    },
+    {
+      "id": "fact-7",
+      "text": "DesignRush includes a marketplace for agency services.",
+      "page": "Marketplace",
+      "evidence": "Marketplace"
+    },
+    {
+      "id": "fact-8",
+      "text": "DesignRush provides inspiration by showcasing the best designs by category.",
+      "page": "Homepage",
+      "evidence": "Browse the best designs by category:"
+    },
+    {
+      "id": "fact-9",
+      "text": "DesignRush lists agencies in categories like Software Development, Web Design, and Marketing.",
+      "page": "Homepage",
+      "evidence": "Browse Our Service Categories"
+    },
+    {
+      "id": "fact-10",
+      "text": "DesignRush allows agencies to list themselves on the platform.",
+      "page": "Footer",
+      "evidence": "List Your Agency"
+    }
+  ]
+}

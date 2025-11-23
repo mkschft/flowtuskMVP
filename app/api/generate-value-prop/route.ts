@@ -91,70 +91,44 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // Save to positioning_value_props table
+      // Save to brand_manifests
       if (icp.id && icp.parent_flow) {
         try {
-          const supabase = await createClient();
-          
-          // Extract flat fields with comprehensive fallbacks
-          // If LLM returns flat fields, use them; otherwise extract from nested structure or variations
-          const headline = parsedResult.headline || 
-                          parsedResult.summary?.mainInsight || 
-                          parsedResult.variations?.[0]?.text || 
-                          '';
-          const subheadline = parsedResult.subheadline || 
-                             parsedResult.summary?.approachStrategy || 
-                             '';
-          const problem = parsedResult.problem || 
-                         (Array.isArray(parsedResult.summary?.painPointsAddressed) ? 
-                           parsedResult.summary.painPointsAddressed.join(', ') : '') || 
-                         (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
-          const solution = parsedResult.solution || 
-                          parsedResult.summary?.approachStrategy || 
-                          parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || 
-                          '';
-          const outcome = parsedResult.outcome || 
-                         parsedResult.summary?.expectedImpact || 
-                         '';
+          const headline = parsedResult.headline || parsedResult.summary?.mainInsight || parsedResult.variations?.[0]?.text || '';
+          const subheadline = parsedResult.subheadline || parsedResult.summary?.approachStrategy || '';
+          const problem = parsedResult.problem || (Array.isArray(parsedResult.summary?.painPointsAddressed) ? parsedResult.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
+          const solution = parsedResult.solution || parsedResult.summary?.approachStrategy || parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || '';
+          const outcome = parsedResult.outcome || parsedResult.summary?.expectedImpact || '';
           const targetAudience = parsedResult.targetAudience || icp.title || '';
-          const benefits = parsedResult.benefits || 
-                          (Array.isArray(parsedResult.variations) ? 
-                            parsedResult.variations.map((v: any) => v.text) : []);
-          
-          const { error: saveError } = await supabase
-            .from('positioning_value_props')
-            .upsert({
-              icp_id: icp.id,
-              parent_flow: icp.parent_flow,
-              // Save flat fields for direct UI consumption
-              headline,
-              subheadline,
-              problem,
-              solution,
-              outcome,
-              target_audience: targetAudience,
-              benefits,
-              // Keep nested structure for compatibility
-              summary: parsedResult.summary || {},
-              variables: parsedResult.variables || [],
-              variations: parsedResult.variations || [],
-              generation_metadata: {
-                model: 'gpt-4o-mini',
-                prompt_version: 'v1-facts-json',
-                timestamp: new Date().toISOString(),
-                regeneration_count: 0,
-              },
-            }, {
-              onConflict: 'icp_id',
-            });
+          const benefits = parsedResult.benefits || (Array.isArray(parsedResult.variations) ? parsedResult.variations.map((v: any) => v.text) : []);
 
-          if (saveError) {
-            console.error('⚠️ [Generate Value Prop] Failed to save to DB:', saveError);
+          // Update manifest with value prop
+          const manifestRes = await fetch('/api/brand-manifest', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              flowId: icp.parent_flow,
+              updates: {
+                'strategy.valueProp': {
+                  headline,
+                  subheadline,
+                  problem,
+                  solution,
+                  outcome,
+                  benefits,
+                  targetAudience
+                }
+              }
+            })
+          });
+
+          if (!manifestRes.ok) {
+            console.error('⚠️ [Generate Value Prop] Failed to update manifest:', await manifestRes.text());
           } else {
-            console.log('💾 [Generate Value Prop] Saved to positioning_value_props table');
+            console.log('💾 [Generate Value Prop] Updated brand_manifests');
           }
         } catch (dbError) {
-          console.error('⚠️ [Generate Value Prop] DB save error:', dbError);
+          console.error('⚠️ [Generate Value Prop] Manifest update error:', dbError);
         }
       }
 
@@ -351,69 +325,36 @@ Important:
 
     console.log('✅ [Generate Value Prop] Generated successfully');
 
-    // Save to positioning_value_props table (legacy flow)
+    // Save to brand_manifests (legacy flow fallback)
     if (icp.id && icp.parent_flow) {
       try {
-        const supabase = await createClient();
-        
-        // Extract flat fields with comprehensive fallbacks
-        const headline = parsedResult.headline || 
-                        parsedResult.summary?.mainInsight || 
-                        parsedResult.variations?.[0]?.text || 
-                        '';
-        const subheadline = parsedResult.subheadline || 
-                           parsedResult.summary?.approachStrategy || 
-                           '';
-        const problem = parsedResult.problem || 
-                       (Array.isArray(parsedResult.summary?.painPointsAddressed) ? 
-                         parsedResult.summary.painPointsAddressed.join(', ') : '') || 
-                       (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
-        const solution = parsedResult.solution || 
-                        parsedResult.summary?.approachStrategy || 
-                        parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || 
-                        '';
-        const outcome = parsedResult.outcome || 
-                       parsedResult.summary?.expectedImpact || 
-                       '';
+        const headline = parsedResult.headline || parsedResult.summary?.mainInsight || parsedResult.variations?.[0]?.text || '';
+        const subheadline = parsedResult.subheadline || parsedResult.summary?.approachStrategy || '';
+        const problem = parsedResult.problem || (Array.isArray(parsedResult.summary?.painPointsAddressed) ? parsedResult.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp.painPoints) ? icp.painPoints[0] : '');
+        const solution = parsedResult.solution || parsedResult.summary?.approachStrategy || parsedResult.variations?.find((v: any) => v.style?.includes('Benefit'))?.text || '';
+        const outcome = parsedResult.outcome || parsedResult.summary?.expectedImpact || '';
         const targetAudience = parsedResult.targetAudience || icp.title || '';
-        const benefits = parsedResult.benefits || 
-                        (Array.isArray(parsedResult.variations) ? 
-                          parsedResult.variations.map((v: any) => v.text) : []);
-        
-        const { error: saveError } = await supabase
-          .from('positioning_value_props')
-          .upsert({
-            icp_id: icp.id,
-            parent_flow: icp.parent_flow,
-            // Save flat fields for direct UI consumption
-            headline,
-            subheadline,
-            problem,
-            solution,
-            outcome,
-            target_audience: targetAudience,
-            benefits,
-            // Keep nested structure for compatibility
-            summary: parsedResult.summary || {},
-            variables: parsedResult.variables || [],
-            variations: parsedResult.variations || [],
-            generation_metadata: {
-              model: 'gpt-4o',
-              prompt_version: 'v1-legacy',
-              timestamp: new Date().toISOString(),
-              regeneration_count: 0,
-            },
-          }, {
-            onConflict: 'icp_id',
-          });
+        const benefits = parsedResult.benefits || (Array.isArray(parsedResult.variations) ? parsedResult.variations.map((v: any) => v.text) : []);
 
-        if (saveError) {
-          console.error('⚠️ [Generate Value Prop] Failed to save to DB:', saveError);
+        // Update manifest
+        const manifestRes = await fetch('/api/brand-manifest', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            flowId: icp.parent_flow,
+            updates: {
+              'strategy.valueProp': { headline, subheadline, problem, solution, outcome, benefits, targetAudience }
+            }
+          })
+        });
+
+        if (!manifestRes.ok) {
+          console.error('⚠️ [Generate Value Prop] Failed to update manifest:', await manifestRes.text());
         } else {
-          console.log('💾 [Generate Value Prop] Saved to positioning_value_props table');
+          console.log('💾 [Generate Value Prop] Updated brand_manifests');
         }
       } catch (dbError) {
-        console.error('⚠️ [Generate Value Prop] DB save error:', dbError);
+        console.error('⚠️ [Generate Value Prop] Manifest update error:', dbError);
       }
     }
 

@@ -19,8 +19,13 @@ type StyleGuideCanvasProps = {
 export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
   const { styleGuide, valueProp } = project;
   
+  // Safe access helpers with Array guards
+  const buttons = Array.isArray(styleGuide?.buttons) ? styleGuide.buttons : [];
+  const spacing = Array.isArray(styleGuide?.spacing) ? styleGuide.spacing : [];
+  const borderRadius = Array.isArray(styleGuide?.borderRadius) ? styleGuide.borderRadius : [];
+  
   // Use persona-specific CTAs, or fallback to generic ones
-  const ctaLabels = valueProp.ctaSuggestions || ["Get Started", "Learn More", "Contact Us", "Book Demo", "Try Free"];
+  const ctaLabels = valueProp?.ctaSuggestions || ["Get Started", "Learn More", "Contact Us", "Book Demo", "Try Free"];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -32,7 +37,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {styleGuide.buttons.map((btn, idx) => {
+          {buttons.length > 0 ? buttons.map((btn, idx) => {
             // Cycle through CTA labels for variety
             const ctaLabel = ctaLabels[idx % ctaLabels.length];
             
@@ -66,7 +71,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
                 </div>
               </div>
             );
-          })}
+          }) : <p className="text-sm text-muted-foreground italic col-span-3">No button styles defined</p>}
         </div>
       </Card>
 
@@ -122,7 +127,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
         </div>
 
         <div className="space-y-3">
-          {styleGuide.spacing.map((space, idx) => (
+          {spacing.length > 0 ? spacing.map((space, idx) => (
             <div key={idx} className="flex items-center gap-4">
               <div className="w-16 text-right">
                 <span className="font-mono text-xs font-semibold">{space.name}</span>
@@ -140,7 +145,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
                 </span>
               </div>
             </div>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic">No spacing scale defined</p>}
         </div>
       </Card>
 
@@ -152,7 +157,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {styleGuide.borderRadius.map((radius, idx) => (
+          {borderRadius.length > 0 ? borderRadius.map((radius, idx) => (
             <div key={idx} className="text-center space-y-2">
               <div
                 className="w-full aspect-square bg-gradient-to-br from-purple-500 to-pink-500 mx-auto"
@@ -161,7 +166,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
               <p className="font-mono text-xs font-semibold">{radius.name}</p>
               <p className="font-mono text-xs text-muted-foreground">{radius.value}</p>
             </div>
-          ))}
+          )) : <p className="text-sm text-muted-foreground italic col-span-5">No border radius defined</p>}
         </div>
       </Card>
     </div>

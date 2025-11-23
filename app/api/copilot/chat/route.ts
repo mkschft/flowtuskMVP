@@ -229,7 +229,6 @@ UPDATE WORKFLOWS
    - Triggers: Headline tweaks, tone adjustments, "generate value proposition".
    - ACTION: Update strategy.valueProp, identity.tone, previews.landingPage.
    - VALUE PROP STRUCTURE (REQUIRED):
-     ```json
      {
        "strategy": {
          "valueProp": {
@@ -243,7 +242,6 @@ UPDATE WORKFLOWS
          }
        }
      }
-     ```
    - CRITICAL: ALL fields (headline, subheadline, problem, solution, outcome, benefits, targetAudience) are REQUIRED.
    - Use persona.company, persona.role, and persona.painPoints to inform your value prop.
 

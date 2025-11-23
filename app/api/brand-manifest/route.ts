@@ -175,3 +175,72 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export async function PATCH(req: NextRequest) {
+    try {
+        const { flowId, updates } = await req.json();
+
+        if (!flowId || !updates) {
+            return NextResponse.json({ error: 'Missing flowId or updates' }, { status: 400 });
+        }
+
+        console.log('🔄 [Manifest PATCH] Updating manifest for flow:', flowId);
+        console.log('📝 [Manifest PATCH] Updates:', Object.keys(updates));
+
+        // Check if manifest exists
+        const existing = await fetchBrandManifest(flowId, '');
+
+        if (!existing) {
+            // Create a new manifest with the updates
+            console.log('📦 [Manifest PATCH] No existing manifest, creating new one');
+            const icpId = updates['strategy.persona']?.id || '';
+            const result = await createBrandManifest(flowId, icpId, updates as any);
+            return NextResponse.json({
+                success: true,
+                brandKey: result.brandKey,
+                manifest: result
+            });
+        }
+
+        // Apply dot-notation updates to existing manifest
+        const updatedManifest = applyDotNotationUpdates(existing, updates);
+        const result = await updateBrandManifest(flowId, updatedManifest, 'incremental_update');
+
+        console.log('✅ [Manifest PATCH] Updated successfully');
+
+        return NextResponse.json({
+            success: true,
+            brandKey: result.brandKey,
+            manifest: result
+        });
+
+    } catch (error: any) {
+        console.error('❌ [Manifest PATCH] Error:', error);
+        return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 });
+    }
+}
+
+// Helper to apply dot-notation updates (e.g., "strategy.valueProp.headline")
+function applyDotNotationUpdates(target: any, updates: Record<string, any>): any {
+    const result = JSON.parse(JSON.stringify(target)); // Deep clone
+
+    for (const [path, value] of Object.entries(updates)) {
+        const keys = path.split('.');
+        let current = result;
+
+        // Navigate to the parent object
+        for (let i = 0; i < keys.length - 1; i++) {
+            const key = keys[i];
+            if (!current[key] || typeof current[key] !== 'object') {
+                current[key] = {};
+            }
+            current = current[key];
+        }
+
+        // Set the final value
+        const lastKey = keys[keys.length - 1];
+        current[lastKey] = value;
+    }
+
+    return result;
+}

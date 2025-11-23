@@ -56,7 +56,8 @@ export interface ColorScheme {
 export interface Typography {
   category: "heading" | "body" | "code";
   fontFamily: string;
-  sizes: { name: string; size: string; weight: string }[];
+  sizes: { name: string; size: string; weight: string }[] | Record<string, string>;
+  weights?: string[]; // Optional array of font weights (e.g., ["400", "600", "700"])
 }
 
 export interface LogoVariation {

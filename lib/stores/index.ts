@@ -15,4 +15,3 @@ export type * from './types';
 
 // Export managers (singleton instances)
 export { generationManager } from '@/lib/managers/generation-manager';
-export { memoryManager } from '@/lib/managers/memory-manager';

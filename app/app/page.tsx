@@ -19,11 +19,6 @@ import { nanoid } from "nanoid";
 import { flowsClient, type Flow } from "@/lib/flows-client";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
-import {
-  migrateLocalStorageToDb,
-  needsMigration,
-  clearLocalStorageAfterMigration
-} from "@/lib/migrate-local-to-db";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingFlowsSkeleton } from "@/components/LoadingFlowsSkeleton";
 // New Hero UI Components
@@ -45,7 +40,6 @@ import type {
   Conversation,
 } from "./types";
 import { generationManager } from "@/lib/generation-manager";
-import { memoryManager } from "@/lib/memory-manager";
 import { ThinkingBlock } from "@/components/app/ThinkingBlock";
 import { SmartButton } from "@/components/app/SmartButton";
 import { MemoryStatusIndicator } from "@/components/app/MemoryStatusIndicator";
@@ -81,10 +75,6 @@ function ChatPageContent() {
   // DB Integration states
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [dbSyncEnabled, setDbSyncEnabled] = useState(true); // DB sync enabled
-  const [dbConnectionHealthy, setDbConnectionHealthy] = useState<boolean | null>(null);
 
   // New Hero UI states
   const useHeroUI = process.env.NEXT_PUBLIC_USE_HERO_UI === 'true';
@@ -101,22 +91,6 @@ function ChatPageContent() {
     checkAuthAndLoadFlows();
   }, []);
 
-  // Test Supabase connection health
-  async function testSupabaseConnection(): Promise<boolean> {
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.from('positioning_flows').select('id').limit(1);
-      if (error) {
-        console.error('❌ [DB Health] Supabase connection FAILED:', error);
-        return false;
-      }
-      console.log('✅ [DB Health] Supabase connection OK');
-      return true;
-    } catch (err) {
-      console.error('❌ [DB Health] Supabase connection FAILED:', err);
-      return false;
-    }
-  }
 
   async function checkAuthAndLoadFlows() {
     try {
@@ -138,67 +112,17 @@ function ChatPageContent() {
 
       console.log('✅ [Auth] User authenticated or demo mode');
 
-      // Test DB connection before proceeding
-      const isHealthy = await testSupabaseConnection();
-      setDbConnectionHealthy(isHealthy);
-
-      if (!isHealthy) {
-        console.warn('⚠️ [DB Health] Connection failed, falling back to localStorage');
-        setDbSyncEnabled(false);
-        loadFromLocalStorage();
-        setAuthLoading(false);
-        return;
-      }
-
-      // Check if migration needed
-      if (needsMigration()) {
-        console.log('📦 [Migration] LocalStorage data detected');
-        setShowMigrationPrompt(true);
-        // Load from localStorage temporarily for migration
-        loadFromLocalStorage();
-        setAuthLoading(false);
-        return;
-      }
-
       // Load flows from DB
-      if (dbSyncEnabled && authUser) {
-        console.log('🔵 [DB Sync] ENABLED - Loading from Supabase');
-        await loadFlowsFromDB();
-      } else {
-        console.log('📦 [Storage] Using localStorage');
-        loadFromLocalStorage();
-      }
-
+      await loadFlowsFromDB();
       setAuthLoading(false);
     } catch (error) {
       console.error('❌ [Init] Failed to initialize:', error);
       setAuthLoading(false);
-      setDbSyncEnabled(false);
-      // Fallback to localStorage
-      loadFromLocalStorage();
     }
   }
 
   const realtimeChannelRef = useRef<any>(null);
   const thinkingMsgIdRef = useRef<string | null>(null);
-
-  function loadFromLocalStorage() {
-    const savedConversations = localStorage.getItem('flowtusk_conversations');
-    const savedActiveId = localStorage.getItem('flowtusk_active_conversation');
-
-    if (savedConversations) {
-      try {
-        const parsed = JSON.parse(savedConversations);
-        setConversations(parsed);
-        if (savedActiveId) {
-          setActiveConversationId(savedActiveId);
-        }
-        console.log('📦 [Storage] Loaded conversations from localStorage');
-      } catch (error) {
-        console.error('❌ [Storage] Failed to load conversations:', error);
-      }
-    }
-  }
 
   async function loadFlowsFromDB() {
     try {
@@ -243,8 +167,7 @@ function ChatPageContent() {
       }
     } catch (error) {
       console.error('❌ [DB] Failed to load flows:', error);
-      // Fallback to localStorage if DB fails
-      loadFromLocalStorage();
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -289,7 +212,7 @@ function ChatPageContent() {
 
   // Auto-save to DB whenever conversation changes (debounced)
   useEffect(() => {
-    if (!dbSyncEnabled || !activeConversationId || conversations.length === 0) {
+    if (!activeConversationId || conversations.length === 0) {
       return;
     }
 
@@ -306,15 +229,7 @@ function ChatPageContent() {
     if (conversation.messages.length > 0) {
       debouncedSaveToDb(conversation);
     }
-
-    // Also save to localStorage as backup
-    try {
-      localStorage.setItem('flowtusk_conversations', JSON.stringify(conversations));
-      localStorage.setItem('flowtusk_active_conversation', activeConversationId);
-    } catch (error) {
-      console.error('❌ [Storage] Failed to save to localStorage:', error);
-    }
-  }, [conversations, activeConversationId, dbSyncEnabled]);
+  }, [conversations, activeConversationId]);
 
   async function debouncedSaveToDb(conversation: Conversation) {
     try {
@@ -365,9 +280,7 @@ function ChatPageContent() {
       console.log('💾 [DB] Auto-saved to database');
     } catch (error) {
       console.error('❌ [DB] Auto-save failed:', error);
-      console.warn('⚠️ Continuing without DB sync - data is safe in browser localStorage');
       // Don't disrupt user experience, just log the error
-      // Consider disabling DB sync if repeated failures
     }
   }
 
@@ -435,78 +348,30 @@ function ChatPageContent() {
 
   const createNewConversation = async () => {
     try {
-      if (dbSyncEnabled) {
-        // Create in DB first
-        const flow = await flowsClient.createFlow({
-          title: `New conversation ${new Date().toLocaleDateString()}`,
-          step: 'initial',
-        });
+      // Create in DB
+      const flow = await flowsClient.createFlow({
+        title: `New conversation ${new Date().toLocaleDateString()}`,
+        step: 'initial',
+      });
 
-        const newConv = flowToConversation(flow);
-        setConversations(prev => [newConv, ...prev]);
-        setActiveConversationId(newConv.id);
-        setSelectedIcp(null);
-        setWebsiteUrl("");
+      const newConv = flowToConversation(flow);
+      setConversations(prev => [newConv, ...prev]);
+      setActiveConversationId(newConv.id);
+      setSelectedIcp(null);
+      setWebsiteUrl("");
 
-        // Initialize memory manager
-        memoryManager.updateMemory(newConv.id, newConv.memory);
-
-        console.log('✅ [DB] Created new flow in database');
-      } else {
-        // Fallback to local-only mode
-        const newConvId = nanoid();
-        const newConv: Conversation = {
-          id: newConvId,
-          title: "New conversation",
-          messages: [],
-          createdAt: new Date(),
-          generationState: {
-            currentStep: 'analysis',
-            completedSteps: [],
-            generatedContent: {},
-            isGenerating: false,
-            generationId: undefined,
-            lastGenerationTime: undefined,
-          },
-          userJourney: {
-            websiteAnalyzed: false,
-            icpSelected: false,
-            valuePropGenerated: false,
-            exported: false,
-          },
-          memory: {
-            id: newConvId,
-            websiteUrl: "",
-            selectedIcp: null,
-            generationHistory: [],
-            userPreferences: {
-              preferredContentType: "",
-              lastAction: "",
-            },
-          },
-        };
-        setConversations(prev => [newConv, ...prev]);
-        setActiveConversationId(newConvId);
-        setSelectedIcp(null);
-        setWebsiteUrl("");
-
-        // Initialize memory manager
-        memoryManager.updateMemory(newConvId, newConv.memory);
-      }
+      console.log('✅ [DB] Created new flow in database');
     } catch (error) {
       console.error('❌ [DB] Failed to create flow:', error);
-      // Show error to user but don't crash
       alert('Failed to create new flow. Please try again.');
     }
   };
 
   const deleteConversation = async (convId: string) => {
     try {
-      if (dbSyncEnabled) {
-        // Soft delete in DB
-        await flowsClient.softDeleteFlow(convId);
-        console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
-      }
+      // Soft delete in DB
+      await flowsClient.softDeleteFlow(convId);
+      console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
 
       // Remove from UI
       setConversations(prev => {
@@ -518,24 +383,18 @@ function ChatPageContent() {
           if (filtered.length > 0) {
             const nextConv = filtered[0];
             setActiveConversationId(nextConv.id);
-            // Update UI state to match the conversation we're switching to
             setWebsiteUrl(nextConv.memory.websiteUrl || "");
             setSelectedIcp(nextConv.memory.selectedIcp);
           } else {
-            // No conversations left, create a new one
             setTimeout(() => createNewConversation(), 0);
           }
         }
-
-        // Clean up memory manager
-        memoryManager.clearMemory(convId);
 
         console.log(`🗑️ [Conversation] Deleted conversation: ${convId}`);
         return filtered;
       });
     } catch (error) {
       console.error('❌ [DB] Failed to delete flow:', error);
-      // Still remove from UI even if DB delete fails
       setConversations(prev => prev.filter(c => c.id !== convId));
     }
   };
@@ -595,17 +454,6 @@ function ChatPageContent() {
     );
   };
 
-  // const updateConversationMemory = (updates: Partial<ConversationMemory>) => {
-  //   setConversations(prev =>
-  //     prev.map(conv =>
-  //       conv.id === activeConversationId
-  //         ? { ...conv, memory: { ...conv.memory, ...updates } }
-  //         : conv
-  //     )
-  //   );
-  //   // Also update memory manager
-  //   memoryManager.updateMemory(activeConversationId, updates);
-  // };
 
   const isGenerationInProgress = (type: string, params: Record<string, unknown> = {}): boolean => {
     return generationManager.isGenerating(type, params);
@@ -625,26 +473,8 @@ function ChatPageContent() {
       return false;
     }
 
-    // Use memory manager for dependency checking
-    const memoryCanPerform = memoryManager.canPerformAction(activeConversationId, action);
-
-    // Additional checks for specific actions
-    switch (action) {
-      case 'select-icp':
-        return memoryCanPerform && !generationState.isGenerating;
-      case 'generate-value-prop':
-        return memoryCanPerform && !generationState.isGenerating;
-      case 'generate-funnel':
-        return memoryCanPerform && !generationState.isGenerating;
-      case 'make-content-choice':
-        return memoryCanPerform && !generationState.isGenerating;
-      case 'generate-email':
-        return memoryCanPerform && !generationState.isGenerating;
-      case 'generate-landing':
-        return memoryCanPerform && !generationState.isGenerating;
-      default:
-        return !generationState.isGenerating;
-    }
+    // All actions are allowed if generation is not in progress
+    return !generationState.isGenerating;
   };
 
 
@@ -968,30 +798,64 @@ function ChatPageContent() {
         // Store brand colors
         // Note: brandColors saved for future use
 
-        // Save ICPs to database and get UUID IDs
-        console.log('💾 [ICPs] Saving to database...');
+        // Save ICPs to brand_manifests (single source of truth)
+        console.log('💾 [ICPs] Saving to brand_manifests...');
         console.log('📋 [ICPs] FlowID:', flow.id);
         console.log('🔢 [ICPs] Count:', icps.length);
 
-        const saveIcpsRes = await fetch("/api/positioning-icps", {
+        // ICPs already have generated IDs from /api/generate-icps
+        const icpsWithDbIds = icps;
+
+        // Extract hostname from URL
+        const hostname = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+
+        // Create/update brand manifest with ICPs
+        const saveManifestRes = await fetch("/api/brand-manifest", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Idempotency-Key": flow.id },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            icps,
             flowId: flow.id,
-            websiteUrl: url
+            manifest: {
+              version: "1.0",
+              brandName: hostname,
+              brandKey: flow.id.slice(0, 8).toUpperCase(),
+              lastUpdated: new Date().toISOString(),
+              strategy: {
+                icps: icps.map((icp: ICP) => ({
+                  id: icp.id,
+                  title: icp.title,
+                  description: icp.description,
+                  personaName: icp.personaName,
+                  personaRole: icp.personaRole,
+                  personaCompany: icp.personaCompany,
+                  location: icp.location,
+                  country: icp.country,
+                  painPoints: icp.painPoints || [],
+                  goals: icp.goals || [],
+                  demographics: icp.demographics || ''
+                })),
+                persona: {}, // Will be set when user selects an ICP
+                valueProp: {} // Will be generated later
+              },
+              identity: { colors: brandColors || { primary: [], secondary: [], accent: [], neutral: [] }, typography: {}, logo: {}, tone: {} },
+              components: { buttons: {}, cards: {}, inputs: {}, spacing: {} },
+              previews: { landingPage: {} },
+              metadata: {
+                generationHistory: [{
+                  timestamp: new Date().toISOString(),
+                  action: 'icps_generated',
+                  changedFields: ['strategy.icps']
+                }],
+                regenerationCount: 0,
+                sourceFlowId: flow.id,
+                sourceIcpId: ''
+              }
+            }
           }),
         });
 
-        let icpsWithDbIds = icps;
-        if (saveIcpsRes.ok) {
-          const { icps: savedIcps } = await saveIcpsRes.json();
-          // Map saved ICP database IDs back to the generated ICPs
-          icpsWithDbIds = icps.map((icp: ICP, index: number) => ({
-            ...icp,
-            id: savedIcps[index]?.id || icp.id, // Use database UUID or fallback to generated ID
-          }));
-          console.log('✅ [ICPs] Saved with database IDs:', icpsWithDbIds.map((i: ICP) => i.id));
+        if (saveManifestRes.ok) {
+          console.log('✅ [ICPs] Saved to brand_manifests');
 
           // Boundary step update -> 'icps' (triggers realtime event)
           try {
@@ -1002,12 +866,12 @@ function ChatPageContent() {
             });
           } catch { }
         } else {
-          const errorData = await saveIcpsRes.json().catch(() => ({}));
-          console.error('❌ [ICPs] Failed to save to database!');
-          console.error('   Status:', saveIcpsRes.status, saveIcpsRes.statusText);
+          const errorData = await saveManifestRes.json().catch(() => ({}));
+          console.error('❌ [ICPs] Failed to save to brand_manifests!');
+          console.error('   Status:', saveManifestRes.status, saveManifestRes.statusText);
           console.error('   Error:', errorData.error || 'Unknown error');
           console.error('   Details:', errorData.details || 'No details');
-          console.warn('⚠️ [ICPs] Using in-memory IDs as fallback');
+          console.warn('⚠️ [ICPs] Continuing with in-memory data');
         }
 
         updateThinkingStep(thinkingMsgId, 'generate', {
@@ -1021,7 +885,6 @@ function ChatPageContent() {
         });
 
         // Build summary message
-        const hostname = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
         const businessDesc = summary?.businessDescription || "your business";
         const targetMarket = summary?.targetMarket || "";
         const painPoints = summary?.painPointsWithMetrics || [];
@@ -1056,7 +919,6 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
         // Record website analysis completion
         updateUserJourneyFor(flow.id, { websiteAnalyzed: true });
-        memoryManager.addGenerationRecord(flow.id, 'website-analyzed', { icps: icpsWithDbIds, summary } as Record<string, unknown>);
       } else if (selectedIcp && websiteUrl) {
         // Chat refinement
         const response = await fetch("/api/chat", {
@@ -1197,8 +1059,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
       setConversations(prev => [newConv, ...prev]);
       setActiveConversationId(newConv.id);
 
-      // Initialize memory manager with the new conversation's memory
-      memoryManager.updateMemory(newConv.id, newConv.memory);
+      // Memory state is already in the conversation object
 
       return newConv.id; // Return the new ID immediately
     }
@@ -1390,7 +1251,6 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
     });
 
     updateUserJourney({ valuePropGenerated: true });
-    memoryManager.addGenerationRecord(activeConversationId, 'approve-value-prop-summary', { approved: true } as Record<string, unknown>);
   };
 
   // Handler for regenerating a single variation
@@ -1587,7 +1447,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         }
       });
 
-      memoryManager.addGenerationRecord(activeConversationId, 'approve-positioning-summary', { approved: true } as Record<string, unknown>);
+      // Positioning summary approved
     }, 1000);
   };
 
@@ -1687,7 +1547,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
       // Update user journey
       updateUserJourney({ exported: true });
-      memoryManager.addGenerationRecord(activeConversationId, `export-${format}`, result);
 
     } catch (error) {
       console.error('Export error:', error);
@@ -1792,40 +1651,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     return <LoadingFlowsSkeleton />;
   }
 
-  // Migration UI handler
-  async function handleMigration() {
-    try {
-      setIsMigrating(true);
-      console.log('🚀 [Migration] Starting migration...');
-      const report = await migrateLocalStorageToDb();
-
-      console.log('📊 [Migration] Report:', report);
-
-      if (report.success > 0) {
-        alert(`✅ Migrated ${report.success}/${report.total} flows successfully!\n\n` +
-          `Evidence integrity: ${report.evidenceIntegrityCheck.withEvidence}/${report.evidenceIntegrityCheck.total} flows have evidence.`);
-
-        // Clear localStorage after confirmation
-        if (confirm('Migration successful! Clear localStorage?')) {
-          clearLocalStorageAfterMigration();
-        }
-
-        // Reload from DB
-        await loadFlowsFromDB();
-      }
-
-      if (report.failed > 0) {
-        alert(`⚠️ ${report.failed} flows failed to migrate:\n` +
-          report.failedItems.map(item => `- ${item.title}: ${item.error}`).join('\n'));
-      }
-    } catch (error) {
-      console.error('❌ [Migration] Migration failed:', error);
-      alert('Migration failed. Your data is safe in localStorage.');
-    } finally {
-      setIsMigrating(false);
-      setShowMigrationPrompt(false);
-    }
-  };
 
   const handleSelectIcp = async (icp: ICP) => {
     // Check if action is allowed
@@ -1839,6 +1664,15 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
       setSelectedIcp(icp);
       updateUserJourney({ icpSelected: true });
+      
+      // Navigate to copilot if manifest already exists
+      const manifestRes = await fetch(`/api/brand-manifest?flowId=${activeConversationId}`);
+      if (manifestRes.ok) {
+        const { manifest } = await manifestRes.json();
+        if (manifest?.id) {
+          router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
+        }
+      }
       return;
     }
 
@@ -1855,9 +1689,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       currentStep: 'value-prop'
     });
     updateUserJourney({ icpSelected: true });
-
-    // Record ICP selection
-    memoryManager.addGenerationRecord(activeConversationId, 'select-icp', { icpId: icp.id, icpTitle: icp.title } as Record<string, unknown>);
 
     addMessage({
       id: nanoid(),
@@ -1910,6 +1741,46 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         )
       );
 
+      // Update brand_manifests with selected ICP and value prop
+      console.log('💾 [handleSelectIcp] Saving to brand manifest...');
+      const updateRes = await fetch('/api/brand-manifest', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          flowId: activeConversationId,
+          updates: {
+            'strategy.persona': {
+              name: icp.personaName,
+              role: icp.personaRole,
+              company: icp.personaCompany,
+              industry: icp.title,
+              location: icp.location,
+              country: icp.country,
+              painPoints: icp.painPoints || [],
+              goals: icp.goals || []
+            },
+            'strategy.valueProp': {
+              headline: valuePropData.headline || valuePropData.summary?.mainInsight || valuePropData.variations?.[0]?.text || '',
+              subheadline: valuePropData.subheadline || valuePropData.summary?.approachStrategy || '',
+              problem: valuePropData.problem || (Array.isArray(valuePropData.summary?.painPointsAddressed) ? valuePropData.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp.painPoints) ? icp.painPoints[0] : ''),
+              solution: valuePropData.solution || valuePropData.summary?.approachStrategy || '',
+              outcome: valuePropData.outcome || valuePropData.summary?.expectedImpact || '',
+              benefits: valuePropData.benefits || (Array.isArray(valuePropData.variations) ? valuePropData.variations.map((v: any) => v.text) : []),
+              targetAudience: valuePropData.targetAudience || icp.title || ''
+            },
+            'brandName': icp.personaCompany || 'Untitled Brand',
+            'metadata.sourceIcpId': icp.id,
+            'metadata.sourceFlowId': activeConversationId
+          }
+        })
+      });
+
+      if (!updateRes.ok) {
+        console.error('❌ Failed to update brand manifest with ICP selection:', await updateRes.text());
+      } else {
+        console.log('✅ [handleSelectIcp] Brand manifest updated successfully');
+      }
+
       // Show persona showcase directly
       addMessage({
         id: nanoid(),
@@ -1937,9 +1808,17 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
       });
 
-      // Record in memory
-      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', valuePropData);
-      memoryManager.setLastAction(activeConversationId, 'select-icp');
+      // Navigate to copilot after successful generation
+      const manifestRes = await fetch(`/api/brand-manifest?flowId=${activeConversationId}`);
+      if (manifestRes.ok) {
+        const { manifest } = await manifestRes.json();
+        if (manifest?.id) {
+          // Brief delay to allow user to see the showcase
+          setTimeout(() => {
+            router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
+          }, 1500);
+        }
+      }
 
     } catch (error) {
       console.error("Error:", error);
@@ -1960,8 +1839,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         role: "assistant",
         content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
       });
-
-      memoryManager.addGenerationRecord(activeConversationId, 'value-prop', { error: true }, false);
     } finally {
       updateGenerationState({
         isGenerating: false,

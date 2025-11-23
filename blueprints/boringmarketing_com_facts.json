@@ -1,0 +1,176 @@
+{
+  "brand": {
+    "name": "Boring Marketing",
+    "tones": [
+      "casual",
+      "innovative"
+    ],
+    "primaryCTA": "Ready to transform your marketing?"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "Terms",
+      "Privacy"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Boring Marketing: AI-Driven Organic Growth Solutions"
+      }
+    ],
+    "footer": [
+      "Terms",
+      "Privacy",
+      "X",
+      "Youtube",
+      "LinkedIn"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Marketing Automation",
+    "signals": [
+      "Boring Marketing LLC",
+      "Flexible collaboration",
+      "Results in weeks"
+    ]
+  },
+  "audienceSignals": [
+    "founders",
+    "marketers",
+    "brands who want better results with less effort"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Automate boring marketing tasks with AI",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Cut content production time and costs by 90+%",
+      "evidence": [
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Pre-validated workflows with humans in the loop",
+      "evidence": [
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Social repurposing agents create unique & authentic content",
+      "evidence": [
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "Boring marketing tasks",
+    "High content production time and costs",
+    "Lack of unique and authentic content"
+  ],
+  "proof": [
+    "Join 50+ founders & marketers cracking distribution with AI",
+    "Thousands of data points that automatically find unique angles in the market"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Automate boring marketing tasks with AI",
+      "page": "/",
+      "evidence": "Automate boring marketing tasks with AI so you can vibe"
+    },
+    {
+      "id": "fact-2",
+      "text": "Vibe marketing for sale",
+      "page": "/",
+      "evidence": "Vibe marketing for sale - get out of the weeds with expert marketing automation, workflows and agents."
+    },
+    {
+      "id": "fact-3",
+      "text": "Join 50+ founders & marketers cracking distribution with AI",
+      "page": "/",
+      "evidence": "Join 50+ founders & marketers cracking distribution with AI"
+    },
+    {
+      "id": "fact-4",
+      "text": "Pre-validated workflows with humans in the loop",
+      "page": "/",
+      "evidence": "Pre-validated workflows with humans in the loop"
+    },
+    {
+      "id": "fact-5",
+      "text": "Cut content production time and costs by 90+%",
+      "page": "/",
+      "evidence": "Cut content production time and costs by 90+%"
+    },
+    {
+      "id": "fact-6",
+      "text": "Competitive insights and analysis at AI-speed",
+      "page": "/",
+      "evidence": "Competitive insights and analysis at AI-speed"
+    },
+    {
+      "id": "fact-7",
+      "text": "Social repurposing agents create unique & authentic content",
+      "page": "/",
+      "evidence": "Social repurposing agents"
+    },
+    {
+      "id": "fact-8",
+      "text": "Your team is the human in the loop",
+      "page": "/",
+      "evidence": "Your team is the human in the loop"
+    },
+    {
+      "id": "fact-9",
+      "text": "One‑week turnarounds",
+      "page": "/",
+      "evidence": "One‑week turnarounds"
+    },
+    {
+      "id": "fact-10",
+      "text": "Results in weeks",
+      "page": "/",
+      "evidence": "Results in weeks"
+    },
+    {
+      "id": "fact-11",
+      "text": "No long contracts",
+      "page": "/",
+      "evidence": "No long contracts"
+    },
+    {
+      "id": "fact-12",
+      "text": "Flexible collaboration",
+      "page": "/",
+      "evidence": "Flexible collaboration"
+    },
+    {
+      "id": "fact-13",
+      "text": "Your marketing reimagined through powerful workflows",
+      "page": "/",
+      "evidence": "Your marketing reimagined through powerful workflows."
+    },
+    {
+      "id": "fact-14",
+      "text": "Thousands of data points that automatically find unique angles in the market",
+      "page": "/",
+      "evidence": "Thousands of data points that automatically find unique angles in the market."
+    },
+    {
+      "id": "fact-15",
+      "text": "Experts at creating massive leverage and efficiency for marketers",
+      "page": "/",
+      "evidence": "Experts at creating massive leverage and efficiency for marketers."
+    }
+  ]
+}

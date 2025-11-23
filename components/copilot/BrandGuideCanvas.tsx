@@ -28,14 +28,14 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
   const [lightMode, setLightMode] = useState(true);
   const { brandGuide } = project;
 
-  // Safe access helpers
-  const primaryColors = brandGuide?.colors?.primary || [];
-  const secondaryColors = brandGuide?.colors?.secondary || [];
-  const accentColors = brandGuide?.colors?.accent || [];
-  const typography = brandGuide?.typography || [];
-  const logoVariations = brandGuide?.logoVariations || [];
-  const toneOfVoice = brandGuide?.toneOfVoice || [];
-  const personalityTraits = brandGuide?.personalityTraits || [];
+  // Safe access helpers with Array guards
+  const primaryColors = Array.isArray(brandGuide?.colors?.primary) ? brandGuide.colors.primary : [];
+  const secondaryColors = Array.isArray(brandGuide?.colors?.secondary) ? brandGuide.colors.secondary : [];
+  const accentColors = Array.isArray(brandGuide?.colors?.accent) ? brandGuide.colors.accent : [];
+  const typography = Array.isArray(brandGuide?.typography) ? brandGuide.typography : [];
+  const logoVariations = Array.isArray(brandGuide?.logoVariations) ? brandGuide.logoVariations : [];
+  const toneOfVoice = Array.isArray(brandGuide?.toneOfVoice) ? brandGuide.toneOfVoice : [];
+  const personalityTraits = Array.isArray(brandGuide?.personalityTraits) ? brandGuide.personalityTraits : [];
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -263,7 +263,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
                         <p
                           style={{
                             fontFamily: typo.fontFamily,
-                            fontSize: typeof size === 'string' && parseInt(size) > 36 ? "36px" : size,
+                            fontSize: typeof size === 'string' && parseInt(size) > 36 ? "36px" : (size as string),
                             fontWeight: typo.weights?.[0] || '400',
                           }}
                         >

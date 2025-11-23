@@ -1,0 +1,149 @@
+{
+  "brand": {
+    "name": "DNA",
+    "tones": [
+      "Informative",
+      "Promotional"
+    ],
+    "primaryCTA": "Hyödynnä Black Friday -tarjoukset nyt"
+  },
+  "structure": {
+    "nav": [
+      "Yksityisille",
+      "Yrityksille",
+      "Wholesale",
+      "DNA Oyj"
+    ],
+    "keyPages": [
+      {
+        "path": "https://www.dna.fi/",
+        "title": "Yksityisille"
+      },
+      {
+        "path": "https://www.dna.fi/yrityksille",
+        "title": "Yrityksille"
+      },
+      {
+        "path": "https://www.dna.fi/wholesale",
+        "title": "Wholesale"
+      },
+      {
+        "path": "https://corporate.dna.fi/fi",
+        "title": "DNA Oyj"
+      }
+    ],
+    "footer": [
+      "Laitteet",
+      "Puhelimet ja lisälaitteet",
+      "Tabletit ja lisälaitteet",
+      "Älykellot ja hyvinvointi",
+      "Äänentoisto ja audio",
+      "Tietokoneet ja lisälaitteet",
+      "Televisiot ja lisälaitteet",
+      "Pelaaminen",
+      "Älykoti",
+      "Modeemit, reitittimet ja mokkulat"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Finland",
+    "industryFocus": "Telecommunications",
+    "signals": [
+      "koko Suomen",
+      "kauppa.dna.fi",
+      ".fi domain",
+      "Finnish language"
+    ]
+  },
+  "audienceSignals": [
+    "Yksityisille",
+    "Yrityksille",
+    "Wholesale"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Wide range of devices and accessories",
+      "evidence": [
+        "fact-3",
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Special offers like Black Friday deals",
+      "evidence": [
+        "fact-2"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for affordable devices",
+    "Desire for comprehensive device options"
+  ],
+  "proof": [
+    "DNA logo"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "The brand name is DNA.",
+      "page": "Homepage",
+      "evidence": "Palveluita yhteydenpitoon, viihtymiseen ja työntekoon | DNA"
+    },
+    {
+      "id": "fact-2",
+      "text": "DNA offers Black Friday deals.",
+      "page": "Homepage",
+      "evidence": "Halpojen hintojen hirmumyrsky pyyhkäisee jälleen yli koko Suomen – hyödynnä Black Friday -tarjoukset nyt."
+    },
+    {
+      "id": "fact-3",
+      "text": "DNA provides a wide range of devices and accessories.",
+      "page": "Homepage",
+      "evidence": "Laitteet, Puhelimet ja lisälaitteet, Tabletit ja lisälaitteet, Älykellot ja hyvinvointi, Äänentoisto ja audio, Tietokoneet ja lisälaitteet, Televisiot ja lisälaitteet, Pelaaminen, Älykoti, Modeemit, reitittimet ja mokkulat"
+    },
+    {
+      "id": "fact-4",
+      "text": "The website uses the Finnish language.",
+      "page": "Homepage",
+      "evidence": "Palveluita yhteydenpitoon, viihtymiseen ja työntekoon"
+    },
+    {
+      "id": "fact-5",
+      "text": "DNA targets the Finnish market.",
+      "page": "Homepage",
+      "evidence": "koko Suomen"
+    },
+    {
+      "id": "fact-6",
+      "text": "The website domain is .fi, indicating a Finnish market focus.",
+      "page": "Homepage",
+      "evidence": "https://www.dna.fi/"
+    },
+    {
+      "id": "fact-7",
+      "text": "DNA serves both private individuals and businesses.",
+      "page": "Homepage",
+      "evidence": "Yksityisille, Yrityksille"
+    },
+    {
+      "id": "fact-8",
+      "text": "DNA has a section for wholesale services.",
+      "page": "Homepage",
+      "evidence": "Wholesale"
+    },
+    {
+      "id": "fact-9",
+      "text": "DNA's primary call to action is to take advantage of Black Friday offers.",
+      "page": "Homepage",
+      "evidence": "Hyödynnä Black Friday -tarjoukset nyt"
+    },
+    {
+      "id": "fact-10",
+      "text": "DNA's logo is visible on the website.",
+      "page": "Homepage",
+      "evidence": "![Image 1: DNA logo](https://www.dna.fi/o/dna-fi-theme/images/DNA.svg)"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
     "name": "Tax Star",
     "tones": [
       "Professional",
-      "Supportive"
+      "Informative"
     ],
     "primaryCTA": "Book a Demo"
   },
@@ -19,109 +19,108 @@
     ],
     "keyPages": [
       {
-        "path": "/accounting-practice-owners",
+        "path": "https://taxstar.app/accounting-practice-owners",
         "title": "Accounting Practice Owners"
       },
       {
-        "path": "/tax-advisors",
+        "path": "https://taxstar.app/tax-advisors",
         "title": "Tax Advisors"
       },
       {
-        "path": "/by-role-erp-resellers",
+        "path": "https://taxstar.app/by-role-erp-resellers",
         "title": "ERP Resellers"
       },
       {
-        "path": "/corporate-tax-calculations",
+        "path": "https://taxstar.app/corporate-tax-calculations",
         "title": "Corporate Tax Calculations"
       },
       {
-        "path": "/internal-and-client-approvals",
+        "path": "https://taxstar.app/internal-and-client-approvals",
         "title": "Internal and Client Approvals"
       },
       {
-        "path": "/financial-statement-production",
+        "path": "https://taxstar.app/financial-statement-production",
         "title": "Financial Statements"
       },
       {
-        "path": "/practice-and-deadline-management",
+        "path": "https://taxstar.app/practice-and-deadline-management",
         "title": "Practice Management & Deadline"
       },
       {
-        "path": "/e-invoice",
+        "path": "https://taxstar.app/e-invoice",
         "title": "E-invoicing (UAE)"
       },
       {
-        "path": "/zakat",
+        "path": "https://taxstar.app/zakat",
         "title": "Zakat for Business (KSA)"
       },
       {
-        "path": "/about",
+        "path": "https://taxstar.app/about",
         "title": "About us"
       },
       {
-        "path": "/faq",
+        "path": "https://taxstar.app/faq",
         "title": "FAQ"
       },
       {
-        "path": "/contact",
+        "path": "https://taxstar.app/contact",
         "title": "Contact Us"
       },
       {
-        "path": "/partners",
+        "path": "https://taxstar.app/partners",
         "title": "Our Partners"
       },
       {
-        "path": "/security-and-certifications",
+        "path": "https://taxstar.app/security-and-certifications",
         "title": "Security & Certifications"
       },
       {
-        "path": "/tutorials",
+        "path": "https://taxstar.app/tutorials",
         "title": "Video Tutorials"
       },
       {
-        "path": "/podcast",
+        "path": "https://taxstar.app/podcast",
         "title": "Podcast"
       },
       {
-        "path": "/webinar",
+        "path": "https://taxstar.app/webinar",
         "title": "Webinar"
       },
       {
-        "path": "/blog",
+        "path": "https://taxstar.app/blog",
         "title": "Blogs"
       },
       {
-        "path": "/press",
+        "path": "https://taxstar.app/press",
         "title": "Press"
       },
       {
-        "path": "/corporatetaxpenalties",
+        "path": "https://taxstar.app/corporatetaxpenalties",
         "title": "Tax Penalties"
       },
       {
-        "path": "/corporate-tax-guide",
+        "path": "https://taxstar.app/corporate-tax-guide",
         "title": "Corporate Tax Guide"
       },
       {
-        "path": "/pricing",
+        "path": "https://taxstar.app/pricing",
         "title": "Pricing"
       }
     ],
     "footer": [
       "Sign Up",
       "Log In",
-      "Book a Demo",
-      "Contact Us",
-      "Our Partners"
+      "Book a Demo"
     ]
   },
   "targetMarket": {
     "primaryRegion": "UAE",
-    "industryFocus": "Corporate Tax Software",
+    "industryFocus": "Corporate Tax",
     "signals": [
       "Corporate Tax (UAE)",
-      "E-Invoicing (UAE)",
-      "Zakat for Business (KSA)"
+      "E-invoicing (UAE)",
+      "Zakat for Business (KSA)",
+      "AED 5,000 penalty"
     ]
   },
   "audienceSignals": [
@@ -134,32 +133,39 @@
       "id": "v1",
       "text": "AI-powered Corporate Tax software for UAE businesses",
       "evidence": [
-        "fact-3",
         "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "Automated returns and IFRS financial statement production",
+      "text": "Automated returns and smart reminders",
       "evidence": [
         "fact-11"
       ]
     },
     {
       "id": "v3",
-      "text": "Smart reminders to avoid penalties",
+      "text": "E-Invoicing ensures FTA-compliance",
       "evidence": [
-        "fact-15"
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Zakat calculations for KSA",
+      "evidence": [
+        "fact-13"
       ]
     }
   ],
   "pains": [
     "Compliance stress",
-    "Hefty penalties for document expiry"
+    "Hefty penalties for late document updates"
   ],
   "proof": [
-    "Alpha Pro Partners logo",
-    "JRBCA logo"
+    "AI-powered software",
+    "FTA-compliance",
+    "IFRS financial statements"
   ],
   "facts": [
     {
@@ -182,105 +188,63 @@
     },
     {
       "id": "fact-4",
-      "text": "Tax Star's primary CTA is to book a demo.",
+      "text": "Tax Star's primary CTA is 'Book a Demo'.",
       "page": "Home",
       "evidence": "[Book a Corporate Tax Demo]"
     },
     {
       "id": "fact-5",
-      "text": "Tax Star targets Accounting Practice Owners.",
-      "page": "By Role",
-      "evidence": "[Accounting Practice Owners]"
+      "text": "Tax Star's target market includes UAE businesses.",
+      "page": "Home",
+      "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
     },
     {
       "id": "fact-6",
-      "text": "Tax Star targets Tax Advisors.",
-      "page": "By Role",
-      "evidence": "[Tax Advisors]"
-    },
-    {
-      "id": "fact-7",
-      "text": "Tax Star targets ERP Resellers.",
-      "page": "By Role",
-      "evidence": "[ERP Resellers]"
-    },
-    {
-      "id": "fact-8",
-      "text": "Tax Star offers a Corporate Tax Calculator.",
-      "page": "Our Most In Demand Features",
-      "evidence": "Corporate Tax Calculator"
-    },
-    {
-      "id": "fact-9",
-      "text": "Tax Star provides easy financial statement production.",
-      "page": "Our Most In Demand Features",
-      "evidence": "Easy Financial Statement Production"
-    },
-    {
-      "id": "fact-10",
-      "text": "Tax Star helps avoid AED 5,000 penalties with document expiry reminders.",
-      "page": "Our Most In Demand Features",
+      "text": "Tax Star's software helps avoid AED 5,000 penalties.",
+      "page": "Home",
       "evidence": "Avoid the AED 5,000 penalty"
     },
     {
+      "id": "fact-7",
+      "text": "Tax Star offers an AI-powered Corporate Tax Calculator.",
+      "page": "Home",
+      "evidence": "AI Powered Corporate Tax Calculator"
+    },
+    {
+      "id": "fact-8",
+      "text": "Tax Star provides IFRS financial statement production.",
+      "page": "Home",
+      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
+    },
+    {
+      "id": "fact-9",
+      "text": "Tax Star's E-Invoicing ensures FTA-compliance.",
+      "page": "Home",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+    },
+    {
+      "id": "fact-10",
+      "text": "Tax Star's Zakat calculations are designed for KSA.",
+      "page": "Home",
+      "evidence": "Zakat calculations built for KSA"
+    },
+    {
       "id": "fact-11",
-      "text": "Tax Star automates returns and IFRS financial statements.",
-      "page": "AI Powered Tax Software (UAE)",
+      "text": "Tax Star provides automated returns and smart reminders.",
+      "page": "Home",
       "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
     },
     {
       "id": "fact-12",
-      "text": "Failure to update registration documents within 20 days results in penalties.",
-      "page": "Our Most In Demand Features",
-      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
+      "text": "Tax Star's E-Invoicing integrates with corporate tax filing.",
+      "page": "Home",
+      "evidence": "ensures seamless integration with corporate tax filing."
     },
     {
       "id": "fact-13",
-      "text": "Tax Star notifies users of document expiry on a timely basis.",
-      "page": "Our Most In Demand Features",
-      "evidence": "Tax Star notifies you when they are due on a timely basis."
-    },
-    {
-      "id": "fact-14",
-      "text": "Tax Star's compliance solutions include Corporate Tax for UAE.",
-      "page": "Compliance Solutions",
-      "evidence": "Corporate Tax (UAE)"
-    },
-    {
-      "id": "fact-15",
-      "text": "Tax Star's E-Invoicing ensures FTA compliance.",
-      "page": "E-Invoicing",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant."
-    },
-    {
-      "id": "fact-16",
-      "text": "Tax Star's Zakat calculations are designed for KSA.",
-      "page": "Zakat",
-      "evidence": "Zakat calculations built for KSA, designed to align smoothly with your overall compliance reporting."
-    },
-    {
-      "id": "fact-17",
-      "text": "Tax Star's website includes a section for video tutorials.",
-      "page": "Resources",
-      "evidence": "[Video Tutorials]"
-    },
-    {
-      "id": "fact-18",
-      "text": "Tax Star's website includes a section for podcasts.",
-      "page": "Resources",
-      "evidence": "[Podcast]"
-    },
-    {
-      "id": "fact-19",
-      "text": "Tax Star's website includes a section for webinars.",
-      "page": "Resources",
-      "evidence": "[Webinar]"
-    },
-    {
-      "id": "fact-20",
-      "text": "Tax Star's website includes a section for blogs.",
-      "page": "Resources",
-      "evidence": "[Blogs]"
+      "text": "Tax Star's Zakat calculations align with compliance reporting.",
+      "page": "Home",
+      "evidence": "designed to align smoothly with your overall compliance reporting"
     }
   ]
 }

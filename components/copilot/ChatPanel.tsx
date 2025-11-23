@@ -67,6 +67,8 @@ export function ChatPanel({
             
             // Clean display content
             const displayContent = originalContent
+              // remove manifest update markers and their JSON
+              .replace(/__MANIFEST_UPDATED__[\s\S]*?(?=\n\n|$)/g, "")
               // remove function call markers and their JSON
               .replace(/__FUNCTION_CALL__[\s\S]*?(?=\n\n|$)/g, "")
               // remove fenced blocks
@@ -94,6 +96,11 @@ export function ChatPanel({
                   <GenerationProgress steps={generationSteps} allComplete={allComplete} />
                 </div>
               );
+            }
+            
+            // Hide manifest update markers entirely
+            if (originalContent.startsWith('__MANIFEST_UPDATED__')) {
+              return null;
             }
 
             return (
