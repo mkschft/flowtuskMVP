@@ -3,12 +3,12 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Sparkles, 
-  Calendar, 
-  Layers, 
-  BarChart3, 
-  Users, 
+import {
+  Sparkles,
+  Calendar,
+  Layers,
+  BarChart3,
+  Users,
   Settings,
   Star,
   ArrowRight,
@@ -39,7 +39,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function LandingCanvas({ project }: LandingCanvasProps) {
   const { landingPage } = project;
-  
+
   // Safe access helpers
   const navigation = landingPage?.navigation || { logo: "", links: [] };
   const hero = landingPage?.hero || { headline: "", subheadline: "", cta: { primary: "", secondary: "" } };
@@ -51,7 +51,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
   return (
     <div className="max-w-5xl mx-auto">
       {/* Browser Chrome */}
-      <div className="rounded-lg border-2 border-border bg-background shadow-2xl overflow-hidden">
+      <div className="rounded-lg border border-border bg-background shadow-2xl overflow-hidden">
         {/* Browser Bar */}
         <div className="h-10 px-4 flex items-center justify-between border-b bg-muted/50">
           <div className="flex gap-1.5">
@@ -112,7 +112,7 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
             </div>
 
             {/* Hero Image Placeholder */}
-            <div className="mt-12 rounded-xl border-2 border-border bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/30 dark:to-pink-950/30 aspect-video flex items-center justify-center">
+            <div className="mt-12 rounded-xl border border-border bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950/30 dark:to-pink-950/30 aspect-video flex items-center justify-center">
               <div className="text-center">
                 <Layers className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground">Product Screenshot</p>
@@ -214,9 +214,8 @@ export function LandingCanvas({ project }: LandingCanvasProps) {
                 {pricing.map((tier, idx) => (
                   <Card
                     key={idx}
-                    className={`p-6 ${
-                      idx === 1 ? "border-2 border-purple-500 shadow-lg relative" : ""
-                    }`}
+                    className={`p-6 ${idx === 1 ? "border border-purple-500 shadow-lg relative" : ""
+                      }`}
                   >
                     {idx === 1 && (
                       <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">

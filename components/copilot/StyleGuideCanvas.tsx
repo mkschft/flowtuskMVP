@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Square, 
+import {
+  Square,
   FormInput,
   Ruler,
   Circle
@@ -18,19 +18,19 @@ type StyleGuideCanvasProps = {
 
 export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
   const { styleGuide, valueProp } = project;
-  
+
   // Safe access helpers with Array guards
   const buttons = Array.isArray(styleGuide?.buttons) ? styleGuide.buttons : [];
   const spacing = Array.isArray(styleGuide?.spacing) ? styleGuide.spacing : [];
   const borderRadius = Array.isArray(styleGuide?.borderRadius) ? styleGuide.borderRadius : [];
-  
+
   // Use persona-specific CTAs, or fallback to generic ones
   const ctaLabels = valueProp?.ctaSuggestions || ["Get Started", "Learn More", "Contact Us", "Book Demo", "Try Free"];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Call-to-action Section */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Square className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Call-to-action</h3>
@@ -40,7 +40,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
           {buttons.length > 0 ? buttons.map((btn, idx) => {
             // Cycle through CTA labels for variety
             const ctaLabel = ctaLabels[idx % ctaLabels.length];
-            
+
             return (
               <div key={idx} className="space-y-3 p-4 rounded-lg border bg-muted/20">
                 <div>
@@ -76,7 +76,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       </Card>
 
       {/* Inputs Section */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <FormInput className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Inputs</h3>
@@ -120,7 +120,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       </Card>
 
       {/* Spacing System */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Ruler className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Spacing Scale</h3>
@@ -150,7 +150,7 @@ export function StyleGuideCanvas({ project }: StyleGuideCanvasProps) {
       </Card>
 
       {/* Border Radius */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Circle className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Border Radius</h3>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,32 +9,21 @@ import { CanvasArea } from "@/components/copilot/CanvasArea";
 import { ToastContainer } from "@/components/copilot/Toast";
 import { ShareModal } from "@/components/copilot/ShareModal";
 import { ToolBar } from "@/components/copilot/ToolBar";
-import { GenerationProgress } from "@/components/copilot/GenerationProgress";
-import type { ChatMessage, DesignProject } from "@/lib/design-studio-mock-data";
 import type { ToastProps } from "@/components/copilot/Toast";
-import type {
-  PositioningDesignAssets,
-  CopilotWorkspaceData,
-} from "@/lib/types/design-assets";
-import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { ManifestHistory } from "@/lib/manifest-history";
-
+import type { DesignProject, ChatMessage } from "@/lib/design-studio-mock-data";
 import { exportElementAsImage, exportElementAsPDF } from "@/lib/export-utils";
 
+// Custom Hooks
+import {
+  useWorkspaceData,
+  useManifest,
+  useManifestHistory,
+  useGenerationOrchestration,
+  useChatStreaming,
+  useManifestUpdates
+} from "@/lib/hooks/design-studio";
+
 export type TabType = "value-prop" | "brand" | "style" | "landing";
-
-const MAX_REGENERATIONS = 4;
-
-// UI-friendly value prop structure (single source of truth)
-type UiValueProp = {
-  headline: string;
-  subheadline: string;
-  problem: string;
-  solution: string;
-  outcome: string;
-  benefits: string[];
-  targetAudience: string;
-};
 
 type DesignStudioWorkspaceProps = {
   icpId: string;
@@ -44,483 +33,71 @@ type DesignStudioWorkspaceProps = {
 export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspaceProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("value-prop");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
-  // Data from database
-  const [workspaceData, setWorkspaceData] = useState<CopilotWorkspaceData | null>(null);
-  const [designAssets, setDesignAssets] = useState<PositioningDesignAssets | null>(null);
-  const [manifest, setManifest] = useState<BrandManifest | null>(null);
-
-  // UI state: flattened value prop for instant updates
-  const [uiValueProp, setUiValueProp] = useState<UiValueProp | null>(null);
-
-  const handleBackToConversations = () => {
-    router.push(`/app?flowId=${flowId}`);
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
+  // Lifted state for hooks
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [generationSteps, setGenerationSteps] = useState<Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>>([]);
-  const [toasts, setToasts] = useState<ToastProps[]>([]);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [regenerationCount, setRegenerationCount] = useState(0);
-  const [isChatVisible, setIsChatVisible] = useState(true);
 
-  // Manifest History Management
-  const manifestHistoryRef = useRef<ManifestHistory | null>(null);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
+  // --- Hooks ---
 
-  // Track if generation has been triggered to prevent infinite loops
-  const generationTriggeredRef = useRef(false);
+  // 1. Workspace Data
+  const {
+    workspaceData,
+    designAssets,
+    uiValueProp,
+    setWorkspaceData,
+    setDesignAssets,
+    setUiValueProp,
+    loading,
+    error,
+    reload: reloadWorkspace
+  } = useWorkspaceData(icpId, flowId);
 
-  // Generation states
-  const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
-  const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
-  const [isGeneratingLanding, setIsGeneratingLanding] = useState(false);
+  // 2. Manifest
+  const {
+    manifest,
+    setManifest,
+    reload: reloadManifest
+  } = useManifest(flowId, designAssets, setUiValueProp);
 
-  // Load workspace data with useCallback
-  const loadWorkspaceData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      console.log('📦 [Design Studio] Loading workspace data...', { icpId, flowId });
-
-      // Unified workspace fetch (single request)
-      const wsRes = await fetch(`/api/workspace?icpId=${icpId}&flowId=${flowId}`);
-
-      if (wsRes.ok) {
-        const { icp, valueProp, designAssets: assets } = await wsRes.json();
-
-        console.log('✅ [Design Studio] Workspace data loaded:', {
-          hasIcp: !!icp,
-          icpTitle: icp?.title,
-          hasValueProp: !!valueProp,
-          valuePropHeadline: valueProp?.headline,
-          valuePropProblem: valueProp?.problem,
-          hasDesignAssets: !!assets
-        });
-
-        if (!icp) throw new Error("Persona not found");
-
-        setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });
-        setDesignAssets(assets || null);
-
-        // Check if value prop needs generation
-        const needsValueProp = !valueProp || (!valueProp.headline && !valueProp.problem && !valueProp.summary);
-
-        if (needsValueProp) {
-          console.warn('⚠️ [Value Prop] Missing value prop data, triggering generation...');
-          console.log('📊 [Value Prop] ICP details:', {
-            id: icp.id,
-            title: icp.title,
-            painPoints: icp.pain_points?.length || 0,
-            goals: icp.goals?.length || 0
-          });
-
-          // Trigger value prop generation in background
-          // Note: This requires authentication, so it will only work for logged-in users
-          // The generation will happen server-side and update the database
-          try {
-            console.log('🚀 [Value Prop] Starting generation...');
-            // For now, just log - actual generation would need to be triggered
-            // through the app flow or a dedicated endpoint
-            console.warn('⚠️ [Value Prop] Auto-generation not yet implemented - please use chat to trigger');
-          } catch (genError) {
-            console.error('❌ [Value Prop] Generation failed:', genError);
-          }
-        }
-
-        // Initialize UI value prop from server data (pre-manifest)
-        const initialVp: UiValueProp = {
-          headline: valueProp?.headline || valueProp?.summary?.mainInsight || "",
-          subheadline: valueProp?.subheadline || valueProp?.summary?.approachStrategy || "",
-          problem: valueProp?.problem || (Array.isArray(valueProp?.summary?.painPointsAddressed) ? valueProp.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp?.pain_points) ? icp.pain_points.join(', ') : '') || "",
-          solution: valueProp?.solution || valueProp?.summary?.approachStrategy || "",
-          outcome: valueProp?.outcome || valueProp?.summary?.expectedImpact || "",
-          benefits: Array.isArray(valueProp?.variations) ? valueProp.variations.map((v: any) => v.text) : [],
-          targetAudience: valueProp?.targetAudience || icp?.title || "",
-        };
-
-        console.log('💾 [Value Prop] UI state initialized:', {
-          headline: initialVp.headline || '(empty)',
-          problem: initialVp.problem || '(empty)',
-          solution: initialVp.solution || '(empty)',
-          outcome: initialVp.outcome || '(empty)',
-          benefitsCount: initialVp.benefits.length,
-          targetAudience: initialVp.targetAudience || '(empty)'
-        });
-
-        setUiValueProp(initialVp);
-        setLoading(false);
-        return;
-      }
-
-      // If workspace API fails, there's no data to load
-      throw new Error("Failed to load workspace data");
-    } catch (err) {
-      console.error("❌ [Design Studio] Error loading data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load data");
-      setLoading(false);
-    }
-  }, [icpId, flowId]);
-  const loadManifest = useCallback(async (skipIfNoAssets = false) => {
-    try {
-      // Skip if tab is not visible to save resources
-      if (typeof document !== 'undefined' && document.hidden) return;
-
-      // Skip if design assets don't exist yet (prevents failed migration attempts)
-      if (skipIfNoAssets && !designAssets?.generation_state?.brand) {
-        console.log('⏭️ [Manifest] Skipping - design assets not generated yet');
-        return;
-      }
-
-      const url = `/api/brand-manifest?flowId=${flowId}`;
-
-      const res = await fetch(url);
-
-      if (res.ok) {
-        const { manifest } = await res.json();
-        if (manifest) {
-          // Update when lastUpdated changes (version is static at 1.0)
-          setManifest(prev => {
-            if (!prev || prev.lastUpdated !== manifest.lastUpdated) {
-              console.log('✅ [Manifest] Updated @', manifest.lastUpdated);
-              // Note: No need to call mapManifestToLegacyState anymore
-              // The /api/workspace endpoint now returns data from manifest in legacy format
-              // Keep UI value prop in sync with manifest
-              setUiValueProp({
-                headline: manifest.strategy?.valueProp?.headline || '',
-                subheadline: manifest.strategy?.valueProp?.subheadline || '',
-                problem: manifest.strategy?.valueProp?.problem || '',
-                solution: manifest.strategy?.valueProp?.solution || '',
-                outcome: manifest.strategy?.valueProp?.outcome || '',
-                benefits: manifest.strategy?.valueProp?.benefits || [],
-                targetAudience: manifest.strategy?.valueProp?.targetAudience || ''
-              });
-              return manifest;
-            }
-            return prev;
-          });
-        }
-      } else if (res.status === 404) {
-        console.log('ℹ️ [Manifest] Not found (will be created after brand generation)');
-      }
-    } catch (err) {
-      console.error("❌ [Manifest] Error loading manifest:", err);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flowId]);
-  // Note: designAssets intentionally omitted to prevent infinite loop
-
-  // Load data on mount
-  useEffect(() => {
-    loadWorkspaceData();
-    // Skip manifest loading if no design assets exist yet
-    loadManifest(true);
-  }, [icpId, flowId, loadWorkspaceData, loadManifest]);
-
-  // Poll for manifest updates (every 30s instead of 5s)
-  useEffect(() => {
-    const interval = setInterval(loadManifest, 30000);
-    return () => clearInterval(interval);
-  }, [loadManifest]);
-
-  // Removed mapManifestToLegacyState() - transformation now happens in /api/workspace
-
-  // Initialize history when manifest first loads
-  useEffect(() => {
-    if (manifest && !manifestHistoryRef.current) {
-      manifestHistoryRef.current = new ManifestHistory(manifest);
-      setCanUndo(false);
-      setCanRedo(false);
-      console.log('📚 [History] Initialized with current manifest');
-    }
-  }, [manifest]);
-
-  // Update history state when manifest changes (from AI updates)
-  useEffect(() => {
-    if (manifest && manifestHistoryRef.current) {
-      const history = manifestHistoryRef.current;
-      setCanUndo(history.canUndo());
-      setCanRedo(history.canRedo());
-    }
-  }, [manifest]);
-
-  // Undo handler
-  const handleUndo = useCallback(async () => {
-    if (!manifestHistoryRef.current) return;
-
-    const previousManifest = manifestHistoryRef.current.undo();
-    if (previousManifest) {
-      console.log('↩️ [History] Undoing to previous state');
-      setManifest(previousManifest);
-      // Note: No need for mapManifestToLegacyState - next loadWorkspaceData will sync from manifest
-
-      // Update undo/redo availability
-      setCanUndo(manifestHistoryRef.current.canUndo());
-      setCanRedo(manifestHistoryRef.current.canRedo());
-
-      // Reload workspace data from manifest
-      loadWorkspaceData();
-
-      addToast('Undone', 'info');
-    }
-  }, []);
-
-  // Redo handler
-  const handleRedo = useCallback(async () => {
-    if (!manifestHistoryRef.current) return;
-
-    const nextManifest = manifestHistoryRef.current.redo();
-    if (nextManifest) {
-      console.log('↪️ [History] Redoing to next state');
-      setManifest(nextManifest);
-      // Note: No need for mapManifestToLegacyState - next loadWorkspaceData will sync from manifest
-
-      // Update undo/redo availability
-      setCanUndo(manifestHistoryRef.current.canUndo());
-      setCanRedo(manifestHistoryRef.current.canRedo());
-
-      // Reload workspace data from manifest
-      loadWorkspaceData();
-
-      addToast('Redone', 'info');
-    }
-  }, []);
-
-  // Add keyboard shortcuts for undo/redo
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Z or Cmd+Z for undo
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        handleUndo();
-      }
-      // Ctrl+Shift+Z or Cmd+Shift+Z for redo
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
-        e.preventDefault();
-        handleRedo();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo]);
-
-  // Background generation orchestration
-  const triggerBackgroundGeneration = useCallback(async () => {
-    if (!workspaceData) return;
-
-    const hasDesignAssets = designAssets !== null;
-    const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
-
-    console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
-
-    // 🔍 Check if brand guide actually has data (not just the flag)
-    const hasBrandData = (manifest?.identity?.tone?.keywords?.length ?? 0) > 0 ||
-      (manifest?.identity?.logo?.variations?.length ?? 0) > 0 ||
-      (manifest?.identity?.colors?.accent?.length ?? 0) > 0;
-
-    const needsBrandGeneration = !generationState.brand || !hasBrandData;
-
-    console.log('🔍 [Design Studio] Brand data check:', {
-      flagSet: generationState.brand,
-      hasData: hasBrandData,
-      needsGeneration: needsBrandGeneration
-    });
-
-    // Initialize generation steps based on current state
-    const steps = [
-      {
-        id: 'brand',
-        label: 'Brand Guide',
-        icon: '🎨',
-        status: (generationState.brand && hasBrandData) ? 'complete' as const : 'pending' as const
-      },
-      {
-        id: 'style',
-        label: 'Style Guide',
-        icon: '✨',
-        status: generationState.style ? 'complete' as const : 'pending' as const
-      },
-      {
-        id: 'landing',
-        label: 'Landing Page',
-        icon: '🚀',
-        status: generationState.landing ? 'complete' as const : 'pending' as const
-      }
-    ];
-
-    setGenerationSteps(steps);
-
-    const needsGeneration = needsBrandGeneration || !generationState.style || !generationState.landing;
-    const allComplete = generationState.brand && hasBrandData && generationState.style && generationState.landing;
-
-    if (needsGeneration) {
-      // Show welcome with progress component in chat
-      setChatMessages(prev => {
-        // Only show progress if chat is empty (initial load)
-        if (prev.length > 0) {
-          // If there's existing chat, don't reset - user is in a conversation
-          return prev;
-        }
-        return [{
-          role: 'ai',
-          content: '__GENERATION_PROGRESS__'
-        }];
-      });
-    } else {
-      setChatMessages(prev => {
-        // Only add welcome if chat is empty (initial load)
-        if (prev.length > 0) return prev;
-        return [{
-          role: 'ai',
-          content: 'Welcome back! All your design assets are ready. I can help you customize your brand, style guide, and landing page design.'
-        }];
-      });
-    }
-
-    // If all assets already generated with actual data, nothing to do
-    if (generationState.brand && hasBrandData && generationState.style && generationState.landing) {
-      console.log('✅ [Design Studio] All design assets already generated with data');
-      return;
-    }
-
-    // Step 1: Generate Brand Guide (if not exists OR if data is missing)
-    if (needsBrandGeneration) {
-      console.log('🎨 [Design Studio] Starting brand guide generation...',
-        generationState.brand ? '(re-generating due to missing data)' : '(first generation)');
-      setIsGeneratingBrand(true);
-
-      // Update step to loading
-      setGenerationSteps(prev => prev.map(s =>
-        s.id === 'brand' ? { ...s, status: 'loading' as const } : s
-      ));
-
-      try {
-        const brandRes = await fetch('/api/brand-manifest/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ icpId, flowId, section: 'brand' })
-        });
-
-        if (brandRes.ok) {
-          const { manifest } = await brandRes.json();
-          // Reload workspace data to get updated manifest
-          await loadWorkspaceData();
-          console.log('✅ [Design Studio] Brand guide generated');
-
-          // Update step to complete
-          setGenerationSteps(prev => prev.map(s =>
-            s.id === 'brand' ? { ...s, status: 'complete' as const } : s
-          ));
-
-          // Load manifest now that brand guide exists
-          console.log('🔄 [Design Studio] Loading brand manifest after generation...');
-          await loadManifest(false);
-
-          // Step 2: Generate Style Guide (sequential)
-          await generateStyleGuide();
-
-          // Step 3: Generate Landing Page (sequential)
-          await generateLandingPage();
-        } else {
-          console.error('❌ [Design Studio] Brand guide generation failed');
-        }
-      } catch (err) {
-        console.error('❌ [Design Studio] Brand guide generation error:', err);
-      } finally {
-        setIsGeneratingBrand(false);
-      }
-    } else {
-      // Brand already exists, generate style and landing sequentially
-      if (!generationState.style) {
-        await generateStyleGuide();
-      }
-      if (!generationState.landing) {
-        await generateLandingPage();
-      }
-    }
-  }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest]);
-
-  const generateStyleGuide = async () => {
-    console.log('🎨 [Design Studio] Starting style guide generation...');
-    setIsGeneratingStyle(true);
-
-    // Update step to loading
-    setGenerationSteps(prev => prev.map(s =>
-      s.id === 'style' ? { ...s, status: 'loading' as const } : s
-    ));
-
-    try {
-      const styleRes = await fetch('/api/brand-manifest/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icpId, flowId, section: 'style' })
-      });
-
-      if (styleRes.ok) {
-        await loadWorkspaceData();
-        console.log('✅ [Design Studio] Style guide generated');
-
-        // Update step to complete
-        setGenerationSteps(prev => prev.map(s =>
-          s.id === 'style' ? { ...s, status: 'complete' as const } : s
-        ));
-      } else {
-        console.error('❌ [Design Studio] Style guide generation failed');
-      }
-    } catch (err) {
-      console.error('❌ [Design Studio] Style guide generation error:', err);
-    } finally {
-      setIsGeneratingStyle(false);
-    }
+  // 3. Toast Helpers
+  const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
+    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    setToasts((prev) => [...prev, { id, message, type, onClose: removeToast }]);
   };
 
-  const generateLandingPage = async () => {
-    console.log('🎨 [Design Studio] Starting landing page generation...');
-    setIsGeneratingLanding(true);
-
-    // Update step to loading
-    setGenerationSteps(prev => prev.map(s =>
-      s.id === 'landing' ? { ...s, status: 'loading' as const } : s
-    ));
-
-    try {
-      const landingRes = await fetch('/api/brand-manifest/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icpId, flowId, section: 'landing' })
-      });
-
-      if (landingRes.ok) {
-        await loadWorkspaceData();
-        console.log('✅ [Design Studio] Landing page generated');
-
-        // Update step to complete and mark all done
-        setGenerationSteps(prev => prev.map(s =>
-          s.id === 'landing' ? { ...s, status: 'complete' as const } : s
-        ));
-      } else {
-        console.error('❌ [Design Studio] Landing page generation failed');
-      }
-    } catch (err) {
-      console.error('❌ [Design Studio] Landing page generation error:', err);
-    } finally {
-      setIsGeneratingLanding(false);
-    }
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  // Build a DesignProject-like object for compatibility with existing components
-  // Use useMemo to recompute when uiValueProp or other dependencies change
+  // 4. History
+  const {
+    canUndo,
+    canRedo,
+    undo: handleUndo,
+    redo: handleRedo,
+    addToHistory
+  } = useManifestHistory(manifest, setManifest, reloadWorkspace, addToast);
+
+  // 5. Update Parsing (Bridge between Chat and State)
+  const { parseAndApplyUpdates } = useManifestUpdates(
+    workspaceData,
+    designAssets,
+    setWorkspaceData,
+    setDesignAssets,
+    setUiValueProp,
+    setManifest,
+    setChatMessages,
+    setGenerationSteps,
+    setActiveTab,
+    addToast,
+    addToHistory,
+    reloadWorkspace
+  );
+
+  // 6. Project Data Mapping (Computed)
   const currentProject: DesignProject | null = useMemo(() => {
     if (!workspaceData || !uiValueProp) return null;
 
@@ -554,54 +131,74 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
         features: [],
         socialProof: [],
+        pricing: [],
         footer: { sections: [] },
       },
     };
   }, [workspaceData, uiValueProp, designAssets, chatMessages]);
 
-  // Trigger background generation after workspace data loads (only once)
-  useEffect(() => {
-    if (workspaceData && !loading && !generationTriggeredRef.current) {
-      console.log('🚀 [Design Studio] Triggering background generation...');
-      generationTriggeredRef.current = true;
-      triggerBackgroundGeneration();
-    }
-  }, [workspaceData, loading]);
+  // 7. Chat Streaming
+  const {
+    isStreaming,
+    regenerationCount,
+    isChatVisible,
+    setIsChatVisible,
+    handleSendMessage
+  } = useChatStreaming(
+    flowId,
+    icpId,
+    workspaceData,
+    designAssets,
+    currentProject,
+    chatMessages,
+    setChatMessages,
+    parseAndApplyUpdates,
+    addToast
+  );
 
-  const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
-    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    setToasts((prev) => [...prev, { id, message, type, onClose: removeToast }]);
-  };
+  // 8. Generation Orchestration
+  const {
+    isGeneratingBrand,
+    isGeneratingStyle,
+    isGeneratingLanding
+  } = useGenerationOrchestration(
+    icpId,
+    flowId,
+    workspaceData,
+    designAssets,
+    manifest,
+    generationSteps,
+    setGenerationSteps,
+    reloadWorkspace,
+    reloadManifest,
+    setChatMessages
+  );
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  // --- Event Handlers ---
+
+  const handleBackToConversations = () => {
+    router.push('/copilot');
   };
 
   const handleExport = async (format: string, message: string) => {
-    addToast(message, "download");
+    const elementId = `canvas-${activeTab}`;
+    const element = document.getElementById(elementId);
+
+    if (!element) {
+      addToast("Could not find content to export", "info");
+      return;
+    }
 
     try {
-      const elementId = "design-canvas-content";
-      const fileName = `${currentProject?.name || 'design'}-${activeTab}`;
+      addToast(message || `Exporting as ${format.toUpperCase()}...`, "download");
 
-      // Handle PDF export
-      if (format.includes("pdf")) {
-        await exportElementAsPDF(elementId, fileName);
-        addToast(`✓ PDF export completed`, "success");
-        return;
+      if (format === 'png') {
+        await exportElementAsImage(elementId, `${currentProject?.name || 'design'}-${activeTab}.png`);
+      } else {
+        await exportElementAsPDF(elementId, `${currentProject?.name || 'design'}-${activeTab}.pdf`);
       }
 
-      // Handle PNG/Image export
-      if (format.includes("png") || format.includes("mobile") || format.includes("image")) {
-        await exportElementAsImage(elementId, fileName);
-        addToast(`✓ PNG export completed`, "success");
-        return;
-      }
-
-      // Fallback for simulated/other formats
-      setTimeout(() => {
-        addToast(`✓ ${format} export completed`, "success");
-      }, 1500);
+      addToast("Export complete!", "success");
     } catch (error) {
       console.error("Export failed:", error);
       addToast("Export failed. Please try again.", "info");
@@ -612,543 +209,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     setShareModalOpen(true);
   };
 
-  const handleSendMessage = useCallback(async (message: string) => {
-    if (regenerationCount >= MAX_REGENERATIONS) {
-      addToast("Regeneration limit reached. Refresh to start a new conversation.", "info");
-      return;
-    }
-
-    // Add user message
-    const userMessage: ChatMessage = {
-      role: "user",
-      content: message,
-    };
-
-    setChatMessages((prev) => [...prev, userMessage]);
-    setIsStreaming(true);
-
-    // Show preparing indicator for complex requests
-    const isComplexRequest = message.toLowerCase().includes('change') ||
-      message.toLowerCase().includes('update') ||
-      message.toLowerCase().includes('location') ||
-      message.toLowerCase().includes('market');
-
-    if (isComplexRequest) {
-      // Add temporary loading message
-      setChatMessages((prev) => [...prev, {
-        role: 'ai',
-        content: '⚡ Analyzing your request...'
-      }]);
-    }
-
-    try {
-      // Filter out internal UI markers before sending to API
-      const cleanMessages = [...chatMessages, userMessage]
-        .filter(msg => {
-          // Remove progress markers - these are internal UI state
-          return msg.content !== '__GENERATION_PROGRESS__' &&
-            msg.content !== '__UPDATE_PROGRESS__';
-        })
-        .map(msg => ({
-          role: msg.role === "ai" ? "assistant" : msg.role,
-          content: msg.content
-        }));
-
-      const response = await fetch("/api/copilot/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: cleanMessages,
-          flowId,
-          icpId,
-          context: workspaceData?.persona ? {
-            persona: {
-              name: workspaceData.persona.persona_name,
-              role: workspaceData.persona.persona_role,
-              company: workspaceData.persona.persona_company,
-              industry: workspaceData.persona.title || 'Business',
-              location: workspaceData.persona.location,
-              country: workspaceData.persona.country,
-              painPoints: workspaceData.persona.pain_points,
-              goals: workspaceData.persona.goals || [],
-            },
-            valueProp: workspaceData.valueProp ? {
-              headline: currentProject?.valueProp.headline || '',
-              subheadline: currentProject?.valueProp.subheadline || '',
-              problem: currentProject?.valueProp.problem || '',
-              solution: currentProject?.valueProp.solution || '',
-              targetAudience: currentProject?.valueProp.targetAudience || '',
-            } : undefined,
-            brandGuide: designAssets?.brand_guide ? {
-              colors: {
-                primary: designAssets.brand_guide.colors.primary || [],
-                secondary: designAssets.brand_guide.colors.secondary || [],
-              },
-              typography: designAssets.brand_guide.typography || [],
-              toneOfVoice: designAssets.brand_guide.toneOfVoice || [],
-            } : undefined,
-            regenerationCount,
-          } : { regenerationCount },
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.limitReached) {
-          addToast("Regeneration limit reached!", "info");
-        } else {
-          addToast("Failed to get response. Please try again.", "info");
-        }
-        setIsStreaming(false);
-        return;
-      }
-
-      // Stream the response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let aiResponse = "";
-
-      if (!reader) {
-        console.error("❌ [Chat] No reader available from response");
-        addToast("Failed to read response. Please try again.", "info");
-        setIsStreaming(false);
-        return;
-      }
-
-      console.log("📖 [Chat] Starting to read stream...");
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log("✅ [Chat] Stream complete", { responseLength: aiResponse.length });
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
-        aiResponse += chunk;
-
-        // Update AI message in real-time
-        setChatMessages((prev) => {
-          const lastMsg = prev[prev.length - 1];
-          if (lastMsg?.role === "ai") {
-            // Replace last AI message (could be loading indicator or partial response)
-            return [...prev.slice(0, -1), { role: "ai", content: aiResponse }];
-          }
-          return [...prev, { role: "ai", content: aiResponse }];
-        });
-      }
-
-      // Parse updates from AI response if JSON is present
-      if (aiResponse.trim()) {
-        parseAndApplyUpdates(aiResponse);
-      } else {
-        console.warn("⚠️ [Chat] Empty response from AI");
-      }
-
-      setRegenerationCount(prev => prev + 1);
-    } catch (error) {
-      console.error("Chat error:", error);
-      addToast("Something went wrong. Please try again.", "info");
-    } finally {
-      setIsStreaming(false);
-    }
-  }, [chatMessages, currentProject, regenerationCount]);
-
-  const parseAndApplyUpdates = (response: string) => {
-    try {
-      // Check for function call format from new API
-      // Check for MANIFEST update signal
-      const manifestMatch = response.match(/__MANIFEST_UPDATED__(.+)/);
-      if (manifestMatch) {
-        const updatedManifest = JSON.parse(manifestMatch[1]);
-        console.log('🔄 [Design Studio] Received manifest update');
-
-        // Add to history before updating state
-        if (manifestHistoryRef.current) {
-          const updateType = updatedManifest.metadata.generationHistory.slice(-1)[0]?.action || 'update';
-          manifestHistoryRef.current.addToHistory(
-            updatedManifest,
-            updateType,
-            `AI updated: ${updateType}`
-          );
-          setCanUndo(manifestHistoryRef.current.canUndo());
-          setCanRedo(manifestHistoryRef.current.canRedo());
-        }
-
-        setManifest(updatedManifest);
-        // Reload workspace data from updated manifest
-        loadWorkspaceData();
-
-        // Show success toast
-        const updateType = updatedManifest.metadata.generationHistory.slice(-1)[0]?.action || 'update';
-        addToast(`Brand updated: ${updateType}`, "success");
-        return;
-      }
-
-      // Legacy fallback (should not be hit with new API)
-      const functionCallMatch = response.match(/__FUNCTION_CALL__(.+)/);
-      let updates;
-
-      if (functionCallMatch) {
-        // Parse function call arguments (new structured format)
-        const parsed = JSON.parse(functionCallMatch[1]);
-        updates = parsed;
-      } else {
-        // Fallback: Look for legacy JSON format
-        const jsonMatch = response.match(/\{[\s\S]*"updates"[\s\S]*\}/);
-        if (!jsonMatch) return;
-
-        const parsed = JSON.parse(jsonMatch[0]);
-        updates = parsed.updates;
-      }
-
-      if (!updates) return;
-
-      // Apply updates to project state
-      if (!workspaceData || !designAssets) return;
-
-      const updateType = updates.updateType || 'refinement';
-      console.log(`🔄 [Design Studio] Applying ${updateType} updates`, updates);
-
-      // Show progress steps for complex updates
-      if (updateType === 'market_shift') {
-        // Add progress indicator to chat (append to existing messages)
-        setChatMessages((prev) => {
-          // Check if last message already has progress marker
-          const lastMsg = prev[prev.length - 1];
-          if (lastMsg?.content.includes('__UPDATE_PROGRESS__')) {
-            return prev; // Already showing progress
-          }
-          // Filter out any old progress markers and append new one
-          const filtered = prev.filter(m => m.content !== '__UPDATE_PROGRESS__');
-          return [...filtered, { role: 'ai', content: '__UPDATE_PROGRESS__' }];
-        });
-
-        // Use AI-provided steps or generate fallback steps
-        let executionSteps;
-
-        if (updates.executionSteps && updates.executionSteps.length > 0) {
-          // Use AI-provided steps
-          executionSteps = updates.executionSteps.map((step: any, idx: number) => ({
-            id: `exec_${idx}`,
-            label: step.step.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, ''), // Remove emoji for label
-            icon: step.step.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⚡', // Extract emoji or use default
-            status: 'complete' as const
-          }));
-        } else {
-          // Fallback: Auto-generate steps based on what changed
-          const steps = [];
-
-          if (updates.persona?.location || updates.persona?.country) {
-            const loc = updates.persona.location || '';
-            const country = updates.persona.country || '';
-            steps.push({
-              id: 'location',
-              label: `Updating location to ${loc}${country ? ', ' + country : ''}`,
-              icon: '🌍',
-              status: 'complete' as const
-            });
-          }
-
-          if (updates.persona?.name || updates.persona?.company) {
-            steps.push({
-              id: 'persona',
-              label: 'Adapting persona to local market',
-              icon: '👤',
-              status: 'complete' as const
-            });
-          }
-
-          if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
-            steps.push({
-              id: 'valueprop',
-              label: 'Regenerating value proposition',
-              icon: '🎯',
-              status: 'complete' as const
-            });
-          }
-
-          if (steps.length === 0) {
-            // Generic fallback
-            steps.push(
-              { id: 'update1', label: 'Analyzing market context', icon: '🔍', status: 'complete' as const },
-              { id: 'update2', label: 'Applying changes', icon: '✨', status: 'complete' as const }
-            );
-          }
-
-          executionSteps = steps;
-        }
-
-        setGenerationSteps(executionSteps);
-      }
-
-      // Track what changed for comprehensive summary
-      const changedFields: string[] = [];
-
-      // === PERSONA UPDATES (for market_shift and other workflows) ===
-      if (updates.persona) {
-        setWorkspaceData((prev: any) => {
-          if (!prev) return prev;
-
-          const personaUpdates: any = {};
-          if (updates.persona.name) {
-            personaUpdates.persona_name = updates.persona.name;
-            changedFields.push(`persona name to "${updates.persona.name}"`);
-          }
-          if (updates.persona.company) {
-            personaUpdates.persona_company = updates.persona.company;
-            changedFields.push(`company to "${updates.persona.company}"`);
-          }
-          if (updates.persona.location) {
-            personaUpdates.location = updates.persona.location;
-            changedFields.push(`location to "${updates.persona.location}"`);
-          }
-          if (updates.persona.country) {
-            personaUpdates.country = updates.persona.country;
-            changedFields.push(`country to "${updates.persona.country}"`);
-          }
-
-          return {
-            ...prev,
-            persona: {
-              ...prev.persona,
-              ...personaUpdates
-            }
-          };
-        });
-      }
-
-      // Backwards compatibility: handle legacy flat location/country fields
-      if (updates.location || updates.country) {
-        setWorkspaceData((prev: any) => {
-          if (!prev) return prev;
-          const legacyUpdates: any = {};
-          if (updates.location) {
-            legacyUpdates.location = updates.location;
-            changedFields.push(`location to "${updates.location}"`);
-          }
-          if (updates.country) {
-            legacyUpdates.country = updates.country;
-            changedFields.push(`country to "${updates.country}"`);
-          }
-          return {
-            ...prev,
-            persona: {
-              ...prev.persona,
-              ...legacyUpdates
-            }
-          };
-        });
-      }
-
-      // === VALUE PROP UPDATES ===
-      if (updates.valueProp) {
-        const vp = updates.valueProp;
-        setUiValueProp((prev: any) => {
-          if (!prev) return prev;
-
-          const vpUpdates: any = {};
-          if (vp.headline) { vpUpdates.headline = vp.headline; changedFields.push('headline'); }
-          if (vp.subheadline) { vpUpdates.subheadline = vp.subheadline; changedFields.push('subheadline'); }
-          if (vp.problem) { vpUpdates.problem = vp.problem; changedFields.push('problem'); }
-          if (vp.solution) { vpUpdates.solution = vp.solution; changedFields.push('solution'); }
-          if (vp.outcome) { vpUpdates.outcome = vp.outcome; changedFields.push('outcome'); }
-          if (vp.targetAudience) { vpUpdates.targetAudience = vp.targetAudience; changedFields.push('target audience'); }
-          if (vp.benefits && Array.isArray(vp.benefits)) { vpUpdates.benefits = vp.benefits; changedFields.push('benefits'); }
-
-          return { ...prev, ...vpUpdates };
-        });
-      }
-
-      // Backwards compatibility: handle legacy flat value prop fields
-      if (updates.targetAudience || updates.problem || updates.solution || updates.outcome || updates.benefits || updates.headline) {
-        setUiValueProp((prev: any) => {
-          if (!prev) return prev;
-
-          const legacyVpUpdates: any = {};
-          if (updates.headline) { legacyVpUpdates.headline = updates.headline; changedFields.push('headline'); }
-          if (updates.subheadline) { legacyVpUpdates.subheadline = updates.subheadline; changedFields.push('subheadline'); }
-          if (updates.problem) { legacyVpUpdates.problem = updates.problem; changedFields.push('problem'); }
-          if (updates.solution) { legacyVpUpdates.solution = updates.solution; changedFields.push('solution'); }
-          if (updates.outcome) { legacyVpUpdates.outcome = updates.outcome; changedFields.push('outcome'); }
-          if (updates.targetAudience) { legacyVpUpdates.targetAudience = updates.targetAudience; changedFields.push('target audience'); }
-          if (updates.benefits && Array.isArray(updates.benefits)) { legacyVpUpdates.benefits = updates.benefits; changedFields.push('benefits'); }
-
-          return { ...prev, ...legacyVpUpdates };
-        });
-      }
-
-      // === BRAND UPDATES ===
-      if (updates.brandUpdates) {
-        setDesignAssets((prev: any) => {
-          if (!prev || !prev.brand_guide) return prev;
-          const updated = { ...prev };
-
-          if (updates.brandUpdates.colors && Array.isArray(updates.brandUpdates.colors)) {
-            updates.brandUpdates.colors.forEach((hex: string, idx: number) => {
-              if (updated.brand_guide.colors.primary[idx]) {
-                updated.brand_guide.colors.primary[idx].hex = hex;
-              }
-            });
-            changedFields.push('colors');
-          }
-
-          if (updates.brandUpdates.fonts) {
-            if (updates.brandUpdates.fonts.heading) {
-              const headingFont = updated.brand_guide.typography.find((t: any) => t.category === "heading");
-              if (headingFont) headingFont.fontFamily = updates.brandUpdates.fonts.heading;
-              changedFields.push('heading font');
-            }
-            if (updates.brandUpdates.fonts.body) {
-              const bodyFont = updated.brand_guide.typography.find((t: any) => t.category === "body");
-              if (bodyFont) bodyFont.fontFamily = updates.brandUpdates.fonts.body;
-              changedFields.push('body font');
-            }
-          }
-
-          return updated;
-        });
-      }
-
-
-      // === STYLE GUIDE UPDATES ===
-      if (updates.styleGuide) {
-        setDesignAssets((prev: any) => {
-          if (!prev || !prev.style_guide) return prev;
-          const updated = { ...prev };
-          const sg = updates.styleGuide;
-
-          if (sg.borderRadius) { updated.style_guide.borderRadius = sg.borderRadius; changedFields.push('border radius'); }
-          if (sg.buttonStyle) { updated.style_guide.buttons = [{ variant: 'primary', style: sg.buttonStyle }]; changedFields.push('button style'); }
-          if (sg.cardStyle) { updated.style_guide.cards = [{ variant: 'default', style: sg.cardStyle }]; changedFields.push('card style'); }
-          if (sg.shadows) { updated.style_guide.shadows = sg.shadows; changedFields.push('shadows'); }
-
-          return updated;
-        });
-      }
-
-      // === LANDING PAGE UPDATES ===
-      if (updates.landingPage) {
-        setDesignAssets((prev: any) => {
-          if (!prev || !prev.landing_page) return prev;
-          const updated = { ...prev };
-          const lp = updates.landingPage;
-
-          if (lp.features) { updated.landing_page.features = lp.features; changedFields.push('features'); }
-          if (lp.socialProof) { updated.landing_page.socialProof = lp.socialProof; changedFields.push('testimonials'); }
-          if (lp.footer) { updated.landing_page.footer = lp.footer; changedFields.push('footer'); }
-
-          return updated;
-        });
-      }
-
-      // Backwards compatibility: handle legacy flat colors/fonts
-      setDesignAssets((prev: any) => {
-        if (!prev) return prev;
-        const updated = { ...prev };
-        let hasChanges = false;
-
-        if (updates.colors && Array.isArray(updates.colors) && updated.brand_guide) {
-          updates.colors.forEach((hex: string, idx: number) => {
-            if (updated.brand_guide.colors.primary[idx]) {
-              updated.brand_guide.colors.primary[idx].hex = hex;
-            }
-          });
-          changedFields.push('colors');
-          hasChanges = true;
-        }
-
-        if (updates.fonts && updated.brand_guide) {
-          if (updates.fonts.heading) {
-            const headingFont = updated.brand_guide.typography.find((t: any) => t.category === "heading");
-            if (headingFont) headingFont.fontFamily = updates.fonts.heading;
-            changedFields.push('heading font');
-            hasChanges = true;
-          }
-          if (updates.fonts.body) {
-            const bodyFont = updated.brand_guide.typography.find((t: any) => t.category === "body");
-            if (bodyFont) bodyFont.fontFamily = updates.fonts.body;
-            changedFields.push('body font');
-            hasChanges = true;
-          }
-        }
-
-        if (updates.headline && updated.landing_page) {
-          updated.landing_page.hero.headline = updates.headline;
-          hasChanges = true;
-        }
-
-        if (updates.subheadline && updated.landing_page) {
-          updated.landing_page.hero.subheadline = updates.subheadline;
-          hasChanges = true;
-        }
-
-        return hasChanges ? updated : prev;
-      });
-
-      // === SHOW COMPREHENSIVE UPDATE TOAST & SUMMARY ===
-      if (changedFields.length > 0) {
-        const uniqueFields = [...new Set(changedFields)];
-
-        // Show toast notification
-        if (updateType === 'market_shift') {
-          addToast(`🌍 Market shift complete! Updated: ${uniqueFields.slice(0, 3).join(', ')}${uniqueFields.length > 3 ? '...' : ''}`, "success");
-        } else if (uniqueFields.length > 3) {
-          addToast(`✨ ${uniqueFields.length} elements updated successfully!`, "success");
-        } else {
-          addToast(`✓ Updated: ${uniqueFields.join(', ')}`, "success");
-        }
-
-        // Add summary message to chat for complex updates
-        if (updateType === 'market_shift' && uniqueFields.length >= 3) {
-          setTimeout(() => {
-            setChatMessages((prev) => {
-              // Check if we already added a summary
-              const lastMsg = prev[prev.length - 1];
-              if (lastMsg?.content.includes('✅ Updated:')) {
-                return prev; // Summary already added
-              }
-
-              // Build comprehensive summary
-              const summaryParts = [];
-              if (updates.persona) {
-                if (updates.persona.location || updates.persona.country) {
-                  summaryParts.push(`✅ **Location**: ${updates.persona.location || ''}${updates.persona.country ? ', ' + updates.persona.country : ''}`);
-                }
-                if (updates.persona.name) {
-                  summaryParts.push(`✅ **Persona**: ${updates.persona.name}${updates.persona.company ? ' at ' + updates.persona.company : ''}`);
-                }
-              }
-              if (updates.valueProp && Object.keys(updates.valueProp).length > 0) {
-                summaryParts.push(`✅ **Value Proposition**: Regenerated for new market`);
-              }
-
-              const summaryMessage = `\n\n**🎉 Update Complete!**\n\n${summaryParts.join('\n')}\n\n${updates.reasoning || 'Changes applied successfully.'}`;
-
-              return [...prev, { role: 'ai', content: summaryMessage }];
-            });
-
-            // Clear progress steps after showing summary
-            setTimeout(() => {
-              setGenerationSteps([]);
-            }, 500);
-          }, 300);
-        }
-
-        // Switch to appropriate tab based on update type
-        if (updateType === 'market_shift' || updates.valueProp || updates.targetAudience) {
-          setTimeout(() => setActiveTab("value-prop"), 800);
-        } else if (updateType === 'styling' || updates.brandUpdates) {
-          setTimeout(() => setActiveTab("brand"), 500);
-        }
-      }
-
-      console.log(`✅ [Design Studio] Applied updates:`, changedFields);
-    } catch (error) {
-      // Silently fail - not all responses will have JSON
-      console.log("No structured updates found in response", error);
-    }
-  };
+  // --- Render ---
 
   // Loading state
   if (loading) {
@@ -1231,14 +292,14 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
               projectName={currentProject.name}
               isStreaming={isStreaming}
               regenerationCount={regenerationCount}
-              maxRegenerations={MAX_REGENERATIONS}
+              maxRegenerations={4}
               generationSteps={generationSteps}
             />
           </div>
 
           {/* Right: Canvas Area - Takes remaining space */}
           <CanvasArea
-            project={currentProject!}
+            project={currentProject}
             persona={workspaceData!.persona as any}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -1263,4 +324,3 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     </>
   );
 }
-

@@ -46,7 +46,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Colors Section */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Palette className="w-5 h-5 text-purple-600" />
@@ -202,7 +202,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       </Card>
 
       {/* Typography */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Type className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Typography</h3>
@@ -280,7 +280,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       </Card>
 
       {/* Logo Variations */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <ImageIcon className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Logo Variations</h3>
@@ -290,7 +290,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => (
             <div
               key={idx}
-              className="p-6 rounded-lg border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+              className="p-6 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
             >
               <div className="aspect-square flex items-center justify-center mb-3 bg-background rounded-lg">
                 <div className="text-4xl font-bold text-muted-foreground opacity-20">
@@ -305,7 +305,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       </Card>
 
       {/* Tone of Voice */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <MessageSquare className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Tone of Voice</h3>
@@ -325,7 +325,7 @@ export function BrandGuideCanvas({ project }: BrandGuideCanvasProps) {
       </Card>
 
       {/* Brand Personality */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <MessageSquare className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Brand Personality</h3>

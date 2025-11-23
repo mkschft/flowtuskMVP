@@ -16,13 +16,13 @@ type ChatPanelProps = {
   isStreaming?: boolean;
   regenerationCount?: number;
   maxRegenerations?: number;
-  generationSteps?: Array<{id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete'}>;
+  generationSteps?: Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>;
 };
 
-export function ChatPanel({ 
-  messages, 
-  onSendMessage, 
-  projectName, 
+export function ChatPanel({
+  messages,
+  onSendMessage,
+  projectName,
   isStreaming = false,
   regenerationCount = 0,
   maxRegenerations = 4,
@@ -39,7 +39,7 @@ export function ChatPanel({
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
-    
+
     onSendMessage(inputValue);
     setInputValue("");
     inputRef.current?.focus();
@@ -53,18 +53,18 @@ export function ChatPanel({
   };
 
   return (
-    <div className="w-[420px] flex flex-col border-r bg-background h-full">
-      <Card className="relative overflow-hidden border-0 border-r-2 flex flex-col h-full rounded-none">
+    <div className="w-[420px] flex flex-col bg-background h-full">
+      <Card className="relative overflow-hidden border-0 border-r flex flex-col h-full rounded-none">
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, idx) => {
             // Strip any code blocks, function calls, and JSON
             const originalContent = message.content;
-            
+
             // Count function calls for status indicator
             const functionCallMatches = originalContent.match(/__FUNCTION_CALL__/g);
             const functionCallCount = functionCallMatches ? functionCallMatches.length : 0;
-            
+
             // Clean display content
             const displayContent = originalContent
               // remove manifest update markers and their JSON
@@ -78,26 +78,26 @@ export function ChatPanel({
               // collapse excessive blank lines
               .replace(/\n{3,}/g, "\n\n")
               .trim();
-            
+
             // Skip rendering if only function calls (no human-readable content)
             if (!displayContent && functionCallCount > 0) {
               return null;
             }
-            
+
             // Render GenerationProgress component for special markers
             if (originalContent === '__GENERATION_PROGRESS__' || originalContent === '__UPDATE_PROGRESS__') {
               const allComplete = generationSteps.every(s => s.status === 'complete');
-              
+
               // Only show if there are steps to display
               if (generationSteps.length === 0) return null;
-              
+
               return (
                 <div key={idx} className="w-full">
                   <GenerationProgress steps={generationSteps} allComplete={allComplete} />
                 </div>
               );
             }
-            
+
             // Hide manifest update markers entirely
             if (originalContent.startsWith('__MANIFEST_UPDATED__')) {
               return null;
@@ -116,7 +116,7 @@ export function ChatPanel({
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
                 )}
-                
+
                 <div
                   className={cn(
                     "max-w-[80%] rounded-2xl px-4 py-3",
@@ -128,38 +128,38 @@ export function ChatPanel({
                   <p className="text-sm leading-relaxed whitespace-pre-line">
                     {displayContent || (message.role === "ai" ? "Applied your requested changes." : message.content)}
                   </p>
-                  
+
                   {/* Quick Action Buttons for AI confirmation questions */}
-                  {message.role === "ai" && 
-                   idx === messages.length - 1 && 
-                   !isStreaming &&
-                   (displayContent.toLowerCase().includes("would you like") ||
-                    displayContent.toLowerCase().includes("shall i") ||
-                    displayContent.toLowerCase().includes("proceed with") ||
-                    displayContent.toLowerCase().includes("implement these") ||
-                    displayContent.toLowerCase().includes("do you want")) && (
-                    <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          onSendMessage("Yes, proceed");
-                        }}
-                        className="flex-1"
-                      >
-                        Yes, proceed
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          onSendMessage("No, let me clarify");
-                        }}
-                        className="flex-1"
-                      >
-                        No, clarify
-                      </Button>
-                    </div>
-                  )}
+                  {message.role === "ai" &&
+                    idx === messages.length - 1 &&
+                    !isStreaming &&
+                    (displayContent.toLowerCase().includes("would you like") ||
+                      displayContent.toLowerCase().includes("shall i") ||
+                      displayContent.toLowerCase().includes("proceed with") ||
+                      displayContent.toLowerCase().includes("implement these") ||
+                      displayContent.toLowerCase().includes("do you want")) && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            onSendMessage("Yes, proceed");
+                          }}
+                          className="flex-1"
+                        >
+                          Yes, proceed
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            onSendMessage("No, let me clarify");
+                          }}
+                          className="flex-1"
+                        >
+                          No, clarify
+                        </Button>
+                      </div>
+                    )}
                 </div>
 
                 {message.role === "user" && (
@@ -179,17 +179,17 @@ export function ChatPanel({
               </div>
               <div className="bg-muted rounded-2xl px-4 py-3">
                 <div className="flex gap-1">
-                  <div 
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" 
-                    style={{ animationDelay: "0ms" }} 
+                  <div
+                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
+                    style={{ animationDelay: "0ms" }}
                   />
-                  <div 
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" 
-                    style={{ animationDelay: "150ms" }} 
+                  <div
+                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
+                    style={{ animationDelay: "150ms" }}
                   />
-                  <div 
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" 
-                    style={{ animationDelay: "300ms" }} 
+                  <div
+                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
+                    style={{ animationDelay: "300ms" }}
                   />
                 </div>
               </div>
@@ -226,8 +226,8 @@ export function ChatPanel({
             </p>
             <p className={cn(
               "text-xs font-medium",
-              regenerationCount >= maxRegenerations 
-                ? "text-orange-600 dark:text-orange-400" 
+              regenerationCount >= maxRegenerations
+                ? "text-orange-600 dark:text-orange-400"
                 : "text-muted-foreground"
             )}>
               {regenerationCount}/{maxRegenerations} uses

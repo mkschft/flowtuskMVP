@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ValuePropTable } from "./ValuePropTable";
-import { 
-  Check, 
+import {
+  Check,
   Copy,
   MapPin,
   Sparkles,
@@ -38,11 +38,11 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
   const personaRole = persona.persona_role;
   const personaCompany = persona.persona_company;
   const personaLocation = `${persona.location}, ${persona.country}`;
-  
+
   // Use value prop headline (set from variations), with fallbacks
-  const personaValueProp = valueProp.headline || 
-                          valueProp.benefits?.[0] || 
-                          "Value proposition";
+  const personaValueProp = valueProp.headline ||
+    valueProp.benefits?.[0] ||
+    "Value proposition";
 
   // Generate avatar using professional style with persona name as seed
   const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(personaName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
@@ -53,20 +53,20 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Persona Card with Avatar */}
-      <Card className="p-6 bg-background border-2 relative overflow-hidden">
+      <Card className="p-6 bg-background border relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 pointer-events-none" />
-        
+
         <div className="relative">
           <div className="flex items-start gap-4 mb-6">
             {/* Avatar */}
             <div className="relative shrink-0">
-              <img 
+              <img
                 src={avatarUrl}
                 alt="Persona Avatar"
                 className="w-20 h-20 rounded-full ring-2 ring-purple-200 dark:ring-purple-800 ring-offset-2 ring-offset-background bg-white"
                 style={{ filter: 'contrast(1.2)' }}
               />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background" />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border border-background" />
             </div>
 
             {/* Persona Info */}
@@ -137,7 +137,7 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
       </Card>
 
       {/* Value Prop Table */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="mb-4">
           <h3 className="text-lg font-bold mb-1">Value Proposition Framework</h3>
           <p className="text-sm text-muted-foreground">
@@ -171,7 +171,7 @@ export function ValuePropCanvas({ project, persona }: ValuePropCanvasProps) {
       </Card>
 
       {/* Key Benefits */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <h3 className="font-bold text-lg mb-4">Key Benefits</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {valueProp.benefits.map((benefit, idx) => (
