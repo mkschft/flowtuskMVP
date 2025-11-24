@@ -210,8 +210,6 @@ export async function GET(req: NextRequest) {
             variations.forEach((v: any, idx: number) => {
               console.log(`  - Variation ${idx + 1} (${v.name}):`);
               console.log(`    - imageUrl: ${v.imageUrl ? '✅ ' + v.imageUrl.substring(0, 50) + '...' : '❌ Missing'}`);
-              console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Present' : '❌ Missing'}`);
-              console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ ' + v.imageUrlStockimg.substring(0, 50) + '...' : '❌ Missing'}`);
             });
             return variations;
           })()

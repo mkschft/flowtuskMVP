@@ -49,8 +49,6 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
     logoVariations.forEach((logo, idx) => {
       console.log(`  - Logo ${idx + 1} (${logo.name}):`);
       console.log(`    - imageUrl: ${logo.imageUrl ? '✅' : '❌'}`);
-      console.log(`    - imageUrlSvg: ${logo.imageUrlSvg ? '✅' : '❌'}`);
-      console.log(`    - imageUrlStockimg: ${logo.imageUrlStockimg ? '✅' : '❌'}`);
     });
   } else {
     console.warn('⚠️ [BrandGuideCanvas] No logo variations found in brandGuide');
@@ -329,194 +327,59 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
           <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
-            const hasAllThree = logo.imageUrl && logo.imageUrlSvg && logo.imageUrlStockimg;
-            const hasMultiple = (logo.imageUrl ? 1 : 0) + (logo.imageUrlSvg ? 1 : 0) + (logo.imageUrlStockimg ? 1 : 0) > 1;
-            const hasAny = logo.imageUrl || logo.imageUrlSvg || logo.imageUrlStockimg;
+            const hasLogo = !!logo.imageUrl;
             
             return (
               <div
                 key={idx}
                 className="p-6 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
               >
-                {hasAllThree ? (
-                  // Three-way comparison view (first iteration)
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-3 gap-2">
-                      {/* DALL-E Logo */}
-                      <div className="space-y-1">
-                        <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                          <img
-                            src={logo.imageUrl}
-                            alt={`${logo.name} DALL-E logo for ${project.name}`}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              try {
-                                const target = e.target as HTMLImageElement;
-                                if (target) target.style.display = 'none';
-                              } catch (err) {
-                                console.warn('Error handling logo image fallback:', err);
+                {hasLogo ? (
+                  <>
+                    <div className="aspect-square flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
+                      <img
+                        src={logo.imageUrl}
+                        alt={`${logo.name} logo for ${project.name}`}
+                        className="w-full h-full object-contain p-4"
+                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                        onError={(e) => {
+                          try {
+                            const target = e.target as HTMLImageElement;
+                            if (target) {
+                              target.style.display = 'none';
+                              const fallback = target.parentElement?.querySelector('.logo-fallback') as HTMLElement;
+                              if (fallback) {
+                                fallback.style.display = 'flex';
                               }
-                            }}
-                          />
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground">DALL-E</p>
-                      </div>
-                      {/* SVG Logo */}
-                      <div className="space-y-1">
-                        <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                          <img
-                            src={logo.imageUrlSvg}
-                            alt={`${logo.name} SVG logo for ${project.name}`}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              try {
-                                const target = e.target as HTMLImageElement;
-                                if (target) target.style.display = 'none';
-                              } catch (err) {
-                                console.warn('Error handling logo image fallback:', err);
-                              }
-                            }}
-                          />
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground">SVG</p>
-                      </div>
-                      {/* Stockimg.ai Logo */}
-                      <div className="space-y-1">
-                        <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                          {logo.imageUrlStockimg && (
-                            <img
-                              src={logo.imageUrlStockimg}
-                              alt={`${logo.name} Stockimg.ai logo for ${project.name}`}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e) => {
-                                try {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target) target.style.display = 'none';
-                                } catch (err) {
-                                  console.warn('Error handling logo image fallback:', err);
-                                }
-                              }}
-                            />
-                          )}
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground">Stockimg</p>
+                            }
+                          } catch (err) {
+                            console.warn('Error handling logo image fallback:', err);
+                          }
+                        }}
+                      />
+                      <div className="text-4xl font-bold text-muted-foreground opacity-20 logo-fallback absolute inset-0 flex items-center justify-center hidden">
+                        {project.name.charAt(0)}
                       </div>
                     </div>
                     <p className="font-semibold text-sm text-center">{logo.name}</p>
                     <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
-                  </div>
-                ) : hasMultiple ? (
-                  // Two logos side-by-side (fallback if one fails)
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      {logo.imageUrl && (
-                        <div className="space-y-1">
-                          <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                            <img
-                              src={logo.imageUrl}
-                              alt={`${logo.name} DALL-E logo for ${project.name}`}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e) => {
-                                try {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target) target.style.display = 'none';
-                                } catch (err) {
-                                  console.warn('Error handling logo image fallback:', err);
-                                }
-                              }}
-                            />
-                          </div>
-                          <p className="text-xs text-center text-muted-foreground">DALL-E</p>
-                        </div>
-                      )}
-                      {logo.imageUrlSvg && (
-                        <div className="space-y-1">
-                          <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                            <img
-                              src={logo.imageUrlSvg}
-                              alt={`${logo.name} SVG logo for ${project.name}`}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e) => {
-                                try {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target) target.style.display = 'none';
-                                } catch (err) {
-                                  console.warn('Error handling logo image fallback:', err);
-                                }
-                              }}
-                            />
-                          </div>
-                          <p className="text-xs text-center text-muted-foreground">SVG</p>
-                        </div>
-                      )}
-                      {logo.imageUrlStockimg && (
-                        <div className="space-y-1">
-                          <div className="aspect-square flex items-center justify-center rounded-lg overflow-hidden relative bg-background/50">
-                            <img
-                              src={logo.imageUrlStockimg}
-                              alt={`${logo.name} Stockimg.ai logo for ${project.name}`}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e) => {
-                                try {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target) target.style.display = 'none';
-                                } catch (err) {
-                                  console.warn('Error handling logo image fallback:', err);
-                                }
-                              }}
-                            />
-                          </div>
-                          <p className="text-xs text-center text-muted-foreground">Stockimg</p>
-                        </div>
-                      )}
-                    </div>
-                    <p className="font-semibold text-sm text-center">{logo.name}</p>
-                    <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
-                  </div>
+                  </>
                 ) : (
-                  // Single logo view (subsequent iterations or single type)
                   <>
                     <div className="aspect-square flex items-center justify-center mb-3 rounded-lg overflow-hidden relative">
-                      {hasAny ? (
-                        <>
-                          <img
-                            src={logo.imageUrl || logo.imageUrlSvg || logo.imageUrlStockimg}
-                            alt={`${logo.name} logo for ${project.name}`}
-                            className="w-full h-full object-contain p-2"
-                            onError={(e) => {
-                              try {
-                                const target = e.target as HTMLImageElement;
-                                if (target) {
-                                  target.style.display = 'none';
-                                  const fallback = target.parentElement?.querySelector('.logo-fallback') as HTMLElement;
-                                  if (fallback) {
-                                    fallback.style.display = 'flex';
-                                  }
-                                }
-                              } catch (err) {
-                                console.warn('Error handling logo image fallback:', err);
-                              }
-                            }}
-                          />
-                          <div className="text-4xl font-bold text-muted-foreground opacity-20 logo-fallback absolute inset-0 flex items-center justify-center hidden">
-                            {project.name.charAt(0)}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-4xl font-bold text-muted-foreground opacity-20 flex items-center justify-center w-full h-full">
-                          {project.name.charAt(0)}
-                        </div>
-                      )}
+                      <div className="text-4xl font-bold text-muted-foreground opacity-20 flex items-center justify-center w-full h-full">
+                        {project.name.charAt(0)}
+                      </div>
                     </div>
-                    <p className="font-semibold text-sm">{logo.name}</p>
-                    <p className="text-xs text-muted-foreground">{logo.description}</p>
+                    <p className="font-semibold text-sm text-center">{logo.name}</p>
+                    <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
                   </>
                 )}
               </div>
             );
-          }) : <p className="text-sm text-muted-foreground italic col-span-4">No logo variations defined</p>}
+          }) : <p className="text-sm text-muted-foreground italic col-span-2">No logo variations defined</p>}
         </div>
       </Card>
 

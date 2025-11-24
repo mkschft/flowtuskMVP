@@ -1,58 +1,212 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+/**
+ * Clean brand name by removing metadata and extra characters
+ * Removes content in parentheses, extra spaces, and non-essential characters
+ */
+function cleanBrandName(brandName: string): string {
+  if (!brandName) return brandName;
+  
+  let cleaned = brandName;
+  
+  // Remove content in parentheses (e.g., "(100,000 employees)", "(Series A)", etc.)
+  cleaned = cleaned.replace(/\s*\([^)]*\)/g, '');
+  
+  // Remove content in brackets
+  cleaned = cleaned.replace(/\s*\[[^\]]*\]/g, '');
+  
+  // Remove common metadata patterns
+  cleaned = cleaned.replace(/\s*-\s*(Series [A-Z]|Seed|Series A|Series B|Series C)/gi, '');
+  cleaned = cleaned.replace(/\s*,\s*(Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation)/gi, '');
+  
+  // Remove extra whitespace and trim
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  
+  // Remove trailing punctuation that might be metadata
+  cleaned = cleaned.replace(/[.,;:]+$/, '');
+  
+  return cleaned;
+}
 
 /**
- * Fallback: Generate simple SVG logo programmatically
- * Use this if DALL-E results are unsatisfactory
+ * Get Google Font configuration based on variation type
+ * Returns font family, weight, letter spacing, and style
  */
-export function generateSimpleSVGLogo(
+function getFontConfigForVariation(
+  variation: { name: string; description: string },
+  defaultTypography?: { family: string; weight: string } | null
+): {
+  fontFamily: string;
+  fontWeight: string;
+  letterSpacing: string;
+  fontStyle?: string;
+  googleFontUrl?: string;
+} {
+  const variationName = variation.name.toLowerCase();
+  
+  // Popular B2B SaaS Google Fonts
+  const googleFonts = {
+    modern: { name: 'Poppins', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap' },
+    clean: { name: 'Inter', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap' },
+    bold: { name: 'Montserrat', weights: ['600', '700', '800'], url: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap' },
+    elegant: { name: 'Playfair Display', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap' },
+    tech: { name: 'Space Grotesk', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap' },
+    minimal: { name: 'Work Sans', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap' },
+  };
+
+  // Use default typography if available, otherwise select based on variation
+  if (defaultTypography?.family) {
+    // Map common font names to Google Fonts
+    const fontName = defaultTypography.family.toLowerCase();
+    let selectedFont = googleFonts.clean; // Default
+    
+    if (fontName.includes('poppins')) selectedFont = googleFonts.modern;
+    else if (fontName.includes('montserrat')) selectedFont = googleFonts.bold;
+    else if (fontName.includes('playfair') || fontName.includes('serif')) selectedFont = googleFonts.elegant;
+    else if (fontName.includes('space') || fontName.includes('grotesk')) selectedFont = googleFonts.tech;
+    else if (fontName.includes('work') || fontName.includes('sans')) selectedFont = googleFonts.minimal;
+    
+    return {
+      fontFamily: `'${selectedFont.name}', ${defaultTypography.family}, sans-serif`,
+      fontWeight: defaultTypography.weight || '600',
+      letterSpacing: '0px',
+      googleFontUrl: selectedFont.url
+    };
+  }
+
+  // Variation-based font selection
+  if (variationName.includes('bold') || variationName.includes('strong')) {
+    return {
+      fontFamily: `'${googleFonts.bold.name}', sans-serif`,
+      fontWeight: '700',
+      letterSpacing: '-0.5px',
+      googleFontUrl: googleFonts.bold.url
+    };
+  }
+  
+  if (variationName.includes('light') || variationName.includes('thin')) {
+    return {
+      fontFamily: `'${googleFonts.minimal.name}', sans-serif`,
+      fontWeight: '400',
+      letterSpacing: '1px',
+      googleFontUrl: googleFonts.minimal.url
+    };
+  }
+  
+  if (variationName.includes('elegant') || variationName.includes('serif')) {
+    return {
+      fontFamily: `'${googleFonts.elegant.name}', serif`,
+      fontWeight: '600',
+      letterSpacing: '0px',
+      googleFontUrl: googleFonts.elegant.url
+    };
+  }
+  
+  if (variationName.includes('tech') || variationName.includes('modern')) {
+    return {
+      fontFamily: `'${googleFonts.tech.name}', sans-serif`,
+      fontWeight: '600',
+      letterSpacing: '-0.3px',
+      googleFontUrl: googleFonts.tech.url
+    };
+  }
+  
+  // Default: Modern and clean
+  return {
+    fontFamily: `'${googleFonts.modern.name}', sans-serif`,
+    fontWeight: '600',
+    letterSpacing: '0px',
+    googleFontUrl: googleFonts.modern.url
+  };
+}
+
+/**
+ * Generate professional text-based SVG logo (wordmark)
+ * Uses Google Fonts and variation-specific styling
+ */
+export function generateTextBasedSVGLogo(
   brandName: string,
   variation: { name: string; description: string },
   primaryColor: string,
-  accentColor?: string
+  accentColor?: string,
+  typography?: { family: string; weight: string } | null
 ): string {
-  const initial = brandName.charAt(0).toUpperCase();
+  // Clean the brand name before generating logo
+  const cleanedBrandName = cleanBrandName(brandName);
   const isMonochrome = variation.name.toLowerCase().includes('monochrome') || 
                       variation.name.toLowerCase().includes('inverted');
-  const color = isMonochrome ? primaryColor : primaryColor;
-  const accent = accentColor && accentColor !== primaryColor ? accentColor : primaryColor;
-
-  // Simple geometric logo - circle with initial or abstract shape
-  if (isMonochrome) {
-    return `
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="40" fill="${color}" opacity="0.9"/>
-        <text x="50" y="65" font-family="Arial, sans-serif" font-size="40" font-weight="bold" 
-              fill="white" text-anchor="middle">${initial}</text>
-      </svg>
-    `;
+  
+  // Get font configuration based on variation
+  const fontConfig = getFontConfigForVariation(variation, typography);
+  
+  // Determine colors
+  const textColor = isMonochrome ? primaryColor : primaryColor;
+  const hasAccent = accentColor && accentColor !== primaryColor && !isMonochrome;
+  
+  // Calculate dimensions based on text length
+  const textLength = cleanedBrandName.length;
+  
+  // More generous width calculation with padding
+  // Estimate: ~8-10px per character for most fonts, add 40% padding for safety
+  const estimatedWidth = Math.ceil(textLength * 10 * 1.4);
+  const baseWidth = Math.max(240, estimatedWidth);
+  const padding = 20; // Padding on each side
+  const viewBoxWidth = baseWidth + (padding * 2);
+  const height = 60;
+  
+  // Adjust font size for very long names to ensure fit
+  let fontSize = 32;
+  if (textLength > 20) {
+    fontSize = 28;
+  } else if (textLength > 15) {
+    fontSize = 30;
   }
-
-  // Primary: gradient or two-tone
+  
+  // Adjust letter spacing based on font config and text length
+  let letterSpacing = fontConfig.letterSpacing;
+  if (textLength > 15) {
+    letterSpacing = '-0.5px';
+  } else if (textLength > 10) {
+    letterSpacing = fontConfig.letterSpacing || '-0.3px';
+  }
+  
+  // Create gradient if we have accent color
+  const gradientId = `grad-${Math.random().toString(36).substr(2, 9)}`;
+  const gradientDef = hasAccent ? `
+    <defs>
+      <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${accentColor};stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  ` : '';
+  
+  const fillColor = hasAccent ? `url(#${gradientId})` : textColor;
+  
+  // Note: Google Fonts work best when loaded in the HTML page
+  // For SVG in img tags, we use font names with system font fallbacks
+  // The fonts will render correctly if loaded on the page, otherwise fallback to system fonts
+  
+  // Center position with padding
+  const textX = padding + (baseWidth / 2);
+  const textY = height / 2 + fontSize / 3;
+  
   return `
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${accent};stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <rect x="20" y="20" width="60" height="60" rx="12" fill="url(#grad)"/>
-      <text x="50" y="60" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
-            fill="white" text-anchor="middle">${initial}</text>
+    <svg viewBox="0 0 ${viewBoxWidth} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      ${gradientDef}
+      <text 
+        x="${textX}" 
+        y="${textY}" 
+        font-family="${fontConfig.fontFamily}" 
+        font-size="${fontSize}px" 
+        font-weight="${fontConfig.fontWeight}"
+        ${fontConfig.fontStyle ? `font-style="${fontConfig.fontStyle}"` : ''}
+        letter-spacing="${letterSpacing}"
+        fill="${fillColor}"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        style="text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;"
+      >${cleanedBrandName}</text>
     </svg>
-  `;
-}
-
-interface LogoGenerationOptions {
-  brandName: string;
-  variation: { name: string; description: string };
-  primaryColor: string;
-  accentColor?: string;
-  manifest?: any;
+  `.trim();
 }
 
 /**
@@ -83,218 +237,7 @@ export function getLogoGenerationCount(manifest: any): number {
 const MAX_LOGO_GENERATIONS = 2;
 
 /**
- * Generate a logo using Stockimg.ai API
- */
-async function generateLogoWithStockimg(
-  brandName: string,
-  variation: { name: string; description: string },
-  primaryColor: string,
-  accentColor?: string,
-  manifest?: any
-): Promise<string | null> {
-  const apiKey = process.env.STOCKIMG_API_KEY;
-  
-  if (!apiKey) {
-    console.warn('⚠️ [Logo Generator] Stockimg.ai API key not found, skipping Stockimg generation');
-    return null;
-  }
-
-  try {
-    // Build prompt for Stockimg.ai
-    const colorInfo = accentColor && accentColor !== primaryColor
-      ? `Primary color: ${primaryColor}, Accent color: ${accentColor}`
-      : `Primary color: ${primaryColor}`;
-
-    const industry = manifest?.strategy?.persona?.industry || '';
-    const valueProp = manifest?.strategy?.valueProp?.headline || '';
-    const toneKeywords = manifest?.identity?.tone?.keywords || [];
-    const toneInfo = toneKeywords.length > 0 ? toneKeywords.join(', ') : '';
-
-    const contextParts: string[] = [];
-    if (industry) contextParts.push(`Industry: ${industry}`);
-    if (valueProp) contextParts.push(`Value: ${valueProp}`);
-    if (toneInfo) contextParts.push(`Tone: ${toneInfo}`);
-    
-    const contextInfo = contextParts.length > 0 
-      ? `\n\nBrand Context:\n${contextParts.join('\n')}`
-      : '';
-
-    const prompt = `Create a sleek, modern B2B SaaS logo icon for "${brandName}".${contextInfo}
-
-Logo Style: ${variation.name.toLowerCase()} - ${variation.description}
-Colors: ${colorInfo}
-
-Design Requirements:
-- Professional B2B SaaS aesthetic (like Stripe, Linear, Vercel, Notion)
-- Simple geometric shapes: circles, squares, triangles, abstract forms
-- Minimalist, flat design, no gradients or shadows
-- Transparent background
-- Vector-style, clean lines
-- Suitable for favicon use
-- Professional, trustworthy, innovative`;
-
-    console.log(`🎨 [Logo Generator] Generating Stockimg.ai logo for ${brandName} - ${variation.name}`);
-
-    const response = await fetch('https://api.stockimg.ai/v1/image/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        prompt: prompt,
-        style: 'logo',
-        output_format: 'png',
-        size: '1024x1024'
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ [Logo Generator] Stockimg.ai API error: ${response.status} - ${errorText}`);
-      return null;
-    }
-
-    const data = await response.json();
-    const imageUrl = data.image_url || data.url || data.data?.url;
-
-    if (!imageUrl) {
-      console.warn('⚠️ [Logo Generator] No image URL returned from Stockimg.ai');
-      return null;
-    }
-
-    console.log(`✅ [Logo Generator] Successfully generated Stockimg.ai logo: ${imageUrl.substring(0, 50)}...`);
-    return imageUrl;
-  } catch (error: any) {
-    console.error('❌ [Logo Generator] Failed to generate Stockimg.ai logo:', error.message);
-    return null;
-  }
-}
-
-/**
- * Generate a logo image using DALL-E 3
- * Returns the image URL or null if generation fails or is disabled
- */
-export async function generateLogoSVG(
-  options: LogoGenerationOptions
-): Promise<string | null> {
-  // Feature flag check
-  if (!shouldGenerateLogos()) {
-    console.log('🎨 [Logo Generator] Feature disabled, skipping logo generation');
-    return null;
-  }
-
-  const { brandName, variation, primaryColor, accentColor, manifest } = options;
-
-  // Use SVG fallback if enabled
-  if (shouldUseSVGLogos()) {
-    console.log('🎨 [Logo Generator] Using SVG fallback generation');
-    const svg = generateSimpleSVGLogo(brandName, variation, primaryColor, accentColor);
-    // Convert SVG to data URL for use in img tag (URL encode for browser compatibility)
-    const encodedSvg = encodeURIComponent(svg.trim());
-    const svgDataUrl = `data:image/svg+xml,${encodedSvg}`;
-    return svgDataUrl;
-  }
-
-  try {
-    // Build enhanced prompt with manifest context
-    const colorInfo = accentColor && accentColor !== primaryColor
-      ? `Primary color: ${primaryColor}, Accent color: ${accentColor}`
-      : `Primary color: ${primaryColor}`;
-
-    // Extract manifest context for richer prompt
-    const industry = manifest?.strategy?.persona?.industry || '';
-    const personaRole = manifest?.strategy?.persona?.role || '';
-    const personaCompany = manifest?.strategy?.persona?.company || '';
-    const valueProp = manifest?.strategy?.valueProp?.headline || '';
-    const toneKeywords = manifest?.identity?.tone?.keywords || [];
-    const toneInfo = toneKeywords.length > 0 ? toneKeywords.join(', ') : '';
-
-    // Build context string
-    const contextParts: string[] = [];
-    if (industry) contextParts.push(`Industry: ${industry}`);
-    if (personaRole && personaCompany) contextParts.push(`Target: ${personaRole} at ${personaCompany}`);
-    if (valueProp) contextParts.push(`Value: ${valueProp}`);
-    if (toneInfo) contextParts.push(`Tone: ${toneInfo}`);
-    
-    const contextInfo = contextParts.length > 0 
-      ? `\n\nBrand Context:\n${contextParts.join('\n')}`
-      : '';
-
-    // Determine if this is a variation (monochrome/inverted) or primary
-    const isVariation = variation.name.toLowerCase().includes('monochrome') || 
-                       variation.name.toLowerCase().includes('inverted') ||
-                       variation.name.toLowerCase().includes('single color');
-    
-    // Generate base logo concept for primary, variations for others
-    const baseConcept = isVariation 
-      ? `Create a ${variation.name.toLowerCase()} version of a professional B2B SaaS logo icon`
-      : `Create a professional B2B SaaS logo icon`;
-
-    const prompt = `${baseConcept} for "${brandName}".${contextInfo}
-
-Logo Style: ${variation.name.toLowerCase()} - ${variation.description}
-Colors: ${colorInfo}
-
-CRITICAL Design Specifications:
-- Use ONLY simple geometric shapes: perfect circles, squares, rectangles, triangles, or abstract interconnected nodes
-- Maximum 2-3 shapes maximum - keep it extremely simple
-- Flat design, no gradients, shadows, or 3D effects
-- Solid colors only, no patterns or textures
-- Transparent background (completely transparent, no white or colored background)
-- Clean, crisp edges - vector-style precision
-- Icon should be centered in frame with equal padding on all sides
-- Suitable for favicon use (16x16px minimum readability)
-
-B2B SaaS Style Reference:
-- Similar to: Stripe (geometric S), Linear (clean lines), Vercel (triangle), Notion (abstract N)
-- Professional, trustworthy, minimal, functional
-- NOT decorative, playful, or illustrative
-- Think: corporate, enterprise, software company
-
-${isVariation ? `Variation Requirements:
-- Convert to ${variation.name.toLowerCase()} style
-- Use single color: ${primaryColor}
-- Maintain exact same shape and proportions as primary logo
-- Same geometric structure, just color variation` : `Primary Logo Requirements:
-- Use colors: ${colorInfo}
-- Create the base logo design that variations will be derived from`}
-
-Technical Requirements:
-- Vector-style rendering
-- No text, letters, or typography
-- No decorative elements
-- Works on both light and dark backgrounds
-- Professional B2B SaaS aesthetic only`;
-
-    console.log(`🎨 [Logo Generator] Generating logo for ${brandName} - ${variation.name}`);
-
-    const response = await openai.images.generate({
-      model: "dall-e-3",
-      prompt,
-      size: "1024x1024",
-      quality: "standard",
-      n: 1,
-    });
-
-    const imageUrl = response.data[0]?.url;
-    
-    if (!imageUrl) {
-      console.warn('⚠️ [Logo Generator] No image URL returned from DALL-E');
-      return null;
-    }
-
-    console.log(`✅ [Logo Generator] Successfully generated logo: ${imageUrl.substring(0, 50)}...`);
-    return imageUrl;
-  } catch (error: any) {
-    console.error('❌ [Logo Generator] Failed to generate logo:', error.message);
-    // Don't throw - gracefully return null so generation can continue
-    return null;
-  }
-}
-
-/**
- * Generate logos for all variations
+ * Generate logos for variations (limit to first 2 variations)
  * Returns variations with imageUrl added (or original if generation fails)
  * Respects MAX_LOGO_GENERATIONS limit per ICP/thread
  */
@@ -304,7 +247,7 @@ export async function generateLogosForVariations(
   primaryColor: string,
   accentColor?: string,
   manifest?: any
-): Promise<{ name: string; description: string; imageUrl?: string; imageUrlSvg?: string; imageUrlStockimg?: string }[]> {
+): Promise<{ name: string; description: string; imageUrl?: string }[]> {
   // Early return if disabled or no variations
   if (!shouldGenerateLogos() || variations.length === 0) {
     return variations;
@@ -318,50 +261,43 @@ export async function generateLogosForVariations(
     return variations;
   }
 
-  const isFirstIteration = logoGenerationCount === 0;
-  console.log(`🎨 [Logo Generator] Generating ${variations.length} logo variations (attempt ${logoGenerationCount + 1}/${MAX_LOGO_GENERATIONS})${isFirstIteration ? ' - First iteration: generating DALL-E, SVG, and Stockimg.ai for comparison' : ''}`);
+  // Generate logos for first 3 variations
+  const variationsToGenerate = variations.slice(0, 3);
+  
+  // Clean brand name to remove metadata like employee counts
+  const cleanedBrandName = cleanBrandName(brandName);
+  
+  // Get typography from manifest
+  // Typography structure: manifest.identity.typography.heading.family and .weights
+  const headingTypography = manifest?.identity?.typography?.heading;
+  const typography = headingTypography ? {
+    family: headingTypography.family || headingTypography.fontFamily,
+    weight: headingTypography.weights?.[0] || '600'
+  } : null;
 
-  // Generate logos in parallel (with reasonable concurrency)
-  const logoPromises = variations.map(async (variation) => {
+  console.log(`🎨 [Logo Generator] Generating ${variationsToGenerate.length} SVG text-based logos for "${cleanedBrandName}"`);
+  console.log(`🔍 [Logo Generator] Typography from manifest:`, typography ? 
+    `Family: ${typography.family}, Weight: ${typography.weight}` : 
+    'Not found - using variation-based Google Fonts');
+
+  // Generate SVG logos synchronously (no API calls needed)
+  const results = variationsToGenerate.map((variation) => {
     try {
-      // Always generate DALL-E logo (unless SVG-only mode)
-      let imageUrl: string | null = null;
-      if (!shouldUseSVGLogos()) {
-        imageUrl = await generateLogoSVG({
-          brandName,
-          variation,
-          primaryColor,
-          accentColor,
-          manifest,
-        });
-      }
-
-      // On first iteration, also generate SVG and Stockimg.ai logos for comparison
-      let imageUrlSvg: string | undefined = undefined;
-      let imageUrlStockimg: string | undefined = undefined;
+      const svg = generateTextBasedSVGLogo(
+        cleanedBrandName,
+        variation,
+        primaryColor,
+        accentColor,
+        typography
+      );
       
-      if (isFirstIteration) {
-        // Generate SVG logo
-        const svg = generateSimpleSVGLogo(brandName, variation, primaryColor, accentColor);
-        const encodedSvg = encodeURIComponent(svg.trim());
-        imageUrlSvg = `data:image/svg+xml,${encodedSvg}`;
-        console.log(`✅ [Logo Generator] Generated SVG logo for "${variation.name}"`);
-
-        // Generate Stockimg.ai logo
-        imageUrlStockimg = await generateLogoWithStockimg(
-          brandName,
-          variation,
-          primaryColor,
-          accentColor,
-          manifest
-        ) || undefined;
-      }
-
+      // Convert SVG to data URL
+      const encodedSvg = encodeURIComponent(svg.trim());
+      const svgDataUrl = `data:image/svg+xml,${encodedSvg}`;
+      
       return {
         ...variation,
-        ...(imageUrl && { imageUrl }), // DALL-E logo
-        ...(imageUrlSvg && { imageUrlSvg }), // SVG logo (first iteration only)
-        ...(imageUrlStockimg && { imageUrlStockimg }), // Stockimg.ai logo (first iteration only)
+        imageUrl: svgDataUrl
       };
     } catch (error: any) {
       console.error(`❌ [Logo Generator] Failed for variation "${variation.name}":`, error.message);
@@ -370,13 +306,13 @@ export async function generateLogosForVariations(
     }
   });
 
-  const results = await Promise.all(logoPromises);
+  // Return results + remaining variations without logos
+  const remainingVariations = variations.slice(3).map(v => ({ ...v }));
+  const allResults = [...results, ...remainingVariations];
   
-  const dalleCount = results.filter(r => r.imageUrl).length;
-  const svgCount = results.filter(r => r.imageUrlSvg).length;
-  const stockimgCount = results.filter(r => r.imageUrlStockimg).length;
-  console.log(`✅ [Logo Generator] Generated ${dalleCount} DALL-E logos, ${svgCount} SVG logos, and ${stockimgCount} Stockimg.ai logos successfully`);
+  const svgCount = results.filter(r => r.imageUrl).length;
+  console.log(`✅ [Logo Generator] Generated ${svgCount} SVG logos successfully`);
 
-  return results;
+  return allResults;
 }
 

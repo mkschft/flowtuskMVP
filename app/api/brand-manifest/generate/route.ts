@@ -114,8 +114,6 @@ export async function POST(req: NextRequest) {
       logoVars.forEach((v: any, idx: number) => {
         console.log(`  - Variation ${idx + 1} (${v.name}):`);
         console.log(`    - imageUrl: ${v.imageUrl ? '✅ ' + v.imageUrl.substring(0, 50) + '...' : '❌ Missing'}`);
-        console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Present' : '❌ Missing'}`);
-        console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ ' + v.imageUrlStockimg.substring(0, 50) + '...' : '❌ Missing'}`);
       });
     }
     
@@ -128,8 +126,6 @@ export async function POST(req: NextRequest) {
       savedLogoVars.forEach((v: any, idx: number) => {
         console.log(`  - Variation ${idx + 1} (${v.name}):`);
         console.log(`    - imageUrl: ${v.imageUrl ? '✅ Saved' : '❌ Missing'}`);
-        console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Saved' : '❌ Missing'}`);
-        console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ Saved' : '❌ Missing'}`);
       });
     }
 
@@ -285,16 +281,12 @@ Return ONLY valid JSON in this format:
   const primaryColor = normalizedColors.primary[0]?.hex || '#000000';
   const accentColor = normalizedColors.accent[0]?.hex || normalizedColors.primary[0]?.hex || '#000000';
 
-  // 🔍 DEBUG: Check feature flag and API keys
+  // 🔍 DEBUG: Check feature flag
   const logoGenEnabled = process.env.NEXT_PUBLIC_ENABLE_LOGO_GENERATION !== 'false';
-  const openaiKeyExists = !!process.env.OPENAI_API_KEY;
-  const stockimgKeyExists = !!process.env.STOCKIMG_API_KEY;
   const logoGenCount = manifest?.metadata?.logoGenerationCount || 0;
   
   console.log('🔍 [DEBUG] Logo Generation Status:');
   console.log('  - Feature enabled:', logoGenEnabled);
-  console.log('  - OpenAI API key exists:', openaiKeyExists);
-  console.log('  - Stockimg API key exists:', stockimgKeyExists);
   console.log('  - Current generation count:', logoGenCount);
   console.log('  - Logo variations to generate:', logoVariations.length);
   console.log('  - Primary color:', primaryColor);
@@ -317,22 +309,14 @@ Return ONLY valid JSON in this format:
     console.log('🔍 [DEBUG] Logo Generation Results:');
     logoVariationsWithImages.forEach((variation, idx) => {
       console.log(`  - Variation ${idx + 1} (${variation.name}):`);
-      console.log(`    - DALL-E: ${variation.imageUrl ? '✅ Generated' : '❌ Missing'}`);
-      console.log(`    - SVG: ${variation.imageUrlSvg ? '✅ Generated' : '❌ Missing'}`);
-      console.log(`    - Stockimg: ${variation.imageUrlStockimg ? '✅ Generated' : '❌ Missing'}`);
+      console.log(`    - SVG: ${variation.imageUrl ? '✅ Generated' : '❌ Missing'}`);
       if (variation.imageUrl) {
-        console.log(`    - DALL-E URL: ${variation.imageUrl.substring(0, 60)}...`);
-      }
-      if (variation.imageUrlSvg) {
-        console.log(`    - SVG URL: ${variation.imageUrlSvg.substring(0, 60)}...`);
-      }
-      if (variation.imageUrlStockimg) {
-        console.log(`    - Stockimg URL: ${variation.imageUrlStockimg.substring(0, 60)}...`);
+        console.log(`    - SVG Data URL: ${variation.imageUrl.substring(0, 60)}...`);
       }
     });
 
     // Check if any logos were actually generated (not skipped due to limit)
-    const logosGenerated = logoVariationsWithImages.some(v => v.imageUrl || v.imageUrlSvg || v.imageUrlStockimg);
+    const logosGenerated = logoVariationsWithImages.some(v => v.imageUrl);
     if (logosGenerated) {
       logoGenerationIncremented = true;
       console.log('✅ [Brand Guide] Logos were successfully generated');
