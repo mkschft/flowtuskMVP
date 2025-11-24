@@ -2,17 +2,18 @@
   "brand": {
     "name": "YaserUK",
     "tones": [
-      "Professional",
-      "Consultative"
+      "professional",
+      "expert"
     ],
-    "primaryCTA": "Contact Us"
+    "primaryCTA": "Contact"
   },
   "structure": {
     "nav": [
       "Services",
       "Industries",
+      "About",
       "Insights",
-      "About"
+      "Development"
     ],
     "keyPages": [
       {
@@ -94,35 +95,26 @@
       {
         "path": "/dental-marketing-seo",
         "title": "Dental Marketing SEO"
-      },
-      {
-        "path": "/insights",
-        "title": "Insights"
-      },
-      {
-        "path": "/meet-the-team",
-        "title": "About"
       }
     ],
     "footer": [
       "SEO Agency London",
-      "PPC Marketing Agency",
-      "Email Marketing",
-      "Website Migrations",
-      "Fintech"
+      "Job Openings",
+      "How we work"
     ]
   },
   "targetMarket": {
     "primaryRegion": "UK",
     "industryFocus": "Digital Marketing",
     "signals": [
-      "London-based SEO consultant",
+      "London-based",
       ".uk domain",
-      "Pound sign in images"
+      "pound sign (£)"
     ]
   },
   "audienceSignals": [
-    "Businesses in fintech, small business, crypto, e-commerce, pensions, financial services, dental"
+    "Businesses in need of SEO services",
+    "Companies in fintech, crypto, and e-commerce sectors"
   ],
   "valueProps": [
     {
@@ -130,86 +122,86 @@
       "text": "Expertise in various SEO platforms",
       "evidence": [
         "fact-3",
-        "fact-5"
+        "fact-4"
       ]
     },
     {
       "id": "v2",
       "text": "Comprehensive digital marketing services",
       "evidence": [
-        "fact-4",
+        "fact-5",
         "fact-6"
       ]
     }
   ],
   "pains": [
-    "Need for specialized SEO services",
-    "Challenges in digital marketing for specific industries"
+    "Need for improved search engine visibility",
+    "Complexity of managing multiple SEO platforms"
   ],
   "proof": [
-    "London-based expertise",
-    "Focus on UK market"
+    "London-based SEO consultant",
+    "Specialized in fintech and small business marketing"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "The brand name is YaserUK.",
-      "page": "Homepage",
+      "text": "YaserUK is a London-based SEO consultant.",
+      "page": "Home",
       "evidence": "SEO Consultant | London-based SEO consultant"
     },
     {
       "id": "fact-2",
-      "text": "The primary region served is the UK.",
-      "page": "Homepage",
-      "evidence": "London-based SEO consultant"
+      "text": "The website uses a .uk domain.",
+      "page": "Home",
+      "evidence": "https://www.yaser.uk/"
     },
     {
       "id": "fact-3",
       "text": "YaserUK offers Webflow SEO services.",
-      "page": "Webflow SEO",
-      "evidence": "Webflow SEO Consultant"
+      "page": "Services",
+      "evidence": "[Webflow SEO](https://www.yaser.uk/webflow-seo-consultant)"
     },
     {
       "id": "fact-4",
-      "text": "YaserUK offers a range of services including PPC Marketing and Email Marketing.",
+      "text": "YaserUK provides Wordpress SEO consulting.",
       "page": "Services",
-      "evidence": "PPC Marketing, Email Marketing"
+      "evidence": "[Wordpress SEO](https://www.yaser.uk/wordpress-seo-consultant)"
     },
     {
       "id": "fact-5",
-      "text": "YaserUK provides SEO services for platforms like Wordpress, Squarespace, and Wix.",
+      "text": "YaserUK offers email marketing services.",
       "page": "Services",
-      "evidence": "Wordpress SEO, Squarespace SEO, Wix SEO"
+      "evidence": "[Email Marketing](https://www.yaser.uk/email-marketing-agency)"
     },
     {
       "id": "fact-6",
-      "text": "YaserUK targets industries such as fintech, small business, and crypto.",
-      "page": "Industries",
-      "evidence": "Fintech Marketing, Small Business, Crypto"
+      "text": "YaserUK provides local SEO services.",
+      "page": "Services",
+      "evidence": "[Local SEO](https://www.yaser.uk/local-seo-services)"
     },
     {
       "id": "fact-7",
-      "text": "YaserUK provides local SEO services.",
-      "page": "Local SEO",
-      "evidence": "Local SEO Services"
+      "text": "YaserUK targets fintech companies.",
+      "page": "Industries",
+      "evidence": "[Fintech Marketing](https://www.yaser.uk/fintech-marketing-agency)"
     },
     {
       "id": "fact-8",
-      "text": "The website uses a .uk domain.",
-      "page": "Homepage",
-      "evidence": "https://www.yaser.uk/"
+      "text": "YaserUK offers services for small businesses.",
+      "page": "Industries",
+      "evidence": "[Small Business](https://www.yaser.uk/digital-marketing-for-small-businesses)"
     },
     {
       "id": "fact-9",
-      "text": "YaserUK offers SEO audit services in London.",
-      "page": "SEO Audit",
-      "evidence": "SEO Audit London"
+      "text": "YaserUK provides SEO services for the crypto industry.",
+      "page": "Industries",
+      "evidence": "[Crypto](https://www.yaser.uk/crypto-marketing-agency)"
     },
     {
       "id": "fact-10",
-      "text": "The website mentions the use of the pound sign (£) in images.",
+      "text": "YaserUK offers e-Commerce SEO services.",
       "page": "Industries",
-      "evidence": "Image 15: pound sign white background"
+      "evidence": "[e-Commerce SEO](https://www.yaser.uk/ecommerce-seo)"
     }
   ]
 }

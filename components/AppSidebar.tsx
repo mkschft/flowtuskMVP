@@ -82,8 +82,8 @@ export function AppSidebar({
                                         onSelectConversation(conv.id);
                                     } else {
                                         // If we are on profile page, go back to app with this conversation
-                                        // This might need query param support if we want to open specific conv
-                                        router.push('/app');
+                                        // Pass conversation ID as query param 'c'
+                                        router.push(`/app?c=${conv.id}`);
                                     }
                                     onCloseMobileDrawer?.();
                                 }}
@@ -98,11 +98,9 @@ export function AppSidebar({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        if (window.confirm(`Delete "${conv.title}"?`)) {
-                                            onDeleteConversation(conv.id);
-                                        }
+                                        onDeleteConversation(conv.id);
                                     }}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all pointer-events-none group-hover:pointer-events-auto"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-opacity z-10"
                                     title="Delete conversation"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />

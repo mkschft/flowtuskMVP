@@ -73,6 +73,12 @@ function ChatPageContent() {
   const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure Sheet only renders on client to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // DB Integration states
   const [user, setUser] = useState<any>(null);
@@ -93,12 +99,26 @@ function ChatPageContent() {
     checkAuthAndLoadFlows();
   }, []);
 
+  // Handle deep linking to conversation via ?c=ID
+  useEffect(() => {
+    const conversationId = searchParams.get('c');
+    if (conversationId && conversations.length > 0) {
+      const targetConv = conversations.find(c => c.id === conversationId);
+      if (targetConv && targetConv.id !== activeConversationId) {
+        console.log(`🔗 [Deep Link] Switching to conversation: ${conversationId}`);
+        setActiveConversationId(conversationId);
+        setWebsiteUrl(targetConv.memory.websiteUrl || "");
+        setSelectedIcp(targetConv.memory.selectedIcp);
+      }
+    }
+  }, [searchParams, conversations, activeConversationId]);
+
 
   async function checkAuthAndLoadFlows() {
     try {
       // ✅ Initialize cache management (checks version, clears if stale)
       await initializeCache();
-      
+
       // ✅ CLEANUP: Clear all state first for fresh start
       console.log('🧹 [Init] Clearing state for fresh start...');
       setConversations([]);
@@ -112,7 +132,7 @@ function ChatPageContent() {
       setShowExpandedResults(false);
       setHeroICP(null);
       setAllICPs([]);
-      
+
       // Check auth
       const supabase = createClient();
       const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -169,14 +189,14 @@ function ChatPageContent() {
       const seenUrls = new Map<string, string>(); // url -> id (keep most recent)
       const duplicateIds = new Set<string>();
       const duplicateUrls = new Set<string>();
-      
+
       // Sort by created_at DESC to keep most recent when duplicates found
       const sortedConversations = [...conversations].sort((a, b) => {
         const aTime = new Date(a.created_at || 0).getTime();
         const bTime = new Date(b.created_at || 0).getTime();
         return bTime - aTime;
       });
-      
+
       const uniqueConversations = sortedConversations.filter(conv => {
         // Check ID duplicates
         if (seenIds.has(conv.id)) {
@@ -184,7 +204,7 @@ function ChatPageContent() {
           return false;
         }
         seenIds.add(conv.id);
-        
+
         // Check URL duplicates (keep the most recent)
         const url = conv.memory?.websiteUrl;
         if (url) {
@@ -196,7 +216,7 @@ function ChatPageContent() {
           }
           seenUrls.set(url, conv.id);
         }
-        
+
         return true;
       });
 
@@ -288,7 +308,7 @@ function ChatPageContent() {
         console.log(`⏭️ [DB Save] Skipping auto-save for local-only conversation (ID: ${conversation.id.slice(0, 8)}..., not yet in DB)`);
         return;
       }
-      
+
       console.log(`💾 [DB Save] Auto-saving flow ${conversation.id.slice(0, 8)}... (UUID confirmed)`);
 
       // Debug: Track evidence chain integrity
@@ -393,6 +413,27 @@ function ChatPageContent() {
     }
   }, [searchParams, hasProcessedUrlParam]);
 
+  // Handle flowId parameter to select specific conversation (e.g., when returning from /copilot)
+  useEffect(() => {
+    const flowIdParam = searchParams.get('flowId');
+
+    if (flowIdParam && conversations.length > 0) {
+      const conversation = conversations.find(c => c.id === flowIdParam);
+
+      if (conversation && activeConversationId !== flowIdParam) {
+        console.log('🔗 [Flow Param] Selecting conversation from flowId:', flowIdParam);
+        setActiveConversationId(flowIdParam);
+        setWebsiteUrl(conversation.memory.websiteUrl || "");
+        setSelectedIcp(conversation.memory.selectedIcp);
+
+        // Clean up URL parameter after processing
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('flowId');
+        window.history.replaceState({}, '', newUrl.toString());
+      }
+    }
+  }, [searchParams, conversations, activeConversationId]);
+
   // Auto-submit after input is set from URL param
   useEffect(() => {
     console.log('🔄 [Auto-Submit Check]', {
@@ -471,16 +512,17 @@ function ChatPageContent() {
   };
 
   const deleteConversation = async (convId: string) => {
+    console.log(`🗑️ [DELETE] deleteConversation called for: ${convId}`);
     try {
       // Only try to delete from DB if it's a UUID (exists in database)
       // Local-only conversations (nanoids) don't need DB deletion
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(convId);
-      
+
       if (isUUID) {
         // Soft delete in DB
         await flowsClient.softDeleteFlow(convId);
         console.log(`🗑️ [DB] Soft deleted flow: ${convId}`);
-        
+
         // Invalidate cache for this flow
         invalidateFlowCache(convId);
       } else {
@@ -621,13 +663,13 @@ function ChatPageContent() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // ✅ Prevent duplicate submissions
     if (isSubmittingRef.current) {
       console.warn('⚠️ [Submit] Already processing, ignoring duplicate submission');
       return;
     }
-    
+
     console.log('📨 [handleSendMessage] Called with input:', input.substring(0, 100) + (input.length > 100 ? '...' : ''));
     console.log('📊 [handleSendMessage] State:', { inputLength: input.length, isLoading, hasInput: !!input.trim() });
 
@@ -635,7 +677,7 @@ function ChatPageContent() {
       console.warn('⚠️ [handleSendMessage] Skipping - no input or already loading');
       return;
     }
-    
+
     // Mark as submitting
     isSubmittingRef.current = true;
 
@@ -703,7 +745,7 @@ function ChatPageContent() {
         // Check if URL has already been crawled
         console.log('🔍 [Cache] Checking if URL already crawled...');
         const existingCrawl = await flowsClient.findExistingCrawl(url);
-        
+
         let content: string;
         let metadata: any;
         let factsJson: any;
@@ -721,7 +763,7 @@ function ChatPageContent() {
             cached: true,
             heroImage: analysis.brand?.heroImage || null
           };
-          
+
           // No timeout was created, so just clear the abort controller
           setCurrentAbortController(null);
         } else {
@@ -770,7 +812,7 @@ function ChatPageContent() {
         }
 
         const analyzeSubsteps = [
-          wasCached 
+          wasCached
             ? `✅ Using cached analysis (${factsJson?.facts?.length || 0} facts)`
             : `✅ Fetched ${Math.round(content.length / 1000)}k characters`,
           `✅ Extracted ${factsJson?.facts?.length || 0} facts from website`,
@@ -809,7 +851,7 @@ function ChatPageContent() {
           facts_json: factsJson || undefined,
           step: 'analyzed'
         });
-        
+
         // If flow was found but website_url was missing, log it (should be fixed by the update)
         if (!isNew && !flow.website_url) {
           console.warn('⚠️ [Flow] Found flow without website_url, should be updated now');
@@ -823,15 +865,15 @@ function ChatPageContent() {
           const updated = prev.map(conv =>
             conv.id === activeConversationId
               ? {
-                  ...conv,
+                ...conv,
+                id: flow.id,
+                memory: {
+                  ...conv.memory,
                   id: flow.id,
-                  memory: {
-                    ...conv.memory,
-                    id: flow.id,
-                    flowId: flow.id,
-                    websiteUrl: url, // Ensure website_url is set in memory
-                  }
+                  flowId: flow.id,
+                  websiteUrl: url, // Ensure website_url is set in memory
                 }
+              }
               : conv
           );
           console.log(`✅ [ID Sync] Conversation ID updated. Active conversation now has DB ID: ${flow.id.slice(0, 8)}...`);
@@ -1742,6 +1784,12 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       }}
       onSelectConversation={(id: string) => {
         setActiveConversationId(id);
+        // Load the conversation's state
+        const conversation = conversations.find(c => c.id === id);
+        if (conversation) {
+          setWebsiteUrl(conversation.memory.websiteUrl || "");
+          setSelectedIcp(conversation.memory.selectedIcp);
+        }
         setSidebarOpen(false);
       }}
       onDeleteConversation={deleteConversation}
@@ -1767,22 +1815,22 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     if (isGenerationCompleted('value-prop', { icp: icp.id })) {
       console.log('✅ [handleSelectIcp] Value prop already generated for this ICP');
       setSelectedIcp(icp);
-      
+
       // Update conversation memory with selected ICP so it persists to DB
       setConversations(prev =>
         prev.map(conv =>
           conv.id === activeConversationId
             ? {
-                ...conv,
-                memory: {
-                  ...conv.memory,
-                  selectedIcp: icp
-                }
+              ...conv,
+              memory: {
+                ...conv.memory,
+                selectedIcp: icp
               }
+            }
             : conv
         )
       );
-      
+
       updateUserJourney({ icpSelected: true });
 
       // Navigate to copilot if manifest already exists
@@ -1803,22 +1851,22 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     }
 
     setSelectedIcp(icp);
-    
+
     // Update conversation memory with selected ICP so it persists to DB
     setConversations(prev =>
       prev.map(conv =>
         conv.id === activeConversationId
           ? {
-              ...conv,
-              memory: {
-                ...conv.memory,
-                selectedIcp: icp
-              }
+            ...conv,
+            memory: {
+              ...conv.memory,
+              selectedIcp: icp
             }
+          }
           : conv
       )
     );
-    
+
     updateGenerationState({
       isGenerating: true,
       generationId: `value-prop-${icp.id}`,
@@ -2035,21 +2083,23 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
   // }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:flex md:w-64 border-r flex-col h-full">
+      <div className="hidden md:flex md:w-64 border-r flex-col h-screen shrink-0">
         <SidebarContent />
       </div>
 
-      {/* Mobile Sidebar Sheet */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="w-64 p-0">
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
+      {/* Mobile Sidebar Sheet - Only render on client to avoid hydration mismatch */}
+      {isMounted && (
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="left" className="w-64 p-0">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-h-0">
         {/* Mobile Header - Only visible on mobile */}
         <div className="md:hidden flex items-center gap-3 p-4 border-b bg-background">
           <Button
@@ -2066,7 +2116,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
           </div>
         </div>
         {/* Messages */}
-        <ScrollArea className="flex-1 px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
+        <ScrollArea className="flex-1 h-full w-full px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
           <div className="space-y-4 mx-auto max-w-3xl">
             {!activeConversation?.messages.length && (
               <div className="text-center py-12 sm:py-20 px-4">

@@ -179,7 +179,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   // --- Event Handlers ---
 
   const handleBackToConversations = () => {
-    router.push('/copilot');
+    router.push(`/app?flowId=${flowId}`);
   };
 
   const handleExport = async (format: string, message: string) => {

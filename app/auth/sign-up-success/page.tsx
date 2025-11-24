@@ -6,7 +6,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Page() {
+export default function Page({
+  searchParams,
+}: {
+  searchParams: { email?: string };
+}) {
+  const email = searchParams.email;
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -20,8 +26,16 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                You&apos;ve successfully signed up. Please check your email to
-                confirm your account before signing in.
+                You&apos;ve successfully signed up. Please check your email
+                {email ? (
+                  <>
+                    {" "}
+                    at <span className="font-medium text-foreground">{email}</span>
+                  </>
+                ) : (
+                  ""
+                )}{" "}
+                to confirm your account before signing in.
               </p>
             </CardContent>
           </Card>

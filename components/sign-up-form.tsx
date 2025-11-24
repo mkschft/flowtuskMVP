@@ -51,7 +51,7 @@ export function SignUpForm({
         },
       });
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+      router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
       setError(errorMessage);

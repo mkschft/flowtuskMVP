@@ -69,109 +69,119 @@
     "primaryRegion": "Global",
     "industryFocus": "Software Development",
     "signals": [
-      "modern software development",
-      "product teams",
-      "startups to established enterprises"
+      "Meet the system for modern software development.",
+      "Powering the world’s best product teams."
     ]
   },
   "audienceSignals": [
-    "product teams",
-    "startups",
-    "enterprises"
+    "modern product teams",
+    "next-gen startups",
+    "established enterprises"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Streamline issues, projects, and product roadmaps",
+      "text": "Streamline issues, projects, and product roadmaps.",
       "evidence": [
         "fact-3",
-        "fact-4"
+        "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "AI-assisted product development",
+      "text": "AI-assisted product development.",
       "evidence": [
-        "fact-7",
-        "fact-8"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Connect Linear to favorite tools",
-      "evidence": [
-        "fact-10"
+        "fact-10",
+        "fact-11"
       ]
     }
   ],
   "pains": [
-    "manual tasks in product development",
-    "lack of streamlined workflows"
+    "Need for streamlined product development workflows.",
+    "Challenges in managing product timelines and initiatives."
   ],
   "proof": [
-    "Powering the world’s best product teams",
-    "From next-gen startups to established enterprises"
+    "Powering the world’s best product teams.",
+    "From next-gen startups to established enterprises."
   ],
   "facts": [
     {
       "id": "fact-1",
       "text": "Linear is a purpose-built tool for planning and building products.",
-      "page": "homepage",
-      "evidence": "Linear is a purpose-built tool for planning and building products"
+      "page": "Home",
+      "evidence": "Linear is a purpose-built tool for planning and building products."
     },
     {
       "id": "fact-2",
       "text": "Linear streamlines issues, projects, and product roadmaps.",
-      "page": "homepage",
+      "page": "Home",
       "evidence": "Streamline issues, projects, and product roadmaps."
     },
     {
       "id": "fact-3",
-      "text": "Linear is made for modern product teams.",
-      "page": "homepage",
-      "evidence": "Made for modern product teams"
+      "text": "Linear is designed for modern software development.",
+      "page": "Home",
+      "evidence": "Meet the system for modern software development."
     },
     {
       "id": "fact-4",
-      "text": "Linear is shaped by practices and principles of world-class product teams.",
-      "page": "homepage",
-      "evidence": "Linear is shaped by the practices and principles that distinguish world-class product teams"
+      "text": "Linear powers the world’s best product teams.",
+      "page": "Home",
+      "evidence": "Powering the world’s best product teams."
     },
     {
       "id": "fact-5",
-      "text": "Linear offers AI-assisted product development.",
-      "page": "homepage",
-      "evidence": "Artificial intelligence AI-assisted product development"
+      "text": "Linear serves next-gen startups and established enterprises.",
+      "page": "Home",
+      "evidence": "From next-gen startups to established enterprises."
     },
     {
       "id": "fact-6",
-      "text": "Linear provides AI agents for delegating work.",
-      "page": "homepage",
-      "evidence": "Choose from a variety of AI agents and start delegating work"
+      "text": "Linear is shaped by practices and principles of world-class product teams.",
+      "page": "Home",
+      "evidence": "Linear is shaped by the practices and principles that distinguish world-class product teams."
     },
     {
       "id": "fact-7",
-      "text": "Linear connects with tools like Cursor, Claude, ChatGPT.",
-      "page": "homepage",
-      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT"
+      "text": "Linear offers AI-assisted product development.",
+      "page": "AI",
+      "evidence": "Artificial intelligence AI-assisted product development."
     },
     {
       "id": "fact-8",
-      "text": "Linear offers visual planning tools for product initiatives.",
-      "page": "homepage",
-      "evidence": "Plan, manage, and track all product initiatives with Linear’s visual planning tools."
+      "text": "Linear provides AI agents for delegating work.",
+      "page": "AI",
+      "evidence": "Choose from a variety of AI agents and start delegating work."
     },
     {
       "id": "fact-9",
-      "text": "Linear consolidates specs, milestones, tasks, and documentation.",
-      "page": "homepage",
-      "evidence": "Consolidate specs, milestones, tasks, and other documentation in one centralized location."
+      "text": "Linear connects with tools like Cursor, Claude, and ChatGPT.",
+      "page": "MCP",
+      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT, and more."
     },
     {
       "id": "fact-10",
-      "text": "Linear provides project updates to communicate progress and health.",
-      "page": "homepage",
-      "evidence": "Communicate progress and project health with built-in project updates."
+      "text": "Linear offers self-driving product operations.",
+      "page": "AI",
+      "evidence": "Streamline your product development workflows with AI assistance for routine, manual tasks."
+    },
+    {
+      "id": "fact-11",
+      "text": "Linear provides triage intelligence and suggestions.",
+      "page": "AI",
+      "evidence": "Triage Intelligence Suggestions."
+    },
+    {
+      "id": "fact-12",
+      "text": "Linear offers project and long-term planning tools.",
+      "page": "Plan",
+      "evidence": "Align your team around a unified product timeline."
+    },
+    {
+      "id": "fact-13",
+      "text": "Linear manages projects end-to-end with centralized documentation.",
+      "page": "Plan",
+      "evidence": "Consolidate specs, milestones, tasks, and other documentation in one centralized location."
     }
   ]
 }
