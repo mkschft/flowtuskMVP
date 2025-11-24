@@ -34,17 +34,21 @@ export function cascadeColorUpdates(
     const accentColor = getAccentColor(updatedManifest);
 
     // Cascade to components.buttons - update button styles to use new colors
-    if (!cascaded.components) cascaded.components = {};
-    if (!cascaded.components.buttons) {
-      cascaded.components.buttons = manifest.components?.buttons || {
-        primary: { style: "solid", borderRadius: "8px", shadow: "none" },
-        secondary: { style: "outline", borderRadius: "8px", shadow: "none" },
-        outline: { style: "ghost", borderRadius: "8px", shadow: "none" },
+    if (!cascaded.components) {
+      cascaded.components = {
+        buttons: manifest.components?.buttons || {
+          primary: { style: "solid", borderRadius: "8px", shadow: "none" },
+          secondary: { style: "outline", borderRadius: "8px", shadow: "none" },
+          outline: { style: "ghost", borderRadius: "8px", shadow: "none" },
+        },
+        cards: manifest.components?.cards || { style: "flat", borderRadius: "12px", shadow: "sm" },
+        inputs: manifest.components?.inputs || { style: "outlined", borderRadius: "8px", focusStyle: "ring" },
+        spacing: manifest.components?.spacing || { scale: {} },
       };
     }
 
     // Update primary button to use primary color
-    if (primaryChanged) {
+    if (primaryChanged && cascaded.components) {
       cascaded.components.buttons = {
         ...cascaded.components.buttons,
         primary: {
@@ -56,7 +60,7 @@ export function cascadeColorUpdates(
     }
 
     // Update secondary button to use secondary color
-    if (secondaryChanged) {
+    if (secondaryChanged && cascaded.components) {
       cascaded.components.buttons = {
         ...cascaded.components.buttons,
         secondary: {
@@ -67,24 +71,27 @@ export function cascadeColorUpdates(
     }
 
     // Cascade to previews.landingPage - add color theme metadata for rendering
-    if (!cascaded.previews) cascaded.previews = {};
-    if (!cascaded.previews.landingPage) {
-      cascaded.previews.landingPage = manifest.previews?.landingPage || {
-        navigation: { logo: "", links: [] },
-        hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
-        features: [],
-        socialProof: [],
-        footer: { sections: [] },
+    if (!cascaded.previews) {
+      cascaded.previews = {
+        landingPage: manifest.previews?.landingPage || {
+          navigation: { logo: "", links: [] },
+          hero: { headline: "", subheadline: "", cta: { primary: "", secondary: "" } },
+          features: [],
+          socialProof: [],
+          footer: { sections: [] },
+        },
       };
     }
 
     // Add color theme to landing page (extend existing structure)
     // We'll store this as metadata that components can read
-    cascaded.previews.landingPage = {
-      ...cascaded.previews.landingPage,
-      // Note: We're not modifying the structure, just ensuring it exists
-      // Components will read colors directly from manifest.identity.colors
-    };
+    if (cascaded.previews) {
+      cascaded.previews.landingPage = {
+        ...cascaded.previews.landingPage,
+        // Note: We're not modifying the structure, just ensuring it exists
+        // Components will read colors directly from manifest.identity.colors
+      };
+    }
   }
 
   return cascaded;

@@ -1,5 +1,5 @@
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import type { CopilotWorkspaceData, PositioningDesignAssets } from "@/lib/types/design-assets";
+import type { CopilotWorkspaceData, PositioningDesignAssets, ColorScheme, LandingSocialProof } from "@/lib/types/design-assets";
 import type { UiValueProp } from "@/lib/hooks/design-studio/use-workspace-data";
 import type { ChatMessage } from "@/lib/design-studio-mock-data";
 
@@ -16,11 +16,42 @@ function convertManifestToDesignAssets(
     existingDesignAssets: PositioningDesignAssets | null
 ): PositioningDesignAssets {
     // Normalization helpers (same as workspace API)
-    const normalizeColorArray = (colors: any): { name: string; hex: string; usage?: string }[] => {
+    const hexToRgb = (hex: string): string => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result
+            ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})`
+            : 'rgb(0, 0, 0)';
+    };
+
+    const normalizeColorArray = (colors: any): ColorScheme[] => {
         if (!colors) return [];
-        if (Array.isArray(colors)) return colors;
-        if (typeof colors === 'string') return [{ name: 'Color', hex: colors }];
-        if (typeof colors === 'object' && colors.hex) return [colors];
+        if (Array.isArray(colors)) {
+            return colors.map(color => {
+                if (typeof color === 'string') {
+                    return { name: 'Color', hex: color, rgb: hexToRgb(color), usage: '' };
+                }
+                if (typeof color === 'object' && color.hex) {
+                    return {
+                        name: color.name || 'Color',
+                        hex: color.hex,
+                        rgb: color.rgb || hexToRgb(color.hex),
+                        usage: color.usage || ''
+                    };
+                }
+                return color;
+            });
+        }
+        if (typeof colors === 'string') {
+            return [{ name: 'Color', hex: colors, rgb: hexToRgb(colors), usage: '' }];
+        }
+        if (typeof colors === 'object' && colors.hex) {
+            return [{
+                name: colors.name || 'Color',
+                hex: colors.hex,
+                rgb: colors.rgb || hexToRgb(colors.hex),
+                usage: colors.usage || ''
+            }];
+        }
         return [];
     };
 
@@ -101,6 +132,25 @@ function convertManifestToDesignAssets(
         }));
     };
 
+    const normalizeSocialProof = (socialProof: any): LandingSocialProof[] => {
+        if (!socialProof) return [];
+        if (!Array.isArray(socialProof)) return [];
+        return socialProof.map(item => {
+            // Handle old format { quote, author, role, company }
+            if (item.quote) {
+                return {
+                    type: 'testimonial',
+                    content: `"${item.quote}" - ${item.author}${item.role ? ', ' + item.role : ''}${item.company ? ' at ' + item.company : ''}`
+                };
+            }
+            // Handle new format { type, content }
+            return {
+                type: item.type || 'testimonial',
+                content: item.content || ''
+            };
+        });
+    };
+
     // Preserve existing ID and timestamps if available
     const baseDesignAssets: PositioningDesignAssets = existingDesignAssets || {
         id: 'from-manifest',
@@ -160,7 +210,7 @@ function convertManifestToDesignAssets(
             },
             hero: manifest.previews?.landingPage?.hero || { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
             features: manifest.previews?.landingPage?.features || [],
-            socialProof: manifest.previews?.landingPage?.socialProof || [],
+            socialProof: normalizeSocialProof(manifest.previews?.landingPage?.socialProof),
             footer: manifest.previews?.landingPage?.footer || { sections: [] }
         },
         generation_state: {
@@ -168,7 +218,9 @@ function convertManifestToDesignAssets(
             style: true,
             landing: true
         },
-        generation_metadata: manifest.metadata || {},
+        generation_metadata: {
+            chat_updates_count: manifest.metadata?.regenerationCount || 0
+        },
         updated_at: new Date().toISOString()
     };
 }
@@ -249,7 +301,7 @@ export interface UpdateContext {
     addToast: (message: string, type: ToastType) => void;
     addToHistory: (manifest: BrandManifest, type: string, description: string) => void;
     loadWorkspaceData: () => Promise<void>;
-    
+
     // Additional context for manifest conversion
     flowId?: string;
     icpId?: string;
@@ -270,14 +322,14 @@ export function parseUpdateResponse(response: string): ParsedUpdate | null {
             hasFunctionCallSignal: response.includes('__FUNCTION_CALL__'),
             firstChars: response.substring(0, 100)
         });
-        
+
         // Method 1: Check for MANIFEST update signal (primary method)
         const manifestMatch = response.match(/__MANIFEST_UPDATED__([\s\S]*?)(?=\n\n__|$)/);
         if (manifestMatch && manifestMatch[1]) {
             try {
                 console.log('✅ [Parse Update] Found __MANIFEST_UPDATED__ signal');
                 const manifestJson = manifestMatch[1].trim();
-                
+
                 // Try to parse the JSON
                 let updatedManifest;
                 try {
@@ -293,20 +345,20 @@ export function parseUpdateResponse(response: string): ParsedUpdate | null {
                         throw parseError;
                     }
                 }
-                
+
                 // Validate manifest structure
                 if (!updatedManifest || typeof updatedManifest !== 'object') {
                     console.error('❌ [Parse Update] Parsed manifest is not an object');
                     return null;
                 }
-                
+
                 console.log('✅ [Parse Update] Manifest parsed successfully', {
                     hasStrategy: !!updatedManifest.strategy,
                     hasIdentity: !!updatedManifest.identity,
                     hasComponents: !!updatedManifest.components,
                     updateType: updatedManifest.metadata?.generationHistory?.slice(-1)[0]?.action
                 });
-                
+
                 return { type: 'manifest', data: updatedManifest };
             } catch (error) {
                 console.error('❌ [Parse Update] Failed to parse manifest from signal:', error);
@@ -371,7 +423,7 @@ export function applyManifestUpdate(
     context: UpdateContext
 ) {
     const updateType = manifest.metadata?.generationHistory?.slice(-1)[0]?.action || 'update';
-    
+
     console.log('🔄 [Manifest Update] Starting real-time update', {
         updateType,
         hasManifest: !!manifest,
@@ -393,18 +445,18 @@ export function applyManifestUpdate(
             context.icpId,
             context.designAssets
         );
-        
+
         console.log('✅ [Manifest Update] DesignAssets converted', {
             hasBrandGuide: !!updatedDesignAssets.brand_guide,
             hasStyleGuide: !!updatedDesignAssets.style_guide,
             hasLandingPage: !!updatedDesignAssets.landing_page,
             primaryColors: updatedDesignAssets.brand_guide?.colors.primary.length || 0
         });
-        
+
         // Update designAssets state immediately
         // Create new object reference to ensure React detects the change
         context.setDesignAssets({ ...updatedDesignAssets });
-        
+
         // Also update workspaceData if it exists
         if (context.workspaceData) {
             context.setWorkspaceData({
@@ -461,11 +513,11 @@ export function applyManifestUpdate(
     if (manifest.identity?.colors?.primary?.length) changedFields.push('colors');
     if (manifest.identity?.typography) changedFields.push('typography');
     if (manifest.components) changedFields.push('components');
-    
+
     const toastMessage = changedFields.length > 0
         ? `✨ Updated: ${changedFields.slice(0, 3).join(', ')}${changedFields.length > 3 ? '...' : ''}`
         : `Brand updated: ${updateType}`;
-    
+
     context.addToast(toastMessage, "success");
     console.log('✅ [Manifest Update] Toast shown:', toastMessage);
 
