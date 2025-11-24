@@ -555,14 +555,27 @@ export function applyManifestUpdate(
     context.addToast(toastMessage, "success");
     console.log('✅ [Manifest Update] Toast shown:', toastMessage);
 
-    // Step 8: Reload workspace data in background (for consistency, but not blocking)
-    // This ensures the API state matches, but UI already updated from manifest
-    console.log('🔄 [Manifest Update] Reloading workspace data in background...');
-    context.loadWorkspaceData().then(() => {
-        console.log('✅ [Manifest Update] Workspace data reloaded (background sync complete)');
-    }).catch((err) => {
-        console.warn('⚠️ [Manifest Update] Background workspace reload failed (non-critical):', err);
-    });
+    // Step 8: Reload workspace data in background ONLY if generation is still in progress
+    // Skip reload once all generation is complete to prevent unnecessary UI refreshes
+    const generationState = context.designAssets?.generation_state || { brand: false, style: false, landing: false };
+    const hasBrandData = manifest && (
+        (manifest.identity?.tone?.keywords?.length ?? 0) > 0 ||
+        (manifest.identity?.logo?.variations?.length ?? 0) > 0 ||
+        (manifest.identity?.colors?.accent?.length ?? 0) > 0
+    );
+    const allComplete = generationState.brand && hasBrandData && generationState.style && generationState.landing;
+
+    if (!allComplete) {
+        // Only reload during generation - ensures API state matches during active generation
+        console.log('🔄 [Manifest Update] Reloading workspace data in background (generation in progress)...');
+        context.loadWorkspaceData().then(() => {
+            console.log('✅ [Manifest Update] Workspace data reloaded (background sync complete)');
+        }).catch((err) => {
+            console.warn('⚠️ [Manifest Update] Background workspace reload failed (non-critical):', err);
+        });
+    } else {
+        console.log('⏭️ [Manifest Update] Skipping workspace reload - all generation complete (UI already updated)');
+    }
 
     console.log('🎉 [Manifest Update] Real-time update complete!');
 }

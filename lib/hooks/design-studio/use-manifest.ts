@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { PositioningDesignAssets } from "@/lib/types/design-assets";
 import type { UiValueProp } from "./use-workspace-data";
@@ -9,6 +9,7 @@ export function useManifest(
     setUiValueProp: (vp: UiValueProp) => void
 ) {
     const [manifest, setManifest] = useState<BrandManifest | null>(null);
+    const pollingStoppedRef = useRef(false);
 
     const loadManifest = useCallback(async (skipIfNoAssets = false) => {
         try {
@@ -61,11 +62,55 @@ export function useManifest(
         loadManifest(true);
     }, [loadManifest]);
 
-    // Poll for manifest updates (every 30s)
+    // Poll for manifest updates ONLY when generation is in progress
+    // Stop polling once all components are generated
     useEffect(() => {
-        const interval = setInterval(() => loadManifest(false), 30000);
+        // If we've already stopped polling, don't restart it
+        if (pollingStoppedRef.current) {
+            return;
+        }
+
+        const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+        
+        // Check if brand guide actually has data (not just the flag)
+        const hasBrandData = manifest && (
+            (manifest.identity?.tone?.keywords?.length ?? 0) > 0 ||
+            (manifest.identity?.logo?.variations?.length ?? 0) > 0 ||
+            (manifest.identity?.colors?.accent?.length ?? 0) > 0
+        );
+        
+        // Only poll if generation is still in progress
+        const allComplete = generationState.brand && hasBrandData && generationState.style && generationState.landing;
+        
+        if (allComplete) {
+            console.log('✅ [Manifest] All generation complete - stopping polling permanently');
+            pollingStoppedRef.current = true;
+            return;
+        }
+        
+        // Poll every 30s only when generation is in progress
+        const interval = setInterval(() => {
+            // Double-check before polling - if complete, stop immediately
+            const currentState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+            const currentHasBrandData = manifest && (
+                (manifest.identity?.tone?.keywords?.length ?? 0) > 0 ||
+                (manifest.identity?.logo?.variations?.length ?? 0) > 0 ||
+                (manifest.identity?.colors?.accent?.length ?? 0) > 0
+            );
+            const currentAllComplete = currentState.brand && currentHasBrandData && currentState.style && currentState.landing;
+            
+            if (currentAllComplete) {
+                console.log('✅ [Manifest] Generation completed during polling - stopping now');
+                pollingStoppedRef.current = true;
+                clearInterval(interval);
+                return;
+            }
+            
+            loadManifest(false);
+        }, 30000);
+        
         return () => clearInterval(interval);
-    }, [loadManifest]);
+    }, [loadManifest, designAssets, manifest]);
 
     return {
         manifest,
