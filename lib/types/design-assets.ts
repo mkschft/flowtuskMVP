@@ -63,6 +63,9 @@ export interface Typography {
 export interface LogoVariation {
   name: string;
   description: string;
+  imageUrl?: string; // Optional DALL-E generated logo image URL
+  imageUrlSvg?: string; // Optional code-generated SVG logo (for comparison)
+  imageUrlStockimg?: string; // Optional Stockimg.ai generated logo image URL
 }
 
 export interface PersonalityTrait {

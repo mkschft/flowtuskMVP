@@ -42,7 +42,7 @@ export interface BrandManifest {
             code?: { family: string; weights: string[]; sizes: Record<string, string> };
         };
         logo: {
-            variations: { name: string; description: string }[];
+            variations: { name: string; description: string; imageUrl?: string; imageUrlSvg?: string; imageUrlStockimg?: string }[];
         };
         tone: {
             keywords: string[]; // e.g., ["Confident", "Innovative", "Clear"]
@@ -91,6 +91,7 @@ export interface BrandManifest {
             changedFields: string[];
         }[];
         regenerationCount: number;
+        logoGenerationCount?: number; // Track logo generation iterations (max 2 per ICP)
         sourceFlowId: string;
         sourceIcpId: string;
     };

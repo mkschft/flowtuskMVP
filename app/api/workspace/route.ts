@@ -203,7 +203,18 @@ export async function GET(req: NextRequest) {
           ],
           toneOfVoice: normalizeStringArrayField(manifest.identity?.tone?.keywords),
           personalityTraits: normalizePersonalityTraits(manifest.identity?.tone?.personality),
-          logoVariations: normalizeArrayField(manifest.identity?.logo?.variations)
+          logoVariations: (() => {
+            const variations = normalizeArrayField(manifest.identity?.logo?.variations);
+            // 🔍 DEBUG: Log logo variations being sent to frontend
+            console.log('🔍 [Workspace API] Logo variations being sent:', variations.length);
+            variations.forEach((v: any, idx: number) => {
+              console.log(`  - Variation ${idx + 1} (${v.name}):`);
+              console.log(`    - imageUrl: ${v.imageUrl ? '✅ ' + v.imageUrl.substring(0, 50) + '...' : '❌ Missing'}`);
+              console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Present' : '❌ Missing'}`);
+              console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ ' + v.imageUrlStockimg.substring(0, 50) + '...' : '❌ Missing'}`);
+            });
+            return variations;
+          })()
         },
         style_guide: {
           buttons: normalizeButtons(manifest.components?.buttons),

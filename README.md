@@ -65,6 +65,9 @@ OPENAI_API_KEY=your-openai-key
 FIRECRAWL_API_KEY=
 FIRECRAWL_ENABLED=false
 NEXT_PUBLIC_DEMO_MODE_ENABLED=false
+NEXT_PUBLIC_ENABLE_LOGO_GENERATION=true  # Logo generation (enabled by default, max 2 iterations per ICP)
+STOCKIMG_API_KEY=your-stockimg-api-key  # Stockimg.ai API key (for comparison logos on first iteration)
+NEXT_PUBLIC_USE_SVG_LOGOS=false  # Use programmatic SVG logos instead of DALL-E (set to true if DALL-E results are unsatisfactory)
 ```
 
 ### 4. Run Development Server

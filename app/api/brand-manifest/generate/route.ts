@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { updateBrandManifest, fetchBrandManifest, createBrandManifest } from "@/lib/brand-manifest";
 import { createClient } from '@/lib/supabase/server';
+import { generateLogosForVariations } from "@/lib/generation/logo-generator";
 
 // Helper to normalize color fields - GPT sometimes returns strings instead of arrays
 function normalizeColorField(value: any): { name: string; hex: string; usage?: string }[] {
@@ -105,7 +106,32 @@ export async function POST(req: NextRequest) {
 
     // Apply dot-notation updates
     const updatedManifest = applyDotNotationUpdates(manifest, updates);
+    
+    // 🔍 DEBUG: Log logo variations before saving
+    if (section === 'brand') {
+      const logoVars = updatedManifest.identity?.logo?.variations || [];
+      console.log('🔍 [DEBUG] Logo variations before saving to DB:', logoVars.length);
+      logoVars.forEach((v: any, idx: number) => {
+        console.log(`  - Variation ${idx + 1} (${v.name}):`);
+        console.log(`    - imageUrl: ${v.imageUrl ? '✅ ' + v.imageUrl.substring(0, 50) + '...' : '❌ Missing'}`);
+        console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Present' : '❌ Missing'}`);
+        console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ ' + v.imageUrlStockimg.substring(0, 50) + '...' : '❌ Missing'}`);
+      });
+    }
+    
     const finalManifest = await updateBrandManifest(flowId, updatedManifest, `${section}_generated`);
+
+    // 🔍 DEBUG: Verify what was actually saved
+    if (section === 'brand') {
+      const savedLogoVars = finalManifest.identity?.logo?.variations || [];
+      console.log('🔍 [DEBUG] Logo variations after saving to DB:', savedLogoVars.length);
+      savedLogoVars.forEach((v: any, idx: number) => {
+        console.log(`  - Variation ${idx + 1} (${v.name}):`);
+        console.log(`    - imageUrl: ${v.imageUrl ? '✅ Saved' : '❌ Missing'}`);
+        console.log(`    - imageUrlSvg: ${v.imageUrlSvg ? '✅ Saved' : '❌ Missing'}`);
+        console.log(`    - imageUrlStockimg: ${v.imageUrlStockimg ? '✅ Saved' : '❌ Missing'}`);
+      });
+    }
 
     console.log(`✅ [Generate] ${section} generated successfully`);
 
@@ -254,7 +280,73 @@ Return ONLY valid JSON in this format:
 
   console.log('✅ [DEBUG] Normalized personality traits:', JSON.stringify(personality));
 
-  return {
+  // Generate logo images if feature is enabled
+  const logoVariations = content.logo?.variations || [];
+  const primaryColor = normalizedColors.primary[0]?.hex || '#000000';
+  const accentColor = normalizedColors.accent[0]?.hex || normalizedColors.primary[0]?.hex || '#000000';
+
+  // 🔍 DEBUG: Check feature flag and API keys
+  const logoGenEnabled = process.env.NEXT_PUBLIC_ENABLE_LOGO_GENERATION !== 'false';
+  const openaiKeyExists = !!process.env.OPENAI_API_KEY;
+  const stockimgKeyExists = !!process.env.STOCKIMG_API_KEY;
+  const logoGenCount = manifest?.metadata?.logoGenerationCount || 0;
+  
+  console.log('🔍 [DEBUG] Logo Generation Status:');
+  console.log('  - Feature enabled:', logoGenEnabled);
+  console.log('  - OpenAI API key exists:', openaiKeyExists);
+  console.log('  - Stockimg API key exists:', stockimgKeyExists);
+  console.log('  - Current generation count:', logoGenCount);
+  console.log('  - Logo variations to generate:', logoVariations.length);
+  console.log('  - Primary color:', primaryColor);
+  console.log('  - Accent color:', accentColor);
+
+  let logoVariationsWithImages = logoVariations;
+  let logoGenerationIncremented = false;
+
+  try {
+    console.log('🎨 [Brand Guide] Generating logos for', logoVariations.length, 'variations');
+    logoVariationsWithImages = await generateLogosForVariations(
+      manifest.brandName,
+      logoVariations,
+      primaryColor,
+      accentColor,
+      manifest
+    );
+
+    // 🔍 DEBUG: Log what was actually generated
+    console.log('🔍 [DEBUG] Logo Generation Results:');
+    logoVariationsWithImages.forEach((variation, idx) => {
+      console.log(`  - Variation ${idx + 1} (${variation.name}):`);
+      console.log(`    - DALL-E: ${variation.imageUrl ? '✅ Generated' : '❌ Missing'}`);
+      console.log(`    - SVG: ${variation.imageUrlSvg ? '✅ Generated' : '❌ Missing'}`);
+      console.log(`    - Stockimg: ${variation.imageUrlStockimg ? '✅ Generated' : '❌ Missing'}`);
+      if (variation.imageUrl) {
+        console.log(`    - DALL-E URL: ${variation.imageUrl.substring(0, 60)}...`);
+      }
+      if (variation.imageUrlSvg) {
+        console.log(`    - SVG URL: ${variation.imageUrlSvg.substring(0, 60)}...`);
+      }
+      if (variation.imageUrlStockimg) {
+        console.log(`    - Stockimg URL: ${variation.imageUrlStockimg.substring(0, 60)}...`);
+      }
+    });
+
+    // Check if any logos were actually generated (not skipped due to limit)
+    const logosGenerated = logoVariationsWithImages.some(v => v.imageUrl || v.imageUrlSvg || v.imageUrlStockimg);
+    if (logosGenerated) {
+      logoGenerationIncremented = true;
+      console.log('✅ [Brand Guide] Logos were successfully generated');
+    } else {
+      console.warn('⚠️ [Brand Guide] No logos were generated - check feature flag and API keys');
+    }
+  } catch (error: any) {
+    // Gracefully handle logo generation errors - don't break brand guide generation
+    console.error('❌ [Brand Guide] Logo generation failed, continuing without logos:', error.message);
+    console.error('❌ [Brand Guide] Error stack:', error.stack);
+    logoVariationsWithImages = logoVariations; // Use original variations without images
+  }
+
+  const result: any = {
     "identity": {
       colors: normalizedColors,
       typography: content.typography,
@@ -262,9 +354,18 @@ Return ONLY valid JSON in this format:
         keywords: content.tone?.keywords || [],
         personality
       },
-      logo: content.logo
+      logo: {
+        variations: logoVariationsWithImages
+      }
     }
   };
+
+  // Increment logo generation count in metadata if logos were generated
+  if (logoGenerationIncremented) {
+    result["metadata.logoGenerationCount"] = ((manifest?.metadata?.logoGenerationCount || 0) + 1);
+  }
+
+  return result;
 }
 
 async function generateStyleGuide(manifest: any) {

@@ -74,6 +74,7 @@ export async function createBrandManifest(
         metadata: {
             generationHistory: [],
             regenerationCount: 0,
+            logoGenerationCount: 0,
             sourceFlowId: flowId,
             sourceIcpId: icpId
         }
@@ -212,9 +213,16 @@ export async function updateBrandManifest(
 
     // Update metadata with null safety
     updated.lastUpdated = new Date().toISOString();
+    
+    // Preserve logoGenerationCount from updates if provided, otherwise keep existing
+    const logoGenerationCount = updates?.metadata?.logoGenerationCount !== undefined
+      ? updates.metadata.logoGenerationCount
+      : (current.metadata?.logoGenerationCount || 0);
+
     updated.metadata = {
         ...(current.metadata || {}),
         regenerationCount: ((current.metadata?.regenerationCount) || 0) + 1,
+        logoGenerationCount,
         generationHistory: [
             ...(current.metadata?.generationHistory || []),
             {
