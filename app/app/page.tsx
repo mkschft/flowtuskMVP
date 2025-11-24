@@ -190,10 +190,10 @@ function ChatPageContent() {
       const duplicateIds = new Set<string>();
       const duplicateUrls = new Set<string>();
 
-      // Sort by created_at DESC to keep most recent when duplicates found
+      // Sort by createdAt DESC to keep most recent when duplicates found
       const sortedConversations = [...conversations].sort((a, b) => {
-        const aTime = new Date(a.created_at || 0).getTime();
-        const bTime = new Date(b.created_at || 0).getTime();
+        const aTime = new Date(a.createdAt || 0).getTime();
+        const bTime = new Date(b.createdAt || 0).getTime();
         return bTime - aTime;
       });
 
