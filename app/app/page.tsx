@@ -333,22 +333,20 @@ function ChatPageContent() {
       };
 
       const sanitizedGeneratedContent = {
-        // Only save essential message data (exclude large content if needed)
+        // Preserve all message data - needed for rendering components (icps, value-prop, persona-showcase, etc.)
         messages: conversation.messages.map(msg => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
           component: msg.component,
-          // Exclude heavy data from message.data to reduce payload
-          data: msg.data ? (typeof msg.data === 'object' ? { _ref: msg.id } : msg.data) : undefined
+          // Preserve message.data completely - all components depend on it for rendering
+          data: msg.data,
+          thinking: msg.thinking
         })),
         generationState: {
           ...safeGenerationState,
-          // Remove heavy nested content from generatedContent
-          generatedContent: safeGenerationState.generatedContent ? {
-            icps: safeGenerationState.generatedContent.icps ? { _count: (safeGenerationState.generatedContent.icps as any[]).length } : undefined,
-            valueProp: safeGenerationState.generatedContent.valueProp ? { _exists: true } : undefined,
-          } : {}
+          // Preserve generatedContent completely - used for restoration and regeneration
+          generatedContent: safeGenerationState.generatedContent || {}
         },
         userJourney: conversation.userJourney || {
           websiteAnalyzed: false,
@@ -1783,13 +1781,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         setSidebarOpen(false);
       }}
       onSelectConversation={(id: string) => {
-        setActiveConversationId(id);
-        // Load the conversation's state
-        const conversation = conversations.find(c => c.id === id);
-        if (conversation) {
-          setWebsiteUrl(conversation.memory.websiteUrl || "");
-          setSelectedIcp(conversation.memory.selectedIcp);
-        }
+        // Update URL first - this will trigger the deep linking useEffect to sync state
+        router.push(`/app?c=${id}`, { scroll: false });
         setSidebarOpen(false);
       }}
       onDeleteConversation={deleteConversation}
@@ -2221,7 +2214,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                       )}
 
                     {/* ICP Cards */}
-                    {message.component === "icps" && message.data && (
+                    {message.component === "icps" && message.data && Array.isArray(message.data) && (
                       <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                         {(
                           // De-duplicate ICPs by id to avoid React key warnings
@@ -2378,8 +2371,10 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     )}
 
                     {/* Value Prop Summary with Approval */}
-                    {message.component === "value-prop-summary" && message.data && (() => {
+                    {message.component === "value-prop-summary" && message.data && typeof message.data === 'object' && !Array.isArray(message.data) && (() => {
                       const data = message.data as { summary: string; valuePropData: ValuePropData; icp: ICP };
+                      // Defensive check: ensure required properties exist
+                      if (!data.summary || !data.valuePropData || !data.icp) return null;
                       return (
                         <SummaryApprovalCard
                           summary={data.summary}
@@ -2392,8 +2387,10 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     })()}
 
                     {/* Value Prop Builder */}
-                    {message.component === "value-prop" && message.data && (() => {
+                    {message.component === "value-prop" && message.data && typeof message.data === 'object' && !Array.isArray(message.data) && (() => {
                       const data = message.data as ValuePropData;
+                      // Defensive check: ensure valuePropData has required structure
+                      if (!data || !data.variables || !data.variations) return null;
                       const activeConv = conversations.find(c => c.id === activeConversationId);
                       return (
                         <ValuePropBuilderWrapper
@@ -2408,8 +2405,10 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     })()}
 
                     {/* Positioning Summary with Approval */}
-                    {message.component === "positioning-summary" && message.data && (() => {
+                    {message.component === "positioning-summary" && message.data && typeof message.data === 'object' && !Array.isArray(message.data) && (() => {
                       const data = message.data as { summary: string; icp: ICP; valuePropData: ValuePropData };
+                      // Defensive check: ensure required properties exist
+                      if (!data.summary || !data.icp || !data.valuePropData) return null;
                       return (
                         <SummaryApprovalCard
                           summary={data.summary}
@@ -2421,8 +2420,10 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     })()}
 
                     {/* Persona Showcase */}
-                    {message.component === "persona-showcase" && message.data && (() => {
+                    {message.component === "persona-showcase" && message.data && typeof message.data === 'object' && !Array.isArray(message.data) && (() => {
                       const showcaseData = message.data as { personas: ICP[]; selectedPersonaId: string; valuePropData: Record<string, ValuePropData> };
+                      // Defensive check: ensure personas is an array and required properties exist
+                      if (!showcaseData || !Array.isArray(showcaseData.personas) || !showcaseData.selectedPersonaId) return null;
                       return (
                         <PersonaShowcase
                           personas={showcaseData.personas}

@@ -1,0 +1,130 @@
+{
+  "brand": {
+    "name": "ExampleCorp",
+    "tones": [
+      "professional",
+      "informative"
+    ],
+    "primaryCTA": "Contact Us"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "About Us",
+      "Services",
+      "Contact"
+    ],
+    "keyPages": [
+      {
+        "path": "/home",
+        "title": "Home"
+      },
+      {
+        "path": "/about",
+        "title": "About Us"
+      },
+      {
+        "path": "/services",
+        "title": "Services"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Terms of Service",
+      "Sitemap"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "United States",
+    "industryFocus": "Technology",
+    "signals": [
+      "USD currency",
+      "US phone number format"
+    ]
+  },
+  "audienceSignals": [
+    "businesses seeking technology solutions"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Innovative technology solutions",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "difficulty in integrating technology solutions"
+  ],
+  "proof": [
+    "ISO 9001 certified"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "ExampleCorp offers a range of technology solutions.",
+      "page": "Home",
+      "evidence": "ExampleCorp offers a range of technology solutions."
+    },
+    {
+      "id": "fact-2",
+      "text": "The primary call to action is 'Contact Us'.",
+      "page": "Home",
+      "evidence": "Contact Us"
+    },
+    {
+      "id": "fact-3",
+      "text": "ExampleCorp is based in the United States.",
+      "page": "Contact",
+      "evidence": "US phone number format"
+    },
+    {
+      "id": "fact-4",
+      "text": "The website uses USD currency.",
+      "page": "Home",
+      "evidence": "Prices are listed in USD."
+    },
+    {
+      "id": "fact-5",
+      "text": "The navigation includes 'Home', 'About Us', 'Services', and 'Contact'.",
+      "page": "Home",
+      "evidence": "Navigation: Home, About Us, Services, Contact"
+    },
+    {
+      "id": "fact-6",
+      "text": "The footer includes 'Privacy Policy', 'Terms of Service', and 'Sitemap'.",
+      "page": "Home",
+      "evidence": "Footer: Privacy Policy, Terms of Service, Sitemap"
+    },
+    {
+      "id": "fact-7",
+      "text": "ExampleCorp targets businesses seeking technology solutions.",
+      "page": "Services",
+      "evidence": "We serve businesses seeking technology solutions."
+    },
+    {
+      "id": "fact-8",
+      "text": "ExampleCorp is ISO 9001 certified.",
+      "page": "About Us",
+      "evidence": "ISO 9001 certified"
+    },
+    {
+      "id": "fact-9",
+      "text": "The website's tone is professional and informative.",
+      "page": "About Us",
+      "evidence": "Our professional and informative approach."
+    },
+    {
+      "id": "fact-10",
+      "text": "ExampleCorp addresses the difficulty in integrating technology solutions.",
+      "page": "Services",
+      "evidence": "We solve the difficulty in integrating technology solutions."
+    }
+  ]
+}

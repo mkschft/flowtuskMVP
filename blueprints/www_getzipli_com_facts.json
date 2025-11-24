@@ -3,8 +3,7 @@
     "name": "Zipli",
     "tones": [
       "informative",
-      "sustainable",
-      "community-focused"
+      "supportive"
     ],
     "primaryCTA": "Book a demo"
   },
@@ -17,19 +16,19 @@
     ],
     "keyPages": [
       {
-        "path": "/?max-length=12000#product",
+        "path": "/#product",
         "title": "Product"
       },
       {
-        "path": "/?max-length=12000#use-case",
+        "path": "/#use-case",
         "title": "Use cases"
       },
       {
-        "path": "/?max-length=12000#how",
+        "path": "/#how",
         "title": "How it works"
       },
       {
-        "path": "/?max-length=12000#contact",
+        "path": "/#contact",
         "title": "Contact"
       }
     ],
@@ -42,9 +41,13 @@
   },
   "targetMarket": {
     "primaryRegion": "Global",
-    "industryFocus": "Food Waste Solutions",
+    "industryFocus": "Food Waste Management",
     "signals": [
-      "The website uses English language and targets cities, municipalities, HoReCa, retail, food producers, charities, and upcyclers globally."
+      "The only B2B food waste solutions",
+      "Cities & Municipalities",
+      "HoReCa & Retail",
+      "Food producers",
+      "Charities & Upcyclers"
     ]
   },
   "audienceSignals": [
@@ -56,95 +59,107 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Zipli provides a real-time food tracking platform to cut waste costs and improve social wellbeing.",
+      "text": "Reduce food waste and improve sustainability goals",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Real-time food tracking platform for ESG compliance",
       "evidence": [
         "fact-3",
         "fact-4"
       ]
     },
     {
-      "id": "v2",
-      "text": "Zipli automates redistribution logistics and compliance for HoReCa and retail.",
+      "id": "v3",
+      "text": "Automated redistribution logistics for food donations",
       "evidence": [
-        "fact-5"
+        "fact-5",
+        "fact-6"
       ]
     },
     {
-      "id": "v3",
-      "text": "Zipli's mobile app matches excess food with organizations in need.",
+      "id": "v4",
+      "text": "AI-powered data platform for insights and action",
       "evidence": [
-        "fact-9"
+        "fact-7",
+        "fact-8"
       ]
     }
   ],
   "pains": [
-    "Mismatch in food systems where one third of all produced food goes to waste.",
-    "Cities and municipalities struggle to meet food waste reduction goals."
+    "Mismatch in food systems leading to waste",
+    "Cities struggling to meet food waste reduction goals",
+    "Lack of tools for efficient food redistribution"
   ],
   "proof": [
-    "AI-powered data platform for overview, insights, and action.",
-    "Auto-generated reports for ESG tracking."
+    "AI-powered data platform",
+    "Mobile app for food matchmaking",
+    "Auto-generated reports for ESG tracking"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "One third of all produced food goes to waste.",
+      "text": "One third of all produced food goes to waste",
       "page": "Rescuing surplus food at scale",
       "evidence": "One third of all produced food goes to waste while millions of people cannot afford quality meals."
     },
     {
       "id": "fact-2",
-      "text": "Zipli offers a real-time food tracking platform.",
+      "text": "Zipli offers a real-time food tracking platform",
       "page": "How can we help?",
       "evidence": "Meet climate, food waste, and social policy targets by utilizing Zipli's real-time food tracking platform and communication tool."
     },
     {
       "id": "fact-3",
-      "text": "Zipli helps cities and municipalities cut waste costs and improve ESG compliance.",
+      "text": "Zipli helps cut waste costs and improve ESG compliance",
       "page": "How can we help?",
       "evidence": "Cut waste costs, strengthen ESG compliance, and improve social wellbeing."
     },
     {
       "id": "fact-4",
-      "text": "Zipli automates redistribution logistics for HoReCa and retail.",
-      "page": "How can we help?",
+      "text": "Zipli automates redistribution logistics",
+      "page": "HoReCa & Retail",
       "evidence": "Reduce disposal costs and simplify food donations by automating redistribution logistics and compliance."
     },
     {
       "id": "fact-5",
-      "text": "Zipli's mobile app matches excess food with organizations in need.",
-      "page": "Mobile app for every-day food matchmaking",
-      "evidence": "Our mobile app solves the daily headache of redirecting excess food to people in need."
-    },
-    {
-      "id": "fact-6",
-      "text": "Zipli provides AI-based recommendations to reduce waste.",
+      "text": "Zipli provides AI-based recommendations to reduce waste",
       "page": "How it works",
       "evidence": "And on top of it all, we provide users AI-based recommendations on measures to take to further reduce waste and meet impact goals."
     },
     {
+      "id": "fact-6",
+      "text": "Zipli's mobile app matches food offers and requests",
+      "page": "Mobile app for every-day food matchmaking",
+      "evidence": "Our mobile app solves the daily headache of redirecting excess food to people in need."
+    },
+    {
       "id": "fact-7",
-      "text": "Zipli offers auto-generated reports for ESG tracking.",
+      "text": "Zipli's platform offers real-time insights for decision-makers",
+      "page": "AI-powered data platform for overview, insights and action",
+      "evidence": "Whether you are a public sector decision-maker, a food waste coordinator or a restaurant chain manager, our real-time insights will help you get an overview on food flows and detailed data on your positive impact."
+    },
+    {
+      "id": "fact-8",
+      "text": "Zipli provides auto-generated reports for ESG tracking",
       "page": "AI-powered data platform for overview, insights and action",
       "evidence": "Use our auto-generated reports for ESG tracking and faster stakeholder communications."
     },
     {
-      "id": "fact-8",
-      "text": "Zipli's platform helps food producers turn surplus into savings.",
-      "page": "How can we help?",
-      "evidence": "Turn extra food into good use by making donations easier to handle and report."
-    },
-    {
       "id": "fact-9",
-      "text": "Zipli provides a consistent and diverse supply of surplus food for charities and upcyclers.",
-      "page": "How can we help?",
-      "evidence": "Get access to consistent and diverse supply of surplus food."
+      "text": "Zipli helps food producers turn surplus into savings",
+      "page": "Food producers",
+      "evidence": "Turn extra food into good use by making donations easier to handle and report. Save money, do good for the planet, follow food donation rules and get the data you need for ESG reporting."
     },
     {
       "id": "fact-10",
-      "text": "Zipli's AI-powered platform offers real-time insights on food flows.",
-      "page": "AI-powered data platform for overview, insights and action",
-      "evidence": "Our real-time insights will help you get an overview on food flows and detailed data on your positive impact."
+      "text": "Charities get reliable access to surplus food through Zipli",
+      "page": "Charities & Upcyclers",
+      "evidence": "Get access to consistent and diverse supply of surplus food. Reduce sourcing stress, lower costs, and focus on creating more impact - or new food innovations for the world to enjoy!"
     }
   ]
 }

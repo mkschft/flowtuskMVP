@@ -468,7 +468,41 @@ export function applyManifestUpdate(
         console.warn('⚠️ [Manifest Update] Missing flowId or icpId, skipping designAssets conversion');
     }
 
-    // Step 3: Update UI value prop from manifest immediately
+    // Step 3: Explicitly update persona in workspaceData if it changed
+    if (manifest.strategy?.persona) {
+        console.log('👤 [Manifest Update] Updating persona in workspaceData...');
+        if (context.workspaceData) {
+            context.setWorkspaceData(prev => {
+                if (!prev) return prev;
+
+                // Map manifest persona to workspaceData persona structure
+                const manifestPersona = manifest.strategy.persona;
+                return {
+                    ...prev,
+                    persona: {
+                        ...prev.persona, // Preserve existing fields like id
+                        persona_name: manifestPersona.name,
+                        persona_role: manifestPersona.role,
+                        persona_company: manifestPersona.company,
+                        location: manifestPersona.location,
+                        country: manifestPersona.country,
+                        pain_points: manifestPersona.painPoints || [],
+                        goals: manifestPersona.goals || [],
+                        // Keep title and description from existing persona if not in manifest
+                        title: prev.persona.title,
+                        description: prev.persona.description
+                    }
+                };
+            });
+            console.log('✅ [Manifest Update] Persona updated in workspaceData', {
+                name: manifest.strategy.persona.name,
+                location: manifest.strategy.persona.location,
+                country: manifest.strategy.persona.country
+            });
+        }
+    }
+
+    // Step 4: Update UI value prop from manifest immediately
     console.log('📝 [Manifest Update] Updating UI value prop...');
     const valueProp = manifest.strategy?.valueProp;
     if (valueProp) {
@@ -488,7 +522,7 @@ export function applyManifestUpdate(
         });
     }
 
-    // Step 4: Add to history
+    // Step 5: Add to history
     console.log('📚 [Manifest Update] Adding to history...');
     context.addToHistory(
         manifest,
@@ -496,7 +530,7 @@ export function applyManifestUpdate(
         `AI updated: ${updateType}`
     );
 
-    // Step 5: Determine which tab to switch to based on update type
+    // Step 6: Determine which tab to switch to based on update type
     const tabMap: Record<string, "value-prop" | "brand" | "style" | "landing"> = {
         'market_shift': 'value-prop',
         'messaging': 'value-prop',
@@ -507,7 +541,7 @@ export function applyManifestUpdate(
     console.log('🎯 [Manifest Update] Switching to tab:', targetTab);
     setTimeout(() => context.setActiveTab(targetTab), 300);
 
-    // Step 6: Show success toast
+    // Step 7: Show success toast
     const changedFields: string[] = [];
     if (valueProp?.headline) changedFields.push('headline');
     if (manifest.identity?.colors?.primary?.length) changedFields.push('colors');
@@ -521,7 +555,7 @@ export function applyManifestUpdate(
     context.addToast(toastMessage, "success");
     console.log('✅ [Manifest Update] Toast shown:', toastMessage);
 
-    // Step 7: Reload workspace data in background (for consistency, but not blocking)
+    // Step 8: Reload workspace data in background (for consistency, but not blocking)
     // This ensures the API state matches, but UI already updated from manifest
     console.log('🔄 [Manifest Update] Reloading workspace data in background...');
     context.loadWorkspaceData().then(() => {

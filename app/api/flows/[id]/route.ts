@@ -82,7 +82,7 @@ export async function PATCH(
     if (body.website_url !== undefined) updateData.website_url = body.website_url;
     if (body.facts_json !== undefined) updateData.website_analysis = body.facts_json; // map to DB column
     if (body.selected_icp !== undefined) updateData.selected_icp = body.selected_icp;
-    // generated_content column not present on positioning_flows; skip persisting to avoid DB errors
+    if (body.generated_content !== undefined) updateData.generated_content = body.generated_content;
     if (body.step !== undefined) {
       updateData.step = body.step;
       

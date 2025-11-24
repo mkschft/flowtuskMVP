@@ -1,0 +1,149 @@
+{
+  "brand": {
+    "name": "The New Yorker",
+    "tones": [
+      "informative",
+      "analytical"
+    ],
+    "primaryCTA": "Order"
+  },
+  "structure": {
+    "nav": [
+      "Today's Mix",
+      "The Lede",
+      "Books",
+      "Holiday Gift Guides",
+      "Photo Booth",
+      "The Critics"
+    ],
+    "keyPages": [
+      {
+        "path": "/todays-mix",
+        "title": "Today's Mix"
+      },
+      {
+        "path": "/the-lede",
+        "title": "The Lede"
+      },
+      {
+        "path": "/books",
+        "title": "Books"
+      },
+      {
+        "path": "/holiday-gift-guides",
+        "title": "Holiday Gift Guides"
+      },
+      {
+        "path": "/photo-booth",
+        "title": "Photo Booth"
+      },
+      {
+        "path": "/the-critics",
+        "title": "The Critics"
+      }
+    ],
+    "footer": [
+      "Send us a tip"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "United States",
+    "industryFocus": "Media",
+    "signals": [
+      "The New Yorker",
+      "New York City",
+      "U.S. political topics"
+    ]
+  },
+  "audienceSignals": [
+    "Readers interested in U.S. politics",
+    "Fans of investigative journalism",
+    "Cultural enthusiasts"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "In-depth reporting on political and cultural issues",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Coverage of global political events",
+      "evidence": [
+        "fact-5"
+      ]
+    }
+  ],
+  "pains": [
+    "Lack of in-depth analysis in mainstream media"
+  ],
+  "proof": [
+    "Long-standing reputation as a leading publication",
+    "High-profile contributors"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "The New Yorker covers a wide range of topics including politics, culture, and current events.",
+      "page": "Today's Mix",
+      "evidence": "Inside the fight to bring casinos to New York City."
+    },
+    {
+      "id": "fact-2",
+      "text": "The New Yorker features investigative journalism.",
+      "page": "The Lede",
+      "evidence": "The Trump Administration is deporting people to countries such as South Sudan, Ghana, and Eswatini."
+    },
+    {
+      "id": "fact-3",
+      "text": "The New Yorker reports on U.S. political issues.",
+      "page": "Today's Mix",
+      "evidence": "For Trump, 'Fostering the Future' Looks a Lot Like the Past."
+    },
+    {
+      "id": "fact-4",
+      "text": "The New Yorker provides cultural critiques.",
+      "page": "The Critics",
+      "evidence": "'Wicked: For Good' Is Very, Very Bad."
+    },
+    {
+      "id": "fact-5",
+      "text": "The New Yorker covers international political events.",
+      "page": "The Lede",
+      "evidence": "The Sikh-Separatist Assassination Plot."
+    },
+    {
+      "id": "fact-6",
+      "text": "The New Yorker offers holiday gift guides.",
+      "page": "Holiday Gift Guides",
+      "evidence": "Presents to Thank Your Host."
+    },
+    {
+      "id": "fact-7",
+      "text": "The New Yorker includes essays and personal stories.",
+      "page": "The Weekend Essay",
+      "evidence": "A Battle with My Blood."
+    },
+    {
+      "id": "fact-8",
+      "text": "The New Yorker has a section dedicated to books.",
+      "page": "Books",
+      "evidence": "What Does 'Capitalism' Really Mean, Anyway?"
+    },
+    {
+      "id": "fact-9",
+      "text": "The New Yorker features photo essays.",
+      "page": "Photo Booth",
+      "evidence": "Alice Austen’s Larky Life."
+    },
+    {
+      "id": "fact-10",
+      "text": "The New Yorker provides a customizable day planner with cartoons.",
+      "page": "Today's Mix",
+      "evidence": "Plan ahead with the 2026 New Yorker Desk Diary."
+    }
+  ]
+}

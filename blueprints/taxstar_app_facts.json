@@ -2,8 +2,8 @@
   "brand": {
     "name": "Tax Star",
     "tones": [
-      "Professional",
-      "Informative"
+      "professional",
+      "informative"
     ],
     "primaryCTA": "Book a Demo"
   },
@@ -15,8 +15,7 @@
       "Other Tools",
       "About",
       "Resources",
-      "Pricing",
-      "Contact Us"
+      "Pricing"
     ],
     "keyPages": [
       {
@@ -46,6 +45,14 @@
       {
         "path": "/practice-and-deadline-management",
         "title": "Practice Management & Deadline"
+      },
+      {
+        "path": "/e-invoice",
+        "title": "E-invoicing (UAE)"
+      },
+      {
+        "path": "/zakat",
+        "title": "Zakat for Business (KSA)"
       },
       {
         "path": "/about",
@@ -108,12 +115,11 @@
   },
   "targetMarket": {
     "primaryRegion": "UAE",
-    "industryFocus": "Corporate Tax Software",
+    "industryFocus": "Corporate Tax",
     "signals": [
       "Corporate Tax (UAE)",
       "E-Invoicing (UAE)",
-      "Zakat for Business (KSA)",
-      "AED currency symbol"
+      "Zakat for Business (KSA)"
     ]
   },
   "audienceSignals": [
@@ -127,119 +133,98 @@
       "text": "AI-powered Corporate Tax software for UAE businesses.",
       "evidence": [
         "fact-3",
-        "fact-5"
+        "fact-7"
       ]
     },
     {
       "id": "v2",
       "text": "Automated returns and IFRS financial statement production.",
       "evidence": [
-        "fact-8",
-        "fact-10"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "E-Invoicing that ensures FTA compliance.",
-      "evidence": [
+        "fact-9",
         "fact-11"
       ]
     }
   ],
   "pains": [
-    "Compliance stress",
-    "Errors in financial statements",
-    "Penalties for document expiry"
+    "Compliance can feel stressful.",
+    "Failure to update registration documents within 20 days of expiry will result in hefty penalties."
   ],
   "proof": [
-    "AI Powered Corporate Tax Software",
-    "IFRS Financial Statements",
-    "Doc Expiry Reminders"
+    "AI-powered Corporate Tax software",
+    "FTA-compliant E-Invoicing"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star offers corporate tax software.",
+      "text": "Tax Star is a corporate tax software.",
       "page": "Home",
-      "evidence": "AI-powered Corporate Tax software for UAE businesses."
+      "evidence": "Tax Star | Corporate Tax Software"
     },
     {
       "id": "fact-2",
-      "text": "Tax Star provides compliance solutions for the UAE.",
-      "page": "Home",
-      "evidence": "Compliance can feel stressful. That’s why we built a simple ecosystem around Tax Star."
-    },
-    {
-      "id": "fact-3",
-      "text": "Tax Star's primary CTA is 'Book a Demo'.",
+      "text": "The website offers a demo booking option.",
       "page": "Home",
       "evidence": "[Book a Corporate Tax Demo](https://calendar.app.google/JC4VQuD3WcBHxwXKA)"
     },
     {
+      "id": "fact-3",
+      "text": "Tax Star provides AI-powered Corporate Tax software for UAE businesses.",
+      "page": "Home",
+      "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
+    },
+    {
       "id": "fact-4",
-      "text": "Tax Star serves accounting practice owners.",
+      "text": "The website has a section for Accounting Practice Owners.",
       "page": "By Role",
       "evidence": "[Accounting Practice Owners](https://taxstar.app/accounting-practice-owners)"
     },
     {
       "id": "fact-5",
-      "text": "Tax Star serves tax advisors.",
+      "text": "The website has a section for Tax Advisors.",
       "page": "By Role",
       "evidence": "[Tax Advisors](https://taxstar.app/tax-advisors)"
     },
     {
       "id": "fact-6",
-      "text": "Tax Star serves ERP resellers.",
+      "text": "The website has a section for ERP Resellers.",
       "page": "By Role",
       "evidence": "[ERP Resellers](https://taxstar.app/by-role-erp-resellers)"
     },
     {
       "id": "fact-7",
-      "text": "Tax Star offers E-invoicing for the UAE.",
-      "page": "Other Tools",
-      "evidence": "[E-invoicing (UAE)](https://taxstar.app/e-invoice)"
+      "text": "Tax Star offers E-Invoicing that is FTA-compliant.",
+      "page": "Home",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
     },
     {
       "id": "fact-8",
-      "text": "Tax Star offers Zakat calculations for KSA.",
-      "page": "Other Tools",
-      "evidence": "[Zakat for Business (KSA)](https://taxstar.app/zakat)"
+      "text": "The website provides a Corporate Tax Calculator.",
+      "page": "Home",
+      "evidence": "Corporate Tax Calculator"
     },
     {
       "id": "fact-9",
-      "text": "Tax Star provides automated returns.",
+      "text": "Tax Star automates returns and IFRS financial statement production.",
       "page": "Home",
-      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
+      "evidence": "Automated returns, IFRS financial statement"
     },
     {
       "id": "fact-10",
-      "text": "Tax Star offers IFRS financial statement production.",
+      "text": "Tax Star offers smart reminders for document expiry.",
       "page": "Home",
-      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
-    },
-    {
-      "id": "fact-11",
-      "text": "Tax Star's E-Invoicing ensures FTA compliance.",
-      "page": "E-Invoicing",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant and ensures seamless integration with corporate tax filing."
-    },
-    {
-      "id": "fact-12",
-      "text": "Tax Star notifies users about document expiry to avoid penalties.",
-      "page": "Doc Expiry Reminders",
       "evidence": "Tax Star notifies you when they are due on a timely basis."
     },
     {
-      "id": "fact-13",
-      "text": "Failure to update registration documents within 20 days results in AED 5,000 penalty.",
-      "page": "Doc Expiry Reminders",
-      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
+      "id": "fact-11",
+      "text": "Tax Star helps eliminate the use of Word and Excel for financial statements.",
+      "page": "Home",
+      "evidence": "Eliminate word and excel and reduce errors."
     },
     {
-      "id": "fact-14",
-      "text": "Tax Star's AI-powered software offers faster calculations and more accuracy.",
+      "id": "fact-12",
+      "text": "Failure to update registration documents within 20 days of expiry will result in hefty penalties.",
       "page": "Home",
-      "evidence": "Faster Calculations, More Accuracy"
+      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
     }
   ]
 }

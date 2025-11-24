@@ -271,3 +271,4 @@ export function DesignStudioWorkspace({ icpId, flowId }) {
 | Maintainability | Low | High | **Much better** |
 
 
+

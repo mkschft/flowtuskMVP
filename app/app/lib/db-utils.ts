@@ -88,24 +88,22 @@ export async function saveConversationToDb(conversation: Conversation): Promise<
       console.log(`💾 [DB Save] Selected ICP has ${evidence.length} evidence links`);
     }
     
-    // Sanitize data before saving to avoid size issues
+    // Preserve all data - needed for rendering and restoration
     const sanitizedGeneratedContent = {
-      // Only save essential message data (exclude large content if needed)
+      // Preserve all message data - needed for rendering components (icps, value-prop, persona-showcase, etc.)
       messages: conversation.messages.map(msg => ({
         id: msg.id,
         role: msg.role,
         content: msg.content,
         component: msg.component,
-        // Exclude heavy data from message.data to reduce payload
-        data: msg.data ? (typeof msg.data === 'object' ? { _ref: msg.id } : msg.data) : undefined
+        // Preserve message.data completely - all components depend on it for rendering
+        data: msg.data,
+        thinking: msg.thinking
       })),
       generationState: {
         ...conversation.generationState,
-        // Remove heavy nested content from generatedContent
-        generatedContent: conversation.generationState.generatedContent ? {
-          icps: conversation.generationState.generatedContent.icps ? { _count: (conversation.generationState.generatedContent.icps as any[]).length } : undefined,
-          valueProp: conversation.generationState.generatedContent.valueProp ? { _exists: true } : undefined,
-        } : {}
+        // Preserve generatedContent completely - used for restoration and regeneration
+        generatedContent: conversation.generationState.generatedContent || {}
       },
       userJourney: conversation.userJourney,
       generationHistory: conversation.memory.generationHistory.slice(-10), // Keep only last 10

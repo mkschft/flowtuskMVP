@@ -406,3 +406,4 @@ export function DesignStudioWorkspace({ icpId, flowId }: Props) {
 - `lib/types/design-assets.ts` - Type definitions
 
 
+

@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
       website_url: body.website_url || null,
       website_analysis: body.facts_json || null, // map facts_json -> website_analysis (DB column)
       selected_icp: body.selected_icp || null,
+      generated_content: body.generated_content || {},
       step: body.step || 'initial',
       metadata: {
         analysis: {
