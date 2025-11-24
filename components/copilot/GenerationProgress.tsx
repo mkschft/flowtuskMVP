@@ -21,7 +21,7 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
   const progress = (completedCount / totalCount) * 100;
   
   return (
-    <Card className="p-4 border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20">
+    <Card className="p-4 border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-transparent">
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-start gap-3">
@@ -65,16 +65,16 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
               {/* Status Icon */}
               <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                 step.status === 'complete' 
-                  ? 'bg-green-100 dark:bg-green-950' 
+                  ? 'bg-green-100' 
                   : step.status === 'loading'
-                  ? 'bg-purple-100 dark:bg-purple-950'
+                  ? 'bg-purple-100'
                   : 'bg-muted'
               }`}>
                 {step.status === 'complete' && (
-                  <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
+                  <CheckCircle2 className="w-3 h-3 text-green-600" />
                 )}
                 {step.status === 'loading' && (
-                  <Loader2 className="w-3 h-3 text-purple-600 dark:text-purple-400 animate-spin" />
+                  <Loader2 className="w-3 h-3 text-purple-600 animate-spin" />
                 )}
                 {step.status === 'pending' && (
                   <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
@@ -87,7 +87,7 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
                   step.status === 'complete' 
                     ? 'text-foreground' 
                     : step.status === 'loading'
-                    ? 'text-purple-600 dark:text-purple-400'
+                    ? 'text-purple-600'
                     : 'text-muted-foreground'
                 }`}>
                   {step.label}

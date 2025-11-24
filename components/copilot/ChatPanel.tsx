@@ -121,7 +121,7 @@ export function ChatPanel({
                   className={cn(
                     "max-w-[80%] rounded-2xl px-4 py-3",
                     message.role === "user"
-                      ? "bg-purple-100 dark:bg-purple-900/30 text-foreground ml-auto"
+                      ? "bg-purple-100 text-foreground ml-auto"
                       : "bg-muted text-foreground"
                   )}
                 >
@@ -227,7 +227,7 @@ export function ChatPanel({
             <p className={cn(
               "text-xs font-medium",
               regenerationCount >= maxRegenerations
-                ? "text-orange-600 dark:text-orange-400"
+                ? "text-orange-600"
                 : "text-muted-foreground"
             )}>
               {regenerationCount}/{maxRegenerations} uses

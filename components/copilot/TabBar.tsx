@@ -25,10 +25,10 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
           key={tab.id}
           variant="ghost"
           onClick={() => onTabChange(tab.id)}
-          className={cn(
+            className={cn(
             "relative gap-2 rounded-none border-b-2 border-transparent px-4 py-5",
             activeTab === tab.id
-              ? "border-purple-500 text-purple-600 dark:text-purple-400"
+              ? "border-purple-500 text-purple-600"
               : "text-muted-foreground hover:text-foreground"
           )}
         >

@@ -1,12 +1,4 @@
-Chat now 
-
-[](javascript:void(0);)
-
-![Image 1](https://stripe.com/?max-length=12000)![Image 2](https://stripe.com/?max-length=12000)
-
-8 sales reps available
-
- Have questions? Our sales team is here to help. 
+Chat with Stripe sales 
 
 Stripe | Financial Infrastructure to Grow Your Revenue
 
@@ -20,8 +12,6 @@ Stripe | Financial Infrastructure to Grow Your Revenue
 *   Developers
 *   Resources
 *   [Pricing](https://stripe.com/pricing)
-
-[Sign in](https://dashboard.stripe.com/login)
 
 [Dashboard](https://dashboard.stripe.com/)[Sign in](https://dashboard.stripe.com/login)
 
@@ -221,6 +211,14 @@ By use case
 *   [Global businesses](https://stripe.com/use-cases/global-businesses)
 
 *   [In-app payments](https://stripe.com/use-cases/in-app-payments)
-*   [Marketplaces](https://stripe.com/use-c
+*   [Marketplaces](https://stripe.com/use-cases/marketplaces)
+*   [Platforms](https://stripe.com/use-cases/platforms)
+*   [SaaS](https://stripe.com/use-cases/saas)
+
+By industry
+===========
+
+*   [AI companies](https://stripe.com/use-cases/ai)
+*   [Creator economy](https://st
 
 [Content truncated for performance]

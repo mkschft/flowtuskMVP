@@ -12,7 +12,7 @@ type ProjectSelectorProps = {
 
 export function ProjectSelector({ activeProject, onProjectChange }: ProjectSelectorProps) {
   return (
-    <div className="flex items-center gap-3 p-4 border-b bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="flex items-center gap-3 p-4 border-b bg-gradient-to-r from-slate-50 to-slate-100">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-muted-foreground">Example:</span>
         <div className="flex items-center gap-1 bg-background rounded-lg p-1 border">
@@ -23,7 +23,7 @@ export function ProjectSelector({ activeProject, onProjectChange }: ProjectSelec
             className={cn(
               "gap-2 h-8",
               activeProject === "saas"
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                ? "bg-purple-100 text-purple-700"
                 : ""
             )}
           >
@@ -37,7 +37,7 @@ export function ProjectSelector({ activeProject, onProjectChange }: ProjectSelec
             className={cn(
               "gap-2 h-8",
               activeProject === "agency"
-                ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                ? "bg-orange-100 text-orange-700"
                 : ""
             )}
           >

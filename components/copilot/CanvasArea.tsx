@@ -41,7 +41,7 @@ export function CanvasArea({
   // Get dynamic colors from manifest for tab styling
   const primaryColor = getPrimaryColor(manifest);
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Top Navigation Bar */}
       <div className="flex items-center justify-center gap-3 px-6 py-3">
         {/* Tab Navigation - Segmented Control Style */}
@@ -53,7 +53,7 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "value-prop"
-                ? "bg-background shadow-sm"
+                ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground"
             )}
             style={activeTab === "value-prop" ? { color: primaryColor } : undefined}
@@ -68,7 +68,7 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "brand"
-                ? "bg-background shadow-sm"
+                ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground"
             )}
             style={activeTab === "brand" ? { color: primaryColor } : undefined}
@@ -83,7 +83,7 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "style"
-                ? "bg-background shadow-sm"
+                ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground"
             )}
             style={activeTab === "style" ? { color: primaryColor } : undefined}
@@ -98,7 +98,7 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "landing"
-                ? "bg-background shadow-sm"
+                ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground"
             )}
             style={activeTab === "landing" ? { color: primaryColor } : undefined}

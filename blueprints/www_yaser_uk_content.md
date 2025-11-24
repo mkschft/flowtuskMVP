@@ -1,5 +1,3 @@
-Published Time: Sun, 23 Nov 2025 22:21:47 GMT
-
 SEO Consultant | London-based SEO consultant
 
 ===============
@@ -174,6 +172,6 @@ Services
 
 Industries
 
-![Image 40: p
+![Image 40: pound sign white background](https://cdn.prod.we
 
 [Content truncated for performance]

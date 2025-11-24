@@ -170,7 +170,7 @@ export function ShareModal({ open, onClose, onCopy, projectName }: ShareModalPro
 
           <TabsContent value="pdf" className="space-y-4">
             <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 border">
                 <h4 className="text-sm font-semibold mb-2">Export as PDF</h4>
                 <p className="text-xs text-muted-foreground mb-4">
                   Download a complete PDF with all design system components, perfect for presentations and stakeholder reviews.

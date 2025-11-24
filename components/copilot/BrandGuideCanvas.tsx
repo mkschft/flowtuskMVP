@@ -77,7 +77,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
               size="sm"
               className="gap-2"
             >
-              <Shuffle className="w-3 h-3" />
+              <Shuffle className="w-3 h-3 text-foreground" />
               Shuffle
             </Button>
             <div className="flex items-center gap-1 p-1 bg-muted rounded-md">
@@ -87,7 +87,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                 className="h-7 w-7 p-0"
                 onClick={() => setLightMode(true)}
               >
-                <Sun className="w-3 h-3" />
+                <Sun className="w-3 h-3 text-foreground" />
               </Button>
               <Button
                 variant={!lightMode ? "secondary" : "ghost"}
@@ -95,7 +95,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                 className="h-7 w-7 p-0"
                 onClick={() => setLightMode(false)}
               >
-                <Moon className="w-3 h-3" />
+                <Moon className="w-3 h-3 text-foreground" />
               </Button>
             </div>
           </div>

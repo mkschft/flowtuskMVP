@@ -1,0 +1,135 @@
+{
+  "brand": {
+    "name": "Typeform",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "See plans"
+  },
+  "structure": {
+    "nav": [
+      "AI Engagement Platform",
+      "Data Collection",
+      "Integrations"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "AI Engagement Platform"
+      },
+      {
+        "path": "/data-collection",
+        "title": "Data Collection"
+      },
+      {
+        "path": "/integrations",
+        "title": "Integrations"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Technology",
+    "signals": [
+      "Trusted by 95% of the Fortune 500"
+    ]
+  },
+  "audienceSignals": [
+    "Fortune 500 companies",
+    "businesses needing data collection and automation"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Typeform AI structures and designs forms at your command.",
+      "evidence": [
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Get 3.5x more data with expertly-designed forms.",
+      "evidence": [
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Automatically segment and follow-up with customers.",
+      "evidence": [
+        "fact-6"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for efficient data collection",
+    "Need for automated customer engagement"
+  ],
+  "proof": [
+    "Trusted by 95% of the Fortune 500"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Typeform is an AI engagement platform.",
+      "page": "/",
+      "evidence": "AI ENGAGEMENT PLATFORM"
+    },
+    {
+      "id": "fact-2",
+      "text": "Typeform AI structures and designs forms at your command.",
+      "page": "/",
+      "evidence": "It structures and designs at your command."
+    },
+    {
+      "id": "fact-3",
+      "text": "Typeform is trusted by 95% of the Fortune 500.",
+      "page": "/",
+      "evidence": "Trusted by 95% of the Fortune 500"
+    },
+    {
+      "id": "fact-4",
+      "text": "Typeform offers a Contacts & Automations add-on.",
+      "page": "/",
+      "evidence": "NEW: CONTACTS & AUTOMATIONS"
+    },
+    {
+      "id": "fact-5",
+      "text": "Typeform claims to get 3.5x more data with a form expert.",
+      "page": "/data-collection",
+      "evidence": "Get 3.5x more data with a form expert"
+    },
+    {
+      "id": "fact-6",
+      "text": "Typeform's automation triggers segmentation and follow-up emails.",
+      "page": "/data-collection",
+      "evidence": "triggers automatic segmentation and follow-up emails"
+    },
+    {
+      "id": "fact-7",
+      "text": "Typeform integrates with business-critical tools.",
+      "page": "/integrations",
+      "evidence": "Connect with hundreds of your business-critical tools"
+    },
+    {
+      "id": "fact-8",
+      "text": "Typeform has over a decade of experience.",
+      "page": "/data-collection",
+      "evidence": "Backed by over a decade of experience"
+    },
+    {
+      "id": "fact-9",
+      "text": "Typeform offers plans for their services.",
+      "page": "/",
+      "evidence": "See plans"
+    },
+    {
+      "id": "fact-10",
+      "text": "Typeform's forms are designed to get more responses.",
+      "page": "/data-collection",
+      "evidence": "best-practice forms proven to get more responses"
+    }
+  ]
+}
