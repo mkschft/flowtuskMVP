@@ -110,7 +110,7 @@ export class FlowsClient {
     if (options.offset) params.set('offset', options.offset.toString());
 
     const response = await fetch(`${this.baseUrl}?${params.toString()}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch flows: ${response.statusText}`);
     }
@@ -124,7 +124,7 @@ export class FlowsClient {
    */
   async getFlow(id: string): Promise<Flow> {
     const response = await fetch(`${this.baseUrl}/${id}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error('Flow not found');
@@ -179,10 +179,10 @@ export class FlowsClient {
       const normalizedUrl = this.normalizeUrl(website_url);
       const flows = await this.listFlows({ archived: false });
       const existingFlow = flows.find(
-        f => f.website_url && 
-        this.normalizeUrl(f.website_url) === normalizedUrl &&
-        f.website_analysis && 
-        (f.website_analysis as any)?.facts?.length > 0
+        f => f.website_url &&
+          this.normalizeUrl(f.website_url) === normalizedUrl &&
+          f.facts_json &&
+          (f.facts_json as any)?.facts?.length > 0
       );
       return existingFlow || null;
     } catch (error) {
@@ -199,20 +199,20 @@ export class FlowsClient {
     try {
       // Normalize URL for comparison
       const normalizedUrl = this.normalizeUrl(input.website_url);
-      
+
       // First, try to find existing flow by website URL (normalized)
       const flows = await this.listFlows({ archived: false });
       const existingFlow = flows.find(f => {
         if (!f.website_url) return false;
         return this.normalizeUrl(f.website_url) === normalizedUrl;
       });
-      
+
       if (existingFlow) {
         console.log('✅ [DB] Found existing flow for website:', existingFlow.id);
         // Always update website_url if existing flow is missing it (data integrity fix)
         // Also update if new data is provided
         const needsUpdate = !existingFlow.website_url || input.facts_json || input.step || input.website_url;
-        
+
         if (needsUpdate) {
           const updateData: UpdateFlowInput = {};
           if (input.facts_json) updateData.facts_json = input.facts_json;
@@ -221,13 +221,13 @@ export class FlowsClient {
           if (input.website_url || !existingFlow.website_url) {
             updateData.website_url = input.website_url;
           }
-          
+
           const updated = await this.updateFlow(existingFlow.id, updateData);
           return { flow: updated, isNew: false };
         }
         return { flow: existingFlow, isNew: false };
       }
-      
+
       // No existing flow found, create a new one
       console.log('✅ [DB] Creating new flow for website:', input.website_url);
       const flow = await this.createFlow(input);

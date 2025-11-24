@@ -751,11 +751,11 @@ function ChatPageContent() {
         let factsJson: any;
         let wasCached = false;
 
-        if (existingCrawl && existingCrawl.website_analysis) {
+        if (existingCrawl && existingCrawl.facts_json) {
           // Reuse existing crawl data
           console.log('✅ [Cache] Found existing crawl, reusing data');
           wasCached = true;
-          const analysis = existingCrawl.website_analysis as any;
+          const analysis = existingCrawl.facts_json as any;
           factsJson = analysis;
           content = 'Cached analysis - raw content not stored'; // Placeholder for UI
           metadata = {
