@@ -48,7 +48,8 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
     console.log('🔍 [BrandGuideCanvas] Logo variations received:', logoVariations.length);
     logoVariations.forEach((logo, idx) => {
       console.log(`  - Logo ${idx + 1} (${logo.name}):`);
-      console.log(`    - imageUrl: ${logo.imageUrl ? '✅' : '❌'}`);
+      const hasImageUrl = 'imageUrl' in logo;
+      console.log(`    - imageUrl: ${hasImageUrl && logo.imageUrl ? '✅' : '❌'}`);
     });
   } else {
     console.warn('⚠️ [BrandGuideCanvas] No logo variations found in brandGuide');
@@ -133,8 +134,8 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p 
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                  <p
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
                     style={{ color: primaryColor }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
@@ -179,8 +180,8 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p 
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                  <p
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
                     style={{ color: primaryColor }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
@@ -225,8 +226,8 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                       )}
                     </div>
                   </div>
-                  <p 
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors" 
+                  <p
+                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
                     style={{ color: primaryColor }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
@@ -329,8 +330,9 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
-            const hasLogo = !!logo.imageUrl;
-            
+            const logoAny = logo as any;
+            const hasLogo = !!logoAny.imageUrl;
+
             return (
               <div
                 key={idx}
@@ -340,7 +342,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                   <>
                     <div className="aspect-square flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
                       <img
-                        src={logo.imageUrl}
+                        src={logoAny.imageUrl}
                         alt={`${logo.name} logo for ${project.name}`}
                         className="w-full h-full object-contain p-4"
                         style={{ maxWidth: '100%', maxHeight: '100%' }}

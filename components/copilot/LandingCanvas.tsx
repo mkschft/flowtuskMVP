@@ -84,13 +84,15 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
           <nav className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
               <div className="font-bold text-xl">{navigation.logo}</div>
-              <div className="hidden md:flex items-center gap-6 text-sm">
-                {navigation.links.map((link, idx) => (
-                  <a key={idx} href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </a>
-                ))}
-              </div>
+              {navigation.links && navigation.links.length > 0 && (
+                <div className="hidden md:flex items-center gap-6 text-sm">
+                  {navigation.links.map((link, idx) => (
+                    <a key={idx} href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                      {link}
+                    </a>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm">Log In</Button>
                 <Button size="sm">Get Started</Button>
@@ -106,7 +108,7 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
             <Badge className="mb-6" variant="secondary">
               ✨ New: AI-powered features
             </Badge>
-            <h1 
+            <h1
               className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6"
               style={textGradientStyle}
             >
@@ -126,9 +128,9 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
             </div>
 
             {/* Hero Image Placeholder */}
-            <div 
+            <div
               className="mt-12 rounded-xl border border-border aspect-video flex items-center justify-center"
-              style={{ 
+              style={{
                 background: `linear-gradient(135deg, ${lightPrimaryBg} 0%, ${lightSecondaryBg} 100%)`
               }}
             >
@@ -139,19 +141,22 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
             </div>
           </section>
 
-          {/* Social Proof */}
-          <section className="border-y bg-muted/30 py-8">
-            <div className="container mx-auto px-6">
-              <p className="text-center text-sm text-muted-foreground mb-6">
-                Trusted by leading companies
-              </p>
-              <div className="flex items-center justify-center gap-8 opacity-40">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="w-24 h-8 bg-muted rounded" />
-                ))}
+          {/* Stats Section */}
+          {socialProof && socialProof.filter((item) => item.type === "stat").length > 0 && (
+            <section className="border-y bg-muted/30 py-8">
+              <div className="container mx-auto px-6">
+                <div className="flex flex-wrap items-center justify-center gap-8">
+                  {socialProof
+                    .filter((item) => item.type === "stat")
+                    .map((stat, idx) => (
+                      <p key={idx} className="text-lg font-semibold" style={{ color: primaryColor }}>
+                        {stat.content}
+                      </p>
+                    ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Features Grid */}
           <section className="container mx-auto px-6 py-20">
@@ -168,7 +173,7 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, idx) => (
                 <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
-                  <div 
+                  <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
                     style={{ backgroundColor: lightPrimaryBg }}
                   >
@@ -182,42 +187,33 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
           </section>
 
           {/* Testimonials */}
-          <section className="bg-muted/30 py-20">
-            <div className="container mx-auto px-6">
-              <div className="text-center mb-12">
-                <Badge className="mb-4">Testimonials</Badge>
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                  Loved by teams everywhere
-                </h2>
-              </div>
+          {socialProof && socialProof.filter((item) => item.type === "testimonial").length > 0 && (
+            <section className="bg-muted/30 py-20">
+              <div className="container mx-auto px-6">
+                <div className="text-center mb-12">
+                  <Badge className="mb-4">Testimonials</Badge>
+                  <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                    Loved by teams everywhere
+                  </h2>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                {socialProof
-                  .filter((item) => item.type === "testimonial")
-                  .map((testimonial, idx) => (
-                    <Card key={idx} className="p-6">
-                      <div className="flex gap-1 mb-3">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                      <p className="text-sm mb-4 italic">{testimonial.content}</p>
-                    </Card>
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                  {socialProof
+                    .filter((item) => item.type === "testimonial")
+                    .map((testimonial, idx) => (
+                      <Card key={idx} className="p-6">
+                        <div className="flex gap-1 mb-3">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                        <p className="text-sm leading-relaxed">{testimonial.content}</p>
+                      </Card>
+                    ))}
+                </div>
               </div>
-
-              {/* Stats */}
-              <div className="mt-12 text-center">
-                {socialProof
-                  .filter((item) => item.type === "stat")
-                  .map((stat, idx) => (
-                    <p key={idx} className="text-lg font-semibold" style={{ color: primaryColor }}>
-                      {stat.content}
-                    </p>
-                  ))}
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Pricing (if available) */}
           {pricing && pricing.length > 0 && (
@@ -266,7 +262,7 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
           )}
 
           {/* CTA Section */}
-          <section 
+          <section
             className="text-white py-20"
             style={gradientBgStyle}
           >
