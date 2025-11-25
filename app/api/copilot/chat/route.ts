@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { fetchBrandManifest, updateBrandManifest } from "@/lib/brand-manifest";
 import { BrandManifest } from "@/lib/types/brand-manifest";
+import { validatePersonaUpdate, validateValuePropUpdate, safeValidate, PersonaUpdateSchema, ValuePropUpdateSchema } from "@/lib/utils/validation";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -163,9 +164,70 @@ export async function POST(req: NextRequest) {
               const hasValidUpdates = updates &&
                 typeof updates === 'object' &&
                 Object.keys(updates).length > 0 &&
-                !(Object.keys(updates).length === 1 && updates.reasoning); // Don't count reasoning as an update
+                !(Object.keys(updates).length === 1 && updates.reasoning);
 
-              // VALIDATION 2: Check for placeholder text in market_shift updates
+              // VALIDATION 2: Deep check for nested empty objects
+              const hasEmptyNestedObjects = updates && typeof updates === 'object' && Object.values(updates).some(
+                (val) => val !== null && typeof val === 'object' && Object.keys(val).length === 0
+              );
+
+              if (hasEmptyNestedObjects) {
+                console.error('❌ [Copilot] CRITICAL: Updates contain empty nested objects!');
+                console.error('❌ [Copilot] Full parsed function call:', JSON.stringify({ updateType, updates, reasoning }, null, 2));
+              }
+
+              // VALIDATION 3: For market_shift, validate persona completeness with Zod
+              if (updateType === 'market_shift' && updates?.strategy?.persona) {
+                const personaValidation = safeValidate(
+                  PersonaUpdateSchema,
+                  updates.strategy.persona,
+                  'Copilot market_shift persona'
+                );
+
+                if (!personaValidation.success) {
+                  console.error('❌ [Copilot] CRITICAL: Persona update validation failed!');
+                  console.error('❌ [Copilot] Validation errors:', personaValidation.errors);
+                  console.error('❌ [Copilot] Invalid persona:', JSON.stringify(updates.strategy.persona, null, 2));
+
+                  // Send error message to user
+                  controller.enqueue(encoder.encode('\n\n[Error: I couldn\'t generate complete persona details for the new market. Please try again with a more specific request, for example: "Change to Helsinki, Finland market for design agencies"]'));
+
+                  // Send current manifest
+                  const currentManifest = await fetchBrandManifest(flowId, '');
+                  if (currentManifest) {
+                    const manifestUpdateSignal = `\n\n__MANIFEST_UPDATED__${JSON.stringify(currentManifest)}`;
+                    controller.enqueue(encoder.encode(manifestUpdateSignal));
+                  }
+                  return;
+                }
+              }
+
+              // VALIDATION 4: For messaging updates, validate value prop completeness
+              if (updateType === 'messaging' && updates?.strategy?.valueProp) {
+                const valuePropValidation = safeValidate(
+                  ValuePropUpdateSchema,
+                  updates.strategy.valueProp,
+                  'Copilot messaging value prop'
+                );
+
+                if (!valuePropValidation.success) {
+                  console.error('❌ [Copilot] CRITICAL: Value prop update validation failed!');
+                  console.error('❌ [Copilot] Validation errors:', valuePropValidation.errors);
+
+                  // Send error message to user
+                  controller.enqueue(encoder.encode('\n\n[Error: The value proposition update was incomplete. Please provide all required fields: headline, subheadline, problem, solution, outcome, benefits, and target audience.]'));
+
+                  // Send current manifest
+                  const currentManifest = await fetchBrandManifest(flowId, '');
+                  if (currentManifest) {
+                    const manifestUpdateSignal = `\n\n__MANIFEST_UPDATED__${JSON.stringify(currentManifest)}`;
+                    controller.enqueue(encoder.encode(manifestUpdateSignal));
+                  }
+                  return;
+                }
+              }
+
+              // VALIDATION 5: Check for placeholder text in market_shift updates (legacy fallback check)
               const hasPlaceholderText = updateType === 'market_shift' && updates?.strategy?.persona && (
                 updates.strategy.persona.location?.toLowerCase().includes('update the persona') ||
                 updates.strategy.persona.country?.toLowerCase().includes('update the persona') ||

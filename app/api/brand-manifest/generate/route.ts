@@ -3,6 +3,11 @@ import OpenAI from "openai";
 import { updateBrandManifest, fetchBrandManifest, createBrandManifest } from "@/lib/brand-manifest";
 import { createClient } from '@/lib/supabase/server';
 import { generateLogosForVariations } from "@/lib/generation/logo-generator";
+import {
+  validateBrandGuideOutput,
+  validateStyleGuideOutput,
+  validateLandingPageOutput
+} from "@/lib/utils/validation";
 
 // Helper to normalize color fields - GPT sometimes returns strings instead of arrays
 function normalizeColorField(value: any): { name: string; hex: string; usage?: string }[] {
@@ -190,15 +195,31 @@ Generate a brand guide with:
 3. Tone of voice (3-5 keywords and personality traits)
 4. Logo variations (2-3 types)
 
-CRITICAL REQUIREMENTS:
-- You MUST include at least 2 neutral colors (e.g., White #FFFFFF, Light Gray #F5F5F5, Dark Gray #333333, Black #000000)
-- You MUST include at least 1 accent color
-- You MUST include at least 2 logo variations
-- You MUST include at least 2 personality traits with trait, value, leftLabel, and rightLabel fields
-- All color arrays (primary, secondary, accent, neutral) must contain objects with name and hex fields
-- DO NOT skip or omit neutral colors - they are required for the UI
+⚠️ CRITICAL VALIDATION REQUIREMENTS - Your response will be automatically validated. If ANY of these are missing, generation will FAIL:
 
-Return ONLY valid JSON in this format:
+**Colors (REQUIRED):**
+- ✅ At least 1 primary color
+- ✅ At least 1 secondary color  
+- ✅ At least 1 accent color
+- ✅ At least 2 neutral colors (e.g., White #FFFFFF, Light Gray #F5F5F5, Dark Gray #333333)
+- ✅ All colors MUST have "name" and "hex" fields
+- ❌ DO NOT return empty arrays for any color type
+- ❌ DO NOT skip neutral colors (they are required for UI)
+
+**Typography (REQUIRED):**
+- ✅ Must include both "heading" and "body" font configs
+- ✅ Each must have: family, weights (array), sizes (object)
+
+**Tone (REQUIRED):**
+- ✅ At least 3 keywords
+- ✅ At least 2 personality traits
+- ✅ Each trait must have: trait, value (0-100), leftLabel, rightLabel
+
+**Logo (REQUIRED):**
+- ✅ At least 2 variations
+- ✅ Each must have: name, description
+
+Return ONLY valid JSON in this EXACT format (no markdown, no code blocks):
 {
   "colors": {
     "primary": [{ "name": "Brand Blue", "hex": "#0066FF", "usage": "CTA buttons, links" }],
@@ -246,14 +267,14 @@ Return ONLY valid JSON in this format:
 
   const content = JSON.parse(response.choices[0].message.content || "{}");
 
-  // Validate content
-  if (!content.colors || !content.typography || !content.logo) {
-    console.error('❌ [Generate] [Brand Guide] Validation Failed: Missing required fields', {
-      hasColors: !!content.colors,
-      hasTypography: !!content.typography,
-      hasLogo: !!content.logo
-    });
-    throw new Error('Generated brand guide content is missing required fields (colors, typography, logo)');
+  // Validate content with Zod schema
+  try {
+    validateBrandGuideOutput(content);
+    console.log('✅ [Generate] [Brand Guide] Validation passed');
+  } catch (error: any) {
+    console.error('❌ [Generate] [Brand Guide] Validation Failed:', error.message);
+    console.error('❌ [Generate] [Brand Guide] Raw AI response:', JSON.stringify(content, null, 2));
+    throw new Error(`Brand guide generation failed validation: ${error.message}`);
   }
 
   // 🔧 NORMALIZE: Ensure colors are always arrays of objects
@@ -394,11 +415,15 @@ Return ONLY valid JSON:
 
   const content = JSON.parse(response.choices[0].message.content || "{}");
 
-  // 🔍 DEBUG: Log raw GPT response for style guide
-  console.log('🔍 [DEBUG] GPT Style Guide Response:');
-  console.log('  - Buttons:', JSON.stringify(content.buttons || {}));
-  console.log('  - Spacing:', JSON.stringify(content.spacing?.scale || {}));
-  console.log('  - Cards borderRadius:', content.cards?.borderRadius);
+  // Validate content with Zod schema
+  try {
+    validateStyleGuideOutput(content);
+    console.log('✅ [Generate] [Style Guide] Validation passed');
+  } catch (error: any) {
+    console.error('❌ [Generate] [Style Guide] Validation Failed:', error.message);
+    console.error('❌ [Generate] [Style Guide] Raw AI response:', JSON.stringify(content, null, 2));
+    throw new Error(`Style guide generation failed validation: ${error.message}`);
+  }
 
   return {
     "components": {
@@ -490,13 +515,14 @@ IMPORTANT: Match the tone and content to the target persona (${persona.role}) an
 
   const content = JSON.parse(response.choices[0].message.content || "{}");
 
-  // Validate content
-  if (!content.hero || !content.features) {
-    console.error('❌ [Generate] [Landing Page] Validation Failed: Missing required fields (hero, features)', {
-      hasHero: !!content.hero,
-      hasFeatures: !!content.features
-    });
-    throw new Error('Generated landing page content is missing required fields (hero, features)');
+  // Validate content with Zod schema
+  try {
+    validateLandingPageOutput(content);
+    console.log('✅ [Generate] [Landing Page] Validation passed');
+  } catch (error: any) {
+    console.error('❌ [Generate] [Landing Page] Validation Failed:', error.message);
+    console.error('❌ [Generate] [Landing Page] Raw AI response:', JSON.stringify(content, null, 2));
+    throw new Error(`Landing page generation failed validation: ${error.message}`);
   }
 
   return {
