@@ -1,3 +1,5 @@
+Published Time: Tue, 25 Nov 2025 11:32:55 GMT
+
 Tax Star | Corporate Tax Software
 
 ===============
@@ -171,6 +173,6 @@ Our Clients
 
 ![Image 13: jrbca](https://cdn.prod.website-files.com/67128d9c572a2012abee8f3c/6740d4abc0120ee6f1807cea_jrbca_logo.webp)
 
-![Image 14: legends accounting](https://cdn.prod.website-f
+![Image 14:
 
 [Content truncated for performance]

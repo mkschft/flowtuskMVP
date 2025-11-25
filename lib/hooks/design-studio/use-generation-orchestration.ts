@@ -98,20 +98,12 @@ export function useGenerationOrchestration(
         const hasDesignAssets = designAssets !== null;
         const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
 
-        console.log('🎨 [Design Studio] Generation state:', { hasDesignAssets, generationState });
-
         // 🔍 Check if brand guide actually has data (not just the flag)
         const hasBrandData = (manifest?.identity?.tone?.keywords?.length ?? 0) > 0 ||
             (manifest?.identity?.logo?.variations?.length ?? 0) > 0 ||
             (manifest?.identity?.colors?.accent?.length ?? 0) > 0;
 
-        const needsBrandGeneration = !generationState.brand || !hasBrandData;
-
-        console.log('🔍 [Design Studio] Brand data check:', {
-            flagSet: generationState.brand,
-            hasData: hasBrandData,
-            needsGeneration: needsBrandGeneration
-        });
+        const needsBrandGeneration = !generationState.brand || (!!manifest && !hasBrandData);
 
         // Initialize generation steps based on current state
         const steps = [
@@ -227,12 +219,19 @@ export function useGenerationOrchestration(
 
     // Trigger background generation after workspace data loads (only once)
     useEffect(() => {
-        if (workspaceData && !generationTriggeredRef.current) {
-            console.log('🚀 [Design Studio] Triggering background generation...');
+        if (!workspaceData) return;
+
+        // If brand is supposedly generated, wait for manifest to be loaded too
+        const brandGenerated = designAssets?.generation_state?.brand;
+        if (brandGenerated && !manifest) {
+            return;
+        }
+
+        if (!generationTriggeredRef.current) {
             generationTriggeredRef.current = true;
             triggerBackgroundGeneration();
         }
-    }, [workspaceData, triggerBackgroundGeneration]);
+    }, [workspaceData, designAssets, manifest, triggerBackgroundGeneration]);
 
     return {
         isGeneratingBrand,

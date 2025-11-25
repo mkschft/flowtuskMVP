@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
 
     // Apply dot-notation updates
     const updatedManifest = applyDotNotationUpdates(manifest, updates);
-    
+
     // 🔍 DEBUG: Log logo variations before saving
     if (section === 'brand') {
       const logoVars = updatedManifest.identity?.logo?.variations || [];
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
         console.log(`    - imageUrl: ${v.imageUrl ? '✅ ' + v.imageUrl.substring(0, 50) + '...' : '❌ Missing'}`);
       });
     }
-    
+
     const finalManifest = await updateBrandManifest(flowId, updatedManifest, `${section}_generated`);
 
     // 🔍 DEBUG: Verify what was actually saved
@@ -136,9 +136,9 @@ export async function POST(req: NextRequest) {
       section,
     });
   } catch (error: any) {
-    console.error(`❌ [Generate] Error:`, error);
+    console.error(`❌ [Generate] [Critical Failure] Error during ${req.body ? 'request processing' : 'generation'}:`, error.message);
     return NextResponse.json(
-      { error: "Generation failed", details: error.message },
+      { error: "Generation failed", details: error.message, stage: "unknown" }, // You could refine 'stage' if you passed it down
       { status: 500 }
     );
   }
@@ -246,14 +246,15 @@ Return ONLY valid JSON in this format:
 
   const content = JSON.parse(response.choices[0].message.content || "{}");
 
-  // 🔍 DEBUG: Log raw GPT response for brand guide
-  console.log('🔍 [DEBUG] GPT Brand Guide Response:');
-  console.log('  - Colors (primary):', JSON.stringify(content.colors?.primary || []));
-  console.log('  - Colors (neutral):', JSON.stringify(content.colors?.neutral || []));
-  console.log('  - Colors (accent):', JSON.stringify(content.colors?.accent || []));
-  console.log('  - Tone keywords:', JSON.stringify(content.tone?.keywords || []));
-  console.log('  - Tone personality:', JSON.stringify(content.tone?.personality || []));
-  console.log('  - Logo variations:', JSON.stringify(content.logo?.variations || []));
+  // Validate content
+  if (!content.colors || !content.typography || !content.logo) {
+    console.error('❌ [Generate] [Brand Guide] Validation Failed: Missing required fields', {
+      hasColors: !!content.colors,
+      hasTypography: !!content.typography,
+      hasLogo: !!content.logo
+    });
+    throw new Error('Generated brand guide content is missing required fields (colors, typography, logo)');
+  }
 
   // 🔧 NORMALIZE: Ensure colors are always arrays of objects
   const normalizedColors = {
@@ -284,7 +285,7 @@ Return ONLY valid JSON in this format:
   // 🔍 DEBUG: Check feature flag
   const logoGenEnabled = process.env.NEXT_PUBLIC_ENABLE_LOGO_GENERATION !== 'false';
   const logoGenCount = manifest?.metadata?.logoGenerationCount || 0;
-  
+
   console.log('🔍 [DEBUG] Logo Generation Status:');
   console.log('  - Feature enabled:', logoGenEnabled);
   console.log('  - Current generation count:', logoGenCount);
@@ -307,7 +308,7 @@ Return ONLY valid JSON in this format:
 
     // 🔍 DEBUG: Log what was actually generated
     console.log('🔍 [DEBUG] Logo Generation Results:');
-    logoVariationsWithImages.forEach((variation, idx) => {
+    logoVariationsWithImages.forEach((variation: any, idx: number) => {
       console.log(`  - Variation ${idx + 1} (${variation.name}):`);
       console.log(`    - SVG: ${variation.imageUrl ? '✅ Generated' : '❌ Missing'}`);
       if (variation.imageUrl) {
@@ -316,7 +317,7 @@ Return ONLY valid JSON in this format:
     });
 
     // Check if any logos were actually generated (not skipped due to limit)
-    const logosGenerated = logoVariationsWithImages.some(v => v.imageUrl);
+    const logosGenerated = logoVariationsWithImages.some((v: any) => v.imageUrl);
     if (logosGenerated) {
       logoGenerationIncremented = true;
       console.log('✅ [Brand Guide] Logos were successfully generated');
@@ -412,6 +413,10 @@ Return ONLY valid JSON:
 async function generateLandingPage(manifest: any) {
   // Validate manifest has required data
   if (!manifest?.strategy?.persona || !manifest?.strategy?.valueProp) {
+    console.error('❌ [Generate] [Landing Page] Pre-flight Check Failed: Missing strategy data', {
+      hasPersona: !!manifest?.strategy?.persona,
+      hasValueProp: !!manifest?.strategy?.valueProp
+    });
     throw new Error('Manifest missing required strategy data. Cannot generate landing page.');
   }
 
@@ -422,52 +427,77 @@ async function generateLandingPage(manifest: any) {
 Company: ${manifest.brandName}
 Value Prop: ${valueProp.headline}
 Target: ${persona.role}
+Industry: ${persona.industry || 'Technology'}
+Location: ${persona.location || 'Global'}
 
-IMPORTANT: Include ALL sections - navigation, hero, features, social proof, and footer.
+CRITICAL REQUIREMENTS:
+1. Generate 2-3 testimonials with realistic customer quotes relevant to the value proposition
+2. Generate 1-2 stats (e.g., "10,000+ customers", "50% faster workflow")
+3. Generate 6 features that directly address the persona's pain points
+4. Use the hero headline from the value proposition
+5. socialProof MUST include a "type" field: either "testimonial" or "stat"
+6. For testimonials, use "content" field (not "quote") with the full testimonial text
 
-Return ONLY valid JSON:
+Return ONLY valid JSON in this EXACT format:
 {
   "navigation": {
     "logo": "${manifest.brandName}",
-    "links": ["Product", "Features", "Pricing", "About", "Contact"]
+    "links": ["Features", "Pricing", "Customers", "Resources", "Company"]
   },
   "hero": {
-    "headline": "Compelling headline",
-    "subheadline": "Supporting text",
+    "headline": "${valueProp.headline || 'Transform your workflow'}",
+    "subheadline": "${valueProp.subheadline || 'Relevant supporting text based on the value prop'}",
     "cta": { "primary": "Get Started", "secondary": "Learn More" }
   },
   "features": [
-    { "title": "Feature 1", "description": "Benefit description", "icon": "sparkles" },
-    { "title": "Feature 2", "description": "Benefit description", "icon": "layers" },
-    { "title": "Feature 3", "description": "Benefit description", "icon": "chart" }
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "sparkles" },
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "calendar" },
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "layers" },
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "chart" },
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "users" },
+    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "settings" }
   ],
   "socialProof": [
-    { "quote": "Testimonial text", "author": "John Doe", "role": "CEO", "company": "TechCo" }
+    { "type": "testimonial", "content": "\\"Detailed testimonial quote that sounds realistic\\" - Full Name, Role at Company" },
+    { "type": "testimonial", "content": "\\"Another realistic testimonial\\" - Full Name, Position" },
+    { "type": "stat", "content": "10,000+ teams use ${manifest.brandName}" }
   ],
   "footer": {
     "sections": [
-      { "title": "Product", "links": ["Features", "Pricing", "FAQ"] },
-      { "title": "Company", "links": ["About", "Blog", "Careers"] }
+      { "title": "Product", "links": ["Features", "Pricing", "Integration", "Updates"] },
+      { "title": "Company", "links": ["About", "Careers", "Contact", "Blog"] },
+      { "title": "Resources", "links": ["Documentation", "Help Center", "Community", "API"] }
     ]
   }
-}`;
+}
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-    response_format: { type: "json_object" },
-    temperature: 0.8,
-  });
+IMPORTANT: Match the tone and content to the target persona (${persona.role}) and value proposition.`;
+
+  console.log('🎨 [Generate] Generating landing page with prompt length:', prompt.length);
+
+  let response;
+  try {
+    response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.8,
+    });
+  } catch (err: any) {
+    console.error('❌ [Generate] OpenAI API error for landing page:', err);
+    throw new Error(`OpenAI API error: ${err.message}`);
+  }
 
   const content = JSON.parse(response.choices[0].message.content || "{}");
 
-  // 🔍 DEBUG: Log raw GPT response for landing page
-  console.log('🔍 [DEBUG] GPT Landing Page Response:');
-  console.log('  - Navigation:', JSON.stringify(content.navigation || {}));
-  console.log('  - Hero:', JSON.stringify(content.hero || {}));
-  console.log('  - Features count:', content.features?.length || 0);
-  console.log('  - Social proof count:', content.socialProof?.length || 0);
-  console.log('  - Footer sections:', content.footer?.sections?.length || 0);
+  // Validate content
+  if (!content.hero || !content.features) {
+    console.error('❌ [Generate] [Landing Page] Validation Failed: Missing required fields (hero, features)', {
+      hasHero: !!content.hero,
+      hasFeatures: !!content.features
+    });
+    throw new Error('Generated landing page content is missing required fields (hero, features)');
+  }
 
   return {
     "previews": {

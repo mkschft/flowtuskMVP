@@ -27,6 +27,7 @@ function convertManifestToDesignAssets(
         if (!colors) return [];
         if (Array.isArray(colors)) {
             return colors.map(color => {
+                if (!color) return null;
                 if (typeof color === 'string') {
                     return { name: 'Color', hex: color, rgb: hexToRgb(color), usage: '' };
                 }
@@ -39,7 +40,7 @@ function convertManifestToDesignAssets(
                     };
                 }
                 return color;
-            });
+            }).filter(Boolean) as ColorScheme[];
         }
         if (typeof colors === 'string') {
             return [{ name: 'Color', hex: colors, rgb: hexToRgb(colors), usage: '' }];

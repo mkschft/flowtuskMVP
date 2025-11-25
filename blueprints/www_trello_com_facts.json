@@ -1,0 +1,203 @@
+{
+  "brand": {
+    "name": "Trello",
+    "tones": [
+      "Productive",
+      "Organized",
+      "Efficient"
+    ],
+    "primaryCTA": "Sign up - it’s free!"
+  },
+  "structure": {
+    "nav": [
+      "Hero",
+      "Inbox",
+      "Boards",
+      "Planner",
+      "Integrations",
+      "Automation",
+      "Card mirroring",
+      "Compare plans"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Home"
+      },
+      {
+        "path": "/integrations",
+        "title": "Integrations"
+      },
+      {
+        "path": "/automation",
+        "title": "Automation"
+      },
+      {
+        "path": "/compare-plans",
+        "title": "Compare Plans"
+      }
+    ],
+    "footer": [
+      "Atlassian Privacy Policy"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Productivity Tools",
+    "signals": [
+      "Join a community of millions of users globally",
+      "Company logos: Visa, Coinbase, John Deere, Zoom, Grand Hyatt and Fender"
+    ]
+  },
+  "audienceSignals": [
+    "Teams",
+    "Managers",
+    "Global users",
+    "Remote workers"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Trello helps users stay organized and efficient with features like Inbox, Boards, and Planner.",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Trello offers easy integrations and automation to enhance productivity.",
+      "evidence": [
+        "fact-9",
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Trello is chosen for its ease of use by 81% of customers.",
+      "evidence": [
+        "fact-17"
+      ]
+    }
+  ],
+  "pains": [
+    "Clutter and chaos in task management",
+    "Difficulty in organizing and tracking tasks",
+    "Need for effective communication and collaboration tools"
+  ],
+  "proof": [
+    "75% of organizations report that Trello delivers value within 30 days.",
+    "81% of customers chose Trello for its ease of use.",
+    "74% of customers say Trello has improved communication with their teams."
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Trello is a product of Atlassian.",
+      "page": "Home",
+      "evidence": "Accelerate your teams' work with Atlassian Intelligence (AI) features."
+    },
+    {
+      "id": "fact-2",
+      "text": "Trello offers a free sign-up option.",
+      "page": "Home",
+      "evidence": "Sign up - it’s free!"
+    },
+    {
+      "id": "fact-3",
+      "text": "Trello provides an Inbox feature to capture to-dos from anywhere.",
+      "page": "Home",
+      "evidence": "When it’s on your mind, it goes in your Inbox. Capture your to-dos from anywhere, anytime."
+    },
+    {
+      "id": "fact-4",
+      "text": "Trello Boards help manage long to-do lists.",
+      "page": "Home",
+      "evidence": "Your to-do list may be long, but it can be manageable!"
+    },
+    {
+      "id": "fact-5",
+      "text": "Trello Planner allows users to drag and drop tasks into a calendar.",
+      "page": "Home",
+      "evidence": "Drag, drop, get it done. Snap your top tasks into your calendar."
+    },
+    {
+      "id": "fact-6",
+      "text": "Trello can turn emails into to-dos using AI.",
+      "page": "Home",
+      "evidence": "Easily turn your emails into to-dos! Just forward them to your Trello Inbox."
+    },
+    {
+      "id": "fact-7",
+      "text": "Trello integrates with Slack and Microsoft Teams.",
+      "page": "Home",
+      "evidence": "Need to follow up on a message from Slack or Microsoft Teams? Send it directly to your Trello board!"
+    },
+    {
+      "id": "fact-8",
+      "text": "Trello offers no-code automation on every board.",
+      "page": "Home",
+      "evidence": "No-code automation is built into every Trello board."
+    },
+    {
+      "id": "fact-9",
+      "text": "Trello allows card mirroring across multiple boards.",
+      "page": "Home",
+      "evidence": "View all your to-dos from multiple boards in one place."
+    },
+    {
+      "id": "fact-10",
+      "text": "Trello supports integrations with other apps.",
+      "page": "Home",
+      "evidence": "Connect the apps you are already using into your Trello workflow."
+    },
+    {
+      "id": "fact-11",
+      "text": "Trello is used by companies like Visa, Coinbase, and Zoom.",
+      "page": "Home",
+      "evidence": "Company logos: Visa, Coinbase, John Deere, Zoom, Grand Hyatt and Fender"
+    },
+    {
+      "id": "fact-12",
+      "text": "Trello is described as simplifying complex processes.",
+      "page": "Home",
+      "evidence": "Trello is great for simplifying complex processes."
+    },
+    {
+      "id": "fact-13",
+      "text": "Joey Rosenberg from Women Who Code endorses Trello.",
+      "page": "Home",
+      "evidence": "Joey Rosenberg, Global Leadership Director at Women Who Code"
+    },
+    {
+      "id": "fact-14",
+      "text": "75% of organizations report value from Trello within 30 days.",
+      "page": "Home",
+      "evidence": "75% of organizations report that Trello delivers value to their business within 30 days."
+    },
+    {
+      "id": "fact-15",
+      "text": "Sumeet Moghe from ThoughtWorks endorses Trello.",
+      "page": "Home",
+      "evidence": "Sumeet Moghe, Product Manager at ThoughtWorks"
+    },
+    {
+      "id": "fact-16",
+      "text": "Jefferson Scomacao from IKEA/PTC endorses Trello.",
+      "page": "Home",
+      "evidence": "Jefferson Scomacao, Development Manager at IKEA/PTC"
+    },
+    {
+      "id": "fact-17",
+      "text": "81% of customers chose Trello for its ease of use.",
+      "page": "Home",
+      "evidence": "81% of customers chose Trello for its ease of use."
+    },
+    {
+      "id": "fact-18",
+      "text": "74% of customers say Trello has improved communication.",
+      "page": "Home",
+      "evidence": "74% of customers say Trello has improved communication with their co-workers and teams."
+    }
+  ]
+}

@@ -161,9 +161,11 @@ export async function updateBrandManifest(
     // Ensure colors are always arrays (fix any wrong format that might have been saved)
     if (updated.identity?.colors) {
         const ensureColorArray = (value: any, colorType: string): { name: string; hex: string; usage?: string }[] => {
+            if (!value) return [];
             if (Array.isArray(value)) {
                 // Validate array items have correct structure
                 return value.map((item: any) => {
+                    if (!item) return null;
                     if (typeof item === 'string') {
                         return { name: 'Color', hex: item };
                     }
@@ -175,7 +177,7 @@ export async function updateBrandManifest(
                         };
                     }
                     return item;
-                });
+                }).filter(Boolean);
             }
             if (typeof value === 'string') {
                 console.log(`🔧 [Manifest] Normalizing ${colorType} color from string to array: ${value}`);
@@ -213,11 +215,11 @@ export async function updateBrandManifest(
 
     // Update metadata with null safety
     updated.lastUpdated = new Date().toISOString();
-    
+
     // Preserve logoGenerationCount from updates if provided, otherwise keep existing
     const logoGenerationCount = updates?.metadata?.logoGenerationCount !== undefined
-      ? updates.metadata.logoGenerationCount
-      : (current.metadata?.logoGenerationCount || 0);
+        ? updates.metadata.logoGenerationCount
+        : (current.metadata?.logoGenerationCount || 0);
 
     updated.metadata = {
         ...(current.metadata || {}),

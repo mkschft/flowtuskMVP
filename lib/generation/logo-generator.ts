@@ -4,25 +4,25 @@
  */
 function cleanBrandName(brandName: string): string {
   if (!brandName) return brandName;
-  
+
   let cleaned = brandName;
-  
+
   // Remove content in parentheses (e.g., "(100,000 employees)", "(Series A)", etc.)
   cleaned = cleaned.replace(/\s*\([^)]*\)/g, '');
-  
+
   // Remove content in brackets
   cleaned = cleaned.replace(/\s*\[[^\]]*\]/g, '');
-  
+
   // Remove common metadata patterns
   cleaned = cleaned.replace(/\s*-\s*(Series [A-Z]|Seed|Series A|Series B|Series C)/gi, '');
   cleaned = cleaned.replace(/\s*,\s*(Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation)/gi, '');
-  
+
   // Remove extra whitespace and trim
   cleaned = cleaned.replace(/\s+/g, ' ').trim();
-  
+
   // Remove trailing punctuation that might be metadata
   cleaned = cleaned.replace(/[.,;:]+$/, '');
-  
+
   return cleaned;
 }
 
@@ -41,7 +41,7 @@ function getFontConfigForVariation(
   googleFontUrl?: string;
 } {
   const variationName = variation.name.toLowerCase();
-  
+
   // Popular B2B SaaS Google Fonts
   const googleFonts = {
     modern: { name: 'Poppins', weights: ['400', '600', '700'], url: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap' },
@@ -57,13 +57,13 @@ function getFontConfigForVariation(
     // Map common font names to Google Fonts
     const fontName = defaultTypography.family.toLowerCase();
     let selectedFont = googleFonts.clean; // Default
-    
+
     if (fontName.includes('poppins')) selectedFont = googleFonts.modern;
     else if (fontName.includes('montserrat')) selectedFont = googleFonts.bold;
     else if (fontName.includes('playfair') || fontName.includes('serif')) selectedFont = googleFonts.elegant;
     else if (fontName.includes('space') || fontName.includes('grotesk')) selectedFont = googleFonts.tech;
     else if (fontName.includes('work') || fontName.includes('sans')) selectedFont = googleFonts.minimal;
-    
+
     return {
       fontFamily: `'${selectedFont.name}', ${defaultTypography.family}, sans-serif`,
       fontWeight: defaultTypography.weight || '600',
@@ -81,7 +81,7 @@ function getFontConfigForVariation(
       googleFontUrl: googleFonts.bold.url
     };
   }
-  
+
   if (variationName.includes('light') || variationName.includes('thin')) {
     return {
       fontFamily: `'${googleFonts.minimal.name}', sans-serif`,
@@ -90,7 +90,7 @@ function getFontConfigForVariation(
       googleFontUrl: googleFonts.minimal.url
     };
   }
-  
+
   if (variationName.includes('elegant') || variationName.includes('serif')) {
     return {
       fontFamily: `'${googleFonts.elegant.name}', serif`,
@@ -99,7 +99,7 @@ function getFontConfigForVariation(
       googleFontUrl: googleFonts.elegant.url
     };
   }
-  
+
   if (variationName.includes('tech') || variationName.includes('modern')) {
     return {
       fontFamily: `'${googleFonts.tech.name}', sans-serif`,
@@ -108,7 +108,7 @@ function getFontConfigForVariation(
       googleFontUrl: googleFonts.tech.url
     };
   }
-  
+
   // Default: Modern and clean
   return {
     fontFamily: `'${googleFonts.modern.name}', sans-serif`,
@@ -131,19 +131,19 @@ export function generateTextBasedSVGLogo(
 ): string {
   // Clean the brand name before generating logo
   const cleanedBrandName = cleanBrandName(brandName);
-  const isMonochrome = variation.name.toLowerCase().includes('monochrome') || 
-                      variation.name.toLowerCase().includes('inverted');
-  
+  const isMonochrome = variation.name.toLowerCase().includes('monochrome') ||
+    variation.name.toLowerCase().includes('inverted');
+
   // Get font configuration based on variation
   const fontConfig = getFontConfigForVariation(variation, typography);
-  
+
   // Determine colors
   const textColor = isMonochrome ? primaryColor : primaryColor;
   const hasAccent = accentColor && accentColor !== primaryColor && !isMonochrome;
-  
+
   // Calculate dimensions based on text length
   const textLength = cleanedBrandName.length;
-  
+
   // More generous width calculation with padding
   // Estimate: ~8-10px per character for most fonts, add 40% padding for safety
   const estimatedWidth = Math.ceil(textLength * 10 * 1.4);
@@ -151,7 +151,7 @@ export function generateTextBasedSVGLogo(
   const padding = 20; // Padding on each side
   const viewBoxWidth = baseWidth + (padding * 2);
   const height = 60;
-  
+
   // Adjust font size for very long names to ensure fit
   let fontSize = 32;
   if (textLength > 20) {
@@ -159,7 +159,7 @@ export function generateTextBasedSVGLogo(
   } else if (textLength > 15) {
     fontSize = 30;
   }
-  
+
   // Adjust letter spacing based on font config and text length
   let letterSpacing = fontConfig.letterSpacing;
   if (textLength > 15) {
@@ -167,7 +167,7 @@ export function generateTextBasedSVGLogo(
   } else if (textLength > 10) {
     letterSpacing = fontConfig.letterSpacing || '-0.3px';
   }
-  
+
   // Create gradient if we have accent color
   const gradientId = `grad-${Math.random().toString(36).substr(2, 9)}`;
   const gradientDef = hasAccent ? `
@@ -178,17 +178,17 @@ export function generateTextBasedSVGLogo(
       </linearGradient>
     </defs>
   ` : '';
-  
+
   const fillColor = hasAccent ? `url(#${gradientId})` : textColor;
-  
+
   // Note: Google Fonts work best when loaded in the HTML page
   // For SVG in img tags, we use font names with system font fallbacks
   // The fonts will render correctly if loaded on the page, otherwise fallback to system fonts
-  
+
   // Center position with padding
   const textX = padding + (baseWidth / 2);
   const textY = height / 2 + fontSize / 3;
-  
+
   return `
     <svg viewBox="0 0 ${viewBoxWidth} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       ${gradientDef}
@@ -263,10 +263,10 @@ export async function generateLogosForVariations(
 
   // Generate logos for first 3 variations
   const variationsToGenerate = variations.slice(0, 3);
-  
+
   // Clean brand name to remove metadata like employee counts
   const cleanedBrandName = cleanBrandName(brandName);
-  
+
   // Get typography from manifest
   // Typography structure: manifest.identity.typography.heading.family and .weights
   const headingTypography = manifest?.identity?.typography?.heading;
@@ -276,8 +276,8 @@ export async function generateLogosForVariations(
   } : null;
 
   console.log(`🎨 [Logo Generator] Generating ${variationsToGenerate.length} SVG text-based logos for "${cleanedBrandName}"`);
-  console.log(`🔍 [Logo Generator] Typography from manifest:`, typography ? 
-    `Family: ${typography.family}, Weight: ${typography.weight}` : 
+  console.log(`🔍 [Logo Generator] Typography from manifest:`, typography ?
+    `Family: ${typography.family}, Weight: ${typography.weight}` :
     'Not found - using variation-based Google Fonts');
 
   // Generate SVG logos synchronously (no API calls needed)
@@ -290,11 +290,11 @@ export async function generateLogosForVariations(
         accentColor,
         typography
       );
-      
+
       // Convert SVG to data URL
       const encodedSvg = encodeURIComponent(svg.trim());
       const svgDataUrl = `data:image/svg+xml,${encodedSvg}`;
-      
+
       return {
         ...variation,
         imageUrl: svgDataUrl
@@ -309,10 +309,9 @@ export async function generateLogosForVariations(
   // Return results + remaining variations without logos
   const remainingVariations = variations.slice(3).map(v => ({ ...v }));
   const allResults = [...results, ...remainingVariations];
-  
-  const svgCount = results.filter(r => r.imageUrl).length;
+
+  const svgCount = results.filter((r: any) => r.imageUrl).length;
   console.log(`✅ [Logo Generator] Generated ${svgCount} SVG logos successfully`);
 
   return allResults;
 }
-

@@ -2,149 +2,174 @@
   "brand": {
     "name": "KONE SiteFlow",
     "tones": [
-      "informative",
-      "professional"
+      "professional",
+      "technical"
     ],
-    "primaryCTA": "Book a demo"
+    "primaryCTA": "Explore solutions"
   },
   "structure": {
     "nav": [
-      "Overview",
-      "Features",
-      "Use Cases",
-      "Contact"
+      "Construction",
+      "Building optimization",
+      "Stories",
+      "Book a demo",
+      "Login"
     ],
     "keyPages": [
       {
-        "path": "/overview",
-        "title": "KONE SiteFlow Overview"
+        "path": "/construction",
+        "title": "Construction Overview"
       },
       {
-        "path": "/features",
-        "title": "Key Features and Benefits"
+        "path": "/construction/#features",
+        "title": "Construction Features"
       },
       {
-        "path": "/use-cases",
-        "title": "Target Customers and Use Cases"
+        "path": "/construction/#how-it-works",
+        "title": "Construction How it works"
+      },
+      {
+        "path": "/construction/#stories",
+        "title": "Customer stories"
+      },
+      {
+        "path": "/building-optimization/",
+        "title": "Building Optimization Overview"
+      },
+      {
+        "path": "/building-optimization/#how-it-works",
+        "title": "Building Optimization How we do it"
+      },
+      {
+        "path": "/building-optimization/#case-study",
+        "title": "Building Optimization Case study"
+      },
+      {
+        "path": "/stories",
+        "title": "Stories"
+      },
+      {
+        "path": "/book-a-call",
+        "title": "Book a demo"
+      },
+      {
+        "path": "/login",
+        "title": "Login"
       }
     ],
     "footer": [
-      "Privacy Policy",
-      "Terms of Service",
-      "Contact Us"
+      "Privacy statement",
+      "Manage cookie preferences",
+      "Accept all",
+      "Accept only mandatory"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Construction and Building Operations",
+    "signals": [
+      "Real-time digital tools for construction and building operations",
+      "Optimizing building management for building owners"
     ]
   },
   "audienceSignals": [
-    "Property and Asset Managers",
-    "Construction Companies",
-    "Building Owners"
+    "property & asset managers",
+    "building owners",
+    "builders"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Enhanced Operational Efficiency",
+      "text": "Real-time control over construction time use elevator (CTU) functions",
       "evidence": [
         "fact-5",
-        "fact-8"
+        "fact-6"
       ]
     },
     {
       "id": "v2",
-      "text": "Cost Reduction",
+      "text": "Enhancing operations with digital tools and data",
       "evidence": [
-        "fact-6",
-        "fact-10"
+        "fact-3",
+        "fact-4"
       ]
     },
     {
       "id": "v3",
-      "text": "Safety and Security",
+      "text": "Optimizing building management with elevator data",
       "evidence": [
         "fact-7",
-        "fact-9"
+        "fact-8"
       ]
     }
   ],
   "pains": [
-    "Day-to-day logistics challenges on-site",
-    "Peak hour traffic management",
-    "Energy consumption and costs"
+    "day-to-day logistics challenges on site"
   ],
   "proof": [
-    "Potential savings of up to 36% on building energy consumption"
+    "KONE Logo",
+    "SiteFlow logo"
   ],
   "facts": [
     {
       "id": "fact-1",
       "text": "KONE SiteFlow provides real-time digital tools for construction and building operations.",
-      "page": "Overview",
-      "evidence": "KONE SiteFlow provides real-time digital tools designed for construction and building operations."
+      "page": "Homepage",
+      "evidence": "Real-time digital tools for construction and building operations"
     },
     {
       "id": "fact-2",
-      "text": "SiteFlow enhances logistics management, elevator access control, and building optimization.",
-      "page": "Overview",
-      "evidence": "It focuses on enhancing logistics management, elevator access control, and building optimization through data-driven insights."
+      "text": "The primary call to action on the site is 'Explore solutions'.",
+      "page": "Homepage",
+      "evidence": "Explore solutions"
     },
     {
       "id": "fact-3",
-      "text": "Real-time control tools allow immediate management of construction time use elevators (CTUs).",
-      "page": "Features",
-      "evidence": "Offers practical tools that allow immediate management of construction time use elevators (CTUs)."
+      "text": "KONE SiteFlow enhances operations for property & asset managers with digital tools and data.",
+      "page": "Homepage",
+      "evidence": "Enhancing operations for property & asset managers with digital tools and data"
     },
     {
       "id": "fact-4",
-      "text": "Digital access control facilitates efficient elevator access management.",
-      "page": "Features",
-      "evidence": "Facilitates efficient elevator access management to prioritize people movement."
+      "text": "KONE SiteFlow optimizes building management for building owners with digital tools and data.",
+      "page": "Homepage",
+      "evidence": "Optimizing building management for building owners with digital tools and data"
     },
     {
       "id": "fact-5",
-      "text": "SiteFlow provides real-time insights and control for smoother operations.",
-      "page": "Value Propositions",
-      "evidence": "By providing real-time insights and control, SiteFlow helps users manage logistics more effectively, leading to smoother operations."
+      "text": "KONE SiteFlow provides practical tools that give real-time control over how a construction time use elevator (CTU) functions.",
+      "page": "Homepage",
+      "evidence": "Solve day-to-day logistics challenges immediately on site with practical tools that give you real-time control over how a construction time use elevator (CTU) functions."
     },
     {
       "id": "fact-6",
-      "text": "The platform aims to lower energy costs without the need for new equipment.",
-      "page": "Value Propositions",
-      "evidence": "The platform aims to lower energy costs and improve resource management without the need for new equipment."
+      "text": "KONE SiteFlow streamlines site operations for builders with digital tools and data.",
+      "page": "Homepage",
+      "evidence": "Streamlining site operations for builders with digital tools and data"
     },
     {
       "id": "fact-7",
-      "text": "Digital access control enhances safety by managing floor access.",
-      "page": "Value Propositions",
-      "evidence": "The digital access control feature enhances safety by managing who can access different floors within a building."
+      "text": "KONE SiteFlow offers smart elevator access control and building optimization with elevator data.",
+      "page": "Homepage",
+      "evidence": "Smart elevator access control. Building optimization with elevator data."
     },
     {
       "id": "fact-8",
-      "text": "SiteFlow helps manage logistics effectively for construction companies.",
-      "page": "Target Customers",
-      "evidence": "Construction Companies: Benefit from real-time tools to streamline site operations and manage elevator usage effectively."
+      "text": "The site includes sections for Construction, Building Optimization, Stories, Book a demo, and Login.",
+      "page": "Homepage",
+      "evidence": "Construction, Building optimization, Stories, Book a demo, Login"
     },
     {
       "id": "fact-9",
-      "text": "SiteFlow enhances safety through digital access control.",
-      "page": "Value Propositions",
-      "evidence": "The digital access control feature enhances safety by managing who can access different floors within a building."
+      "text": "The site uses cookies to optimize functionality and provide a better browsing experience.",
+      "page": "Cookie notice",
+      "evidence": "We use cookies to optimize site functionality and to give you the best possible experience while browsing our site."
     },
     {
       "id": "fact-10",
-      "text": "SiteFlow claims potential savings of up to 36% on building energy consumption.",
-      "page": "Features",
-      "evidence": "Claims potential savings of up to 36% on building energy consumption by leveraging accurate occupancy data."
-    },
-    {
-      "id": "fact-11",
-      "text": "Property and Asset Managers use SiteFlow for managing building operations.",
-      "page": "Target Customers",
-      "evidence": "Property and Asset Managers: Utilize SiteFlow for managing building operations and logistics efficiently."
-    },
-    {
-      "id": "fact-12",
-      "text": "Building Owners use SiteFlow for optimizing building management.",
-      "page": "Target Customers",
-      "evidence": "Building Owners: Use the platform for optimizing building management and reducing operational costs."
+      "text": "The site has a privacy statement available for review.",
+      "page": "Cookie notice",
+      "evidence": "You can also review our privacy statement."
     }
   ]
 }

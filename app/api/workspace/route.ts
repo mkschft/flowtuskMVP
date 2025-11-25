@@ -62,7 +62,7 @@ function normalizeBorderRadius(borderRadius: any): { name: string; value: string
 function normalizeButtons(buttons: any): { variant: string; description: string }[] {
   if (!buttons) return [];
   if (Array.isArray(buttons)) return buttons;
-  
+
   // Convert object like { primary: {...}, secondary: {...} } to array
   const result = [];
   if (buttons.primary) {
@@ -89,7 +89,7 @@ function normalizeButtons(buttons: any): { variant: string; description: string 
 function normalizePersonalityTraits(traits: any): { id: string; label: string; value: number; leftLabel: string; rightLabel: string }[] {
   if (!traits) return [];
   if (!Array.isArray(traits)) return [];
-  
+
   return traits.map((trait, idx) => ({
     id: `trait-${idx}`,
     label: trait.trait || trait.label || 'Personality',
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
 
     if (manifest) {
       console.log('✅ [Workspace API] Using brand manifest as source');
-      
+
       // 🔍 DEBUG: Log what data exists in manifest
       console.log('🔍 [DEBUG] Manifest Data Check:');
       console.log('  - identity.colors.primary:', Array.isArray(manifest.identity?.colors?.primary) ? manifest.identity.colors.primary.length + ' items' : 'not an array');
@@ -135,7 +135,7 @@ export async function GET(req: NextRequest) {
       console.log('  - identity.logo.variations:', Array.isArray(manifest.identity?.logo?.variations) ? manifest.identity.logo.variations.length + ' items' : 'not an array');
       console.log('  - components.spacing.scale:', manifest.components?.spacing?.scale ? 'exists' : 'missing');
       console.log('  - components.cards.borderRadius:', manifest.components?.cards?.borderRadius || 'missing');
-      
+
       // Map manifest to legacy format for backward compatibility
       const icp = {
         id: icpId,
@@ -223,7 +223,7 @@ export async function GET(req: NextRequest) {
         landing_page: {
           navigation: {
             logo: manifest.brandName || '',
-            links: []
+            links: manifest.previews?.landingPage?.navigation?.links || []
           },
           hero: manifest.previews?.landingPage?.hero || { headline: '', subheadline: '', cta: { primary: '', secondary: '' } },
           features: manifest.previews?.landingPage?.features || [],
@@ -231,9 +231,9 @@ export async function GET(req: NextRequest) {
           footer: manifest.previews?.landingPage?.footer || { sections: [] }
         },
         generation_state: {
-          brand: true,
-          style: true,
-          landing: true
+          brand: !!(manifest.identity?.colors?.primary?.length || manifest.identity?.tone?.keywords?.length),
+          style: !!(manifest.components?.buttons || manifest.components?.spacing),
+          landing: !!(manifest.previews?.landingPage?.hero?.headline)
         },
         generation_metadata: manifest.metadata || {}
       };
