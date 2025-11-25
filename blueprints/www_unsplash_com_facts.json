@@ -1,0 +1,138 @@
+{
+  "brand": {
+    "name": "Unsplash",
+    "tones": [
+      "creative",
+      "inclusive"
+    ],
+    "primaryCTA": "Get Unsplash+"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "Explore",
+      "Login",
+      "Get Unsplash+"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Home"
+      },
+      {
+        "path": "/explore",
+        "title": "Explore"
+      },
+      {
+        "path": "/plus",
+        "title": "Unsplash+"
+      },
+      {
+        "path": "/license",
+        "title": "License"
+      }
+    ],
+    "footer": [
+      "Promoted",
+      "See trending searches"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Photography",
+    "signals": [
+      "All images can be downloaded and used for personal or commercial projects."
+    ]
+  },
+  "audienceSignals": [
+    "creators",
+    "photographers",
+    "designers"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Free high-quality images",
+      "evidence": [
+        "fact-3",
+        "fact-7"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Global community of creators",
+      "evidence": [
+        "fact-1",
+        "fact-4"
+      ]
+    }
+  ],
+  "pains": [
+    "Limited access to high-quality visuals"
+  ],
+  "proof": [
+    "Supported by creators everywhere"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Unsplash is powered by creators everywhere.",
+      "page": "Home",
+      "evidence": "Powered by creators everywhere."
+    },
+    {
+      "id": "fact-2",
+      "text": "Unsplash offers a collection of free images.",
+      "page": "Home",
+      "evidence": "Yes, it’s really free. All images can be downloaded and used for personal or commercial projects."
+    },
+    {
+      "id": "fact-3",
+      "text": "Unsplash+ offers additional features and content.",
+      "page": "Unsplash+",
+      "evidence": "Unlock everything Unsplash+ has to offer. Cancel anytime."
+    },
+    {
+      "id": "fact-4",
+      "text": "Unsplash supports a global community.",
+      "page": "Home",
+      "evidence": "Supported by creators everywhere."
+    },
+    {
+      "id": "fact-5",
+      "text": "Users can submit their own images to Unsplash.",
+      "page": "Home",
+      "evidence": "Submit an image"
+    },
+    {
+      "id": "fact-6",
+      "text": "Unsplash provides a license for image use.",
+      "page": "License",
+      "evidence": "Learn about our License"
+    },
+    {
+      "id": "fact-7",
+      "text": "Images on Unsplash can be used for commercial projects.",
+      "page": "License",
+      "evidence": "All images can be downloaded and used for personal or commercial projects."
+    },
+    {
+      "id": "fact-8",
+      "text": "Unsplash features various categories like Nature, Textures, and Film.",
+      "page": "Home",
+      "evidence": "Nature, Textures, Film"
+    },
+    {
+      "id": "fact-9",
+      "text": "Unsplash promotes certain images and photographers.",
+      "page": "Home",
+      "evidence": "Promoted"
+    },
+    {
+      "id": "fact-10",
+      "text": "Unsplash offers trending search suggestions.",
+      "page": "Home",
+      "evidence": "See trending searches"
+    }
+  ]
+}

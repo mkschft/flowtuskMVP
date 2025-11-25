@@ -1,0 +1,167 @@
+{
+  "brand": {
+    "name": "Notion",
+    "tones": [
+      "Professional",
+      "Innovative"
+    ],
+    "primaryCTA": "Get Notion free"
+  },
+  "structure": {
+    "nav": [
+      "Features",
+      "Explore",
+      "Teams",
+      "Learn",
+      "Build"
+    ],
+    "keyPages": [
+      {
+        "path": "/product/ai",
+        "title": "Notion AI"
+      },
+      {
+        "path": "/product/enterprise-search",
+        "title": "Enterprise Search"
+      },
+      {
+        "path": "/product/docs",
+        "title": "Docs"
+      },
+      {
+        "path": "/product/projects",
+        "title": "Projects"
+      },
+      {
+        "path": "/templates",
+        "title": "Browse marketplace"
+      },
+      {
+        "path": "/integrations",
+        "title": "View integrations"
+      },
+      {
+        "path": "/download",
+        "title": "Download app"
+      }
+    ],
+    "footer": [
+      "Help center",
+      "Notion Academy",
+      "Customer stories",
+      "Blog",
+      "Community",
+      "Partner programs"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Productivity Software",
+    "signals": [
+      "Trusted by top teams",
+      "Pricing in USD",
+      "Global companies like OpenAI and NVIDIA use Notion"
+    ]
+  },
+  "audienceSignals": [
+    "Teams and AI agents",
+    "Startups, SMBs, Enterprise, Education"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Automate projects with AI",
+      "evidence": [
+        "fact-3",
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Centralized knowledge base",
+      "evidence": [
+        "fact-6",
+        "fact-8"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Flexible workflows for any project",
+      "evidence": [
+        "fact-9",
+        "fact-10"
+      ]
+    }
+  ],
+  "pains": [
+    "Manual tasks and busywork",
+    "Disorganized knowledge management",
+    "Inefficient project management"
+  ],
+  "proof": [
+    "Trusted by companies like OpenAI, Figma, NVIDIA",
+    "Images of logos from reputable companies"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Notion offers AI features for building, writing, and automating tasks.",
+      "page": "Features",
+      "evidence": "Notion AI Build, write, automate"
+    },
+    {
+      "id": "fact-2",
+      "text": "Notion provides an Enterprise Search feature to find answers instantly.",
+      "page": "Features",
+      "evidence": "Enterprise Search Find answers instantly"
+    },
+    {
+      "id": "fact-3",
+      "text": "Notion AI Meeting Notes are perfectly written by AI.",
+      "page": "Features",
+      "evidence": "AI Meeting Notes Perfectly written by AI"
+    },
+    {
+      "id": "fact-4",
+      "text": "Notion offers a centralized knowledge base.",
+      "page": "Features",
+      "evidence": "Knowledge Base Centralize your knowledge"
+    },
+    {
+      "id": "fact-5",
+      "text": "Notion allows publishing anything quickly through its Sites feature.",
+      "page": "Features",
+      "evidence": "Sites Publish anything, fast"
+    },
+    {
+      "id": "fact-6",
+      "text": "Notion is used by teams to capture knowledge and automate projects.",
+      "page": "Homepage",
+      "evidence": "Notion is where your teams and AI agents capture knowledge, find answers, and automate projects."
+    },
+    {
+      "id": "fact-7",
+      "text": "Notion offers templates for various use cases.",
+      "page": "Explore",
+      "evidence": "Browse marketplace Templates for everything"
+    },
+    {
+      "id": "fact-8",
+      "text": "Notion integrates with other apps.",
+      "page": "Explore",
+      "evidence": "View integrations Connect your apps with Notion"
+    },
+    {
+      "id": "fact-9",
+      "text": "Notion offers flexible workflows to manage any project.",
+      "page": "Features",
+      "evidence": "Manage any project, big or small."
+    },
+    {
+      "id": "fact-10",
+      "text": "Notion's primary call to action is to get the service for free.",
+      "page": "Homepage",
+      "evidence": "Get Notion free"
+    }
+  ]
+}

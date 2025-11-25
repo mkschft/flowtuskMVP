@@ -1,0 +1,139 @@
+{
+  "brand": {
+    "name": "LottieFiles",
+    "tones": [
+      "informative",
+      "creative"
+    ],
+    "primaryCTA": "Get started for free"
+  },
+  "structure": {
+    "nav": [
+      "Products",
+      "Integrations",
+      "Tools",
+      "Customers",
+      "Learn",
+      "Pricing"
+    ],
+    "keyPages": [
+      {
+        "path": "/pricing",
+        "title": "Pricing"
+      },
+      {
+        "path": "/publish-to-community",
+        "title": "Publish animation"
+      },
+      {
+        "path": "/tools/web-player",
+        "title": "Dev ready and easy to implement"
+      },
+      {
+        "path": "/case-studies/toss",
+        "title": "Toss case study"
+      },
+      {
+        "path": "/case-studies/wise",
+        "title": "Wise case study"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Animation",
+    "signals": [
+      "Trusted by 15 million+ designers and developers from over 280,000 companies worldwide"
+    ]
+  },
+  "audienceSignals": [
+    "designers",
+    "developers"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "World’s largest customizable animation library",
+      "evidence": [
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Create, manage and implement lightweight animations",
+      "evidence": [
+        "fact-4"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for lightweight animations",
+    "Desire for customizable animations"
+  ],
+  "proof": [
+    "Trusted by companies like Google, Disney, Nike, Uber, Spotify, Netflix, Microsoft, Airbnb, Amazon, Tiktok"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "LottieFiles offers free lightweight animations for websites and apps.",
+      "page": "Home",
+      "evidence": "Download Free lightweight animations for website & apps."
+    },
+    {
+      "id": "fact-2",
+      "text": "LottieFiles allows users to search for animations by keyword or upload an image for visual search.",
+      "page": "Home",
+      "evidence": "Search for animations by keyword or upload an image for visual search"
+    },
+    {
+      "id": "fact-3",
+      "text": "LottieFiles has a feature to add a 'Hire' button on profiles.",
+      "page": "Home",
+      "evidence": "Add a 'Hire' Button on to your profile"
+    },
+    {
+      "id": "fact-4",
+      "text": "LottieFiles enables creation, management, and implementation of animations across various platforms.",
+      "page": "Home",
+      "evidence": "Create, manage and implement lightweight animations across websites, apps, presentations, social and more."
+    },
+    {
+      "id": "fact-5",
+      "text": "LottieFiles hosts over 800,000 free and premium animations.",
+      "page": "Home",
+      "evidence": "Over 800,000+ Free & Premium ready-to-use animations."
+    },
+    {
+      "id": "fact-6",
+      "text": "LottieFiles is used by over 280,000 companies worldwide.",
+      "page": "Home",
+      "evidence": "Trusted by 15 million+ designers and developers from over 280,000 companies worldwide"
+    },
+    {
+      "id": "fact-7",
+      "text": "LottieFiles is trusted by major companies like Google, Disney, and Nike.",
+      "page": "Home",
+      "evidence": "Trusted by companies like Google, Disney, Nike, Uber, Spotify, Netflix, Microsoft, Airbnb, Amazon, Tiktok"
+    },
+    {
+      "id": "fact-8",
+      "text": "LottieFiles offers a 'Get started for free' option.",
+      "page": "Home",
+      "evidence": "Get started for free"
+    },
+    {
+      "id": "fact-9",
+      "text": "LottieFiles provides case studies for companies like Toss, Wise, and Gojek.",
+      "page": "Home",
+      "evidence": "case studies for companies like Toss, Wise, and Gojek"
+    },
+    {
+      "id": "fact-10",
+      "text": "LottieFiles supports theming in animations for limitless creativity.",
+      "page": "Home",
+      "evidence": "Theming in one file, limitless creativity"
+    }
+  ]
+}

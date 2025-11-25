@@ -2,15 +2,14 @@
   "brand": {
     "name": "Linear",
     "tones": [
+      "purpose-built",
       "modern",
-      "focused",
-      "efficient"
+      "fast execution"
     ],
     "primaryCTA": "Start building"
   },
   "structure": {
     "nav": [
-      "Homepage",
       "Product",
       "Resources",
       "Pricing",
@@ -70,8 +69,8 @@
     "primaryRegion": "Global",
     "industryFocus": "Software Development",
     "signals": [
-      "Powering the world’s best product teams",
-      "From next-gen startups to established enterprises"
+      "Powering the world’s best product teams.",
+      "From next-gen startups to established enterprises."
     ]
   },
   "audienceSignals": [
@@ -92,15 +91,8 @@
       "id": "v2",
       "text": "AI-assisted product development",
       "evidence": [
-        "fact-8",
-        "fact-9"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Connect Linear to your favorite tools",
-      "evidence": [
-        "fact-10"
+        "fact-10",
+        "fact-14"
       ]
     }
   ],
@@ -110,7 +102,7 @@
   ],
   "proof": [
     "Powering the world’s best product teams",
-    "From next-gen startups to established enterprises"
+    "AI agents like GitHub Copilot and Sentry"
   ],
   "facts": [
     {
@@ -121,57 +113,99 @@
     },
     {
       "id": "fact-2",
-      "text": "Linear is designed for modern software development.",
-      "page": "Homepage",
-      "evidence": "Meet the system for modern software development."
-    },
-    {
-      "id": "fact-3",
-      "text": "Linear helps streamline issues, projects, and product roadmaps.",
+      "text": "Linear streamlines issues, projects, and product roadmaps.",
       "page": "Homepage",
       "evidence": "Streamline issues, projects, and product roadmaps."
     },
     {
-      "id": "fact-4",
+      "id": "fact-3",
       "text": "Linear is made for modern product teams.",
       "page": "Homepage",
       "evidence": "Made for modern product teams"
     },
     {
-      "id": "fact-5",
-      "text": "Linear is crafted to perfection.",
-      "page": "Homepage",
-      "evidence": "Crafted to perfection"
-    },
-    {
-      "id": "fact-6",
-      "text": "Linear offers AI-assisted product development.",
-      "page": "AI",
-      "evidence": "Artificial intelligence AI-assisted product development"
-    },
-    {
-      "id": "fact-7",
+      "id": "fact-4",
       "text": "Linear powers the world’s best product teams.",
       "page": "Homepage",
       "evidence": "Powering the world’s best product teams."
     },
     {
+      "id": "fact-5",
+      "text": "Linear is designed to move fast.",
+      "page": "Homepage",
+      "evidence": "Designed to move fast"
+    },
+    {
+      "id": "fact-6",
+      "text": "Linear is crafted to perfection.",
+      "page": "Homepage",
+      "evidence": "Crafted to perfection"
+    },
+    {
+      "id": "fact-7",
+      "text": "Linear offers AI-assisted product development.",
+      "page": "Homepage",
+      "evidence": "Artificial intelligence AI-assisted product development"
+    },
+    {
       "id": "fact-8",
-      "text": "Linear provides AI agents for delegating work.",
-      "page": "AI",
-      "evidence": "Choose from a variety of AI agents and start delegating work"
+      "text": "Linear for Agents allows delegating work from code generation to other technical tasks.",
+      "page": "Homepage",
+      "evidence": "Choose from a variety of AI agents and start delegating work, from code generation to other technical tasks."
     },
     {
       "id": "fact-9",
-      "text": "Linear offers self-driving product operations.",
-      "page": "AI",
-      "evidence": "Streamline your product development workflows with AI assistance"
+      "text": "Linear connects to tools like Cursor, Claude, ChatGPT.",
+      "page": "Homepage",
+      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT, and more."
     },
     {
       "id": "fact-10",
-      "text": "Linear can connect to tools like Cursor, Claude, and ChatGPT.",
-      "page": "MCP",
-      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT, and more."
+      "text": "Linear offers self-driving product operations.",
+      "page": "Homepage",
+      "evidence": "Self-driving product operations"
+    },
+    {
+      "id": "fact-11",
+      "text": "Linear helps streamline product development workflows with AI assistance.",
+      "page": "Homepage",
+      "evidence": "Streamline your product development workflows with AI assistance for routine, manual tasks."
+    },
+    {
+      "id": "fact-12",
+      "text": "Linear provides triage intelligence and suggestions.",
+      "page": "Homepage",
+      "evidence": "Triage Intelligence Suggestions"
+    },
+    {
+      "id": "fact-13",
+      "text": "Linear helps optimize mobile app performance.",
+      "page": "Homepage",
+      "evidence": "Optimize mobile app performance"
+    },
+    {
+      "id": "fact-14",
+      "text": "Linear offers project and long-term planning tools.",
+      "page": "Homepage",
+      "evidence": "Project and long-term planning Set the product direction"
+    },
+    {
+      "id": "fact-15",
+      "text": "Linear consolidates specs, milestones, tasks, and documentation.",
+      "page": "Homepage",
+      "evidence": "Consolidate specs, milestones, tasks, and other documentation in one centralized location."
+    },
+    {
+      "id": "fact-16",
+      "text": "Linear provides built-in project updates.",
+      "page": "Homepage",
+      "evidence": "Communicate progress and project health with built-in project updates."
+    },
+    {
+      "id": "fact-17",
+      "text": "Linear supports collaborative documents and inline comments.",
+      "page": "Homepage",
+      "evidence": "Collaborative documents Inline comments Text-to-issue commands"
     }
   ]
 }
