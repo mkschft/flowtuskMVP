@@ -4,10 +4,8 @@
  */
 
 import { create } from 'zustand';
-import type { 
-  CopilotTab, 
-  CopilotChatMessage,
-} from './types';
+import type { CopilotTab } from './types';
+import type { ChatMessage } from '@/lib/design-studio-mock-data';
 import type { 
   CopilotWorkspaceData, 
   PositioningDesignAssets 
@@ -26,12 +24,17 @@ interface CopilotState {
   designAssets: PositioningDesignAssets | null;
 
   // Chat
-  chatMessages: CopilotChatMessage[];
+  chatMessages: ChatMessage[];
   isStreaming: boolean;
   isChatVisible: boolean;
 
   // Generation state
   regenerationCount: number;
+  generationSteps: Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>;
+
+  // UI state
+  shareModalOpen: boolean;
+  toasts: Array<{ id: string; message: string; type: 'success' | 'info' | 'download' | 'link'; onClose: (id: string) => void }>;
 
   // Actions
   setActiveTab: (tab: CopilotTab) => void;
@@ -44,14 +47,21 @@ interface CopilotState {
   setDesignAssets: (assets: PositioningDesignAssets | null) => void;
 
   // Chat actions
-  addChatMessage: (message: CopilotChatMessage) => void;
-  setChatMessages: (messages: CopilotChatMessage[]) => void;
+  addChatMessage: (message: ChatMessage) => void;
+  setChatMessages: (messages: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => void;
   setStreaming: (streaming: boolean) => void;
   setChatVisible: (visible: boolean) => void;
 
-  // Generation
+  // Generation actions
   incrementRegenerationCount: () => void;
   resetRegenerationCount: () => void;
+  setGenerationSteps: (steps: Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }> | ((prev: Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>) => Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>)) => void;
+  updateGenerationStep: (id: string, status: 'pending' | 'loading' | 'complete') => void;
+
+  // UI actions
+  setShareModalOpen: (open: boolean) => void;
+  addToast: (message: string, type?: 'success' | 'info' | 'download' | 'link') => void;
+  removeToast: (id: string) => void;
 
   // Load data
   loadWorkspaceData: (icpId: string, flowId: string) => Promise<void>;
@@ -83,6 +93,10 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
   isChatVisible: true,
 
   regenerationCount: 0,
+  generationSteps: [],
+
+  shareModalOpen: false,
+  toasts: [],
 
   // Actions
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -104,7 +118,9 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
     chatMessages: [...state.chatMessages, message]
   })),
 
-  setChatMessages: (messages) => set({ chatMessages: messages }),
+  setChatMessages: (messages) => set((state) => ({
+    chatMessages: typeof messages === 'function' ? messages(state.chatMessages) : messages
+  })),
 
   setStreaming: (streaming) => set({ isStreaming: streaming }),
 
@@ -116,6 +132,35 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
   })),
 
   resetRegenerationCount: () => set({ regenerationCount: 0 }),
+
+  setGenerationSteps: (steps) => set((state) => ({
+    generationSteps: typeof steps === 'function' ? steps(state.generationSteps) : steps
+  })),
+
+  updateGenerationStep: (id, status) => set((state) => ({
+    generationSteps: state.generationSteps.map(step =>
+      step.id === id ? { ...step, status } : step
+    )
+  })),
+
+  // UI actions
+  setShareModalOpen: (open) => set({ shareModalOpen: open }),
+
+  addToast: (message, type = 'success') => {
+    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    set((state) => ({
+      toasts: [...state.toasts, { 
+        id, 
+        message, 
+        type, 
+        onClose: get().removeToast 
+      }]
+    }));
+  },
+
+  removeToast: (id) => set((state) => ({
+    toasts: state.toasts.filter(toast => toast.id !== id)
+  })),
 
   // Load data from brand_manifests via /api/workspace
   loadWorkspaceData: async (icpId: string, flowId: string) => {
@@ -171,5 +216,8 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
     isStreaming: false,
     isChatVisible: true,
     regenerationCount: 0,
+    generationSteps: [],
+    shareModalOpen: false,
+    toasts: [],
   }),
 }));

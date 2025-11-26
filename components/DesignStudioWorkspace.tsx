@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,9 @@ import { CanvasArea } from "@/components/copilot/CanvasArea";
 import { ToastContainer } from "@/components/copilot/Toast";
 import { ShareModal } from "@/components/copilot/ShareModal";
 import { ToolBar } from "@/components/copilot/ToolBar";
-import type { ToastProps } from "@/components/copilot/Toast";
 import type { DesignProject, ChatMessage } from "@/lib/design-studio-mock-data";
 import { exportElementAsImage, exportElementAsPDF } from "@/lib/export-utils";
+import { useCopilotStore } from "@/lib/stores/use-copilot-store";
 
 // Custom Hooks
 import {
@@ -32,13 +32,21 @@ type DesignStudioWorkspaceProps = {
 
 export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspaceProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>("value-prop");
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
-  // Lifted state for hooks
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [generationSteps, setGenerationSteps] = useState<Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>>([]);
+  // Zustand Store - All UI state managed here
+  const {
+    activeTab,
+    setActiveTab,
+    shareModalOpen,
+    setShareModalOpen,
+    toasts,
+    addToast,
+    removeToast,
+    chatMessages,
+    setChatMessages,
+    generationSteps,
+    setGenerationSteps,
+  } = useCopilotStore();
 
   // --- Hooks ---
 
@@ -62,17 +70,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     reload: reloadManifest
   } = useManifest(flowId, designAssets, setUiValueProp);
 
-  // 3. Toast Helpers
-  const addToast = (message: string, type: "success" | "info" | "download" | "link" = "success") => {
-    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    setToasts((prev) => [...prev, { id, message, type, onClose: removeToast }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  // 4. History
+  // 3. History
   const {
     canUndo,
     canRedo,
@@ -81,7 +79,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     addToHistory
   } = useManifestHistory(manifest, setManifest, reloadWorkspace, addToast);
 
-  // 5. Update Parsing (Bridge between Chat and State)
+  // 4. Update Parsing (Bridge between Chat and State)
   const { parseAndApplyUpdates } = useManifestUpdates(
     workspaceData,
     designAssets,
@@ -99,7 +97,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     icpId
   );
 
-  // 6. Project Data Mapping (Computed)
+  // 5. Project Data Mapping (Computed)
   const currentProject: DesignProject | null = useMemo(() => {
     if (!workspaceData || !uiValueProp) return null;
 
@@ -137,9 +135,9 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         footer: { sections: [] },
       },
     };
-  }, [workspaceData, uiValueProp, designAssets, chatMessages, manifest]);
+  }, [workspaceData, uiValueProp, designAssets, chatMessages]);
 
-  // 7. Chat Streaming
+  // 6. Chat Streaming
   const {
     isStreaming,
     regenerationCount,
@@ -158,7 +156,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     addToast
   );
 
-  // 8. Generation Orchestration
+  // 7. Generation Orchestration
   const {
     isGeneratingBrand,
     isGeneratingStyle,
