@@ -83,12 +83,7 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
   workspaceData: null,
   designAssets: null,
 
-  chatMessages: [
-    {
-      role: "ai",
-      content: "Welcome to the Design Studio! I can help you customize your brand, style guide, and landing page design.",
-    },
-  ],
+  chatMessages: [],  // Start empty - will be initialized by use-generation-orchestration
   isStreaming: false,
   isChatVisible: true,
 
@@ -207,12 +202,7 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
     error: null,
     workspaceData: null,
     designAssets: null,
-    chatMessages: [
-      {
-        role: "ai",
-        content: "Welcome to the Design Studio! I can help you customize your brand, style guide, and landing page design.",
-      },
-    ],
+    chatMessages: [],  // Reset to empty - will be re-initialized on next load
     isStreaming: false,
     isChatVisible: true,
     regenerationCount: 0,
