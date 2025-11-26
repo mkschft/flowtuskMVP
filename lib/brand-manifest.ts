@@ -126,37 +126,26 @@ export async function updateBrandManifest(
     }
 
     // CASCADE: If colors are being updated, automatically cascade to related components
+    let finalUpdates = updates;
+    
     if (updates.identity?.colors) {
         console.log('🔄 [Manifest Update] Colors detected, cascading to related components...');
-        const cascaded = cascadeColorUpdates(current, updates.identity.colors);
+        
+        // Create an intermediate state that represents "Current + Updates"
+        // This ensures we cascade based on the NEW components (if they were updated) 
+        // rather than the OLD components
+        const intermediateState = deepMerge(current, updates) as BrandManifest;
+        
+        const cascaded = cascadeColorUpdates(intermediateState, updates.identity.colors);
 
-        // Merge cascaded updates into the main updates object
-        // Only merge if cascaded properties actually exist (they're Partial types)
-        if (cascaded.components) {
-            updates = {
-                ...updates,
-                components: {
-                    ...(updates.components || {}),
-                    ...cascaded.components,
-                } as BrandManifest['components'],
-            };
-        }
-
-        if (cascaded.previews) {
-            updates = {
-                ...updates,
-                previews: {
-                    ...(updates.previews || {}),
-                    ...cascaded.previews,
-                } as BrandManifest['previews'],
-            };
-        }
+        // Merge cascaded updates into the updates object
+        finalUpdates = deepMerge(updates, cascaded);
 
         console.log('✅ [Manifest Update] Cascaded color updates to components and previews');
     }
 
     // Deep merge updates
-    const updated = deepMerge(current, updates);
+    const updated = deepMerge(current, finalUpdates);
 
     // Ensure colors are always arrays (fix any wrong format that might have been saved)
     if (updated.identity?.colors) {

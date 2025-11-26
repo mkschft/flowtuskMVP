@@ -2,98 +2,67 @@
   "brand": {
     "name": "Stripe",
     "tones": [
-      "Professional",
-      "Informative"
+      "professional",
+      "innovative"
     ],
-    "primaryCTA": "Contact sales"
+    "primaryCTA": "Join the millions of companies that use Stripe"
   },
   "structure": {
     "nav": [
-      "Products",
-      "Solutions",
-      "Developers",
-      "Resources",
-      "Pricing"
+      "Atlas",
+      "Billing",
+      "Capital",
+      "Checkout",
+      "Climate",
+      "Connect",
+      "Elements",
+      "Identity",
+      "Invoicing",
+      "Issuing",
+      "Payments",
+      "Radar",
+      "Sigma",
+      "Tax",
+      "Terminal",
+      "Treasury"
     ],
     "keyPages": [
       {
-        "path": "/payments",
-        "title": "Payments"
+        "path": "/products",
+        "title": "Products"
       },
       {
-        "path": "/terminal",
-        "title": "Terminal"
+        "path": "/pricing",
+        "title": "Pricing"
       },
       {
-        "path": "/radar",
-        "title": "Radar"
-      },
-      {
-        "path": "/billing",
-        "title": "Billing"
-      },
-      {
-        "path": "/tax",
-        "title": "Tax"
-      },
-      {
-        "path": "/revenue-recognition",
-        "title": "Revenue Recognition"
-      },
-      {
-        "path": "/sigma",
-        "title": "Stripe Sigma"
-      },
-      {
-        "path": "/data-pipeline",
-        "title": "Data Pipeline"
-      },
-      {
-        "path": "/atlas",
-        "title": "Atlas"
-      },
-      {
-        "path": "/climate",
-        "title": "Climate"
+        "path": "/contact",
+        "title": "Contact"
       }
     ],
     "footer": [
-      "Support",
-      "Dashboard",
-      "Sign in",
-      "Contact sales",
-      "Blog",
-      "Customer stories",
-      "Guides",
-      "Jobs",
-      "Newsroom",
-      "Stripe Press",
-      "Become a partner"
+      "Products",
+      "Pricing",
+      "Contact"
     ]
   },
   "targetMarket": {
     "primaryRegion": "Global",
-    "industryFocus": "Financial Technology",
+    "industryFocus": "FinTech",
     "signals": [
-      "Global payments",
-      "Access to 100+ globally",
-      "Send money to third parties"
+      "Our teams are based in offices around the world",
+      "process hundreds of billions of euros each year",
+      "currencies and payment methods supported"
     ]
   },
   "audienceSignals": [
-    "Enterprises",
-    "Startups",
-    "Crypto",
-    "Ecommerce",
-    "Global businesses",
-    "Marketplaces",
-    "Platforms",
-    "SaaS"
+    "ambitious businesses of all sizes",
+    "successful businesses across industries"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Global payment solutions",
+      "text": "Fully integrated, AI-powered platform",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -101,90 +70,112 @@
     },
     {
       "id": "v2",
-      "text": "Fraud prevention with Radar",
+      "text": "Manage revenue operations and launch new business models",
       "evidence": [
-        "fact-4"
-      ]
-    },
-    {
-      "id": "v3",
-      "text": "Revenue and finance automation",
-      "evidence": [
-        "fact-5"
+        "fact-4",
+        "fact-9"
       ]
     }
   ],
   "pains": [
-    "Managing global payments",
-    "Fraud prevention",
-    "Finance automation"
+    "Reduce costs",
+    "Grow revenue",
+    "Run business more efficiently"
   ],
   "proof": [
-    "Stripe App Marketplace",
-    "Partners",
-    "API reference",
-    "Libraries and SDKs"
+    "OpenAI logo",
+    "Amazon logo",
+    "Google logo",
+    "Anthropic logo",
+    "Marriott logo",
+    "Shopify logo",
+    "Airbnb logo",
+    "URBN logo"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Stripe offers a range of financial products including payments, billing, and tax automation.",
-      "page": "Products",
-      "evidence": "Products Solutions Developers Resources Pricing"
+      "text": "Stripe processes hundreds of billions of euros each year.",
+      "page": "Homepage",
+      "evidence": "process hundreds of billions of euros each year"
     },
     {
       "id": "fact-2",
-      "text": "Stripe provides a prebuilt payment form called Checkout.",
-      "page": "Payments",
-      "evidence": "Checkout Prebuilt payment form"
+      "text": "Stripe supports businesses across the AI ecosystem.",
+      "page": "Homepage",
+      "evidence": "Stripe supports businesses across the AI ecosystem"
     },
     {
       "id": "fact-3",
-      "text": "Stripe supports global payments with access to over 100 payment methods.",
-      "page": "More",
-      "evidence": "Payment methods Access to 100+ globally"
+      "text": "Stripe offers a fully integrated, AI-powered platform.",
+      "page": "Homepage",
+      "evidence": "fully integrated, AI-powered platform"
     },
     {
       "id": "fact-4",
-      "text": "Stripe offers fraud prevention through its Radar product.",
-      "page": "Global payments",
-      "evidence": "Radar Fraud prevention"
+      "text": "Stripe helps manage revenue operations and launch new business models.",
+      "page": "Homepage",
+      "evidence": "manage revenue operations, and launch (or invent) new business models"
     },
     {
       "id": "fact-5",
-      "text": "Stripe provides revenue and finance automation tools including billing and tax automation.",
-      "page": "Revenue and Finance Automation",
-      "evidence": "Billing Subscription management Tax Sales tax & VAT automation"
+      "text": "Stripe enables embedding financial services into platforms.",
+      "page": "Homepage",
+      "evidence": "embed financial services"
     },
     {
       "id": "fact-6",
-      "text": "Stripe offers solutions for both enterprises and startups.",
-      "page": "By stage",
-      "evidence": "Enterprises Startups"
+      "text": "Stripe offers solutions for payments, subscriptions, invoicing, tax, and accounting.",
+      "page": "Homepage",
+      "evidence": "payments, subscriptions, invoicing, tax, accounting"
     },
     {
       "id": "fact-7",
-      "text": "Stripe enables in-person payments through its Terminal product.",
-      "page": "Global payments",
-      "evidence": "Terminal In-person payments"
+      "text": "Stripe helps reduce fraud using AI.",
+      "page": "Homepage",
+      "evidence": "reduce fraud using AI"
     },
     {
       "id": "fact-8",
-      "text": "Stripe's Atlas product helps with startup incorporation.",
-      "page": "More",
-      "evidence": "Atlas Startup incorporation"
+      "text": "Stripe supports local payment methods to boost conversion.",
+      "page": "Homepage",
+      "evidence": "offer local payment methods to boost conversion"
     },
     {
       "id": "fact-9",
-      "text": "Stripe provides a platform for managing business finances through Financial Accounts.",
-      "page": "Money Management",
-      "evidence": "Financial Accounts Manage business finances"
+      "text": "Stripe allows the integration of payments into platforms or marketplaces.",
+      "page": "Homepage",
+      "evidence": "Integrate payments into your platform or marketplace"
     },
     {
       "id": "fact-10",
-      "text": "Stripe offers a custom reporting tool called Stripe Sigma.",
-      "page": "Revenue and Finance Automation",
-      "evidence": "Stripe Sigma Custom reports"
+      "text": "Stripe provides tools to accept payments online and in person globally.",
+      "page": "Homepage",
+      "evidence": "accept payments online and in person from customers around the world"
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe offers prebuilt UIs for onboarding and paying out creators globally.",
+      "page": "Homepage",
+      "evidence": "Quickly onboard and pay out creators globally with prebuilt UIs"
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe's platform supports API requests peaking at 13,000 requests a second.",
+      "page": "Homepage",
+      "evidence": "API requests per day, peaking at 13,000 requests a second"
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe provides expert integration guidance from professional services team.",
+      "page": "Homepage",
+      "evidence": "Get expert integration guidance from our professional services team"
+    },
+    {
+      "id": "fact-14",
+      "text": "Stripe connects to Salesforce, SAP, and more through the Stripe App Marketplace.",
+      "page": "Homepage",
+      "evidence": "connect Stripe to Salesforce, SAP, and more through the Stripe App Marketplace"
     }
   ]
 }
