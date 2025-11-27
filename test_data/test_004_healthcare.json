@@ -1,0 +1,34 @@
+{
+  "testId": "004",
+  "category": "Healthcare",
+  "description": "Telemedicine platform for elderly patients",
+  "input": {
+    "idea": "Telemedicine platform designed for elderly patients (65+) with chronic conditions, featuring large-button UI, family caregiver portal, and integration with NHS patient records to reduce in-person GP visits by 40% for routine check-ups.",
+    "targetMarket": "UK elderly patients (65+) with chronic conditions (diabetes, hypertension, COPD), their family caregivers, and NHS GP practices serving 5,000+ patients",
+    "problemStatement": "Elderly patients struggle with complex telehealth apps and lack family oversight, leading to poor medication adherence and unnecessary emergency room visits costing NHS £400+ per visit",
+    "solutionHypothesis": "Simplified UI + family caregiver notifications + NHS record integration improves medication adherence by 50% and reduces ER visits by 30%",
+    "brandVibe": "professional"
+  },
+  "expectedOutputCriteria": {
+    "minimumFacts": 10,
+    "requiredElements": [
+      "Specific metrics (40% GP visit reduction, 50% adherence improvement, £400 ER cost)",
+      "Age demographic (65+)",
+      "Medical conditions (diabetes, hypertension, COPD)",
+      "Healthcare system (NHS, UK)",
+      "Technical features (large-button UI, caregiver portal, NHS integration)"
+    ],
+    "forbiddenPhrases": [
+      "improves healthcare access",
+      "better patient care",
+      "convenient telemedicine",
+      "user-friendly platform"
+    ]
+  },
+  "qualityChecks": {
+    "specificity": "Should mention 65+ age, specific chronic conditions, 40% GP visit reduction, £400 ER cost",
+    "geographic": "Must identify NHS/UK healthcare system",
+    "actionability": "Describe HOW it works (simplified UI, family portal, NHS record integration)",
+    "avoidGeneric": "No 'makes healthcare easier' - must specify elderly-focused design, chronic condition management"
+  }
+}

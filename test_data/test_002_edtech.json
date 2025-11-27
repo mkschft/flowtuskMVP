@@ -1,0 +1,34 @@
+{
+  "testId": "002",
+  "category": "EdTech",
+  "description": "GCSE exam prep platform for UK students",
+  "input": {
+    "idea": "Gamified GCSE exam prep platform for UK Year 10-11 students that uses spaced repetition algorithms to boost retention by 35%, with AI-generated practice questions aligned to AQA and Edexcel exam boards.",
+    "targetMarket": "UK secondary school students (Year 10-11, ages 14-16) preparing for GCSE exams, plus their parents seeking affordable alternatives to £40/hour tutoring",
+    "problemStatement": "Traditional revision is passive (reading notes) and ineffective, leading to poor retention and exam anxiety. Private tutoring costs £40/hour and isn't scalable.",
+    "solutionHypothesis": "Gamification + spaced repetition creates engaging daily habits, improving retention by 35% compared to passive revision, at 1/10th the cost of tutoring",
+    "brandVibe": "playful"
+  },
+  "expectedOutputCriteria": {
+    "minimumFacts": 10,
+    "requiredElements": [
+      "Specific metrics (35% retention boost, £40/hour tutoring cost)",
+      "Educational specificity (GCSE, Year 10-11, AQA/Edexcel exam boards)",
+      "Geographic signals (UK secondary schools)",
+      "Age range (14-16)",
+      "Concrete methodology (spaced repetition, gamification)"
+    ],
+    "forbiddenPhrases": [
+      "makes learning fun",
+      "improves grades",
+      "better education",
+      "engaging platform"
+    ]
+  },
+  "qualityChecks": {
+    "specificity": "Should mention exam boards (AQA, Edexcel), Year 10-11, 35% retention metric",
+    "geographic": "Must identify UK education system, GCSE specificity",
+    "actionability": "Describe HOW it works (spaced repetition algorithms, AI practice questions)",
+    "avoidGeneric": "No 'helps students learn better' - must specify GCSE exam prep, retention improvement"
+  }
+}

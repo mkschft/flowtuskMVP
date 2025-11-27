@@ -1,0 +1,34 @@
+{
+  "testId": "003",
+  "category": "B2B SaaS",
+  "description": "Project management tool for remote teams",
+  "input": {
+    "idea": "Async-first project management tool for remote FinTech teams (20-50 employees) that auto-generates daily standups from Slack/GitHub activity, reducing synchronous meetings by 60% and saving 10 hours per week per team.",
+    "targetMarket": "Remote FinTech and SaaS companies (20-50 employees) in US/EU timezones with distributed engineering teams across 3+ timezones",
+    "problemStatement": "Remote teams waste 10+ hours/week in synchronous status meetings due to timezone differences, causing burnout and reducing deep work time",
+    "solutionHypothesis": "AI summarization of async work (Slack messages, Git commits, Jira updates) creates automatic status reports, eliminating need for daily standups",
+    "brandVibe": "innovative"
+  },
+  "expectedOutputCriteria": {
+    "minimumFacts": 10,
+    "requiredElements": [
+      "Specific metrics (60% meeting reduction, 10 hours saved per week)",
+      "Company size (20-50 employees)",
+      "Industry vertical (FinTech, SaaS)",
+      "Geographic distribution (US/EU, 3+ timezones)",
+      "Technical integrations (Slack, GitHub, Jira)"
+    ],
+    "forbiddenPhrases": [
+      "improves collaboration",
+      "better teamwork",
+      "streamlines workflows",
+      "boosts productivity"
+    ]
+  },
+  "qualityChecks": {
+    "specificity": "Should mention 60% meeting reduction, 10 hours/week savings, 3+ timezones",
+    "geographic": "Must identify US/EU markets, timezone distribution challenge",
+    "actionability": "Describe HOW it works (AI summarization, Slack/GitHub integration, auto-standups)",
+    "avoidGeneric": "No 'helps teams collaborate' - must specify async workflow automation, meeting reduction"
+  }
+}
