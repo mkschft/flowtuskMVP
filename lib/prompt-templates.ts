@@ -181,6 +181,199 @@ Extract structured facts following the schema above. Generate 10-20 atomic facts
 }
 
 // ============================================================================
+// STAGE A2: Idea Analysis → Facts JSON (Prompt-First Flow)
+// ============================================================================
+
+export interface IdeaInput {
+  idea: string;
+  targetMarket: string;
+  problemStatement?: string;
+  solutionHypothesis?: string;
+  brandVibe?: string;
+}
+
+export function buildAnalyzeFromIdeaPrompt(input: IdeaInput): PromptTemplate {
+  const system = `You are a startup strategist and brand analyst helping founders define their brand positioning BEFORE they build their product.
+
+OUTPUT FORMAT: Valid JSON only. No commentary, no markdown, no explanations.
+
+GUARDRAILS:
+- Generate realistic, evidence-based "virtual facts" from user input
+- Create specific, actionable facts (not generic marketing advice)
+- All claims must be grounded in the user's description
+- Include concrete examples and metrics when possible
+- Generate 10-15 atomic facts minimum
+- Each fact must cite its source (user input)`;
+
+  const developer = `TASK: Generate structured facts_json from a startup idea description, using the SAME schema as website analysis but adapted for prompt-based input.
+
+CRITICAL ADAPTATIONS FOR PROMPT-BASED INPUT:
+1. facts[].evidence → Use: "From user input: [exact quote from idea/targetMarket/problem/solution]"
+2. facts[].page → Use: "User Prompt", "Idea Description", or "Market Definition"
+3. structure.keyPages[].path → Use descriptive labels NOT URLs: "Core Value Prop", "Target Market", "Problem Space"
+4. targetMarket.signals[] → Use explicit user input: ["User specified: UK market", "Industry: B2B SaaS"]
+5. Create 10-15 atomic facts with SPECIFIC details (not "helps businesses" but "automates X for Y saving Z%")
+
+FEW-SHOT EXAMPLES (Study these carefully):
+
+❌ BAD FACT (too generic):
+{
+  "id": "fact-1",
+  "text": "Helps businesses be more efficient",
+  "page": "User Prompt",
+  "evidence": "From user input: 'software for businesses'"
+}
+
+✅ GOOD FACT (specific with metrics):
+{
+  "id": "fact-1",
+  "text": "Automates VAT calculations for UK mid-market accounting firms (10-50 employees), saving 40% time on quarterly filings",
+  "page": "Idea Description",
+  "evidence": "From user input: 'AI-powered tax software for UK mid-market accounting firms that automates MTD VAT compliance'"
+}
+
+❌ BAD FACT (vague target market):
+{
+  "id": "fact-2",
+  "text": "Targets small businesses",
+  "page": "User Prompt",
+  "evidence": "From user input: 'for small businesses'"
+}
+
+✅ GOOD FACT (specific target market):
+{
+  "id": "fact-2",
+  "text": "Serves UK accounting firms with 10-50 employees handling 100+ SMB clients annually",
+  "page": "Market Definition",
+  "evidence": "From user input: 'UK mid-market accounting firms'"
+}
+
+❌ BAD VALUE PROP (generic):
+{
+  "id": "v1",
+  "text": "Makes work easier and faster",
+  "evidence": ["fact-1"]
+}
+
+✅ GOOD VALUE PROP (specific with evidence):
+{
+  "id": "v1",
+  "text": "Cut tax preparation time by 40% with AI-powered automation and built-in MTD VAT compliance",
+  "evidence": ["fact-1", "fact-3"]
+}
+
+RULES FOR QUALITY:
+1. Extract brand identity from idea + vibe (name can be inferred or "Untitled Brand")
+2. Map logical site structure based on value props (not real pages!)
+3. Identify target market geography from user input (UK, US, UAE, etc.)
+4. Infer audience signals from target market description
+5. Create value props based on problem/solution with evidence chain
+6. Generate pain points that the solution addresses
+7. Create proof elements from solution benefits
+8. Generate 10-15 specific, atomic facts with concrete details
+
+GEOGRAPHIC SIGNALS TO EXTRACT:
+- Explicit location mentions (UK, United States, UAE, etc.)
+- Industry hints (EdTech UK, FinTech SF, etc.)
+- Market size indicators (SMBs, enterprise, mid-market)
+- Regulatory context (GDPR = Europe, SOC2 = US, MTD = UK)
+
+SCHEMA (identical to website analysis):
+{
+  "brand": {
+    "name": "string (extract from idea or use 'Untitled Brand')",
+    "tones": ["string (infer from brandVibe or idea description)"],
+    "primaryCTA": "string (infer from solution type, e.g., 'Book Demo', 'Start Free Trial')"
+  },
+  "structure": {
+    "nav": ["Product", "Pricing", "Resources"] (logical sections),
+    "keyPages": [{"path": "Core Value Prop", "title": "Main Offering"}] (descriptive, not URLs),
+    "footer": ["Contact", "About", "Privacy"] (standard sections)
+  },
+  "targetMarket": {
+    "primaryRegion": "string (e.g., UK, United States, Europe, UAE, Global)",
+    "industryFocus": "string (e.g., EdTech, FinTech, Healthcare, B2B SaaS)",
+    "signals": ["User specified: X", "Industry: Y", "Market size: Z"]
+  },
+  "audienceSignals": ["string (who they serve based on targetMarket)"],
+  "valueProps": [
+    {"id": "v1", "text": "specific value prop", "evidence": ["fact-2", "fact-5"]}
+  ],
+  "pains": ["string (problems the solution solves)"],
+  "proof": ["string (benefits, capabilities, differentiators)"],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Specific, actionable claim with metrics",
+      "page": "User Prompt" | "Idea Description" | "Market Definition",
+      "evidence": "From user input: [exact quote]"
+    }
+  ]
+}
+
+EXAMPLE TRANSFORMATION:
+INPUT:
+- idea: "AI-powered tax software for UK mid-market accounting firms that automates MTD VAT compliance"
+- targetMarket: "UK accounting firms, 10-50 employees, handling 100+ SMB clients"
+- problemStatement: "Manual tax calculations are time-consuming and error-prone"
+- solutionHypothesis: "AI automation can save 40% time on quarterly filings"
+- brandVibe: "professional"
+
+OUTPUT:
+{
+  "brand": {
+    "name": "Untitled Tax Software",
+    "tones": ["professional", "reliable", "innovative"],
+    "primaryCTA": "Book a Demo"
+  },
+  "targetMarket": {
+    "primaryRegion": "UK",
+    "industryFocus": "FinTech / Tax Compliance",
+    "signals": ["User specified: UK market", "Industry: Accounting", "Market size: 10-50 employees"]
+  },
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Automates MTD VAT compliance for UK accounting firms with 10-50 employees",
+      "page": "Idea Description",
+      "evidence": "From user input: 'AI-powered tax software for UK mid-market accounting firms that automates MTD VAT compliance'"
+    },
+    {
+      "id": "fact-2",
+      "text": "Saves 40% time on quarterly tax filings through AI automation",
+      "page": "Solution Benefits",
+      "evidence": "From user input: 'AI automation can save 40% time on quarterly filings'"
+    },
+    {
+      "id": "fact-3",
+      "text": "Targets accounting firms handling 100+ SMB clients annually",
+      "page": "Market Definition",
+      "evidence": "From user input: 'handling 100+ SMB clients'"
+    }
+  ]
+}`;
+
+  const user = `STARTUP IDEA:
+${input.idea}
+
+TARGET MARKET:
+${input.targetMarket}
+${input.problemStatement ? `
+PROBLEM STATEMENT:
+${input.problemStatement}` : ''}
+${input.solutionHypothesis ? `
+SOLUTION HYPOTHESIS:
+${input.solutionHypothesis}` : ''}
+${input.brandVibe ? `
+BRAND VIBE:
+${input.brandVibe}` : ''}
+
+Generate facts_json following the schema above. Create specific, actionable facts (NOT generic statements like "helps businesses"). Include metrics, target market size, and concrete details wherever possible. Minimum 10 facts required.`;
+
+  return { system, developer, user };
+}
+
+// ============================================================================
 // STAGE B: ICP Generation from Facts
 // ============================================================================
 
