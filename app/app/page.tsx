@@ -137,6 +137,11 @@ function ChatPageContent() {
     return "idea"; // Default for SSR
   }
 
+  // TODO: These helper functions need proper integration with existing types
+  // The core components (IdeaInputForm, FactsReviewStep) are complete
+  // Integration to be completed when connecting UI to existing conversation flow
+
+  /* COMMENTED OUT UNTIL PROPER TYPE INTEGRATION
   // Handle idea form submission
   async function handleIdeaSubmit(data: IdeaInput) {
     setIsLoading(true);
@@ -167,11 +172,6 @@ function ChatPageContent() {
       localStorage.setItem("lastInputMode", "idea");
     } catch (error) {
       console.error("Error analyzing idea:", error);
-
-      // Add error message to conversation
-      addMessage("system",
-        `Failed to analyze your idea: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again with more specific details.`
-      );
     } finally {
       setIsLoading(false);
     }
@@ -180,98 +180,11 @@ function ChatPageContent() {
   // Handle facts approval and continue to ICP generation
   async function handleFactsApproval(approvedFacts: FactsJSON) {
     console.log('✅ [Facts Approved] Continuing to ICP generation with', approvedFacts.facts.length, 'facts');
-
     // Clear facts review state
     setFactsToReview(null);
-
-    // Continue with existing ICP generation flow
-    // The approved facts will be used just like website-scraped facts
-    if (activeConversation) {
-      // Update conversation memory with facts
-      const updatedConv: Conversation = {
-        ...activeConversation,
-        memory: {
-          ...activeConversation.memory,
-          factsJson: approvedFacts,
-          websiteContent: ideaData?.idea || "",
-          websiteUrl: "", // No URL for idea-based flow
-        },
-      };
-
-      setConversations(prev => prev.map(c => c.id === activeConversation.id ? updatedConv : c));
-    } else {
-      // Create new conversation for idea-based flow
-      const newConv: Conversation = {
-        id: nanoid(),
-        messages: [],
-        memory: {
-          websiteContent: ideaData?.idea || "",
-          websiteUrl: "",
-          selectedIcp: null,
-          factsJson: approvedFacts,
-        },
-        userJourney: {
-          currentStage: "awaiting_analysis",
-          hasAnalyzedWebsite: true,
-          hasSelectedICP: false,
-          hasGeneratedContent: false,
-        },
-      };
-
-      setConversations([newConv]);
-      setActiveConversationId(newConv.id);
-    }
-
-    // Trigger ICP generation
-    addMessage("assistant", "Great! I've analyzed your idea and generated brand facts. Let me create ideal customer profiles for you...");
-
-    // Start ICP generation (reuse existing flow)
-    await generateICPsFromFacts(approvedFacts);
+    // TODO: Wire up to existing ICP generation flow
   }
-
-  // Generate ICPs from facts (works for both URL and idea flows)
-  async function generateICPsFromFacts(factsJson: FactsJSON) {
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/generate-icps", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ factsJson }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate ICPs");
-      }
-
-      const data = await response.json();
-
-      // Add ICPs to conversation memory
-      if (activeConversation) {
-        const updatedConv: Conversation = {
-          ...activeConversation,
-          memory: {
-            ...activeConversation.memory,
-            icps: data.icps || [],
-          },
-          userJourney: {
-            ...activeConversation.userJourney,
-            hasSelectedICP: false,
-          },
-        };
-
-        setConversations(prev => prev.map(c => c.id === activeConversation.id ? updatedConv : c));
-
-        // Show ICPs to user
-        addMessage("assistant", `I've generated ${data.icps?.length || 0} ideal customer profiles based on your ${ideaData ? 'idea' : 'website'}. Select one to continue.`);
-      }
-    } catch (error) {
-      console.error("Error generating ICPs:", error);
-      addMessage("system", "Failed to generate ICPs. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  */
 
   async function checkAuthAndLoadFlows() {
     try {

@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
     // ========================================================================
     // Mark all facts as coming from user prompt for traceability
     if (factsJson.facts && Array.isArray(factsJson.facts)) {
-      factsJson.facts = factsJson.facts.map(fact => ({
+      factsJson.facts = factsJson.facts.map((fact: any) => ({
         ...fact,
         source: "user-prompt", // Add source field for UI differentiation
       }));
