@@ -279,15 +279,15 @@ function ChatPageContent() {
 
       console.log('🔔 [Realtime] Subscribed to flow updates:', flow.id);
 
-      // Generate ICPs from approved facts
-      await generateICPsFromFacts(approvedFacts);
+      // Generate ICPs from approved facts (pass flow.id to avoid race condition)
+      await generateICPsFromFacts(approvedFacts, flow.id);
 
     } catch (error) {
       console.error("Error generating ICPs:", error);
       addMessage({
         id: nanoid(),
         role: "assistant",
-        content: "Sorry, I encountered an error generating customer profiles. Please try again."
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`
       });
     } finally {
       setIsLoading(false);
@@ -295,10 +295,10 @@ function ChatPageContent() {
   }
 
   // Helper: Generate ICPs from facts (works for both URL and idea flows)
-  async function generateICPsFromFacts(factsJson: FactsJSON) {
+  async function generateICPsFromFacts(factsJson: FactsJSON, conversationId: string) {
     const thinkingMessageId = nanoid();
 
-    addMessage({
+    addMessageTo(conversationId, {
       id: thinkingMessageId,
       role: "assistant",
       content: "thinking",
@@ -308,6 +308,15 @@ function ChatPageContent() {
     });
 
     try {
+      console.log('🚀 [ICP Generation] Starting with', Object.keys(factsJson).length, 'fact categories');
+
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.error('⏱️ [ICP Generation] Request timed out after 45 seconds');
+        controller.abort();
+      }, 45000); // 45 second timeout (allows for backend's 30s + retries)
+
       // Use existing ICP generation API
       const response = await fetch("/api/generate-icps", {
         method: "POST",
@@ -315,16 +324,27 @@ function ChatPageContent() {
         body: JSON.stringify({
           content: "", // Not needed for idea flow
           factsJson: factsJson as unknown as Record<string, unknown>
-        })
+        }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+      console.log('📥 [ICP Generation] Response received, status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ [ICP Generation] API error:', errorData);
+        throw new Error(errorData.error || errorData.details || "Failed to generate customer profiles");
+      }
+
       const data = await response.json();
+      console.log('✅ [ICP Generation] Success! Generated', data.icps?.length || 0, 'ICPs');
 
       // Update thinking step
       updateThinkingStep(thinkingMessageId, 'generate', { status: 'complete' });
 
       // Display ICPs
-      addMessage({
+      addMessageTo(conversationId, {
         id: nanoid(),
         role: "assistant",
         content: `I've identified ${data.icps.length} potential customer profiles for your business. Select one to continue.`,
@@ -333,8 +353,14 @@ function ChatPageContent() {
       });
 
     } catch (error) {
-      console.error("Error generating ICPs:", error);
+      console.error("❌ [ICP Generation] Error:", error);
       updateThinkingStep(thinkingMessageId, 'generate', { status: 'error' });
+
+      // Check if it's a timeout error
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timed out after 45 seconds. Please try again.');
+      }
+
       throw error;
     }
   }
