@@ -152,7 +152,7 @@ export async function GET(req: NextRequest) {
         description: `${manifest.strategy?.persona?.role || 'User'} at ${manifest.strategy?.persona?.company || 'Company'}`
       };
 
-      const valueProp = {
+      let valueProp = {
         id: manifest.metadata?.sourceIcpId || icpId,
         icp_id: icpId,
         parent_flow: flowId,
@@ -175,6 +175,16 @@ export async function GET(req: NextRequest) {
           painPointsAddressed: [manifest.strategy?.valueProp?.problem || '']
         }
       };
+
+      // Log if value prop is empty (indicates generation may have failed)
+      const hasEmptyValueProp = !valueProp.headline && !valueProp.problem && !valueProp.solution;
+      if (hasEmptyValueProp) {
+        console.error('❌ [Workspace API] Value prop empty in manifest - generation may have failed');
+        console.error('  - Expected fields (headline, problem, solution) are all empty');
+        console.error('  - Check /api/generate-value-prop logs for errors during generation');
+      } else {
+        console.log('✅ [Workspace API] Using value prop from brand manifest');
+      }
 
       const designAssets = {
         id: 'from-manifest',

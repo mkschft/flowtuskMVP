@@ -4,7 +4,6 @@ import { executeWithRetryAndTimeout } from "@/lib/api-handler";
 import { validateValuePropResponse } from "@/lib/validators";
 import { createErrorResponse, ErrorContext } from "@/lib/error-mapper";
 import { buildValuePropPrompt, type FactsJSON, type ICP } from "@/lib/prompt-templates";
-import { createClient } from "@/lib/supabase/server";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -66,6 +65,18 @@ export async function POST(req: NextRequest) {
       const completion = result.data;
       const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
+      // Log what GPT actually returned
+      console.log('🔍 [Generate Value Prop] Raw GPT response structure:', {
+        hasHeadline: !!parsedResult.headline,
+        hasProblem: !!parsedResult.problem,
+        hasSolution: !!parsedResult.solution,
+        hasOutcome: !!parsedResult.outcome,
+        hasSummary: !!parsedResult.summary,
+        hasVariations: !!parsedResult.variations,
+        variationsCount: parsedResult.variations?.length || 0,
+        summaryKeys: parsedResult.summary ? Object.keys(parsedResult.summary) : []
+      });
+
       // Validate response structure
       const validation = validateValuePropResponse(parsedResult);
 
@@ -102,7 +113,24 @@ export async function POST(req: NextRequest) {
           const targetAudience = parsedResult.targetAudience || icp.title || '';
           const benefits = parsedResult.benefits || (Array.isArray(parsedResult.variations) ? parsedResult.variations.map((v: any) => v.text) : []);
 
-          // Update manifest with value prop
+          // Log extracted fields before saving
+          console.log('📝 [Generate Value Prop] Extracted fields for save:', {
+            headline: headline ? headline.substring(0, 50) + (headline.length > 50 ? '...' : '') : '(empty)',
+            problem: problem ? problem.substring(0, 50) + (problem.length > 50 ? '...' : '') : '(empty)',
+            solution: solution ? solution.substring(0, 50) + (solution.length > 50 ? '...' : '') : '(empty)',
+            outcome: outcome ? outcome.substring(0, 50) + (outcome.length > 50 ? '...' : '') : '(empty)',
+            benefitsCount: benefits.length,
+            targetAudience: targetAudience ? targetAudience.substring(0, 30) : '(empty)'
+          });
+
+          // Validate that we have some data to save
+          if (!headline && !problem && !solution && !outcome) {
+            console.error('❌ [Generate Value Prop] CRITICAL: All fields empty after extraction!');
+            console.error('📊 [Generate Value Prop] parsedResult keys:', Object.keys(parsedResult));
+            throw new Error('Value prop extraction produced empty fields - check GPT response structure');
+          }
+
+          // 1️⃣ Update manifest with value prop
           const manifestRes = await fetch('/api/brand-manifest', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -125,10 +153,11 @@ export async function POST(req: NextRequest) {
           if (!manifestRes.ok) {
             console.error('⚠️ [Generate Value Prop] Failed to update manifest:', await manifestRes.text());
           } else {
-            console.log('💾 [Generate Value Prop] Updated brand_manifests');
+            console.log('✅ [Generate Value Prop] Saved to brand_manifests');
           }
+
         } catch (dbError) {
-          console.error('⚠️ [Generate Value Prop] Manifest update error:', dbError);
+          console.error('⚠️ [Generate Value Prop] Save error:', dbError);
         }
       }
 
@@ -308,6 +337,18 @@ Important:
     const completion = result.data;
     const parsedResult = JSON.parse(completion.choices[0].message.content || "{}");
 
+    // Log what GPT actually returned (legacy flow)
+    console.log('🔍 [Generate Value Prop - Legacy] Raw GPT response structure:', {
+      hasHeadline: !!parsedResult.headline,
+      hasProblem: !!parsedResult.problem,
+      hasSolution: !!parsedResult.solution,
+      hasOutcome: !!parsedResult.outcome,
+      hasSummary: !!parsedResult.summary,
+      hasVariations: !!parsedResult.variations,
+      variationsCount: parsedResult.variations?.length || 0,
+      summaryKeys: parsedResult.summary ? Object.keys(parsedResult.summary) : []
+    });
+
     const validation = validateValuePropResponse(parsedResult);
 
     if (!validation.ok) {
@@ -325,7 +366,7 @@ Important:
 
     console.log('✅ [Generate Value Prop] Generated successfully');
 
-    // Save to brand_manifests (legacy flow fallback)
+    // Save to brand_manifests (legacy flow)
     if (icp.id && icp.parent_flow) {
       try {
         const headline = parsedResult.headline || parsedResult.summary?.mainInsight || parsedResult.variations?.[0]?.text || '';
@@ -336,7 +377,24 @@ Important:
         const targetAudience = parsedResult.targetAudience || icp.title || '';
         const benefits = parsedResult.benefits || (Array.isArray(parsedResult.variations) ? parsedResult.variations.map((v: any) => v.text) : []);
 
-        // Update manifest
+        // Log extracted fields before saving (legacy flow)
+        console.log('📝 [Generate Value Prop - Legacy] Extracted fields for save:', {
+          headline: headline ? headline.substring(0, 50) + (headline.length > 50 ? '...' : '') : '(empty)',
+          problem: problem ? problem.substring(0, 50) + (problem.length > 50 ? '...' : '') : '(empty)',
+          solution: solution ? solution.substring(0, 50) + (solution.length > 50 ? '...' : '') : '(empty)',
+          outcome: outcome ? outcome.substring(0, 50) + (outcome.length > 50 ? '...' : '') : '(empty)',
+          benefitsCount: benefits.length,
+          targetAudience: targetAudience ? targetAudience.substring(0, 30) : '(empty)'
+        });
+
+        // Validate that we have some data to save
+        if (!headline && !problem && !solution && !outcome) {
+          console.error('❌ [Generate Value Prop - Legacy] CRITICAL: All fields empty after extraction!');
+          console.error('📊 [Generate Value Prop - Legacy] parsedResult keys:', Object.keys(parsedResult));
+          throw new Error('Value prop extraction produced empty fields - check GPT response structure');
+        }
+
+        // 1️⃣ Update manifest
         const manifestRes = await fetch('/api/brand-manifest', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -351,10 +409,11 @@ Important:
         if (!manifestRes.ok) {
           console.error('⚠️ [Generate Value Prop] Failed to update manifest:', await manifestRes.text());
         } else {
-          console.log('💾 [Generate Value Prop] Updated brand_manifests');
+          console.log('✅ [Generate Value Prop] Saved to brand_manifests');
         }
+
       } catch (dbError) {
-        console.error('⚠️ [Generate Value Prop] Manifest update error:', dbError);
+        console.error('⚠️ [Generate Value Prop] Save error:', dbError);
       }
     }
 
