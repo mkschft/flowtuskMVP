@@ -66,6 +66,7 @@ function ChatPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [selectedIcp, setSelectedIcp] = useState<ICP | null>(null);
+  const [isGeneratingValueProp, setIsGeneratingValueProp] = useState(false);
   const [showProfilesDrawer, setShowProfilesDrawer] = useState(false);
   const [selectedProfilesICP, setSelectedProfilesICP] = useState<ICP | null>(null);
   const [linkedInProfiles, setLinkedInProfiles] = useState<LinkedInProfile[]>([]);
@@ -2146,6 +2147,9 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     });
 
     try {
+      // Set generating state to disable Launch Copilot button
+      setIsGeneratingValueProp(true);
+
       // Use idempotent generation
       const valuePropData = await generationManager.generate(
         'value-prop',
@@ -2281,6 +2285,9 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         content: `Sorry, something went wrong generating the value proposition.\n\n**Error:** ${errorMessage}\n\nPlease try again or select a different persona.`,
       });
     } finally {
+      // Re-enable Launch Copilot button
+      setIsGeneratingValueProp(false);
+
       updateGenerationState({
         isGenerating: false,
         generationId: undefined
@@ -2778,6 +2785,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                           onExport={handleExport}
                           onLaunchCopilot={handleLaunchCopilot}
                           readOnly={false}
+                          isGeneratingValueProp={isGeneratingValueProp}
                         />
                       );
                     })()}

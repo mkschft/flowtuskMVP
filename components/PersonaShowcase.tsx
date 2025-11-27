@@ -25,7 +25,8 @@ import {
   Share2,
   Download,
   FileImage,
-  Sparkles
+  Sparkles,
+  Loader2
 } from "lucide-react";
 
 type ICP = {
@@ -76,6 +77,7 @@ type PersonaShowcaseProps = {
   onGenerateEmail?: (persona: ICP) => void;
   onLaunchCopilot?: (persona: ICP) => void;
   readOnly?: boolean;
+  isGeneratingValueProp?: boolean;
 };
 
 export function PersonaShowcase({
@@ -88,7 +90,8 @@ export function PersonaShowcase({
   onGenerateLinkedIn,
   onGenerateEmail,
   onLaunchCopilot,
-  readOnly = false
+  readOnly = false,
+  isGeneratingValueProp = false
 }: PersonaShowcaseProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedPersonaId, setExpandedPersonaId] = useState<string | null>(null);
@@ -327,14 +330,24 @@ export function PersonaShowcase({
                           {/* Launch Copilot Button - Primary CTA */}
                           {onLaunchCopilot && (
                             <Button
-                              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
+                              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onLaunchCopilot(persona);
                               }}
+                              disabled={isGeneratingValueProp}
                             >
-                              <Sparkles className="h-4 w-4 mr-2" />
-                              Launch Copilot
+                              {isGeneratingValueProp ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Generating positioning...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="h-4 w-4 mr-2" />
+                                  Launch Copilot
+                                </>
+                              )}
                             </Button>
                           )}
 
