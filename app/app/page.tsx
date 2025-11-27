@@ -229,6 +229,56 @@ function ChatPageContent() {
       // Mark journey as analyzed
       updateUserJourney({ websiteAnalyzed: true });
 
+      // ============================================================
+      // CRITICAL FIX: Create DB flow before ICP generation
+      // ============================================================
+      const brandName = approvedFacts.brand?.name || 'Untitled Brand';
+      const virtualUrl = `idea:${brandName}`;
+
+      console.log('💾 [Prompt-First] Creating DB flow for brand:', brandName);
+
+      // Create or find flow in database
+      const { flow, isNew } = await flowsClient.findOrCreateFlow({
+        title: brandName,
+        website_url: virtualUrl,
+        facts_json: approvedFacts as unknown as Record<string, unknown>,
+        step: 'analyzed'
+      });
+
+      console.log(`✅ [Prompt-First] ${isNew ? 'Created new' : 'Found existing'} flow with UUID:`, flow.id);
+
+      // Update conversation ID from nanoid to UUID
+      const oldConvId = activeConversationId;
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === oldConvId
+            ? { ...conv, id: flow.id, memory: { ...conv.memory, id: flow.id } }
+            : conv
+        )
+      );
+      setActiveConversationId(flow.id);
+      setWebsiteUrl(virtualUrl);
+
+      // Subscribe to realtime updates
+      const supabase = createClient();
+      const channel = supabase
+        .channel(`flow-${flow.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'positioning_flows',
+            filter: `id=eq.${flow.id}`,
+          },
+          (payload) => {
+            console.log('🔄 [Realtime] Flow updated:', payload.new);
+          }
+        )
+        .subscribe();
+
+      console.log('🔔 [Realtime] Subscribed to flow updates:', flow.id);
+
       // Generate ICPs from approved facts
       await generateICPsFromFacts(approvedFacts);
 
