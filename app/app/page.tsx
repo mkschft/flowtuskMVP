@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu, Trash2, Settings } from "lucide-react";
+import { Loader2, ArrowUp, Plus, MessageSquare, Sparkles, Search, Brain, Wand2, ChevronDown, Check, Users, MapPin, CheckCircle2, Menu, Trash2, Settings, Globe } from "lucide-react";
 import { LinkedInProfileDrawer } from "@/components/LinkedInProfileDrawer";
 import { ValuePropBuilderWrapper } from "@/components/ValuePropBuilderWrapper";
 import { PersonaShowcase } from "@/components/PersonaShowcase";
@@ -137,19 +137,36 @@ function ChatPageContent() {
     return "idea"; // Default for SSR
   }
 
-  // TODO: These helper functions need proper integration with existing types
-  // The core components (IdeaInputForm, FactsReviewStep) are complete
-  // Integration to be completed when connecting UI to existing conversation flow
-
-  /* COMMENTED OUT UNTIL PROPER TYPE INTEGRATION
   // Handle idea form submission
   async function handleIdeaSubmit(data: IdeaInput) {
     setIsLoading(true);
     setIdeaData(data);
+    localStorage.setItem("lastInputMode", "idea");
 
     try {
       console.log('💡 [Idea Submit] Analyzing idea:', data.idea.substring(0, 50) + '...');
 
+      // Create a new conversation if none exists
+      if (!activeConversationId || !conversations.find(c => c.id === activeConversationId)) {
+        await createNewConversation();
+        // Wait for state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      const convId = activeConversationId;
+
+      // Add thinking message
+      const thinkingMessageId = nanoid();
+      addMessageTo(convId, {
+        id: thinkingMessageId,
+        role: "assistant",
+        content: "thinking",
+        thinking: [
+          { id: 'analyze', label: 'Analyzing your idea', status: 'running' }
+        ]
+      });
+
+      // Call API
       const response = await fetch("/api/analyze-idea", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -165,13 +182,23 @@ function ChatPageContent() {
 
       console.log('✅ [Idea Submit] Facts generated:', factsJson.facts?.length || 0, 'facts');
 
-      // Show facts review step
-      setFactsToReview(factsJson);
+      // Update thinking step
+      updateThinkingStep(thinkingMessageId, 'analyze', { status: 'complete' });
 
-      // Store inputMode preference
-      localStorage.setItem("lastInputMode", "idea");
+      // Store facts and show review step
+      setFactsToReview(factsJson);
+      updateConversationMemory({
+        factsJson: factsJson as unknown as Record<string, unknown>,
+        websiteUrl: `idea:${data.idea.substring(0, 50)}...` // Virtual URL for tracking
+      });
+
     } catch (error) {
       console.error("Error analyzing idea:", error);
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "Sorry, I couldn't analyze your idea. Please try again with more specific details."
+      });
     } finally {
       setIsLoading(false);
     }
@@ -179,12 +206,88 @@ function ChatPageContent() {
 
   // Handle facts approval and continue to ICP generation
   async function handleFactsApproval(approvedFacts: FactsJSON) {
-    console.log('✅ [Facts Approved] Continuing to ICP generation with', approvedFacts.facts.length, 'facts');
-    // Clear facts review state
-    setFactsToReview(null);
-    // TODO: Wire up to existing ICP generation flow
+    setIsLoading(true);
+
+    try {
+      console.log('✅ [Facts Approved] Continuing to ICP generation with', approvedFacts.facts.length, 'facts');
+
+      // Update memory with approved facts
+      updateConversationMemory({
+        factsJson: approvedFacts as unknown as Record<string, unknown>
+      });
+
+      // Clear review state
+      setFactsToReview(null);
+
+      // Add confirmation message
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `Great! I've extracted ${approvedFacts.facts.length} key facts about your business. Now let me identify your ideal customer profiles...`
+      });
+
+      // Mark journey as analyzed
+      updateUserJourney({ websiteAnalyzed: true });
+
+      // Generate ICPs from approved facts
+      await generateICPsFromFacts(approvedFacts);
+
+    } catch (error) {
+      console.error("Error generating ICPs:", error);
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: "Sorry, I encountered an error generating customer profiles. Please try again."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
-  */
+
+  // Helper: Generate ICPs from facts (works for both URL and idea flows)
+  async function generateICPsFromFacts(factsJson: FactsJSON) {
+    const thinkingMessageId = nanoid();
+
+    addMessage({
+      id: thinkingMessageId,
+      role: "assistant",
+      content: "thinking",
+      thinking: [
+        { id: 'generate', label: 'Generating customer profiles', status: 'running' }
+      ]
+    });
+
+    try {
+      // Use existing ICP generation API
+      const response = await fetch("/api/generate-icps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: "", // Not needed for idea flow
+          factsJson: factsJson as unknown as Record<string, unknown>
+        })
+      });
+
+      const data = await response.json();
+
+      // Update thinking step
+      updateThinkingStep(thinkingMessageId, 'generate', { status: 'complete' });
+
+      // Display ICPs
+      addMessage({
+        id: nanoid(),
+        role: "assistant",
+        content: `I've identified ${data.icps.length} potential customer profiles for your business. Select one to continue.`,
+        component: "icps",
+        data: data.icps
+      });
+
+    } catch (error) {
+      console.error("Error generating ICPs:", error);
+      updateThinkingStep(thinkingMessageId, 'generate', { status: 'error' });
+      throw error;
+    }
+  }
 
   async function checkAuthAndLoadFlows() {
     try {
@@ -727,6 +830,19 @@ function ChatPageContent() {
     setConversations(prev =>
       prev.map(conv =>
         conv.id === activeConversationId ? { ...conv, title } : conv
+      )
+    );
+  };
+
+  const updateConversationMemory = (updates: Partial<ConversationMemory>) => {
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === activeConversationId
+          ? {
+              ...conv,
+              memory: { ...conv.memory, ...updates }
+            }
+          : conv
       )
     );
   };
@@ -2183,38 +2299,103 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         {/* Messages */}
         <ScrollArea className="flex-1 h-full w-full px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
           <div className="space-y-4 mx-auto max-w-3xl">
-            {!activeConversation?.messages.length && (
-              <div className="text-center py-12 sm:py-20 px-4">
-                <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
-                <h2 className="text-xl sm:text-2xl font-bold mb-2">
-                  Your Positioning Co-Pilot
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
-                  Enter any website URL to generate customer personas and value propositions instantly
-                </p>
-                <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
-                  Try these examples or paste any public website URL:
-                </p>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center max-w-sm sm:max-w-none mx-auto">
-                  {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
-                    <Button
-                      key={url}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (!activeConversation) createNewConversation();
-                        setInput(url);
-                        setTimeout(() => {
-                          const form = document.querySelector('form');
-                          form?.requestSubmit();
-                        }, 100);
-                      }}
-                      className="text-xs sm:text-sm w-full sm:w-auto"
-                    >
-                      {url}
-                    </Button>
-                  ))}
+            {/* Show Dual-Mode Tabs when no conversation and no facts to review */}
+            {!activeConversation?.messages.length && !factsToReview && (
+              <div className="py-8 sm:py-12 px-4">
+                <div className="text-center mb-6">
+                  <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    Your Positioning Co-Pilot
+                  </h2>
+                  <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
+                    Generate customer personas and value propositions from your idea or existing website
+                  </p>
                 </div>
+
+                <Card className="w-full max-w-2xl mx-auto">
+                  <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "idea" | "url")}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="idea">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Start with Idea
+                      </TabsTrigger>
+                      <TabsTrigger value="url">
+                        <Globe className="w-4 h-4 mr-2" />
+                        Analyze Website
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="idea" className="space-y-4">
+                      <IdeaInputForm
+                        onSubmit={handleIdeaSubmit}
+                        isLoading={isLoading}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="url" className="space-y-4">
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold mb-2">Analyze Existing Website</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Enter a URL to analyze an existing brand's positioning
+                        </p>
+                        <form onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!activeConversation) createNewConversation();
+                          setTimeout(() => {
+                            const form = document.querySelector('form[data-chat-form]') as HTMLFormElement;
+                            form?.requestSubmit();
+                          }, 100);
+                        }}>
+                          <Input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="https://example.com"
+                            disabled={isLoading}
+                            className="mb-4"
+                          />
+                          <Button type="submit" disabled={!input.trim() || isLoading} className="w-full">
+                            {isLoading ? "Analyzing..." : "Analyze Website"}
+                          </Button>
+                        </form>
+                        <p className="text-xs text-muted-foreground mt-4">
+                          Try these examples:
+                        </p>
+                        <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-2">
+                          {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
+                            <Button
+                              key={url}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (!activeConversation) createNewConversation();
+                                setInput(url);
+                                setTimeout(() => {
+                                  const form = document.querySelector('form[data-chat-form]') as HTMLFormElement;
+                                  form?.requestSubmit();
+                                }, 100);
+                              }}
+                              className="text-xs w-full sm:w-auto"
+                            >
+                              {url}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </Card>
+              </div>
+            )}
+
+            {/* Show Facts Review when factsToReview is set */}
+            {factsToReview && (
+              <div className="py-8 px-4">
+                <FactsReviewStep
+                  factsJson={factsToReview}
+                  onApprove={handleFactsApproval}
+                  onEdit={() => setFactsToReview(null)}
+                  isLoading={isLoading}
+                />
               </div>
             )}
 
@@ -2543,40 +2724,42 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
           </div>
         </ScrollArea>
 
-        {/* Input */}
-        <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pb-3 sm:pb-4">
-          <form
-            data-chat-form
-            onSubmit={handleSendMessage}
-            className="relative w-full rounded-3xl border bg-background p-2.5 sm:p-3 shadow-sm"
-          >
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                !websiteUrl
-                  ? "Paste any website URL (e.g., https://yoursite.com)..."
-                  : selectedIcp
-                    ? "Ask me to refine the page..."
-                    : "What would you like to do?"
-              }
-              disabled={isLoading}
-              className="border-0 pr-11 sm:pr-12 focus-visible:ring-0 bg-transparent text-sm sm:text-base"
-            />
-            <Button
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              size="icon"
-              className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 rounded-full shrink-0"
+        {/* Input - Hidden when reviewing facts */}
+        {!factsToReview && (
+          <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pb-3 sm:pb-4">
+            <form
+              data-chat-form
+              onSubmit={handleSendMessage}
+              className="relative w-full rounded-3xl border bg-background p-2.5 sm:p-3 shadow-sm"
             >
-              {isLoading ? (
-                <span className="h-3 w-3 rounded-sm bg-white" />
-              ) : (
-                <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              )}
-            </Button>
-          </form>
-        </div>
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={
+                  !websiteUrl
+                    ? "Paste any website URL (e.g., https://yoursite.com)..."
+                    : selectedIcp
+                      ? "Ask me to refine the page..."
+                      : "What would you like to do?"
+                }
+                disabled={isLoading}
+                className="border-0 pr-11 sm:pr-12 focus-visible:ring-0 bg-transparent text-sm sm:text-base"
+              />
+              <Button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                size="icon"
+                className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 rounded-full shrink-0"
+              >
+                {isLoading ? (
+                  <span className="h-3 w-3 rounded-sm bg-white" />
+                ) : (
+                  <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+            </form>
+          </div>
+        )}
       </div>
 
       {/* LinkedIn Profiles Drawer */}
