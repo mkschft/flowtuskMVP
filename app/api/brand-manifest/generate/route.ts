@@ -202,9 +202,11 @@ Generate a brand guide with:
 - ✅ At least 1 secondary color  
 - ✅ At least 1 accent color
 - ✅ At least 2 neutral colors (e.g., White #FFFFFF, Light Gray #F5F5F5, Dark Gray #333333)
-- ✅ All colors MUST have "name" and "hex" fields
+- ✅ All colors MUST have "name", "hex", AND "usage" fields
+- ✅ Usage field must describe when/where to use this color (e.g., "CTA buttons", "Backgrounds", "Text")
 - ❌ DO NOT return empty arrays for any color type
 - ❌ DO NOT skip neutral colors (they are required for UI)
+- ❌ DO NOT skip the usage field (it is required for design guidance)
 
 **Typography (REQUIRED):**
 - ✅ Must include both "heading" and "body" font configs

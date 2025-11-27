@@ -1,0 +1,199 @@
+{
+  "brand": {
+    "name": "NovoTel Limited",
+    "tones": [
+      "innovative",
+      "reliable"
+    ],
+    "primaryCTA": "Connect with us"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "Services",
+      "About",
+      "Contact"
+    ],
+    "keyPages": [
+      {
+        "path": "https://www.novotel-bd.com/index.php",
+        "title": "Home"
+      },
+      {
+        "path": "https://www.novotel-bd.com/services.php",
+        "title": "Services"
+      },
+      {
+        "path": "https://www.novotel-bd.com/about.php",
+        "title": "About"
+      },
+      {
+        "path": "https://www.novotel-bd.com/contact.php",
+        "title": "Contact"
+      }
+    ],
+    "footer": [
+      "Home",
+      "Services",
+      "About",
+      "Contact"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Bangladesh",
+    "industryFocus": "Telecommunications",
+    "signals": [
+      "Bangladesh Telecommunication Regulatory Commission",
+      "+880 phone numbers",
+      "Dhaka address"
+    ]
+  },
+  "audienceSignals": [
+    "International Gateway Operators",
+    "Telecommunication partners"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Reliable & Trustworthy Partner for Bangladesh Termination",
+      "evidence": [
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "High Quality Enhanced services with 100% CLI Confirmation",
+      "evidence": [
+        "fact-11"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Owned last mile physical Network Infrastructure",
+      "evidence": [
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Flexible POP Private & Public IP Interconnection",
+      "evidence": [
+        "fact-13"
+      ]
+    },
+    {
+      "id": "v5",
+      "text": "Class 4 NGN Switches for High QoS",
+      "evidence": [
+        "fact-14"
+      ]
+    },
+    {
+      "id": "v6",
+      "text": "Experienced NOC Team 24/7",
+      "evidence": [
+        "fact-15"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for high-quality international voice traffic termination",
+    "Demand for reliable telecommunication infrastructure"
+  ],
+  "proof": [
+    "Licensed International Gateway Operator",
+    "Bangladesh Telecommunication Regulatory Commission"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "NovoTel Limited is a licensed International Gateway Operator (IGW) in Bangladesh.",
+      "page": "Home",
+      "evidence": "NovoTel is a licensed International Gateway Operator (IGW) in Bangladesh"
+    },
+    {
+      "id": "fact-2",
+      "text": "NovoTel provides premium CLI Termination using VOIP & TDM Technology.",
+      "page": "Home",
+      "evidence": "providing premium CLI Termination using VOIP & TDM Technology"
+    },
+    {
+      "id": "fact-3",
+      "text": "NovoTel is connected via multiple STM-1 based TDM circuits with local operators in Bangladesh.",
+      "page": "Services",
+      "evidence": "NovoTel is connected via multiple STM-1 based TDM circuits with local operators in Bangladesh"
+    },
+    {
+      "id": "fact-4",
+      "text": "NovoTel has international connectivity through SEA-ME-WE-4 submarine cable and terrestrial cable.",
+      "page": "Services",
+      "evidence": "international connectivity multiple STM-1 links through SEA-ME-WE-4 submarine cable and terrestrial cable"
+    },
+    {
+      "id": "fact-5",
+      "text": "NovoTel provides interconnection using Private and Public IP Via Internet or direct physical interconnection.",
+      "page": "Our Network",
+      "evidence": "NovoTel provides interconnection using Private and Public IP Via Internet or direct physical interconnection"
+    },
+    {
+      "id": "fact-6",
+      "text": "NovoTel has Points of Presence (POPs) in EQUINIX IBX, Singapore and EPSILON GLOBAL HUBS, London, UK.",
+      "page": "Our Network",
+      "evidence": "POPs: EQUINIX IBX, Singapore, EPSILON GLOBAL HUBS, London, UK"
+    },
+    {
+      "id": "fact-7",
+      "text": "NovoTel's mission is to expand telecommunication infrastructures and establish long-term rewarding relationships.",
+      "page": "About Us",
+      "evidence": "mission to expand telecommunication infrastructures that ensure quality services to establish long-term rewarding relationship"
+    },
+    {
+      "id": "fact-8",
+      "text": "NovoTel is the licensed International Gateway operator of Bangladesh Telecommunication Regulatory Commission (BTRC).",
+      "page": "About Us",
+      "evidence": "licensed International Gateway operator of Bangladesh Telecommunication Regulatory Commission (BTRC)"
+    },
+    {
+      "id": "fact-9",
+      "text": "NovoTel's address is House No. Ga-30/G, Pragati Sarani, Shahjadpur, Gulshan, Dhaka – 1212, Bangladesh.",
+      "page": "Contact",
+      "evidence": "House No. Ga-30/G, Pragati Sarani, Shahjadpur, Gulshan, Dhaka – 1212, Bangladesh"
+    },
+    {
+      "id": "fact-10",
+      "text": "NovoTel is a reliable & trustworthy partner for Bangladesh Termination.",
+      "page": "Why Choose Us",
+      "evidence": "Reliable & Trustworthy Partner for Bangladesh Termination"
+    },
+    {
+      "id": "fact-11",
+      "text": "NovoTel ensures high quality enhanced services with 100% CLI Confirmation.",
+      "page": "Why Choose Us",
+      "evidence": "Ensure High Quality Enhanced services with 100% CLI Confirmation"
+    },
+    {
+      "id": "fact-12",
+      "text": "NovoTel owns last mile physical Network Infrastructure.",
+      "page": "Why Choose Us",
+      "evidence": "Owned last mile physical Network Infrastructure"
+    },
+    {
+      "id": "fact-13",
+      "text": "NovoTel offers flexible POP Private & Public IP Interconnection.",
+      "page": "Why Choose Us",
+      "evidence": "Flexible POP Private & Public IP Interconnection"
+    },
+    {
+      "id": "fact-14",
+      "text": "NovoTel uses Class 4 NGN Switches for High QoS.",
+      "page": "Why Choose Us",
+      "evidence": "Class 4 NGN Switches for High QoS"
+    },
+    {
+      "id": "fact-15",
+      "text": "NovoTel has an experienced NOC Team available 24/7.",
+      "page": "Why Choose Us",
+      "evidence": "Experienced NOC Team 24/7"
+    }
+  ]
+}

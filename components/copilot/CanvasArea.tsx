@@ -53,10 +53,9 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "value-prop"
-                ? "bg-background shadow-sm text-foreground"
+                ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
-            style={activeTab === "value-prop" ? { color: primaryColor } : undefined}
           >
             <Sparkles className="w-3 h-3" />
             Value Prop
@@ -68,10 +67,9 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "brand"
-                ? "bg-background shadow-sm text-foreground"
+                ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
-            style={activeTab === "brand" ? { color: primaryColor } : undefined}
           >
             <Palette className="w-3 h-3" />
             Brand Guide
@@ -83,10 +81,9 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "style"
-                ? "bg-background shadow-sm text-foreground"
+                ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
-            style={activeTab === "style" ? { color: primaryColor } : undefined}
           >
             <Layout className="w-3 h-3" />
             Style Guide
@@ -98,10 +95,9 @@ export function CanvasArea({
             className={cn(
               "gap-2 h-8",
               activeTab === "landing"
-                ? "bg-background shadow-sm text-foreground"
+                ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
-            style={activeTab === "landing" ? { color: primaryColor } : undefined}
           >
             <Globe className="w-3 h-3" />
             Landing

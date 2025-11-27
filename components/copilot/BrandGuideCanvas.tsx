@@ -38,10 +38,19 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
   const primaryColors = Array.isArray(brandGuide?.colors?.primary) ? brandGuide.colors.primary : [];
   const secondaryColors = Array.isArray(brandGuide?.colors?.secondary) ? brandGuide.colors.secondary : [];
   const accentColors = Array.isArray(brandGuide?.colors?.accent) ? brandGuide.colors.accent : [];
+  const neutralColors = Array.isArray(brandGuide?.colors?.neutral) ? brandGuide.colors.neutral : [];
   const typography = Array.isArray(brandGuide?.typography) ? brandGuide.typography : [];
   const logoVariations = Array.isArray(brandGuide?.logoVariations) ? brandGuide.logoVariations : [];
   const toneOfVoice = Array.isArray(brandGuide?.toneOfVoice) ? brandGuide.toneOfVoice : [];
   const personalityTraits = Array.isArray(brandGuide?.personalityTraits) ? brandGuide.personalityTraits : [];
+
+  // 🔍 DEBUG: Check if usage field exists in color data
+  console.log('🔍 [BrandGuideCanvas] Color data check:');
+  console.log('  - Primary colors:', primaryColors.length);
+  if (primaryColors.length > 0) {
+    console.log('  - First primary color:', primaryColors[0]);
+    console.log('  - Has usage field?', 'usage' in primaryColors[0], primaryColors[0].usage);
+  }
 
   // 🔍 DEBUG: Log logo variations data
   if (logoVariations.length > 0) {
@@ -67,7 +76,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
       <Card className="p-6 bg-background border">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5" style={{ color: primaryColor }} />
+            <Palette className="w-5 h-5 text-primary" />
             <h3 className="font-bold text-lg">Color Palette</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -100,20 +109,20 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="flex flex-wrap gap-12">
           {/* Primary Colors */}
           <div>
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Primary
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="flex flex-wrap gap-3">
               {primaryColors.length > 0 ? primaryColors.map((color, idx) => (
-                <div key={idx} className="group">
+                <div key={idx} className="group relative">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
+                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-${idx}`)}
-                    title="Click to copy hex code"
+                    title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     {/* Hover tooltip */}
@@ -135,15 +144,19 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                     </div>
                   </div>
                   <p
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
-                    style={{ color: primaryColor }}
+                    className="font-mono text-[10px] font-semibold cursor-pointer transition-colors truncate w-16 text-foreground"
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     onClick={() => handleCopy(color.hex, `color-${idx}`)}
                   >
                     {color.hex}
                   </p>
-                  <p className="text-xs text-muted-foreground">{color.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate w-16" title={color.name}>{color.name}</p>
+                  {color.usage && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-popover text-popover-foreground text-[10px] rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border text-center bg-white dark:bg-slate-950">
+                      {color.usage}
+                    </div>
+                  )}
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No primary colors defined</p>}
             </div>
@@ -154,14 +167,14 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Secondary
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="flex flex-wrap gap-3">
               {secondaryColors.length > 0 ? secondaryColors.map((color, idx) => (
-                <div key={idx} className="group">
+                <div key={idx} className="group relative">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
+                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}
-                    title="Click to copy hex code"
+                    title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -181,15 +194,19 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                     </div>
                   </div>
                   <p
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
-                    style={{ color: primaryColor }}
+                    className="font-mono text-[10px] font-semibold cursor-pointer transition-colors truncate w-16 text-foreground"
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}
                   >
                     {color.hex}
                   </p>
-                  <p className="text-xs text-muted-foreground">{color.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate w-16" title={color.name}>{color.name}</p>
+                  {color.usage && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-popover text-popover-foreground text-[10px] rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border text-center bg-white dark:bg-slate-950">
+                      {color.usage}
+                    </div>
+                  )}
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No secondary colors defined</p>}
             </div>
@@ -200,14 +217,14 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Accent
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="flex flex-wrap gap-3">
               {accentColors.length > 0 ? accentColors.map((color, idx) => (
-                <div key={idx} className="group">
+                <div key={idx} className="group relative">
                   <div
-                    className="h-24 rounded-lg shadow-md mb-2 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-lg"
+                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}
-                    title="Click to copy hex code"
+                    title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -227,17 +244,71 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                     </div>
                   </div>
                   <p
-                    className="font-mono text-xs font-semibold cursor-pointer transition-colors"
-                    style={{ color: primaryColor }}
+                    className="font-mono text-[10px] font-semibold cursor-pointer transition-colors truncate w-16 text-foreground"
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}
                   >
                     {color.hex}
                   </p>
-                  <p className="text-xs text-muted-foreground">{color.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate w-16" title={color.name}>{color.name}</p>
+                  {color.usage && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-popover text-popover-foreground text-[10px] rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border text-center bg-white dark:bg-slate-950">
+                      {color.usage}
+                    </div>
+                  )}
                 </div>
               )) : <p className="text-sm text-muted-foreground italic">No accent colors defined</p>}
+            </div>
+          </div>
+
+          {/* Neutral Colors */}
+          <div>
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Neutral
+            </h4>
+            <div className="flex flex-wrap gap-3">
+              {neutralColors.length > 0 ? neutralColors.map((color, idx) => (
+                <div key={idx} className="group relative">
+                  <div
+                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                    style={{ backgroundColor: color.hex }}
+                    onClick={() => handleCopy(color.hex, `color-neu-${idx}`)}
+                    title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
+                  >
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold text-white drop-shadow px-2 py-1 rounded bg-black/40">
+                        Click to copy
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {copiedId === `color-neu-${idx}` ? (
+                        <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded text-xs">
+                          <Check className="w-3 h-3" />
+                          Copied!
+                        </div>
+                      ) : (
+                        <Copy className="w-4 h-4 text-white drop-shadow" />
+                      )}
+                    </div>
+                  </div>
+                  <p
+                    className="font-mono text-[10px] font-semibold cursor-pointer transition-colors truncate w-16 text-foreground"
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    onClick={() => handleCopy(color.hex, `color-neu-${idx}`)}
+                  >
+                    {color.hex}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate w-16" title={color.name}>{color.name}</p>
+                  {color.usage && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-popover text-popover-foreground text-[10px] rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 border text-center bg-white dark:bg-slate-950">
+                      {color.usage}
+                    </div>
+                  )}
+                </div>
+              )) : <p className="text-sm text-muted-foreground italic">No neutral colors defined</p>}
             </div>
           </div>
         </div>
@@ -246,7 +317,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
       {/* Typography */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Type className="w-5 h-5" style={{ color: primaryColor }} />
+          <Type className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Typography</h3>
         </div>
 
@@ -324,11 +395,11 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
       {/* Logo Variations */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <ImageIcon className="w-5 h-5" style={{ color: primaryColor }} />
+          <ImageIcon className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
             const logoAny = logo as any;
             const hasLogo = !!logoAny.imageUrl;
@@ -340,7 +411,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
               >
                 {hasLogo ? (
                   <>
-                    <div className="aspect-square flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
+                    <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
                       <img
                         src={logoAny.imageUrl}
                         alt={`${logo.name} logo for ${project.name}`}
@@ -370,7 +441,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                   </>
                 ) : (
                   <>
-                    <div className="aspect-square flex items-center justify-center mb-3 rounded-lg overflow-hidden relative">
+                    <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative">
                       <div className="text-4xl font-bold text-muted-foreground opacity-20 flex items-center justify-center w-full h-full">
                         {project.name.charAt(0)}
                       </div>
@@ -388,7 +459,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
       {/* Tone of Voice */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5" style={{ color: primaryColor }} />
+          <MessageSquare className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Tone of Voice</h3>
         </div>
 
@@ -408,7 +479,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
       {/* Brand Personality */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <MessageSquare className="w-5 h-5" style={{ color: primaryColor }} />
+          <MessageSquare className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Brand Personality</h3>
         </div>
 

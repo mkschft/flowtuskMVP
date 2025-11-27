@@ -141,24 +141,43 @@ export function generateTextBasedSVGLogo(
   const textColor = isMonochrome ? primaryColor : primaryColor;
   const hasAccent = accentColor && accentColor !== primaryColor && !isMonochrome;
 
-  // Calculate dimensions based on text length
+  // Split brand name into words and determine if multi-line is needed
+  const words = cleanedBrandName.split(' ');
   const textLength = cleanedBrandName.length;
-
-  // More generous width calculation with padding
-  // Estimate: ~8-10px per character for most fonts, add 40% padding for safety
-  const estimatedWidth = Math.ceil(textLength * 10 * 1.4);
-  const baseWidth = Math.max(240, estimatedWidth);
-  const padding = 20; // Padding on each side
-  const viewBoxWidth = baseWidth + (padding * 2);
-  const height = 60;
-
-  // Adjust font size for very long names to ensure fit
-  let fontSize = 32;
-  if (textLength > 20) {
-    fontSize = 28;
-  } else if (textLength > 15) {
-    fontSize = 30;
+  const shouldSplitLines = textLength > 15 || words.length > 2;
+  
+  // Calculate dimensions based on text layout
+  let lines: string[] = [];
+  let maxLineLength = 0;
+  
+  if (shouldSplitLines && words.length > 1) {
+    // Split into two lines - first word on first line, rest on second
+    lines = [words[0], words.slice(1).join(' ')];
+    maxLineLength = Math.max(lines[0].length, lines[1].length);
+  } else {
+    // Single line
+    lines = [cleanedBrandName];
+    maxLineLength = textLength;
   }
+  
+  // Calculate width based on longest line
+  const estimatedWidth = Math.ceil(maxLineLength * 10 * 1.4);
+  const baseWidth = Math.max(200, estimatedWidth);
+  const padding = 20;
+  const viewBoxWidth = baseWidth + (padding * 2);
+  
+  // Adjust font size based on line length
+  let fontSize = 28;
+  if (maxLineLength > 15) {
+    fontSize = 24;
+  } else if (maxLineLength > 10) {
+    fontSize = 26;
+  }
+  
+  // Height depends on number of lines
+  const lineHeight = fontSize * 1.3;
+  const totalTextHeight = lineHeight * lines.length;
+  const height = totalTextHeight + 20; // Add some padding
 
   // Adjust letter spacing based on font config and text length
   let letterSpacing = fontConfig.letterSpacing;
@@ -187,14 +206,20 @@ export function generateTextBasedSVGLogo(
 
   // Center position with padding
   const textX = padding + (baseWidth / 2);
-  const textY = height / 2 + fontSize / 3;
+  const startY = height / 2 - (totalTextHeight / 2) + (fontSize * 0.8);
+
+  // Generate text content - either single line or multi-line with tspan
+  const textContent = lines.length === 1 
+    ? cleanedBrandName
+    : lines.map((line, i) => `
+        <tspan x="${textX}" dy="${i === 0 ? 0 : lineHeight}">${line}</tspan>`).join('');
 
   return `
     <svg viewBox="0 0 ${viewBoxWidth} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       ${gradientDef}
       <text 
         x="${textX}" 
-        y="${textY}" 
+        y="${startY}" 
         font-family="${fontConfig.fontFamily}" 
         font-size="${fontSize}px" 
         font-weight="${fontConfig.fontWeight}"
@@ -202,9 +227,8 @@ export function generateTextBasedSVGLogo(
         letter-spacing="${letterSpacing}"
         fill="${fillColor}"
         text-anchor="middle"
-        dominant-baseline="middle"
         style="text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;"
-      >${cleanedBrandName}</text>
+      >${textContent}</text>
     </svg>
   `.trim();
 }

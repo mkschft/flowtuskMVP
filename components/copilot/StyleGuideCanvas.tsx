@@ -40,7 +40,7 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
       {/* Call-to-action Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Square className="w-5 h-5" style={{ color: primaryColor }} />
+          <Square className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Call-to-action</h3>
         </div>
 
@@ -86,7 +86,7 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
       {/* Inputs Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <FormInput className="w-5 h-5" style={{ color: primaryColor }} />
+          <FormInput className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Inputs</h3>
         </div>
 
@@ -130,7 +130,7 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
       {/* Spacing System */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Ruler className="w-5 h-5" style={{ color: primaryColor }} />
+          <Ruler className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Spacing Scale</h3>
         </div>
 
@@ -142,11 +142,10 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
               </div>
               <div className="flex-1 flex items-center gap-2">
                 <div
-                  className="rounded"
+                  className="rounded bg-muted"
                   style={{
                     width: space.value,
-                    height: "24px",
-                    backgroundColor: primaryColor,
+                    height: "24px"
                   }}
                 />
                 <span className="font-mono text-xs text-muted-foreground">
@@ -161,7 +160,7 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
       {/* Border Radius */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
-          <Circle className="w-5 h-5" style={{ color: primaryColor }} />
+          <Circle className="w-5 h-5 text-primary" />
           <h3 className="font-bold text-lg">Border Radius</h3>
         </div>
 
@@ -170,7 +169,7 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
             <div key={idx} className="text-center space-y-2">
               <div
                 className="w-full aspect-square mx-auto"
-                style={{ 
+                style={{
                   borderRadius: radius.value,
                   ...gradientBgStyle
                 }}

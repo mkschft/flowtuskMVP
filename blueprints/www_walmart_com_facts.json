@@ -1,0 +1,163 @@
+{
+  "brand": {
+    "name": "Walmart",
+    "tones": [
+      "Informative",
+      "Friendly"
+    ],
+    "primaryCTA": "Shop now"
+  },
+  "structure": {
+    "nav": [
+      "Reorder My Items",
+      "Lists",
+      "Registries",
+      "Sign In Account",
+      "Purchase History",
+      "Walmart+",
+      "Subscriptions",
+      "Departments",
+      "Services"
+    ],
+    "keyPages": [
+      {
+        "path": "/",
+        "title": "Home"
+      },
+      {
+        "path": "/my-items",
+        "title": "Reorder My Items"
+      },
+      {
+        "path": "/lists",
+        "title": "Lists"
+      },
+      {
+        "path": "/my-registries",
+        "title": "Registries"
+      },
+      {
+        "path": "/account/login",
+        "title": "Sign In Account"
+      },
+      {
+        "path": "/orders",
+        "title": "Purchase History"
+      },
+      {
+        "path": "/plus",
+        "title": "Walmart+"
+      },
+      {
+        "path": "/cp/subscriptions/4191733",
+        "title": "Subscriptions"
+      },
+      {
+        "path": "/shop/deals/black-friday",
+        "title": "Black Friday Deals"
+      }
+    ],
+    "footer": [
+      "Language | English"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "United States",
+    "industryFocus": "Retail",
+    "signals": [
+      "Language | English",
+      "Currency symbol: $",
+      "Thanksgiving Day mention"
+    ]
+  },
+  "audienceSignals": [
+    "General consumers looking for deals",
+    "Shoppers interested in pickup or delivery options"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Save Money. Live better.",
+      "evidence": [
+        "fact-1"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "50% off an annual Walmart+ membership",
+      "evidence": [
+        "fact-10"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for affordable shopping options",
+    "Convenience in shopping"
+  ],
+  "proof": [
+    "Black Friday Deals",
+    "Walmart+ membership discounts"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Walmart's slogan is 'Save Money. Live better.'",
+      "page": "Home",
+      "evidence": "Walmart | Save Money. Live better."
+    },
+    {
+      "id": "fact-2",
+      "text": "Walmart offers a pickup or delivery option.",
+      "page": "Home",
+      "evidence": "Pickup or delivery?"
+    },
+    {
+      "id": "fact-3",
+      "text": "Walmart's website includes a section for Black Friday Deals.",
+      "page": "Home",
+      "evidence": "Black Friday Deals and more."
+    },
+    {
+      "id": "fact-4",
+      "text": "Walmart's website has a 'Reorder My Items' feature.",
+      "page": "Home",
+      "evidence": "Reorder My Items"
+    },
+    {
+      "id": "fact-5",
+      "text": "Walmart offers a 'Walmart+' subscription service.",
+      "page": "Home",
+      "evidence": "Walmart+"
+    },
+    {
+      "id": "fact-6",
+      "text": "Walmart's website allows users to sign in or create an account.",
+      "page": "Home",
+      "evidence": "Sign In Account"
+    },
+    {
+      "id": "fact-7",
+      "text": "Walmart's website has a 'Purchase History' feature.",
+      "page": "Home",
+      "evidence": "Purchase History"
+    },
+    {
+      "id": "fact-8",
+      "text": "Walmart's website is primarily in English.",
+      "page": "Home",
+      "evidence": "Language | English"
+    },
+    {
+      "id": "fact-9",
+      "text": "Walmart's website lists prices in USD.",
+      "page": "Home",
+      "evidence": "$0.00"
+    },
+    {
+      "id": "fact-10",
+      "text": "Walmart offers 50% off an annual Walmart+ membership.",
+      "page": "Home",
+      "evidence": "Get 50% off an annual Walmart+ membership!"
+    }
+  ]
+}

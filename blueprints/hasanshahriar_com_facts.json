@@ -5,127 +5,210 @@
       "professional",
       "innovative"
     ],
-    "primaryCTA": "Book a call to learn more"
+    "primaryCTA": "Contact via email or phone"
   },
   "structure": {
     "nav": [
-      "Webflow x Growth",
-      "Hasan Shahriar",
-      "Solutions",
-      "Technology",
-      "Industries",
-      "Get in touch"
+      "Home",
+      "About",
+      "Work Experience",
+      "Education",
+      "Skills",
+      "Side projects"
     ],
     "keyPages": [
       {
         "path": "/",
-        "title": "Hasan Shahriar | Webflow x Growth"
+        "title": "Home"
       },
       {
         "path": "/about",
-        "title": "About Hasan"
+        "title": "About"
+      },
+      {
+        "path": "/work-experience",
+        "title": "Work Experience"
+      },
+      {
+        "path": "/education",
+        "title": "Education"
+      },
+      {
+        "path": "/skills",
+        "title": "Skills"
+      },
+      {
+        "path": "/side-projects",
+        "title": "Side projects"
       }
     ],
     "footer": [
-      "LinkedIn",
-      "Twitter",
-      "Email"
+      "Contact",
+      "GitHub",
+      "LinkedIn"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Nordics and UK",
+    "industryFocus": "B2B, SaaS, AI, Automation",
+    "signals": [
+      "Helsinki, Finland",
+      "Nordics and UK",
+      "€300k ARR",
+      "1M NOK pilot"
     ]
   },
   "audienceSignals": [
     "B2B companies",
-    "startups",
-    "agencies",
-    "enterprises"
+    "Enterprise clients",
+    "Startups",
+    "Marketers"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Scalable digital solutions for B2B growth",
+      "text": "Full-stack founder with 8+ years experience",
       "evidence": [
-        "fact-3",
-        "fact-7"
+        "fact-1",
+        "fact-3"
       ]
     },
     {
       "id": "v2",
-      "text": "Expertise in full stack web and AI applications",
+      "text": "Specializes in AI, automation, and SaaS",
       "evidence": [
-        "fact-4",
+        "fact-1",
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Scaled digital consultancy to 30+ clients in 7+ countries",
+      "evidence": [
         "fact-5"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Delivered projects for B2B startups and marketers",
+      "evidence": [
+        "fact-6"
+      ]
+    },
+    {
+      "id": "v5",
+      "text": "Built subscription/revenue models for growth-stage clients",
+      "evidence": [
+        "fact-7"
       ]
     }
   ],
   "pains": [
-    "Need for digital transformation",
-    "Engaging customers effectively",
-    "Accelerating growth"
+    "Technical problems in digital products",
+    "Need for rapid product launches",
+    "Scaling business systems"
   ],
   "proof": [
-    "7+ years of experience",
-    "100+ websites built",
-    "10,000+ impactful leads generated"
+    "Trusted by enterprise clients like KONE",
+    "Achieved 90+ Google PageSpeed scores",
+    "Secured 1M NOK pilot/funding"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Hasan Shahriar is a tech lead and B2B growth consultant based in Finland.",
-      "page": "About Hasan",
-      "evidence": "Hello, this is Hasan 👋 I am a tech lead and B2B growth consultant based in Finland."
+      "text": "Hasan Shahriar is a full-stack founder and product builder.",
+      "page": "Home",
+      "evidence": "Full-stack founder and product builder—specializing in AI, automation, and SaaS"
     },
     {
       "id": "fact-2",
-      "text": "Hasan Shahriar specializes in helping B2B companies grow with scalable solutions.",
-      "page": "About Hasan",
-      "evidence": "We specialize in helping B2B companies to grow with scalable full stack web an AI applications."
+      "text": "Hasan Shahriar is based in Helsinki, Finland.",
+      "page": "Home",
+      "evidence": "Helsinki, Finland"
     },
     {
       "id": "fact-3",
-      "text": "The company architects scalable digital solutions for B2B companies.",
-      "page": "Home",
-      "evidence": "We architect scalable digital solutions that transform how B2B companies engage customers and accelerate growth."
+      "text": "Hasan Shahriar has 8+ years of experience in helping B2B companies grow.",
+      "page": "About",
+      "evidence": "I'm a full-stack founder and product builder with 8+ years helping B2B companies grow through digital products."
     },
     {
       "id": "fact-4",
-      "text": "Hasan Shahriar has over 7 years of experience.",
-      "page": "About Hasan",
-      "evidence": "With 7+ years of experience, we’ve built websites for 100+ startups, agencies and enterprises in 8 countries."
+      "text": "Hasan Shahriar focuses on go-to-market strategy, growth marketing, and AI automation.",
+      "page": "About",
+      "evidence": "I focus on go-to-market strategy, growth marketing, and AI automation"
     },
     {
       "id": "fact-5",
-      "text": "The company has built websites for over 100 startups, agencies, and enterprises.",
-      "page": "About Hasan",
-      "evidence": "We’ve built websites for 100+ startups, agencies and enterprises in 8 countries."
+      "text": "Makeshift Digital was scaled to 30+ clients in 7+ countries.",
+      "page": "Work Experience",
+      "evidence": "Solo-founded digital consultancy—scaled to 30+ clients in 7+ countries"
     },
     {
       "id": "fact-6",
-      "text": "Hasan Shahriar has helped generate over 10,000 impactful leads.",
-      "page": "About Hasan",
-      "evidence": "Helping generate over 10,000 impactful leads."
+      "text": "Delivered Webflow, GenAI, and automation projects for B2B startups and marketers.",
+      "page": "Work Experience",
+      "evidence": "Delivered Webflow, GenAI, and automation projects for B2B startups and marketers"
     },
     {
       "id": "fact-7",
-      "text": "The company combines strategic innovation with proven execution.",
-      "page": "Home",
-      "evidence": "Our technology-first approach combines strategic innovation with proven execution to deliver outcomes that matter."
+      "text": "Built subscription/revenue models and drove recurring MRR for growth-stage clients.",
+      "page": "Work Experience",
+      "evidence": "Built subscription/revenue models and drove recurring MRR for growth-stage clients"
     },
     {
       "id": "fact-8",
-      "text": "Featured work includes projects with KONE, The Guestbook, Arkken, Storylake, and Krusti Foodkits.",
-      "page": "Home",
-      "evidence": "Featured work How KONE innovation integrated Webflow to their stack..."
+      "text": "Cofounded Krusti Foodkits and served thousands of customers.",
+      "page": "Work Experience",
+      "evidence": "Launched D2C food-tech startup, building all tech and product alongside founding team."
     },
     {
       "id": "fact-9",
-      "text": "Hasan Shahriar is open to collaboration and meetings in Helsinki.",
-      "page": "About Hasan",
-      "evidence": "Book a call to learn more, or if you’re in Helsinki, let’s meet up for coffee ☕"
+      "text": "Achieved 90+ Google PageSpeed scores and 15% boost in conversion for Krusti Foodkits.",
+      "page": "Work Experience",
+      "evidence": "Achieved 90+ Google PageSpeed scores and 15% boost in conversion"
     },
     {
       "id": "fact-10",
-      "text": "Contact options include email, Twitter, LinkedIn, and Discord.",
-      "page": "Home",
-      "evidence": "Send me email or DM me in Twitter , LinkedIn or Discord"
+      "text": "Secured 1M NOK pilot/funding at TietoEVRY.",
+      "page": "Work Experience",
+      "evidence": "Secured 1M NOK pilot/funding, delivered fintech casework"
+    },
+    {
+      "id": "fact-11",
+      "text": "Advised C-suite on digital strategy at Nordea.",
+      "page": "Work Experience",
+      "evidence": "Advised C-suite on digital strategy and product launches via Google Design Sprint."
+    },
+    {
+      "id": "fact-12",
+      "text": "Hasan Shahriar holds a Master's in Information Processing Science from the University of Oulu.",
+      "page": "Education",
+      "evidence": "Master's in Information Processing Science"
+    },
+    {
+      "id": "fact-13",
+      "text": "Hasan Shahriar holds a Bachelor's in Computer Science from American International University, Bangladesh.",
+      "page": "Education",
+      "evidence": "Bachelor in Computer Science"
+    },
+    {
+      "id": "fact-14",
+      "text": "Hasan Shahriar has skills in React, Next.js, TypeScript, AI/GenAI, and more.",
+      "page": "Skills",
+      "evidence": "React, Next.js, TypeScript, AI/GenAI/Prompt Engineering"
+    },
+    {
+      "id": "fact-15",
+      "text": "Developed a B2B food rescue platform as a side project.",
+      "page": "Side projects",
+      "evidence": "B2B food rescue platform —Automated CMS creation, reducing setup time by 70%"
+    },
+    {
+      "id": "fact-16",
+      "text": "Created an AI agent for automated brand generation as a side project.",
+      "page": "Side projects",
+      "evidence": "AI agent for automated brand generation—Multi-agent automation for business, using LLMs and RAG"
     }
   ]
 }

@@ -14,7 +14,7 @@ import { z } from 'zod';
 export const ColorSchemeSchema = z.object({
     name: z.string().min(1, "Color name is required"),
     hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Color must be valid hex format (#RRGGBB)"),
-    usage: z.string().optional()
+    usage: z.string().min(1, "Color usage description is required")
 });
 
 export const ColorsSchema = z.object({

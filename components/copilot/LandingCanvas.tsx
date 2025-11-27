@@ -12,8 +12,7 @@ import {
   Settings,
   Star,
   ArrowRight,
-  Check,
-  Menu
+  Check
 } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
@@ -93,11 +92,10 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
                   ))}
                 </div>
               )}
+              {/* Brand CTA - using primary action from manifest */}
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm">Log In</Button>
-                <Button size="sm">Get Started</Button>
-                <Button variant="ghost" size="sm" className="md:hidden">
-                  <Menu className="w-4 h-4" />
+                <Button size="sm" style={{ backgroundColor: primaryColor, color: 'white' }}>
+                  {hero.cta.primary || "Get Started"}
                 </Button>
               </div>
             </div>
@@ -105,9 +103,7 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
 
           {/* Hero Section */}
           <section className="container mx-auto px-6 py-20 text-center">
-            <Badge className="mb-6" variant="secondary">
-              ✨ New: AI-powered features
-            </Badge>
+            {/* Removed hardcoded badge - not brand-specific */}
             <h1
               className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6"
               style={textGradientStyle}
@@ -305,11 +301,7 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
               </div>
               <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
                 <p>© 2024 {project.name}. All rights reserved.</p>
-                <div className="flex gap-4">
-                  <a href="#" className="hover:text-foreground">Privacy</a>
-                  <a href="#" className="hover:text-foreground">Terms</a>
-                  <a href="#" className="hover:text-foreground">Security</a>
-                </div>
+                {/* Removed hardcoded legal links - not brand-specific */}
               </div>
             </div>
           </footer>
