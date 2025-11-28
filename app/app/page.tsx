@@ -2061,6 +2061,50 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     return <LoadingFlowsSkeleton />;
   }
 
+  // Helper function to validate manifest has persona data before navigation
+  async function waitForManifestWithPersona(
+    flowId: string,
+    expectedPersonaName: string,
+    maxRetries: number = 10
+  ): Promise<boolean> {
+    console.log('🔍 [Validation] Waiting for manifest with persona:', expectedPersonaName);
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const res = await fetch(`/api/brand-manifest?flowId=${flowId}`);
+        if (!res.ok) {
+          console.warn(`⚠️ [Validation] Attempt ${i + 1}: Manifest fetch failed`);
+          if (i < maxRetries - 1) {
+            await new Promise(r => setTimeout(r, 200 * (i + 1)));
+          }
+          continue;
+        }
+
+        const { manifest } = await res.json();
+        const personaName = manifest?.strategy?.persona?.name;
+
+        if (personaName && personaName.trim().length > 0) {
+          console.log(`✅ [Validation] Persona confirmed after ${i + 1} attempts:`, personaName);
+          return true;
+        }
+
+        console.warn(`⚠️ [Validation] Attempt ${i + 1}: Persona not yet in manifest`);
+
+        // Wait before retry (exponential backoff)
+        if (i < maxRetries - 1) {
+          await new Promise(r => setTimeout(r, 200 * (i + 1)));
+        }
+      } catch (error) {
+        console.error(`❌ [Validation] Attempt ${i + 1} error:`, error);
+        if (i < maxRetries - 1) {
+          await new Promise(r => setTimeout(r, 200 * (i + 1)));
+        }
+      }
+    }
+
+    console.error('❌ [Validation] Failed to confirm persona data after all retries');
+    return false;
+  }
 
   const handleSelectIcp = async (icp: ICP) => {
     // Check if action is allowed
@@ -2091,14 +2135,59 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
       updateUserJourney({ icpSelected: true });
 
-      // Navigate to copilot if manifest already exists
-      const manifestRes = await fetch(`/api/brand-manifest?flowId=${activeConversationId}`);
-      if (manifestRes.ok) {
-        const { manifest } = await manifestRes.json();
-        if (manifest?.id) {
-          router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
-        }
+      // CRITICAL FIX: Save persona data to manifest even when value prop already exists
+      console.log('💾 [handleSelectIcp] Saving persona to brand manifest (early path)...');
+      const updateRes = await fetch('/api/brand-manifest', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          flowId: activeConversationId,
+          updates: {
+            'strategy.persona': {
+              name: icp.personaName,
+              role: icp.personaRole,
+              company: icp.personaCompany,
+              industry: icp.title,
+              location: icp.location,
+              country: icp.country,
+              painPoints: icp.painPoints || [],
+              goals: icp.goals || []
+            },
+            'brandName': icp.personaCompany || 'Untitled Brand',
+            'metadata.sourceIcpId': icp.id,
+            'metadata.sourceFlowId': activeConversationId
+          }
+        })
+      });
+
+      if (!updateRes.ok) {
+        console.error('❌ Failed to save persona to manifest:', await updateRes.text());
+        // Still try to navigate, but log the error
+      } else {
+        const { manifest: updatedManifest } = await updateRes.json();
+        console.log('✅ [handleSelectIcp] Persona saved (early path)');
+        console.log('📝 [handleSelectIcp] Persona name:', updatedManifest?.strategy?.persona?.name || '(empty)');
       }
+
+      // Validate persona data before navigating
+      console.log('🔍 [handleSelectIcp] Validating persona data...');
+      const hasPersonaData = await waitForManifestWithPersona(
+        activeConversationId,
+        icp.personaName
+      );
+
+      if (!hasPersonaData) {
+        console.error('❌ [handleSelectIcp] Persona validation failed in early path');
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: "Error: Could not save persona data. Please try selecting the persona again."
+        });
+        return;
+      }
+
+      console.log('✅ [handleSelectIcp] Persona validated, navigating to copilot');
+      router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
       return;
     }
 
@@ -2222,8 +2311,21 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
 
       if (!updateRes.ok) {
         console.error('❌ Failed to update brand manifest with ICP selection:', await updateRes.text());
-      } else {
-        console.log('✅ [handleSelectIcp] Brand manifest updated successfully');
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: "Failed to save persona data. Please try again."
+        });
+        return;
+      }
+
+      const { manifest: updatedManifest } = await updateRes.json();
+      console.log('✅ [handleSelectIcp] Brand manifest updated successfully');
+      console.log('📝 [handleSelectIcp] Persona in response:', updatedManifest?.strategy?.persona?.name || '(empty)');
+
+      // Validate persona is in response
+      if (!updatedManifest?.strategy?.persona?.name) {
+        console.warn('⚠️ [handleSelectIcp] Persona not in PATCH response - will validate with retry');
       }
 
       // Show persona showcase directly
@@ -2253,17 +2355,30 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         completedSteps: [...(activeConversation?.generationState.completedSteps || []), 'value-prop']
       });
 
-      // Navigate to copilot after successful generation
-      const manifestRes = await fetch(`/api/brand-manifest?flowId=${activeConversationId}`);
-      if (manifestRes.ok) {
-        const { manifest } = await manifestRes.json();
-        if (manifest?.id) {
-          // Brief delay to allow user to see the showcase
-          setTimeout(() => {
-            router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
-          }, 1500);
-        }
+      // Validate manifest has persona data before navigating
+      console.log('🔍 [handleSelectIcp] Validating manifest persistence before navigation...');
+
+      const hasPersonaData = await waitForManifestWithPersona(
+        activeConversationId,
+        icp.personaName
+      );
+
+      if (!hasPersonaData) {
+        console.error('❌ [handleSelectIcp] Failed to persist persona to manifest after retries');
+        addMessage({
+          id: nanoid(),
+          role: "assistant",
+          content: "Error: Could not save persona data. Please try selecting the persona again."
+        });
+        return;
       }
+
+      console.log('✅ [handleSelectIcp] Manifest validated, proceeding to copilot');
+
+      // Brief delay for UX (show persona showcase), then navigate
+      setTimeout(() => {
+        router.push(`/copilot?icpId=${icp.id}&flowId=${activeConversationId}`);
+      }, 1500);
 
     } catch (error) {
       console.error("Error:", error);

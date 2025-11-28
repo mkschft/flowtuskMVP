@@ -44,6 +44,18 @@ export function useWorkspaceData(icpId: string, flowId: string) {
                     hasDesignAssets: !!assets
                 });
 
+                // Log persona details for validation
+                console.log('📊 [Design Studio] Persona data loaded:', {
+                    personaName: icp?.persona_name || '(empty)',
+                    personaRole: icp?.persona_role || '(empty)',
+                    personaCompany: icp?.persona_company || '(empty)',
+                    valuePropHeadline: valueProp?.headline ? '✅ present' : '❌ empty'
+                });
+
+                if (!icp?.persona_name) {
+                    console.error('⚠️ [Design Studio] Persona name is empty - this should not happen after validation');
+                }
+
                 if (!icp) throw new Error("Persona not found");
 
                 setWorkspaceData({ persona: icp, valueProp: valueProp || null, designAssets: assets || null });

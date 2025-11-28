@@ -202,8 +202,21 @@ export async function PATCH(req: NextRequest) {
         if (!existing) {
             // Create a new manifest with the updates
             console.log('📦 [Manifest PATCH] No existing manifest, creating new one');
-            const icpId = updates['strategy.persona']?.id || '';
-            const result = await createBrandManifest(flowId, icpId, updates as any);
+            console.log('📝 [Manifest PATCH] Persona name in request:', updates['strategy.persona']?.name || '(empty)');
+
+            // CRITICAL FIX: Apply dot-notation updates to empty manifest first
+            const emptyManifest = {
+                strategy: {
+                    persona: { name: '', role: '', company: '', industry: '', location: '', country: '', painPoints: [], goals: [] },
+                    valueProp: { headline: '', subheadline: '', problem: '', solution: '', outcome: '', benefits: [], targetAudience: '' }
+                }
+            };
+            const manifestWithUpdates = applyDotNotationUpdates(emptyManifest, updates);
+
+            const icpId = updates['metadata.sourceIcpId'] || '';
+            const result = await createBrandManifest(flowId, icpId, manifestWithUpdates as any);
+            console.log('✅ [Manifest PATCH] New manifest created');
+            console.log('📝 [Manifest PATCH] Persona in result:', result.strategy?.persona?.name || '(empty)');
             return NextResponse.json({
                 success: true,
                 brandKey: result.brandKey,
@@ -212,10 +225,13 @@ export async function PATCH(req: NextRequest) {
         }
 
         // Apply dot-notation updates to existing manifest
+        console.log('🔄 [Manifest PATCH] Updating existing manifest');
+        console.log('📝 [Manifest PATCH] Persona name in request:', updates['strategy.persona']?.name || '(not in update)');
         const updatedManifest = applyDotNotationUpdates(existing, updates);
         const result = await updateBrandManifest(flowId, updatedManifest, 'incremental_update');
 
         console.log('✅ [Manifest PATCH] Updated successfully');
+        console.log('📝 [Manifest PATCH] Persona in result:', result.strategy?.persona?.name || '(empty)');
 
         return NextResponse.json({
             success: true,
