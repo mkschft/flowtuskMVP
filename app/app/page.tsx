@@ -2117,9 +2117,41 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                 <h2 className="text-xl sm:text-2xl font-bold mb-2">
                   Your Positioning Co-Pilot
                 </h2>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
+                <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
                   Enter any website URL to generate customer personas and value propositions instantly
                 </p>
+
+                {/* Input */}
+                <div className="mx-auto w-full max-w-2xl px-4 mb-6">
+                  <form
+                    data-chat-form
+                    onSubmit={handleSendMessage}
+                    className="relative w-full rounded-3xl border bg-background p-3 sm:p-4 shadow-lg focus-within:ring-2 focus-within:ring-[#8b5cf6] focus-within:border-[#8b5cf6] transition-all"
+                  >
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder={
+                        !websiteUrl
+                          ? "Paste any website URL (e.g., https://yoursite.com)..."
+                          : selectedIcp
+                            ? "Ask me to refine the page..."
+                            : "What would you like to do?"
+                      }
+                      disabled={isLoading}
+                      className="border-0 rounded-none pr-14 sm:pr-16 focus-visible:ring-0 shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={isLoading || !input.trim()}
+                      size="icon"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full shrink-0 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d28d9] hover:to-[#7c3aed] transition-all"
+                    >
+                      <ArrowUp className="h-6 w-6" />
+                    </Button>
+                  </form>
+                </div>
+
                 <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
                   Try these examples or paste any public website URL:
                 </p>
@@ -2470,41 +2502,6 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
               )}
           </div>
         </ScrollArea>
-
-        {/* Input */}
-        <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pb-3 sm:pb-4">
-          <form
-            data-chat-form
-            onSubmit={handleSendMessage}
-            className="relative w-full rounded-3xl border bg-background p-2.5 sm:p-3 shadow-sm"
-          >
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                !websiteUrl
-                  ? "Paste any website URL (e.g., https://yoursite.com)..."
-                  : selectedIcp
-                    ? "Ask me to refine the page..."
-                    : "What would you like to do?"
-              }
-              disabled={isLoading}
-              className="border-0 pr-11 sm:pr-12 focus-visible:ring-0 bg-transparent text-sm sm:text-base"
-            />
-            <Button
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              size="icon"
-              className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 rounded-full shrink-0"
-            >
-              {isLoading ? (
-                <span className="h-3 w-3 rounded-sm bg-white" />
-              ) : (
-                <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              )}
-            </Button>
-          </form>
-        </div>
       </div>
 
       {/* LinkedIn Profiles Drawer */}
