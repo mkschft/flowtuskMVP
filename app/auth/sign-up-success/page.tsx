@@ -6,12 +6,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { email?: string };
+  searchParams: Promise<{ email?: string }>;
 }) {
-  const email = searchParams.email;
+  const { email } = await searchParams;
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
