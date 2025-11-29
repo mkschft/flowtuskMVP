@@ -1,0 +1,200 @@
+{
+  "brand": {
+    "name": "Grameenphone",
+    "tones": [
+      "informative",
+      "engaging"
+    ],
+    "primaryCTA": "Learn More"
+  },
+  "structure": {
+    "nav": [
+      "Home",
+      "Offers",
+      "Shop",
+      "Services",
+      "Support"
+    ],
+    "keyPages": [
+      {
+        "path": "/gpstar-signature-priority-service",
+        "title": "GPStar Signature Priority Service"
+      },
+      {
+        "path": "/fantastic-friday-campaign-romoni",
+        "title": "Fantastic Friday Campaign: Romoni"
+      },
+      {
+        "path": "/grameenphone-symphony-partnership",
+        "title": "Grameenphone-Symphony smartphone partnership campaign"
+      },
+      {
+        "path": "/alo",
+        "title": "Alo"
+      },
+      {
+        "path": "/gp-shield",
+        "title": "GP Shield"
+      },
+      {
+        "path": "/delight-day",
+        "title": "Delight Day"
+      },
+      {
+        "path": "/win-big-penalty-shootout",
+        "title": "Win Big with our penalty shootout campaign"
+      },
+      {
+        "path": "/grameenphone-samsung-offer",
+        "title": "Grameenphone-Samsung Special Offer"
+      },
+      {
+        "path": "/gpfi",
+        "title": "gpfi"
+      },
+      {
+        "path": "/palmpay",
+        "title": "PalmPay"
+      },
+      {
+        "path": "/g-pay",
+        "title": "G Pay"
+      },
+      {
+        "path": "/grameenphone-vivo-partnership",
+        "title": "Grameenphone-Vivo smartphone partnership campaign"
+      },
+      {
+        "path": "/grameenphone-5g",
+        "title": "Grameenphone 5G"
+      },
+      {
+        "path": "/roaming-mobile-balance",
+        "title": "Grameenphone Brings Country’s First Roaming with Mobile Balance"
+      },
+      {
+        "path": "/bangladesh-gaming-platform",
+        "title": "Experience Bangladesh’s largest gaming platform"
+      },
+      {
+        "path": "/appcity",
+        "title": "AppCity"
+      }
+    ],
+    "footer": [
+      "Privacy Policy",
+      "Terms of Service",
+      "Contact Us",
+      "Careers"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Bangladesh",
+    "industryFocus": "Telecommunications",
+    "signals": [
+      "TK currency symbol",
+      "Bangla language content",
+      "Bangladesh’s largest gaming platform"
+    ]
+  },
+  "audienceSignals": [
+    "Telecom customers in Bangladesh",
+    "Smartphone users",
+    "Internet service users"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Priority service for GPStar Signature customers",
+      "evidence": [
+        "fact-1"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Exclusive smartphone offers and partnerships",
+      "evidence": [
+        "fact-2",
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Largest gaming platform in Bangladesh",
+      "evidence": [
+        "fact-4"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for reliable telecom services",
+    "Desire for exclusive offers",
+    "Interest in advanced technology"
+  ],
+  "proof": [
+    "1 year warranty on exclusive deals",
+    "Partnerships with Samsung and Vivo"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "GPStar Signature Priority Service offers priority service for GPStar Signature customers.",
+      "page": "GPStar Signature Priority Service",
+      "evidence": "Priority Service for GPStar Signature customers"
+    },
+    {
+      "id": "fact-2",
+      "text": "Grameenphone has a partnership campaign with Symphony for smartphones.",
+      "page": "Grameenphone-Symphony smartphone partnership campaign",
+      "evidence": "Grameenphone-Symphony smartphone partnership campaign"
+    },
+    {
+      "id": "fact-3",
+      "text": "Grameenphone offers a special deal with Samsung.",
+      "page": "Grameenphone-Samsung Special Offer",
+      "evidence": "Grameenphone-Samsung Special Offer"
+    },
+    {
+      "id": "fact-4",
+      "text": "Grameenphone provides Bangladesh’s largest gaming platform.",
+      "page": "Experience Bangladesh’s largest gaming platform",
+      "evidence": "Experience Bangladesh’s largest gaming platform"
+    },
+    {
+      "id": "fact-5",
+      "text": "Grameenphone offers a roaming service with mobile balance.",
+      "page": "Grameenphone Brings Country’s First Roaming with Mobile Balance",
+      "evidence": "Grameenphone Brings Country’s First Roaming with Mobile Balance"
+    },
+    {
+      "id": "fact-6",
+      "text": "Grameenphone provides home salon services through the Fantastic Friday Campaign.",
+      "page": "Fantastic Friday Campaign: Romoni",
+      "evidence": "Fantastic Friday Campaign: Romoni"
+    },
+    {
+      "id": "fact-7",
+      "text": "Grameenphone offers a service called GP Shield.",
+      "page": "GP Shield",
+      "evidence": "GP Shield"
+    },
+    {
+      "id": "fact-8",
+      "text": "Grameenphone promotes the use of the MyGP App for exclusive offers and services.",
+      "page": "Get the MyGP App",
+      "evidence": "Exclusive offers and GP services all in one app!"
+    },
+    {
+      "id": "fact-9",
+      "text": "Grameenphone has a campaign called Delight Day.",
+      "page": "Delight Day",
+      "evidence": "Delight Day"
+    },
+    {
+      "id": "fact-10",
+      "text": "Grameenphone offers a penalty shootout campaign called Win Big.",
+      "page": "Win Big with our penalty shootout campaign",
+      "evidence": "Win Big with our penalty shootout campaign"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "brand": {
+    "name": "Nordea",
+    "tones": [
+      "professional",
+      "sustainable"
+    ],
+    "primaryCTA": "Find us here"
+  },
+  "structure": {
+    "nav": [
+      "Locations",
+      "Contact",
+      "Log in"
+    ],
+    "keyPages": [
+      {
+        "path": "/en/about-us/contact/find-us-here",
+        "title": "Find us here"
+      },
+      {
+        "path": "/en/about-us/contact-us",
+        "title": "Contact"
+      },
+      {
+        "path": "/en/log-in",
+        "title": "Log in"
+      }
+    ],
+    "footer": [
+      "More about our work to lower emission here"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Nordic countries",
+    "industryFocus": "Banking",
+    "signals": [
+      "Languages: Dansk, Norsk, Suomi, Svenska",
+      "Locations: Denmark, Finland, Norway, Sweden"
+    ]
+  },
+  "audienceSignals": [
+    "Personal banking customers in Nordic countries",
+    "Business banking customers in Nordic countries"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Nordea offers banking services across Nordic countries.",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Nordea is committed to sustainability by offering a dark mode to reduce carbon emissions.",
+      "evidence": [
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for accessible banking services in multiple Nordic languages",
+    "Desire for sustainable banking practices"
+  ],
+  "proof": [
+    "Presence in Denmark, Finland, Norway, and Sweden",
+    "Nordea Asset Management and Nordea Funds as part of their offerings"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Nordea is a leading Nordic universal bank.",
+      "page": "Home",
+      "evidence": "Nordea | leading Nordic universal bank | Nordea"
+    },
+    {
+      "id": "fact-2",
+      "text": "Nordea provides services in English, Dansk, Norsk, Suomi, and Svenska.",
+      "page": "Home",
+      "evidence": "Languages: English, Dansk, Norsk, Suomi, Svenska"
+    },
+    {
+      "id": "fact-3",
+      "text": "Nordea has locations in Denmark, Finland, Norway, and Sweden.",
+      "page": "Locations",
+      "evidence": "Locations: Denmark, Finland, Norway, Sweden"
+    },
+    {
+      "id": "fact-4",
+      "text": "Nordea offers personal and business banking services.",
+      "page": "Contact",
+      "evidence": "Personal banking in, Business banking in"
+    },
+    {
+      "id": "fact-5",
+      "text": "Nordea provides a map of offices and bank branches.",
+      "page": "Locations",
+      "evidence": "Map of offices, Bank branches"
+    },
+    {
+      "id": "fact-6",
+      "text": "Nordea has corporate branches.",
+      "page": "Locations",
+      "evidence": "Corporate branches"
+    },
+    {
+      "id": "fact-7",
+      "text": "Nordea offers a dark mode to reduce carbon emissions.",
+      "page": "Home",
+      "evidence": "As every website has a carbon footprint we want to make you able to contribute to a more sustainable experience by viewing ours in dark mode."
+    },
+    {
+      "id": "fact-8",
+      "text": "Nordea Asset Management and Nordea Funds are part of Nordea's offerings.",
+      "page": "Other Nordea websites",
+      "evidence": "Nordea Asset Management, Nordea Funds"
+    },
+    {
+      "id": "fact-9",
+      "text": "Nordea provides contact options for press and investor relations.",
+      "page": "Contact",
+      "evidence": "Press contacts, Investor relations"
+    },
+    {
+      "id": "fact-10",
+      "text": "Nordea offers feedback and complaints handling.",
+      "page": "Contact",
+      "evidence": "Feedback & complaints"
+    }
+  ]
+}
