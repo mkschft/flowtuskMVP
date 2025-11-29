@@ -88,7 +88,7 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
-        {activeTab === "value-prop" && (
+        {activeTab === "strategy" && (
           <>
             <DropdownMenuItem onClick={() => handleExport("figma-valueprop", "Exporting to Figma...")}>
               <FigmaIcon className="w-4 h-4 mr-2" />
@@ -123,7 +123,7 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
           </>
         )}
 
-        {activeTab === "brand" && (
+        {activeTab === "identity" && (
           <>
             <DropdownMenuItem onClick={() => handleExport("figma", "Opening in Figma...")}>
               <FigmaIcon className="w-4 h-4 mr-2" />
@@ -153,7 +153,7 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
           </>
         )}
 
-        {activeTab === "style" && (
+        {activeTab === "components" && (
           <>
             <DropdownMenuItem onClick={() => handleExport("figma-lib", "Exporting to Figma Library...")}>
               <FigmaIcon className="w-4 h-4 mr-2" />
@@ -188,7 +188,7 @@ export function ExportDropdown({ activeTab, onExport }: ExportDropdownProps) {
           </>
         )}
 
-        {activeTab === "landing" && (
+        {activeTab === "previews" && (
           <>
             <DropdownMenuItem onClick={() => handleExport("figma-frame", "Copying as Figma Frame...")}>
               <FigmaIcon className="w-4 h-4 mr-2" />

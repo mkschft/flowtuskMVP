@@ -14,7 +14,7 @@ import type { ICP } from "@/lib/types/database";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import { getPrimaryColor } from "@/lib/utils/color-utils";
 import { AnimatePresence, motion } from "motion/react";
-import { Sparkles, Palette, Layout, Globe } from "lucide-react";
+import { Target, Palette, Box, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CanvasAreaProps = {
@@ -49,58 +49,58 @@ export function CanvasArea({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onTabChange("value-prop")}
+            onClick={() => onTabChange("strategy")}
             className={cn(
               "gap-2 h-8",
-              activeTab === "value-prop"
+              activeTab === "strategy"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
-            <Sparkles className="w-3 h-3" />
-            Value Prop
+            <Target className="w-3 h-3" />
+            Strategy
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onTabChange("brand")}
+            onClick={() => onTabChange("identity")}
             className={cn(
               "gap-2 h-8",
-              activeTab === "brand"
+              activeTab === "identity"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <Palette className="w-3 h-3" />
-            Brand Guide
+            Identity
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onTabChange("style")}
+            onClick={() => onTabChange("components")}
             className={cn(
               "gap-2 h-8",
-              activeTab === "style"
+              activeTab === "components"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
-            <Layout className="w-3 h-3" />
-            Style Guide
+            <Box className="w-3 h-3" />
+            Components
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onTabChange("landing")}
+            onClick={() => onTabChange("previews")}
             className={cn(
               "gap-2 h-8",
-              activeTab === "landing"
+              activeTab === "previews"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
-            <Globe className="w-3 h-3" />
-            Landing
+            <Eye className="w-3 h-3" />
+            Previews
           </Button>
         </div>
       </div>
@@ -116,10 +116,10 @@ export function CanvasArea({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {activeTab === "value-prop" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
-              {activeTab === "brand" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
-              {activeTab === "style" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} manifest={manifest} />)}
-              {activeTab === "landing" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} manifest={manifest} />)}
+              {activeTab === "strategy" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
+              {activeTab === "identity" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
+              {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} manifest={manifest} />)}
+              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} manifest={manifest} />)}
             </motion.div>
           </AnimatePresence>
         </div>

@@ -297,7 +297,7 @@ export interface UpdateContext {
 
     setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
     setGenerationSteps: React.Dispatch<React.SetStateAction<Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>>>;
-    setActiveTab: (tab: "value-prop" | "brand" | "style" | "landing") => void;
+    setActiveTab: (tab: "strategy" | "identity" | "components" | "previews") => void;
 
     addToast: (message: string, type: ToastType) => void;
     addToHistory: (manifest: BrandManifest, type: string, description: string) => void;
@@ -532,13 +532,13 @@ export function applyManifestUpdate(
     );
 
     // Step 6: Determine which tab to switch to based on update type
-    const tabMap: Record<string, "value-prop" | "brand" | "style" | "landing"> = {
-        'market_shift': 'value-prop',
-        'messaging': 'value-prop',
-        'styling': 'brand',
-        'refinement': 'brand'
+    const tabMap: Record<string, "strategy" | "identity" | "components" | "previews"> = {
+        'market_shift': 'strategy',
+        'messaging': 'strategy',
+        'styling': 'identity',
+        'refinement': 'identity'
     };
-    const targetTab = tabMap[updateType] || 'brand';
+    const targetTab = tabMap[updateType] || 'identity';
     console.log('🎯 [Manifest Update] Switching to tab:', targetTab);
     setTimeout(() => context.setActiveTab(targetTab), 300);
 
@@ -867,9 +867,9 @@ function handleUpdateSummary(
 
         // Tab Switching
         if (updateType === 'market_shift' || updates.valueProp || updates.targetAudience) {
-            setTimeout(() => context.setActiveTab("value-prop"), 800);
+            setTimeout(() => context.setActiveTab("strategy"), 800);
         } else if (updateType === 'styling' || updates.brandUpdates) {
-            setTimeout(() => context.setActiveTab("brand"), 500);
+            setTimeout(() => context.setActiveTab("identity"), 500);
         }
     }
 }

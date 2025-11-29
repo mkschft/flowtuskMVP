@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sparkles, Palette, Layout, Globe } from "lucide-react";
+import { Target, Palette, Box, Eye } from "lucide-react";
 import type { TabType } from "@/components/DesignStudioWorkspace";
 import { cn } from "@/lib/utils";
 
@@ -11,10 +11,10 @@ type TabBarProps = {
 };
 
 const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-  { id: "value-prop", label: "Value Prop", icon: <Sparkles className="w-4 h-4" /> },
-  { id: "brand", label: "Brand Guide", icon: <Palette className="w-4 h-4" /> },
-  { id: "style", label: "Style Guide", icon: <Layout className="w-4 h-4" /> },
-  { id: "landing", label: "Landing", icon: <Globe className="w-4 h-4" /> },
+  { id: "strategy", label: "Strategy", icon: <Target className="w-4 h-4" /> },
+  { id: "identity", label: "Identity", icon: <Palette className="w-4 h-4" /> },
+  { id: "components", label: "Components", icon: <Box className="w-4 h-4" /> },
+  { id: "previews", label: "Previews", icon: <Eye className="w-4 h-4" /> },
 ];
 
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {

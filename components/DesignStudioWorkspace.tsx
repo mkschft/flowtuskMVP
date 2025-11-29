@@ -23,7 +23,7 @@ import {
   useManifestUpdates
 } from "@/lib/hooks/design-studio";
 
-export type TabType = "value-prop" | "brand" | "style" | "landing";
+export type TabType = "strategy" | "identity" | "components" | "previews";
 
 type DesignStudioWorkspaceProps = {
   icpId: string;

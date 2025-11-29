@@ -20,7 +20,7 @@ export function useManifestUpdates(
     setManifest: React.Dispatch<React.SetStateAction<BrandManifest | null>>,
     setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
     setGenerationSteps: React.Dispatch<React.SetStateAction<Array<{ id: string; label: string; icon: string; status: 'pending' | 'loading' | 'complete' }>>>,
-    setActiveTab: (tab: "value-prop" | "brand" | "style" | "landing") => void,
+    setActiveTab: (tab: "strategy" | "identity" | "components" | "previews") => void,
     addToast: (message: string, type: ToastType) => void,
     addToHistory: (manifest: BrandManifest, type: string, description: string) => void,
     loadWorkspaceData: () => Promise<void>,

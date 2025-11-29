@@ -74,7 +74,7 @@ const MAX_REGENERATIONS = 4;
 
 export const useCopilotStore = create<CopilotState>((set, get) => ({
   // Initial State
-  activeTab: 'value-prop',
+  activeTab: 'strategy',
   icpId: null,
   flowId: null,
   loading: true,
@@ -195,7 +195,7 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
 
   // Helpers
   reset: () => set({
-    activeTab: 'value-prop',
+    activeTab: 'strategy',
     icpId: null,
     flowId: null,
     loading: true,

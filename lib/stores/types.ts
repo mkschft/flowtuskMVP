@@ -215,7 +215,7 @@ export interface Conversation {
 }
 
 // Copilot-specific types
-export type CopilotTab = "value-prop" | "brand" | "style" | "landing";
+export type CopilotTab = "strategy" | "identity" | "components" | "previews";
 
 export interface CopilotChatMessage {
   role: "user" | "ai";
