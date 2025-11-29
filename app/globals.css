@@ -203,3 +203,18 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Fix double border on main URL input - form has border, input should not */
+form[data-chat-form] input {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+form[data-chat-form] input:focus,
+form[data-chat-form] input:focus-visible {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: none !important;
+}
