@@ -28,13 +28,13 @@ const STEP_CONFIG = {
   },
   generating: {
     label: 'Finding your ideal customers...',
-    description: 'Identifying people who'll love your product',
+    description: "Identifying people who'll love your product",
     icon: Brain,
     progressRange: [60, 95],
     color: 'text-pink-500',
   },
   finalizing: {
-    label: 'Here's what we found!',
+    label: "Here's what we found!",
     description: 'Preparing your results',
     icon: Sparkles,
     progressRange: [95, 100],
