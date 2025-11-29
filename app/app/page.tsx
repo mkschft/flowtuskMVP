@@ -565,13 +565,21 @@ function ChatPageContent() {
 
   // Targeted add to avoid race when conversation ID changes (e.g., after flow creation)
   const addMessageTo = (conversationId: string, message: ChatMessage) => {
-    setConversations(prev =>
-      prev.map(conv =>
-        conv.id === conversationId
-          ? { ...conv, messages: [...conv.messages, message] }
-          : conv
-      )
-    );
+    setConversations(prev => {
+      const found = prev.findIndex(c => c.id === conversationId);
+      if (found === -1) {
+        console.warn(`⚠️ [addMessageTo] Conversation ${conversationId} not found! Message dropped:`, {
+          messageContent: message.content?.substring(0, 100),
+          messageComponent: message.component,
+          availableConversations: prev.map(c => c.id)
+        });
+        return prev;
+      }
+      console.log(`✅ [addMessageTo] Adding to ${conversationId}:`, message.component || message.content?.substring(0, 50));
+      return prev.map((conv, idx) =>
+        idx === found ? { ...conv, messages: [...conv.messages, message] } : conv
+      );
+    });
   };
 
   // Enhanced state management utilities
@@ -877,9 +885,13 @@ function ChatPageContent() {
           console.log(`✅ [ID Sync] Conversation ID updated. Active conversation now has DB ID: ${flow.id.slice(0, 8)}...`);
           return updated;
         });
-        // Make the new DB flow the active conversation
-        setActiveConversationId(flow.id);
-        console.log(`✅ [ID Sync] Active conversation ID set to: ${flow.id.slice(0, 8)}...`);
+
+        // Wait for state update to complete before changing active ID
+        // Use setTimeout to ensure state update processes first and prevent race condition
+        setTimeout(() => {
+          setActiveConversationId(flow.id);
+          console.log(`✅ [ID Sync] Active conversation ID set to: ${flow.id.slice(0, 8)}...`);
+        }, 0);
 
         // Subscribe to realtime updates for this flow (step transitions)
         try {
@@ -2115,10 +2127,10 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
               <div className="text-center py-12 sm:py-20 px-4">
                 <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
                 <h2 className="text-xl sm:text-2xl font-bold mb-2">
-                  Your Positioning Co-Pilot
+                  Find users who love your brand
                 </h2>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
-                  Enter any website URL to generate customer personas and value propositions instantly
+                  Enter any website URL to generate customer personas and tailored brand guide instantly
                 </p>
 
                 {/* Input */}
@@ -2126,7 +2138,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                   <form
                     data-chat-form
                     onSubmit={handleSendMessage}
-                    className="relative w-full rounded-3xl border bg-background p-3 sm:p-4 shadow-lg focus-within:ring-2 focus-within:ring-[#8b5cf6] focus-within:border-[#8b5cf6] transition-all"
+                    className="relative w-full rounded-3xl border-2 border-border bg-background p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all"
                   >
                     <Input
                       value={input}
@@ -2139,7 +2151,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             : "What would you like to do?"
                       }
                       disabled={isLoading}
-                      className="border-0 rounded-none pr-14 sm:pr-16 focus-visible:ring-0 shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left"
+                      className="border-0 ring-0 rounded-none pr-14 sm:pr-16 focus-visible:ring-0 focus-visible:outline-none shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left"
                     />
                     <Button
                       type="submit"
