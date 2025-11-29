@@ -1,0 +1,178 @@
+{
+  "brand": {
+    "name": "Nordea",
+    "tones": [
+      "professional",
+      "supportive"
+    ],
+    "primaryCTA": "Join us to get financing for your company"
+  },
+  "structure": {
+    "nav": [
+      "Personal",
+      "Business",
+      "Private Banking"
+    ],
+    "keyPages": [
+      {
+        "path": "/corporate-finance",
+        "title": "Corporate Finance"
+      },
+      {
+        "path": "/corporate-loan",
+        "title": "Corporate Loan"
+      },
+      {
+        "path": "/corporate-flexicredit",
+        "title": "Corporate FlexiCredit"
+      },
+      {
+        "path": "/bank-guarantee",
+        "title": "Bank Guarantee"
+      },
+      {
+        "path": "/overdraft-facility",
+        "title": "Overdraft Facility"
+      },
+      {
+        "path": "/corporate-leasing",
+        "title": "Corporate Leasing"
+      },
+      {
+        "path": "/hire-purchase",
+        "title": "Hire Purchase"
+      }
+    ],
+    "footer": [
+      "Corporate customers",
+      "Personal customers",
+      "Corporate finance"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Europe",
+    "industryFocus": "Financial Services",
+    "signals": [
+      "euros",
+      "languages: suomi, svenska, English"
+    ]
+  },
+  "audienceSignals": [
+    "Corporate customers needing financing solutions",
+    "Personal customers using netbank services"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Tailored corporate loans for business expansion",
+      "evidence": [
+        "fact-5",
+        "fact-6"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Unsecured business loans up to 25,000 euros",
+      "evidence": [
+        "fact-7",
+        "fact-8"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Bank guarantees for contractual obligations",
+      "evidence": [
+        "fact-9",
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v4",
+      "text": "Overdraft facilities for cash flow management",
+      "evidence": [
+        "fact-11",
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v5",
+      "text": "Corporate leasing to keep equipment up to date",
+      "evidence": [
+        "fact-13",
+        "fact-14"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for financing to support business growth",
+    "Requirement for financial flexibility and risk management",
+    "Challenges in managing cash flow and liquidity"
+  ],
+  "proof": [
+    "Experienced advisors ready to help",
+    "Loan calculator available for estimation",
+    "Nordea Business platform for managing financing"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Nordea offers corporate finance solutions.",
+      "page": "Corporate finance",
+      "evidence": "Get the right financing to create the best conditions for growth and stability in your company."
+    },
+    {
+      "id": "fact-2",
+      "text": "Nordea provides tailored corporate loans.",
+      "page": "Corporate loan",
+      "evidence": "We can tailor a loan to support your needs."
+    },
+    {
+      "id": "fact-3",
+      "text": "Corporate FlexiCredit offers up to 25,000 euros.",
+      "page": "Corporate FlexiCredit",
+      "evidence": "Unsecured business loan up to 25,000 euros."
+    },
+    {
+      "id": "fact-4",
+      "text": "Nordea offers bank guarantees.",
+      "page": "Bank guarantee",
+      "evidence": "Nordea assumes the monetary liability on behalf of your company."
+    },
+    {
+      "id": "fact-5",
+      "text": "Overdraft facility helps balance cash flow.",
+      "page": "Overdraft facility",
+      "evidence": "Helps you to balance the fluctuations in your cash flow."
+    },
+    {
+      "id": "fact-6",
+      "text": "Corporate leasing helps keep equipment updated.",
+      "page": "Corporate leasing",
+      "evidence": "You are able to keep your equipment up to date at all times."
+    },
+    {
+      "id": "fact-7",
+      "text": "Hire purchase agreements available.",
+      "page": "Hire purchase",
+      "evidence": "With hire purchase the financed asset serves as collateral up to 80% of the financing share."
+    },
+    {
+      "id": "fact-8",
+      "text": "Nordea Business platform for financing management.",
+      "page": "Keep track of your financing online",
+      "evidence": "Monitor all your company's financing in one place."
+    },
+    {
+      "id": "fact-9",
+      "text": "Nordea offers a loan calculator.",
+      "page": "Get an estimate of a suitable loan amount with our loan calculator",
+      "evidence": "With the help of our loan calculator you are able to evaluate how big of a loan your company can take out."
+    },
+    {
+      "id": "fact-10",
+      "text": "Nordea provides financial risk management advice.",
+      "page": "What financial risk management does Nordea offer?",
+      "evidence": "Our experts are ready to advise you on currency hedging, debt management and much more."
+    }
+  ]
+}

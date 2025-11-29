@@ -2,60 +2,72 @@
   "brand": {
     "name": "Linear",
     "tones": [
-      "purpose-built",
       "modern",
-      "streamlined"
+      "efficient",
+      "focused"
     ],
     "primaryCTA": "Start building"
   },
   "structure": {
     "nav": [
+      "Homepage",
       "Product",
       "Resources",
       "Pricing",
       "Customers",
       "Now",
-      "Contact"
-    ],
-    "keyPages": [
-      {
-        "path": "https://linear.app/features",
-        "title": "Product"
-      },
-      {
-        "path": "https://linear.app/about",
-        "title": "Resources"
-      },
-      {
-        "path": "https://linear.app/pricing",
-        "title": "Pricing"
-      },
-      {
-        "path": "https://linear.app/customers",
-        "title": "Customers"
-      },
-      {
-        "path": "https://linear.app/now",
-        "title": "Now"
-      },
-      {
-        "path": "https://linear.app/contact",
-        "title": "Contact"
-      }
-    ],
-    "footer": [
+      "Contact",
       "Docs",
       "Open app",
       "Log in",
       "Sign up"
-    ]
+    ],
+    "keyPages": [
+      {
+        "path": "/features",
+        "title": "Product"
+      },
+      {
+        "path": "/about",
+        "title": "Resources"
+      },
+      {
+        "path": "/pricing",
+        "title": "Pricing"
+      },
+      {
+        "path": "/customers",
+        "title": "Customers"
+      },
+      {
+        "path": "/now",
+        "title": "Now"
+      },
+      {
+        "path": "/contact",
+        "title": "Contact"
+      },
+      {
+        "path": "/docs",
+        "title": "Docs"
+      },
+      {
+        "path": "/login",
+        "title": "Log in"
+      },
+      {
+        "path": "/signup",
+        "title": "Sign up"
+      }
+    ],
+    "footer": []
   },
   "targetMarket": {
     "primaryRegion": "Global",
     "industryFocus": "Software Development",
     "signals": [
-      "Meet the system for modern software development.",
-      "Powering the world’s best product teams."
+      "Powering the world’s best product teams",
+      "From next-gen startups to established enterprises"
     ]
   },
   "audienceSignals": [
@@ -66,95 +78,127 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Streamline issues, projects, and product roadmaps.",
+      "text": "Streamline issues, projects, and product roadmaps",
       "evidence": [
         "fact-3",
-        "fact-7"
+        "fact-5"
       ]
     },
     {
       "id": "v2",
-      "text": "AI-assisted product development.",
+      "text": "AI-assisted product development",
       "evidence": [
         "fact-10",
-        "fact-11"
+        "fact-12"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Connect Linear to your favorite tools",
+      "evidence": [
+        "fact-14",
+        "fact-15"
       ]
     }
   ],
   "pains": [
-    "Need for fast execution and quality of craft in product development.",
-    "Challenges in aligning teams around a unified product timeline."
+    "manual tasks in product development",
+    "lack of streamlined workflows"
   ],
   "proof": [
-    "Powering the world’s best product teams.",
-    "Made for modern product teams."
+    "Powering the world’s best product teams",
+    "From next-gen startups to established enterprises"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Linear is a purpose-built tool for planning and building products.",
+      "text": "Linear is a purpose-built tool for planning and building products",
       "page": "Homepage",
-      "evidence": "Linear is a purpose-built tool for planning and building products."
+      "evidence": "Linear is a purpose-built tool for planning and building products"
     },
     {
       "id": "fact-2",
-      "text": "Linear streamlines issues, projects, and product roadmaps.",
+      "text": "Linear streamlines issues, projects, and product roadmaps",
       "page": "Homepage",
-      "evidence": "Streamline issues, projects, and product roadmaps."
+      "evidence": "Streamline issues, projects, and product roadmaps"
     },
     {
       "id": "fact-3",
-      "text": "Linear is designed for modern software development.",
+      "text": "Linear is made for modern product teams",
       "page": "Homepage",
-      "evidence": "Meet the system for modern software development."
+      "evidence": "Made for modern product teams"
     },
     {
       "id": "fact-4",
-      "text": "Linear is used by next-gen startups and established enterprises.",
+      "text": "Linear is designed to move fast",
       "page": "Homepage",
-      "evidence": "From next-gen startups to established enterprises."
+      "evidence": "Designed to move fast"
     },
     {
       "id": "fact-5",
-      "text": "Linear is shaped by practices distinguishing world-class product teams.",
+      "text": "Linear is crafted to perfection",
       "page": "Homepage",
-      "evidence": "Linear is shaped by the practices and principles that distinguish world-class product teams from the rest."
+      "evidence": "Crafted to perfection"
     },
     {
       "id": "fact-6",
-      "text": "Linear offers AI-assisted product development.",
-      "page": "AI",
-      "evidence": "Linear for Agents. Choose from a variety of AI agents and start delegating work."
+      "text": "Linear powers the world’s best product teams",
+      "page": "Homepage",
+      "evidence": "Powering the world’s best product teams"
     },
     {
       "id": "fact-7",
-      "text": "Linear provides AI assistance for routine, manual tasks.",
-      "page": "AI",
-      "evidence": "Streamline your product development workflows with AI assistance for routine, manual tasks."
+      "text": "Linear serves next-gen startups to established enterprises",
+      "page": "Homepage",
+      "evidence": "From next-gen startups to established enterprises"
     },
     {
       "id": "fact-8",
-      "text": "Linear connects to tools like Cursor, Claude, ChatGPT.",
-      "page": "MCP",
-      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT, and more."
+      "text": "Linear offers AI-assisted product development",
+      "page": "AI",
+      "evidence": "AI-assisted product development"
     },
     {
       "id": "fact-9",
-      "text": "Linear helps align teams around a unified product timeline.",
-      "page": "Plan",
-      "evidence": "Align your team around a unified product timeline."
+      "text": "Linear provides AI agents for delegating work",
+      "page": "AI",
+      "evidence": "Choose from a variety of AI agents and start delegating work"
     },
     {
       "id": "fact-10",
-      "text": "Linear provides visual planning tools.",
-      "page": "Plan",
-      "evidence": "Plan, manage, and track all product initiatives with Linear’s visual planning tools."
+      "text": "Linear offers self-driving product operations",
+      "page": "AI",
+      "evidence": "Self-driving product operations"
     },
     {
       "id": "fact-11",
-      "text": "Linear consolidates specs, milestones, tasks in one location.",
-      "page": "Project Overview",
-      "evidence": "Consolidate specs, milestones, tasks, and other documentation in one centralized location."
+      "text": "Linear streamlines product development workflows with AI",
+      "page": "AI",
+      "evidence": "Streamline your product development workflows with AI assistance"
+    },
+    {
+      "id": "fact-12",
+      "text": "Linear provides triage intelligence suggestions",
+      "page": "AI",
+      "evidence": "Triage Intelligence Suggestions"
+    },
+    {
+      "id": "fact-13",
+      "text": "Linear connects to tools like Cursor, Claude, ChatGPT",
+      "page": "MCP",
+      "evidence": "Connect Linear to your favorite tools including Cursor, Claude, ChatGPT"
+    },
+    {
+      "id": "fact-14",
+      "text": "Linear helps align teams around a unified product timeline",
+      "page": "Plan",
+      "evidence": "Align your team around a unified product timeline"
+    },
+    {
+      "id": "fact-15",
+      "text": "Linear offers visual planning tools",
+      "page": "Plan",
+      "evidence": "Plan, manage, and track all product initiatives with Linear’s visual planning tools"
     }
   ]
 }

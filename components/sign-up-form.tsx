@@ -51,7 +51,10 @@ export function SignUpForm({
         },
       });
       if (error) throw error;
-      router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`);
+
+      // Since email confirmation is disabled, redirect directly to /app
+      toast.success("Account created successfully!");
+      router.push('/app');
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
       setError(errorMessage);
