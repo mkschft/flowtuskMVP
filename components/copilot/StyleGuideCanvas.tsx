@@ -37,6 +37,22 @@ export function StyleGuideCanvas({ project, manifest }: StyleGuideCanvasProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header Message */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+            <Circle className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm mb-1">Living UI Kit</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              These components automatically inherit colors and styles from the <strong>Identity</strong> tab.
+              When you change your primary color or typography, all components here update in real-time.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Call-to-action Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">

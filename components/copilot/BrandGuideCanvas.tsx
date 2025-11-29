@@ -72,6 +72,22 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header Message */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+            <Palette className="w-4 h-4 text-purple-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-sm mb-1">Brand DNA</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Your visual and tonal identity. Try asking: <em>"Change the primary color to forest green"</em> or <em>"Make the tone more professional"</em>.
+              Changes here update <strong>Components</strong> and <strong>Previews</strong> instantly.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Colors Section */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center justify-between mb-6">
