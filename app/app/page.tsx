@@ -1564,7 +1564,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 • Strategy: ${valuePropData.summary?.approachStrategy || 'Strategic positioning'}
 • Expected impact: ${valuePropData.summary?.expectedImpact || 'Improved conversion'}
 
-Now let me prepare your complete positioning package...`;
+Now let me prepare your complete brand strategy...`;
 
     addMessage({
       id: nanoid(),
@@ -1576,12 +1576,12 @@ Now let me prepare your complete positioning package...`;
     addMessage({
       id: nanoid(),
       role: "assistant",
-      content: "✨ Preparing your positioning package..."
+      content: "✨ Building your brand strategy..."
     });
 
     // Step 2: Show positioning summary card after short delay for readability
     setTimeout(() => {
-      const positioningSummary = `I've created a complete positioning package for **${icp.personaName}** (${icp.title}).
+      const positioningSummary = `Here's your complete brand strategy for **${icp.personaName}** (${icp.title}).
 
 **Persona Match:**
 • ${icp.personaRole} at ${icp.personaCompany}
@@ -1596,7 +1596,7 @@ ${valuePropData.summary?.mainInsight || 'Targeted messaging approach'}
 **Impact You Can Expect:**
 ${valuePropData.summary?.expectedImpact || 'Improved conversion rates'}
 
-Ready to see your complete positioning package?`;
+Ready to explore your brand strategy?`;
 
       addMessage({
         id: nanoid(),
@@ -1631,7 +1631,7 @@ Ready to see your complete positioning package?`;
   // Handler for approving positioning summary
   const handleApprovePositioningSummary = (data: { icp: ICP; valuePropData: ValuePropData }) => {
     // Step 1: Show text explaining what they'll see
-    const explanationText = `Here's your complete customer positioning package 🎯
+    const explanationText = `Here's your complete customer brand strategy 🎯
 
 **What's Included:**
 • **Persona Profile** – Detailed ICP with demographics, pain points, and goals
@@ -1896,7 +1896,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
     addMessage({
       id: loadingMsgId,
       role: "assistant",
-      content: "Generating your positioning package...",
+      content: "Creating your brand strategy...",
     });
 
     try {
@@ -2136,7 +2136,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                   Find users who love your brand
                 </h2>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
-                  Enter any website URL to generate customer personas and tailored brand guide instantly
+                  Paste your website and get a complete brand guide—colors, logos, messaging—customized for your ideal customer
                 </p>
 
                 {/* Input */}
@@ -2223,14 +2223,14 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     {/* Status Messages (Legacy - fallback) */}
                     {message.content === "crawling_website" && (
                       <SystemMessage variant="loading" icon={<Search className="h-4 w-4" />}>
-                        Crawling website and extracting content...
+                        Reading your website to understand your product...
                       </SystemMessage>
                     )}
                     {message.content.startsWith("crawl_complete:") && (() => {
                       const [, pages, source, filepath] = message.content.split(":");
                       return (
                         <SystemMessage variant="success">
-                          Crawled {pages} page{pages !== "1" ? "s" : ""} using {source === "firecrawl" ? "Firecrawl" : "Jina AI"}
+                          Analyzed {pages} page{pages !== "1" ? "s" : ""} from your site
                           <div className="text-xs text-muted-foreground mt-1">
                             Blueprint saved: {filepath?.split("/").pop()}
                           </div>
@@ -2239,12 +2239,12 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     })()}
                     {message.content === "generating_icps" && (
                       <SystemMessage variant="loading" icon={<Brain className="h-4 w-4" />}>
-                        Generating ideal customer profiles...
+                        Finding people who'll love your product...
                       </SystemMessage>
                     )}
                     {message.content === "crafting_landing_page" && (
                       <SystemMessage variant="loading" icon={<Wand2 className="h-4 w-4" />}>
-                        Crafting your landing page...
+                        Creating your landing page preview...
                       </SystemMessage>
                     )}
 
@@ -2410,7 +2410,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                                     }}
                                   >
                                     <CheckCircle2 className="h-3 w-3 mr-1.5" />
-                                    Select Profile
+                                    Target This Audience
                                   </Button>
                                 </div>
                               </div>

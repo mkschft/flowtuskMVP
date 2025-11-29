@@ -324,7 +324,7 @@ export function PersonaShowcase({
 
                         {/* Action Buttons */}
                         <div className="pt-3 space-y-3">
-                          {/* Launch Copilot Button - Primary CTA */}
+                          {/* Launch Brand Canvas Button - Primary CTA */}
                           {onLaunchCopilot && (
                             <Button
                               className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
@@ -334,7 +334,7 @@ export function PersonaShowcase({
                               }}
                             >
                               <Sparkles className="h-4 w-4 mr-2" />
-                              Launch Copilot
+                              Launch Brand Canvas
                             </Button>
                           )}
 

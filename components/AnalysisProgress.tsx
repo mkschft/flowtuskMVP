@@ -13,28 +13,28 @@ interface AnalysisProgressProps {
 
 const STEP_CONFIG = {
   fetching: {
-    label: 'Fetching website...',
-    description: 'Accessing your website content',
+    label: 'Reading your website...',
+    description: 'Understanding your product',
     icon: Globe,
     progressRange: [0, 20],
     color: 'text-blue-500',
   },
   extracting: {
-    label: 'Extracting facts...',
-    description: 'Analyzing key information and insights',
+    label: 'Gathering key details...',
+    description: 'Finding what makes you unique',
     icon: FileSearch,
     progressRange: [20, 60],
     color: 'text-purple-500',
   },
   generating: {
-    label: 'Generating customer profiles...',
-    description: 'Creating detailed ICPs based on your data',
+    label: 'Finding your ideal customers...',
+    description: 'Identifying people who'll love your product',
     icon: Brain,
     progressRange: [60, 95],
     color: 'text-pink-500',
   },
   finalizing: {
-    label: 'Finalizing...',
+    label: 'Here's what we found!',
     description: 'Preparing your results',
     icon: Sparkles,
     progressRange: [95, 100],

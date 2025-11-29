@@ -143,7 +143,7 @@ function App() {
                 ) : (
                     <div className="tab-content">
                         <h3>Import Brand System</h3>
-                        <p className="hint">Paste your Brand Key from Flowtusk Design Studio.</p>
+                        <p className="hint">Paste your Brand Key from Flowtusk Brand Canvas.</p>
                         <input
                             type="text"
                             placeholder="FLOW-XXXX"

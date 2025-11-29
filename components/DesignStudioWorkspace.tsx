@@ -217,7 +217,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       <div className="flex flex-col h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground">Loading Design Studio...</p>
+          <p className="text-muted-foreground">Loading Brand Canvas...</p>
         </div>
       </div>
     );

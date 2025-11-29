@@ -188,12 +188,12 @@ export function IntegratedValuePropPreview({
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating positioning package...
+                  Building your brand strategy...
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Create Value Proposition
+                  Create Brand Strategy
                 </>
               )}
             </Button>

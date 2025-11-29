@@ -40,7 +40,7 @@ export function SummaryApprovalCard({
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
-            <h3 className="font-semibold text-lg">Analysis Complete</h3>
+            <h3 className="font-semibold text-lg">Here's What We Found</h3>
           </div>
 
           {/* Summary Text with markdown support */}
