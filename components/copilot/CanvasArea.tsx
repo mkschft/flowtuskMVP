@@ -5,6 +5,7 @@ import { ValuePropCanvas } from "./ValuePropCanvas";
 import { BrandGuideCanvas } from "./BrandGuideCanvas";
 import { StyleGuideCanvas } from "./StyleGuideCanvas";
 import { LandingCanvas } from "./LandingCanvas";
+import { PreviewsCanvas } from "./PreviewsCanvas";
 import { BrandGuideCanvasSkeleton } from "./BrandGuideCanvasSkeleton";
 import { StyleGuideCanvasSkeleton } from "./StyleGuideCanvasSkeleton";
 import { LandingCanvasSkeleton } from "./LandingCanvasSkeleton";
@@ -119,7 +120,7 @@ export function CanvasArea({
               {activeTab === "strategy" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
               {activeTab === "identity" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
               {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} manifest={manifest} />)}
-              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <LandingCanvas project={project} manifest={manifest} />)}
+              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <PreviewsCanvas project={project} manifest={manifest} />)}
             </motion.div>
           </AnimatePresence>
         </div>
