@@ -504,8 +504,10 @@ function ChatPageContent() {
       setWebsiteUrl("");
 
       console.log('✅ [Conversation] Created new local conversation (no DB flow yet)');
+      return newConv.id;
     } catch (error) {
       console.error('❌ [Conversation] Failed to create:', error);
+      return null;
     }
   };
 
@@ -1788,8 +1790,12 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       user={user}
       conversations={conversations}
       activeConversationId={activeConversationId}
-      onNewConversation={() => {
-        createNewConversation();
+      onNewConversation={async () => {
+        const newConvId = await createNewConversation();
+        // Update URL to trigger deep linking effect
+        if (newConvId) {
+          router.push(`/app?c=${newConvId}`, { scroll: false });
+        }
         setSidebarOpen(false);
       }}
       onSelectConversation={(id: string) => {
