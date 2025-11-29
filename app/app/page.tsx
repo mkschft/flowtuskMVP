@@ -2157,7 +2157,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             : "What would you like to do?"
                       }
                       disabled={isLoading}
-                      className="border-0 ring-0 rounded-none pr-14 sm:pr-16 focus-visible:ring-0 focus-visible:outline-none shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left"
+                      className="border-0 !ring-0 rounded-none pr-14 sm:pr-16 !focus-visible:ring-0 focus-visible:outline-none shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left"
                     />
                     <Button
                       type="submit"
