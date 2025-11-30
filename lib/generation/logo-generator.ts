@@ -234,6 +234,40 @@ export function generateTextBasedSVGLogo(
 }
 
 /**
+ * Render logo SVG with dynamic colors (for cascading updates)
+ * This function is called at render time to generate SVG with current colors
+ * @param brandName - Brand name to display in logo
+ * @param variation - Logo variation metadata
+ * @param primaryColor - Current primary color from manifest
+ * @param accentColor - Optional accent color for gradients
+ * @param typography - Optional typography config from manifest
+ * @returns SVG data URL string ready for use in img src
+ */
+export function renderLogoWithColors(
+  brandName: string,
+  variation: { name: string; description: string },
+  primaryColor: string,
+  accentColor?: string,
+  typography?: { family: string; weight: string } | null
+): string {
+  // Clean brand name
+  const cleanedBrandName = cleanBrandName(brandName);
+  
+  // Generate fresh SVG with current colors
+  const svg = generateTextBasedSVGLogo(
+    cleanedBrandName,
+    variation,
+    primaryColor,
+    accentColor,
+    typography
+  );
+  
+  // Convert to data URL
+  const encodedSvg = encodeURIComponent(svg.trim());
+  return `data:image/svg+xml,${encodedSvg}`;
+}
+
+/**
  * Check if logo generation is enabled via feature flag
  * Defaults to true if not set (enabled by default)
  */

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Download, Linkedin, Twitter, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import { cn } from "@/lib/utils";
+import { renderLogoWithColors } from "@/lib/generation/logo-generator";
 
 type Platform = "linkedin" | "twitter" | "instagram";
 
@@ -18,12 +19,29 @@ export function SocialMediaPreview({ project, manifest }: SocialMediaPreviewProp
   const [platform, setPlatform] = useState<Platform>("linkedin");
 
   // Extract brand data
-  const logo = manifest?.identity?.logo?.variations?.[0]?.imageUrl || null;
   const companyName = manifest?.brandName || project.name;
   const headline = project.valueProp?.headline || "Transform your brand with AI";
   const primaryColor = manifest?.identity?.colors?.primary?.[0]?.hex || "#6366F1";
   const secondaryColor = manifest?.identity?.colors?.secondary?.[0]?.hex || "#8B5CF6";
+  const accentColor = manifest?.identity?.colors?.accent?.[0]?.hex || primaryColor;
   const headingFont = manifest?.identity?.typography?.heading?.family || "Inter";
+  
+  // Generate logo dynamically with current colors (cascades when colors change)
+  const logoVariation = manifest?.identity?.logo?.variations?.[0];
+  const logo = useMemo(() => {
+    if (!logoVariation) return null;
+    const typography = manifest?.identity?.typography?.heading ? {
+      family: manifest.identity.typography.heading.family,
+      weight: manifest.identity.typography.heading.weights?.[0] || '600'
+    } : null;
+    return renderLogoWithColors(
+      companyName,
+      { name: logoVariation.name, description: logoVariation.description },
+      primaryColor,
+      accentColor,
+      typography
+    );
+  }, [logoVariation, companyName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
 
   // Platform-specific dimensions
   const dimensions = {

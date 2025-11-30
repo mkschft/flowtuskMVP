@@ -19,8 +19,9 @@ import { ColorAccessibility } from "./sections/ColorAccessibility";
 import { TypographyContext } from "./sections/TypographyContext";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { getPrimaryColor } from "@/lib/utils/color-utils";
-import { useState } from "react";
+import { getPrimaryColor, getAccentColor } from "@/lib/utils/color-utils";
+import { renderLogoWithColors } from "@/lib/generation/logo-generator";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 type BrandGuideCanvasProps = {
@@ -35,6 +36,14 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
 
   // Get dynamic colors from manifest
   const primaryColor = getPrimaryColor(manifest);
+  const accentColor = getAccentColor(manifest);
+  
+  // Get typography for logo rendering
+  const headingTypography = manifest?.identity?.typography?.heading;
+  const logoTypography = useMemo(() => headingTypography ? {
+    family: headingTypography.family,
+    weight: headingTypography.weights?.[0] || '600'
+  } : null, [headingTypography?.family, headingTypography?.weights]);
 
   // Safe access helpers with Array guards
   const primaryColors = Array.isArray(brandGuide?.colors?.primary) ? brandGuide.colors.primary : [];
@@ -45,26 +54,6 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
   const logoVariations = Array.isArray(brandGuide?.logoVariations) ? brandGuide.logoVariations : [];
   const toneOfVoice = Array.isArray(brandGuide?.toneOfVoice) ? brandGuide.toneOfVoice : [];
   const personalityTraits = Array.isArray(brandGuide?.personalityTraits) ? brandGuide.personalityTraits : [];
-
-  // 🔍 DEBUG: Check if usage field exists in color data
-  console.log('🔍 [BrandGuideCanvas] Color data check:');
-  console.log('  - Primary colors:', primaryColors.length);
-  if (primaryColors.length > 0) {
-    console.log('  - First primary color:', primaryColors[0]);
-    console.log('  - Has usage field?', 'usage' in primaryColors[0], primaryColors[0].usage);
-  }
-
-  // 🔍 DEBUG: Log logo variations data
-  if (logoVariations.length > 0) {
-    console.log('🔍 [BrandGuideCanvas] Logo variations received:', logoVariations.length);
-    logoVariations.forEach((logo, idx) => {
-      console.log(`  - Logo ${idx + 1} (${logo.name}):`);
-      const hasImageUrl = 'imageUrl' in logo;
-      console.log(`    - imageUrl: ${hasImageUrl && logo.imageUrl ? '✅' : '❌'}`);
-    });
-  } else {
-    console.warn('⚠️ [BrandGuideCanvas] No logo variations found in brandGuide');
-  }
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -422,58 +411,56 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
-            const logoAny = logo as any;
-            const hasLogo = !!logoAny.imageUrl;
+            // Generate logo dynamically with current manifest colors
+            // This ensures logos update when colors change (cascading)
+            const brandName = manifest?.brandName || project.name;
+            const dynamicLogoUrl = renderLogoWithColors(
+              brandName,
+              { name: logo.name, description: logo.description },
+              primaryColor,
+              accentColor,
+              logoTypography
+            );
 
             return (
               <div
                 key={idx}
                 className="p-6 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
               >
-                {hasLogo ? (
-                  <>
-                    <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
-                      <img
-                        src={logoAny.imageUrl}
-                        alt={`${logo.name} logo for ${project.name}`}
-                        className="w-full h-full object-contain p-4"
-                        style={{ maxWidth: '100%', maxHeight: '100%' }}
-                        onError={(e) => {
-                          try {
-                            const target = e.target as HTMLImageElement;
-                            if (target) {
-                              target.style.display = 'none';
-                              const fallback = target.parentElement?.querySelector('.logo-fallback') as HTMLElement;
-                              if (fallback) {
-                                fallback.style.display = 'flex';
-                              }
-                            }
-                          } catch (err) {
-                            console.warn('Error handling logo image fallback:', err);
+                <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
+                  <img
+                    src={dynamicLogoUrl}
+                    alt={`${logo.name} logo for ${brandName}`}
+                    className="w-full h-full object-contain p-4"
+                    style={{ maxWidth: '100%', maxHeight: '100%' }}
+                    onError={(e) => {
+                      try {
+                        const target = e.target as HTMLImageElement;
+                        if (target) {
+                          target.style.display = 'none';
+                          const fallback = target.parentElement?.querySelector('.logo-fallback') as HTMLElement;
+                          if (fallback) {
+                            fallback.style.display = 'flex';
                           }
-                        }}
-                      />
-                      <div className="text-4xl font-bold text-muted-foreground opacity-20 logo-fallback absolute inset-0 flex items-center justify-center hidden">
-                        {project.name.charAt(0)}
-                      </div>
-                    </div>
-                    <p className="font-semibold text-sm text-center">{logo.name}</p>
-                    <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative">
-                      <div className="text-4xl font-bold text-muted-foreground opacity-20 flex items-center justify-center w-full h-full">
-                        {project.name.charAt(0)}
-                      </div>
-                    </div>
-                    <p className="font-semibold text-sm text-center">{logo.name}</p>
-                    <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
-                  </>
-                )}
+                        }
+                      } catch (err) {
+                        console.warn('Error handling logo image fallback:', err);
+                      }
+                    }}
+                  />
+                  <div className="text-4xl font-bold text-muted-foreground opacity-20 logo-fallback absolute inset-0 flex items-center justify-center hidden">
+                    {brandName.charAt(0)}
+                  </div>
+                </div>
+                <p className="font-semibold text-sm text-center">{logo.name}</p>
+                <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
               </div>
             );
           }) : <p className="text-sm text-muted-foreground italic col-span-2">No logo variations defined</p>}
+        </div>
+        
+        <div className="text-xs text-muted-foreground text-center pt-4 border-t mt-4">
+          💡 Logos automatically update when you change colors in the palette above
         </div>
       </Card>
 

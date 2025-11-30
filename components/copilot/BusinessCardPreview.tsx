@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,8 @@ import { Download, Share2, Printer } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { ICP } from "@/lib/types/database";
-import { getPrimaryColor, getSecondaryColor, getContrastColor } from "@/lib/utils/color-utils";
+import { getPrimaryColor, getSecondaryColor, getAccentColor, getContrastColor } from "@/lib/utils/color-utils";
+import { renderLogoWithColors } from "@/lib/generation/logo-generator";
 
 type BusinessCardPreviewProps = {
     project: DesignProject;
@@ -18,10 +20,27 @@ type BusinessCardPreviewProps = {
 export function BusinessCardPreview({ project, manifest, persona }: BusinessCardPreviewProps) {
     const primaryColor = getPrimaryColor(manifest);
     const secondaryColor = getSecondaryColor(manifest);
+    const accentColor = getAccentColor(manifest);
 
     // Get brand details
     const brandName = manifest?.brandName || project.name;
-    const logoUrl = manifest?.identity?.logo?.variations?.[0]?.imageUrl;
+    
+    // Generate logo dynamically with current colors (cascades when colors change)
+    const logoVariation = manifest?.identity?.logo?.variations?.[0];
+    const logoUrl = useMemo(() => {
+        if (!logoVariation) return null;
+        const typography = manifest?.identity?.typography?.heading ? {
+            family: manifest.identity.typography.heading.family,
+            weight: manifest.identity.typography.heading.weights?.[0] || '600'
+        } : null;
+        return renderLogoWithColors(
+            brandName,
+            { name: logoVariation.name, description: logoVariation.description },
+            primaryColor,
+            accentColor,
+            typography
+        );
+    }, [logoVariation, brandName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
 
     // Get person details
     const name = persona?.persona_name || "Alex Morgan";
