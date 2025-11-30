@@ -1,0 +1,164 @@
+{
+  "brand": {
+    "name": "Canva",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Explore Canva's Visual Suite"
+  },
+  "structure": {
+    "nav": [
+      "Design",
+      "Product",
+      "Plans",
+      "Business"
+    ],
+    "keyPages": [
+      {
+        "path": "/visual-suite/",
+        "title": "Visual Suite"
+      },
+      {
+        "path": "/pricing/",
+        "title": "Compare Pricing"
+      },
+      {
+        "path": "/enterprise/",
+        "title": "Enterprise"
+      },
+      {
+        "path": "/solutions/",
+        "title": "Canva for Business"
+      }
+    ],
+    "footer": [
+      "Discover our latest launches",
+      "Apps Marketplace",
+      "Brand management"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Design and Visual Communication",
+    "signals": [
+      "Domain: .com",
+      "Language: English",
+      "Global product offerings"
+    ]
+  },
+  "audienceSignals": [
+    "Businesses of all sizes",
+    "Design professionals",
+    "Educational institutions",
+    "Nonprofits"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Comprehensive design tools for digital and print media.",
+      "evidence": [
+        "fact-3",
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "AI-powered features for enhanced design capabilities.",
+      "evidence": [
+        "fact-10",
+        "fact-11"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for easy-to-use design tools",
+    "Requirement for collaboration in design projects",
+    "Demand for affordable design solutions"
+  ],
+  "proof": [
+    "Wide range of design templates",
+    "AI-powered design tools",
+    "Enterprise solutions and demos"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Canva offers a Visual Suite for digital design.",
+      "page": "Design",
+      "evidence": "Canva Visual Suite"
+    },
+    {
+      "id": "fact-2",
+      "text": "Canva provides tools for email, sheets, and docs.",
+      "page": "Design",
+      "evidence": "Email, Sheets, Docs"
+    },
+    {
+      "id": "fact-3",
+      "text": "Canva includes a photo editor and video editor.",
+      "page": "Design",
+      "evidence": "Photo Editor, Video Editor"
+    },
+    {
+      "id": "fact-4",
+      "text": "Canva offers print design products like business cards and flyers.",
+      "page": "Print design",
+      "evidence": "Business cards, Flyers"
+    },
+    {
+      "id": "fact-5",
+      "text": "Canva supports image editing with features like background remover.",
+      "page": "Images and photos",
+      "evidence": "Background remover"
+    },
+    {
+      "id": "fact-6",
+      "text": "Canva provides video editing tools including a video trimmer.",
+      "page": "Videos and audio",
+      "evidence": "Video trimmer"
+    },
+    {
+      "id": "fact-7",
+      "text": "Canva's audio tools include text to speech voiceover.",
+      "page": "Videos and audio",
+      "evidence": "Text to speech voiceover"
+    },
+    {
+      "id": "fact-8",
+      "text": "Canva AI includes a Magic Studio with AI assistant.",
+      "page": "Product",
+      "evidence": "Canva AI assistant"
+    },
+    {
+      "id": "fact-9",
+      "text": "Canva offers brand management features.",
+      "page": "Product",
+      "evidence": "Brand management"
+    },
+    {
+      "id": "fact-10",
+      "text": "Canva's AI features include Magic Write and Magic Resize.",
+      "page": "Product",
+      "evidence": "Magic Write, Magic Resize"
+    },
+    {
+      "id": "fact-11",
+      "text": "Canva provides solutions for marketing and sales functions.",
+      "page": "Business",
+      "evidence": "Marketing, Sales"
+    },
+    {
+      "id": "fact-12",
+      "text": "Canva offers enterprise onboarding services.",
+      "page": "Business",
+      "evidence": "Enterprise onboarding"
+    },
+    {
+      "id": "fact-13",
+      "text": "Canva supports industries like small business and agencies.",
+      "page": "Solutions",
+      "evidence": "Small business, Agencies"
+    }
+  ]
+}

@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ValuePropTable } from "./ValuePropTable";
+import { CompetitivePositioning } from "./sections/CompetitivePositioning";
+import { MessagingVariations } from "./sections/MessagingVariations";
 import {
   Check,
   Copy,
@@ -49,6 +51,9 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
   const personaCompany = persona.persona_company;
   const personaLocation = `${persona.location}, ${persona.country}`;
 
+  // Get brand name
+  const brandName = manifest?.brandName || personaCompany || "Your Company";
+
   // Use value prop headline (set from variations), with fallbacks
   const personaValueProp = valueProp.headline ||
     valueProp.benefits?.[0] ||
@@ -80,7 +85,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
 
       {/* Persona Card with Avatar */}
       <Card className="p-6 bg-background border relative overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `linear-gradient(135deg, ${lightPrimaryBg} 0%, ${getLightShade(secondaryColor, 0.05)} 100%)`
@@ -95,7 +100,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
                 src={avatarUrl}
                 alt="Persona Avatar"
                 className="w-20 h-20 rounded-full ring-2 ring-offset-2 ring-offset-background bg-white"
-                style={{ 
+                style={{
                   filter: 'contrast(1.2)',
                   borderColor: lightPrimaryRing,
                   boxShadow: `0 0 0 2px ${lightPrimaryRing}`
@@ -118,7 +123,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
                     {personaCompany}
                   </p>
                 </div>
-                <Badge 
+                <Badge
                   className="shrink-0"
                   style={{
                     backgroundColor: lightPrimaryBg,
@@ -140,7 +145,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
           <div className="space-y-4 pt-4 border-t">
             <Badge className="mb-2">Key Pain Point</Badge>
             <div className="group relative">
-              <h1 
+              <h1
                 className="text-3xl sm:text-4xl font-bold select-none"
                 style={textGradientStyle}
               >
@@ -214,6 +219,9 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
         />
       </Card>
 
+      {/* Messaging Variations */}
+      <MessagingVariations manifest={manifest} valueProp={valueProp} />
+
       {/* Key Benefits */}
       <Card className="p-6 bg-background border">
         <h3 className="font-bold text-lg mb-4">Key Benefits</h3>
@@ -223,7 +231,7 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
               key={idx}
               className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border group relative hover:bg-muted transition-colors"
             >
-              <div 
+              <div
                 className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                 style={{ backgroundColor: lightPrimaryBg }}
               >
@@ -246,6 +254,9 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
           ))}
         </div>
       </Card>
+
+      {/* Competitive Positioning */}
+      <CompetitivePositioning manifest={manifest} brandName={brandName} />
     </div>
   );
 }

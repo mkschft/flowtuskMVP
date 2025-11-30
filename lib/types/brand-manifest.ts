@@ -70,6 +70,10 @@ export interface BrandManifest {
         spacing: {
             scale: Record<string, string>; // e.g., { "xs": "4px", "sm": "8px", ... }
         };
+        badges: {
+            style: string; // "soft" | "outline" | "solid"
+            borderRadius: string;
+        };
     };
 
     // Previews Layer (Generated Content)

@@ -38,7 +38,11 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
     const secondaryColor = getSecondaryColor(manifest);
     const textGradientStyle = getTextGradientStyle(manifest);
     const lightPrimaryBg = getLightShade(primaryColor, 0.1);
-    const lightPrimaryRing = getLightShade(primaryColor, 0.2);
+
+    // Get card styles from manifest
+    const cardStyle = manifest?.components?.cards;
+    const borderRadius = cardStyle?.borderRadius || "0.5rem";
+    const shadow = cardStyle?.shadow || "0 10px 15px -3px rgba(0, 0, 0, 0.1)";
 
     // Default cards if not provided
     const defaultCards = [
@@ -96,10 +100,14 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                     // Feature Card
                     if (card.type === "feature") {
                         return (
-                            <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
+                            <Card
+                                key={idx}
+                                className="p-6 transition-shadow"
+                                style={{ borderRadius, boxShadow: shadow }}
+                            >
                                 <div
-                                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                                    style={{ backgroundColor: lightPrimaryBg }}
+                                    className="w-12 h-12 flex items-center justify-center mb-4"
+                                    style={{ backgroundColor: lightPrimaryBg, borderRadius: borderRadius }}
                                 >
                                     <Sparkles className="w-6 h-6" style={{ color: primaryColor }} />
                                 </div>
@@ -125,7 +133,11 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                     // Stat Card
                     if (card.type === "stat") {
                         return (
-                            <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
+                            <Card
+                                key={idx}
+                                className="p-6 transition-shadow"
+                                style={{ borderRadius, boxShadow: shadow }}
+                            >
                                 <div className="flex items-start justify-between mb-2">
                                     <div>
                                         <h4
@@ -165,9 +177,13 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                         return (
                             <Card
                                 key={idx}
-                                className={`p-6 hover:shadow-lg transition-shadow relative ${isHighlighted ? 'ring-2 ring-offset-2' : ''
+                                className={`p-6 transition-shadow relative ${isHighlighted ? 'ring-2 ring-offset-2' : ''
                                     }`}
-                                style={isHighlighted ? { borderColor: primaryColor } : {}}
+                                style={{
+                                    borderRadius,
+                                    boxShadow: shadow,
+                                    ...(isHighlighted ? { borderColor: primaryColor } : {})
+                                }}
                             >
                                 {isHighlighted && (
                                     <Badge
@@ -214,7 +230,11 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                     if (card.type === "testimonial") {
                         const testimonialCard = card as typeof card & { author?: string; role?: string; company?: string; rating?: number };
                         return (
-                            <Card key={idx} className="p-6 hover:shadow-lg transition-shadow">
+                            <Card
+                                key={idx}
+                                className="p-6 transition-shadow"
+                                style={{ borderRadius, boxShadow: shadow }}
+                            >
                                 <div className="flex gap-1 mb-4">
                                     {[...Array(testimonialCard.rating || 5)].map((_, i) => (
                                         <Star key={i} className="w-4 h-4 fill-current" style={{ color: primaryColor }} />

@@ -99,6 +99,7 @@ export function mapLegacyDataToManifest(
                 shadow: 'sm'
             },
             inputs: { style: 'outlined', borderRadius: '8px', focusStyle: 'ring' },
+            badges: { style: 'soft', borderRadius: '9999px' },
             spacing: { scale: {} }
         },
 

@@ -382,7 +382,7 @@ async function generateStyleGuide(manifest: any) {
     throw new Error('Manifest missing brandName. Cannot generate style guide.');
   }
 
-  const prompt = `Generate a style guide for ${manifest.brandName} with button, card, and input styles.
+  const prompt = `Generate a style guide for ${manifest.brandName} with button, card, input, and badge styles.
 
 IMPORTANT: You MUST include a spacing scale with at least xs, sm, md, lg, and xl values.
 
@@ -402,6 +402,10 @@ Return ONLY valid JSON:
     "style": "outlined",
     "borderRadius": "8px",
     "focusStyle": "ring"
+  },
+  "badges": {
+    "style": "soft",
+    "borderRadius": "full"
   },
   "spacing": {
     "scale": { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px" }
@@ -432,6 +436,7 @@ Return ONLY valid JSON:
       buttons: content.buttons,
       cards: content.cards,
       inputs: content.inputs,
+      badges: content.badges,
       spacing: content.spacing
     }
   };

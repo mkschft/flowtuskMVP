@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
     CheckCircle,
     AlertTriangle,
@@ -23,6 +24,10 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
     const primaryColor = getPrimaryColor(manifest);
     const secondaryColor = getSecondaryColor(manifest);
     const lightPrimaryBg = getLightShade(primaryColor, 0.1);
+
+    // Get badge styles from manifest
+    const badgeStyle = manifest?.components?.badges;
+    const borderRadius = badgeStyle?.borderRadius || "9999px"; // Default to full (pill)
 
     // Semantic colors (we'll use standard colors for semantic meaning, but accent with brand colors)
     const semanticColors = {
@@ -58,7 +63,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: semanticColors.success,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <CheckCircle className="w-3 h-3" />
@@ -69,7 +75,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: semanticColors.warning,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <AlertTriangle className="w-3 h-3" />
@@ -80,7 +87,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: semanticColors.error,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <XCircle className="w-3 h-3" />
@@ -91,7 +99,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: semanticColors.info,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <Info className="w-3 h-3" />
@@ -109,7 +118,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 className="gap-1.5"
                                 style={{
                                     borderColor: semanticColors.success,
-                                    color: semanticColors.success
+                                    color: semanticColors.success,
+                                    borderRadius
                                 }}
                             >
                                 <CheckCircle className="w-3 h-3" />
@@ -120,7 +130,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 className="gap-1.5"
                                 style={{
                                     borderColor: semanticColors.warning,
-                                    color: semanticColors.warning
+                                    color: semanticColors.warning,
+                                    borderRadius
                                 }}
                             >
                                 <AlertTriangle className="w-3 h-3" />
@@ -131,7 +142,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 className="gap-1.5"
                                 style={{
                                     borderColor: semanticColors.error,
-                                    color: semanticColors.error
+                                    color: semanticColors.error,
+                                    borderRadius
                                 }}
                             >
                                 <XCircle className="w-3 h-3" />
@@ -142,7 +154,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 className="gap-1.5"
                                 style={{
                                     borderColor: semanticColors.info,
-                                    color: semanticColors.info
+                                    color: semanticColors.info,
+                                    borderRadius
                                 }}
                             >
                                 <Info className="w-3 h-3" />
@@ -160,7 +173,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: getLightShade(semanticColors.success, 0.15),
                                     color: semanticColors.success,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <CheckCircle className="w-3 h-3" />
@@ -171,7 +185,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: getLightShade(semanticColors.warning, 0.15),
                                     color: semanticColors.warning,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <AlertTriangle className="w-3 h-3" />
@@ -182,7 +197,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: getLightShade(semanticColors.error, 0.15),
                                     color: semanticColors.error,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <XCircle className="w-3 h-3" />
@@ -193,7 +209,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: lightPrimaryBg,
                                     color: semanticColors.info,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <Info className="w-3 h-3" />
@@ -220,7 +237,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: primaryColor,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <Tag className="w-3 h-3 mr-1" />
@@ -230,7 +248,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: secondaryColor,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <Tag className="w-3 h-3 mr-1" />
@@ -240,7 +259,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: primaryColor,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 <Tag className="w-3 h-3 mr-1" />
@@ -257,7 +277,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 variant="outline"
                                 style={{
                                     borderColor: primaryColor,
-                                    color: primaryColor
+                                    color: primaryColor,
+                                    borderRadius
                                 }}
                             >
                                 Product
@@ -266,7 +287,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 variant="outline"
                                 style={{
                                     borderColor: secondaryColor,
-                                    color: secondaryColor
+                                    color: secondaryColor,
+                                    borderRadius
                                 }}
                             >
                                 Engineering
@@ -275,7 +297,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 variant="outline"
                                 style={{
                                     borderColor: primaryColor,
-                                    color: primaryColor
+                                    color: primaryColor,
+                                    borderRadius
                                 }}
                             >
                                 Sales
@@ -291,7 +314,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: lightPrimaryBg,
                                     color: primaryColor,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 Feature
@@ -300,7 +324,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: getLightShade(secondaryColor, 0.15),
                                     color: secondaryColor,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 Enhancement
@@ -309,7 +334,8 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                                 style={{
                                     backgroundColor: lightPrimaryBg,
                                     color: primaryColor,
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 Bug Fix
@@ -330,45 +356,39 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                     {/* With Icons */}
                     <div>
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">With Icons</p>
-                        <div className="flex flex-wrap gap-4 items-center">
-                            <div className="relative inline-block">
-                                <Bell className="w-6 h-6 text-foreground" />
+                        <div className="flex flex-wrap gap-4">
+                            <div className="relative inline-flex">
+                                <Button variant="outline" size="icon">
+                                    <Bell className="w-4 h-4" />
+                                </Button>
                                 <Badge
-                                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                                    className="absolute -top-2 -right-2 px-1.5 min-w-[1.25rem] h-5 flex items-center justify-center"
                                     style={{
                                         backgroundColor: semanticColors.error,
                                         color: 'white',
-                                        border: 'none'
+                                        border: 'none',
+                                        borderRadius
                                     }}
                                 >
                                     3
                                 </Badge>
                             </div>
-                            <div className="relative inline-block">
-                                <Star className="w-6 h-6 text-foreground" />
-                                <Badge
-                                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
-                                    style={{
-                                        backgroundColor: primaryColor,
-                                        color: 'white',
-                                        border: 'none'
-                                    }}
-                                >
-                                    12
-                                </Badge>
-                            </div>
-                            <div className="relative inline-block">
-                                <Info className="w-6 h-6 text-foreground" />
-                                <Badge
-                                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
-                                    style={{
-                                        backgroundColor: semanticColors.warning,
-                                        color: 'white',
-                                        border: 'none'
-                                    }}
-                                >
-                                    5
-                                </Badge>
+
+                            <div className="relative inline-flex">
+                                <Button variant="outline">
+                                    Messages
+                                    <Badge
+                                        className="ml-2 px-1.5 h-5 flex items-center justify-center"
+                                        style={{
+                                            backgroundColor: primaryColor,
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius
+                                        }}
+                                    >
+                                        New
+                                    </Badge>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -378,31 +398,34 @@ export function BadgesSection({ manifest }: BadgesSectionProps) {
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Count Badges</p>
                         <div className="flex flex-wrap gap-2">
                             <Badge
-                                className="rounded-full h-6 w-6 flex items-center justify-center p-0 text-xs"
+                                className="h-6 w-6 flex items-center justify-center p-0 text-xs"
                                 style={{
                                     backgroundColor: primaryColor,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 1
                             </Badge>
                             <Badge
-                                className="rounded-full h-6 w-6 flex items-center justify-center p-0 text-xs"
+                                className="h-6 w-6 flex items-center justify-center p-0 text-xs"
                                 style={{
                                     backgroundColor: secondaryColor,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 5
                             </Badge>
                             <Badge
-                                className="rounded-full px-2 h-6 flex items-center justify-center text-xs"
+                                className="px-2 h-6 flex items-center justify-center text-xs"
                                 style={{
                                     backgroundColor: semanticColors.error,
                                     color: 'white',
-                                    border: 'none'
+                                    border: 'none',
+                                    borderRadius
                                 }}
                             >
                                 99+

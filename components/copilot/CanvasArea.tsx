@@ -121,7 +121,7 @@ export function CanvasArea({
               {activeTab === "strategy" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
               {activeTab === "identity" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
               {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <ComponentsCanvas project={project} manifest={manifest} />)}
-              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <PreviewsCanvas project={project} manifest={manifest} />)}
+              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <PreviewsCanvas project={project} persona={persona} manifest={manifest} />)}
             </motion.div>
           </AnimatePresence>
         </div>

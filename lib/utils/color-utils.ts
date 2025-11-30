@@ -104,3 +104,42 @@ export function getContrastColor(hex: string): string {
   return luminance > 0.5 ? "#000000" : "#FFFFFF";
 }
 
+/**
+ * Calculate relative luminance for WCAG contrast
+ */
+function getLuminance(r: number, g: number, b: number) {
+  const a = [r, g, b].map(v => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  });
+  return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+}
+
+/**
+ * Calculate contrast ratio between two hex colors
+ */
+export function getContrastRatio(hex1: string, hex2: string): number {
+  const rgb1 = hexToRgb(hex1);
+  const rgb2 = hexToRgb(hex2);
+  if (!rgb1 || !rgb2) return 1;
+  const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+  const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+  const brightest = Math.max(lum1, lum2);
+  const darkest = Math.min(lum1, lum2);
+  return (brightest + 0.05) / (darkest + 0.05);
+}
+
+/**
+ * Get WCAG score (AAA, AA, AA Large, Fail)
+ */
+export function getWCAGScore(ratio: number, isLargeText: boolean = false): "AAA" | "AA" | "Fail" {
+  if (isLargeText) {
+    if (ratio >= 4.5) return "AAA";
+    if (ratio >= 3) return "AA";
+    return "Fail";
+  }
+  if (ratio >= 7) return "AAA";
+  if (ratio >= 4.5) return "AA";
+  return "Fail";
+}
+

@@ -15,6 +15,8 @@ import {
   Moon,
   Shuffle
 } from "lucide-react";
+import { ColorAccessibility } from "./sections/ColorAccessibility";
+import { TypographyContext } from "./sections/TypographyContext";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import { getPrimaryColor } from "@/lib/utils/color-utils";
@@ -408,6 +410,9 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
         </div>
       </Card>
 
+      {/* Typography Context */}
+      <TypographyContext manifest={manifest} />
+
       {/* Logo Variations */}
       <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
@@ -516,6 +521,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                 max={100}
                 step={1}
                 className="w-full"
+                rangeColor={primaryColor}
                 disabled
               />
 
@@ -527,6 +533,9 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
           )) : <p className="text-sm text-muted-foreground italic">No personality traits defined</p>}
         </div>
       </Card>
+
+      {/* Accessibility Check */}
+      <ColorAccessibility manifest={manifest} />
     </div>
   );
 }

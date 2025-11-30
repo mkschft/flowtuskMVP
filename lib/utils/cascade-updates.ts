@@ -43,6 +43,7 @@ export function cascadeColorUpdates(
         },
         cards: manifest.components?.cards || { style: "flat", borderRadius: "12px", shadow: "sm" },
         inputs: manifest.components?.inputs || { style: "outlined", borderRadius: "8px", focusStyle: "ring" },
+        badges: manifest.components?.badges || { style: "soft", borderRadius: "9999px" },
         spacing: manifest.components?.spacing || { scale: {} },
       };
     }
