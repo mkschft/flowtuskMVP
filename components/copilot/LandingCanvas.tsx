@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import {
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import { getPrimaryColor, getSecondaryColor, getTextGradientStyle, getGradientBgStyle, getLightShade } from "@/lib/utils/color-utils";
+import { renderLogoWithColors } from "@/lib/generation/logo-generator";
 
 type LandingCanvasProps = {
   project: DesignProject;
@@ -45,10 +47,29 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
   // Get dynamic colors from manifest
   const primaryColor = getPrimaryColor(manifest);
   const secondaryColor = getSecondaryColor(manifest);
+  const accentColor = manifest?.identity?.colors?.accent?.[0]?.hex || primaryColor;
   const textGradientStyle = getTextGradientStyle(manifest);
   const gradientBgStyle = getGradientBgStyle(manifest, "to-r");
   const lightPrimaryBg = getLightShade(primaryColor, 0.1);
   const lightSecondaryBg = getLightShade(secondaryColor, 0.1);
+  
+  // Generate logos dynamically
+  const brandName = manifest?.brandName || project.name;
+  
+  // Full Color logo for navigation (includes brand name)
+  const navLogo = useMemo(() => {
+    const typography = manifest?.identity?.typography?.heading ? {
+      family: manifest.identity.typography.heading.family,
+      weight: manifest.identity.typography.heading.weights?.[0] || '600'
+    } : null;
+    return renderLogoWithColors(
+      brandName,
+      { name: 'Full Color', description: '' },
+      primaryColor,
+      accentColor,
+      typography
+    );
+  }, [brandName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
 
   // Safe access helpers
   const navigation = landingPage?.navigation || { logo: "", links: [] };
@@ -82,7 +103,12 @@ export function LandingCanvas({ project, manifest }: LandingCanvasProps) {
           {/* Navigation */}
           <nav className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-              <div className="font-bold text-xl">{navigation.logo}</div>
+              {/* Full Color Logo (includes brand name) */}
+              <img 
+                src={navLogo} 
+                alt={brandName} 
+                className="h-10 w-auto"
+              />
               {navigation.links && navigation.links.length > 0 && (
                 <div className="hidden md:flex items-center gap-6 text-sm">
                   {navigation.links.map((link, idx) => (

@@ -234,6 +234,182 @@ export function generateTextBasedSVGLogo(
 }
 
 /**
+ * Generate icon-only SVG logo (monogram/lettermark with abstract shape)
+ * @param inverted - If true, creates white background with colored text (for use on colored backgrounds)
+ */
+export function generateIconOnlySVG(
+  brandName: string,
+  primaryColor: string,
+  accentColor?: string,
+  inverted: boolean = false
+): string {
+  const cleanedName = cleanBrandName(brandName);
+  const initials = cleanedName.split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join('');
+  
+  const initial = initials.charAt(0);
+  const hasSecondInitial = initials.length > 1;
+  
+  // Create a modern icon with abstract geometric shapes
+  const gradientId = `icon-grad-${Math.random().toString(36).substr(2, 9)}`;
+  const useAccent = accentColor && accentColor !== primaryColor;
+  
+  // Inverted: white bg with colored text, Normal: colored bg with white text
+  const bgFill = inverted ? '#FFFFFF' : `url(#${gradientId})`;
+  const textFill = inverted ? primaryColor : 'white';
+  const accentFill = inverted ? primaryColor : 'white';
+  const accentOpacity = inverted ? 0.1 : 0.15;
+  
+  return `
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${useAccent ? accentColor : primaryColor};stop-opacity:${useAccent ? 1 : 0.8}" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="${inverted ? '#000000' : primaryColor}" flood-opacity="${inverted ? 0.1 : 0.25}"/>
+        </filter>
+      </defs>
+      
+      <!-- Background shape - rounded square -->
+      <rect x="10" y="10" width="100" height="100" rx="24" fill="${bgFill}" filter="url(#shadow)"/>
+      
+      <!-- Abstract accent shape -->
+      <circle cx="85" cy="35" r="18" fill="${accentFill}" opacity="${accentOpacity}"/>
+      <circle cx="95" cy="25" r="8" fill="${accentFill}" opacity="${accentOpacity * 0.7}"/>
+      
+      <!-- Main letter(s) -->
+      <text 
+        x="60" 
+        y="${hasSecondInitial ? '68' : '72'}" 
+        font-family="'Inter', 'SF Pro Display', system-ui, sans-serif" 
+        font-size="${hasSecondInitial ? '36' : '48'}px" 
+        font-weight="700"
+        fill="${textFill}"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >${hasSecondInitial ? initials : initial}</text>
+    </svg>
+  `.trim();
+}
+
+/**
+ * Generate full-color logo with background (for marketing materials)
+ */
+export function generateFullColorSVG(
+  brandName: string,
+  primaryColor: string,
+  accentColor?: string,
+  typography?: { family: string; weight: string } | null
+): string {
+  const cleanedName = cleanBrandName(brandName);
+  const words = cleanedName.split(' ');
+  const initial = cleanedName.charAt(0).toUpperCase();
+  
+  const fontConfig = getFontConfigForVariation({ name: 'full', description: '' }, typography);
+  const useAccent = accentColor && accentColor !== primaryColor;
+  const gradientId = `full-grad-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Calculate text width
+  const textLength = cleanedName.length;
+  const fontSize = textLength > 12 ? 22 : textLength > 8 ? 26 : 28;
+  const estimatedWidth = Math.max(280, textLength * fontSize * 0.6 + 100);
+  
+  return `
+    <svg viewBox="0 0 ${estimatedWidth} 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${useAccent ? accentColor : primaryColor};stop-opacity:1" />
+        </linearGradient>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="${primaryColor}" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+      
+      <!-- Full background -->
+      <rect x="0" y="0" width="${estimatedWidth}" height="100" rx="16" fill="url(#${gradientId})"/>
+      
+      <!-- Decorative elements -->
+      <circle cx="${estimatedWidth - 30}" cy="25" r="35" fill="white" opacity="0.08"/>
+      <circle cx="${estimatedWidth - 10}" cy="15" r="20" fill="white" opacity="0.05"/>
+      
+      <!-- Icon badge -->
+      <rect x="20" y="25" width="50" height="50" rx="12" fill="white" opacity="0.2"/>
+      <text 
+        x="45" 
+        y="55" 
+        font-family="'Inter', 'SF Pro Display', system-ui, sans-serif" 
+        font-size="24px" 
+        font-weight="700"
+        fill="white"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >${initial}</text>
+      
+      <!-- Brand name -->
+      <text 
+        x="85" 
+        y="55" 
+        font-family="${fontConfig.fontFamily}" 
+        font-size="${fontSize}px" 
+        font-weight="${fontConfig.fontWeight}"
+        fill="white"
+        dominant-baseline="middle"
+        filter="url(#glow)"
+      >${cleanedName}</text>
+    </svg>
+  `.trim();
+}
+
+/**
+ * Generate text-only logo (clean wordmark)
+ */
+export function generateTextOnlySVG(
+  brandName: string,
+  primaryColor: string,
+  accentColor?: string,
+  typography?: { family: string; weight: string } | null
+): string {
+  const cleanedName = cleanBrandName(brandName);
+  const fontConfig = getFontConfigForVariation({ name: 'text', description: '' }, typography);
+  const useAccent = accentColor && accentColor !== primaryColor;
+  const gradientId = `text-grad-${Math.random().toString(36).substr(2, 9)}`;
+  
+  const textLength = cleanedName.length;
+  const fontSize = textLength > 15 ? 26 : textLength > 10 ? 30 : 34;
+  const estimatedWidth = Math.max(200, textLength * fontSize * 0.65);
+  
+  return `
+    <svg viewBox="0 0 ${estimatedWidth} 60" xmlns="http://www.w3.org/2000/svg">
+      ${useAccent ? `
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${accentColor};stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      ` : ''}
+      
+      <text 
+        x="${estimatedWidth / 2}" 
+        y="38" 
+        font-family="${fontConfig.fontFamily}" 
+        font-size="${fontSize}px" 
+        font-weight="${fontConfig.fontWeight}"
+        font-style="italic"
+        letter-spacing="-0.5px"
+        fill="${useAccent ? `url(#${gradientId})` : primaryColor}"
+        text-anchor="middle"
+      >${cleanedName}</text>
+    </svg>
+  `.trim();
+}
+
+/**
  * Render logo SVG with dynamic colors (for cascading updates)
  * This function is called at render time to generate SVG with current colors
  * @param brandName - Brand name to display in logo
@@ -250,17 +426,21 @@ export function renderLogoWithColors(
   accentColor?: string,
   typography?: { family: string; weight: string } | null
 ): string {
-  // Clean brand name
-  const cleanedBrandName = cleanBrandName(brandName);
+  const variationName = variation.name.toLowerCase();
   
-  // Generate fresh SVG with current colors
-  const svg = generateTextBasedSVGLogo(
-    cleanedBrandName,
-    variation,
-    primaryColor,
-    accentColor,
-    typography
-  );
+  let svg: string;
+  
+  // Choose generator based on variation type
+  if (variationName.includes('icon') || variationName.includes('symbol') || variationName.includes('mark')) {
+    svg = generateIconOnlySVG(brandName, primaryColor, accentColor);
+  } else if (variationName.includes('full') || variationName.includes('color') || variationName.includes('primary')) {
+    svg = generateFullColorSVG(brandName, primaryColor, accentColor, typography);
+  } else if (variationName.includes('text') || variationName.includes('wordmark') || variationName.includes('minimal')) {
+    svg = generateTextOnlySVG(brandName, primaryColor, accentColor, typography);
+  } else {
+    // Default to text-based
+    svg = generateTextBasedSVGLogo(brandName, variation, primaryColor, accentColor, typography);
+  }
   
   // Convert to data URL
   const encodedSvg = encodeURIComponent(svg.trim());

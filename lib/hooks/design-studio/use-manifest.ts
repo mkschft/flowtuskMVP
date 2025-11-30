@@ -104,7 +104,7 @@ export function useManifest(
             return;
         }
 
-        const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+        const generationState = designAssets?.generation_state || { brand: false, style: false, strategy: false, landing: false };
         
         // Check if brand guide actually has data (not just the flag)
         const hasBrandData = manifest && (
@@ -135,13 +135,17 @@ export function useManifest(
             }
 
             // Double-check before polling - if complete, stop immediately
-            const currentState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+            const currentState = designAssets?.generation_state || { brand: false, style: false, strategy: false, landing: false };
             const currentHasBrandData = manifest && (
                 (manifest.identity?.tone?.keywords?.length ?? 0) > 0 ||
                 (manifest.identity?.logo?.variations?.length ?? 0) > 0 ||
                 (manifest.identity?.colors?.accent?.length ?? 0) > 0
             );
-            const currentAllComplete = currentState.brand && currentHasBrandData && currentState.style && currentState.landing;
+            const currentHasStrategyData = manifest && (
+                (manifest.strategy?.competitivePositioning?.competitors?.length ?? 0) > 0 ||
+                (manifest.strategy?.messagingVariations?.length ?? 0) > 0
+            );
+            const currentAllComplete = currentState.brand && currentHasBrandData && currentState.style && currentState.strategy && currentHasStrategyData && currentState.landing;
             
             if (currentAllComplete) {
                 console.log('✅ [Manifest] Generation completed during polling - stopping now');

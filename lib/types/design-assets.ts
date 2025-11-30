@@ -155,6 +155,7 @@ export interface LandingPage {
 export interface DesignGenerationState {
   brand: boolean;
   style: boolean;
+  strategy: boolean;
   landing: boolean;
 }
 

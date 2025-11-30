@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, AlertTriangle } from "lucide-react";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { getContrastRatio, getWCAGScore } from "@/lib/utils/color-utils";
+import { getContrastRatio, getWCAGScore, getPrimaryColor, getLightShade } from "@/lib/utils/color-utils";
 
 type ColorAccessibilityProps = {
     manifest?: BrandManifest | null;
@@ -14,6 +14,7 @@ export function ColorAccessibility({ manifest }: ColorAccessibilityProps) {
     const primaryColors = manifest?.identity?.colors?.primary || [];
     const secondaryColors = manifest?.identity?.colors?.secondary || [];
     const neutralColors = manifest?.identity?.colors?.neutral || [];
+    const primaryColor = getPrimaryColor(manifest);
 
     // Use first primary as main brand color
     const brandColor = primaryColors[0]?.hex || "#000000";
@@ -35,7 +36,11 @@ export function ColorAccessibility({ manifest }: ColorAccessibilityProps) {
                         Ensure your brand colors are legible for everyone (WCAG 2.1)
                     </p>
                 </div>
-                <Badge variant="outline" className="gap-1">
+                <Badge 
+                    variant="outline" 
+                    className="gap-1"
+                    style={{ borderColor: primaryColor, color: primaryColor }}
+                >
                     WCAG 2.1 AA
                 </Badge>
             </div>
@@ -57,22 +62,22 @@ export function ColorAccessibility({ manifest }: ColorAccessibilityProps) {
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-2 min-w-[100px]">
-                                <div className="flex items-center justify-between bg-white/90 dark:bg-black/90 p-2 rounded shadow-sm backdrop-blur-sm">
+                            <div className="flex flex-col gap-2 shrink-0">
+                                <div className="flex items-center gap-3 bg-white/90 dark:bg-black/90 px-3 py-2 rounded shadow-sm backdrop-blur-sm">
                                     <span className="text-xs font-semibold text-foreground">Ratio</span>
-                                    <span className="text-xs font-mono font-bold text-foreground">{ratio.toFixed(2)}:1</span>
+                                    <span className="text-sm font-mono font-bold text-foreground">{ratio.toFixed(2)}:1</span>
                                 </div>
 
-                                <div className="flex gap-2">
+                                <div className="flex gap-1.5">
                                     <Badge
                                         variant={scoreNormal === "Fail" ? "destructive" : "default"}
-                                        className="flex-1 justify-center text-[10px] h-5"
+                                        className="justify-center text-[10px] h-6 px-2 whitespace-nowrap"
                                     >
-                                        {scoreNormal === "Fail" ? "AA Fail" : `AA ${scoreNormal}`}
+                                        {scoreNormal === "Fail" ? "Fail" : scoreNormal}
                                     </Badge>
                                     <Badge
                                         variant={scoreLarge === "Fail" ? "destructive" : "secondary"}
-                                        className="flex-1 justify-center text-[10px] h-5"
+                                        className="justify-center text-[10px] h-6 px-2 whitespace-nowrap"
                                     >
                                         {scoreLarge === "Fail" ? "Lg Fail" : `Lg ${scoreLarge}`}
                                     </Badge>

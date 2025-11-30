@@ -9,7 +9,7 @@ import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { ICP } from "@/lib/types/database";
 import { getPrimaryColor, getSecondaryColor, getAccentColor, getContrastColor } from "@/lib/utils/color-utils";
-import { renderLogoWithColors } from "@/lib/generation/logo-generator";
+import { renderLogoWithColors, generateIconOnlySVG, generateTextOnlySVG } from "@/lib/generation/logo-generator";
 
 type BusinessCardPreviewProps = {
     project: DesignProject;
@@ -25,29 +25,36 @@ export function BusinessCardPreview({ project, manifest, persona }: BusinessCard
     // Get brand details
     const brandName = manifest?.brandName || project.name;
     
-    // Generate logo dynamically with current colors (cascades when colors change)
-    const logoVariation = manifest?.identity?.logo?.variations?.[0];
-    const logoUrl = useMemo(() => {
-        if (!logoVariation) return null;
+    // Generate inverted icon logo for front of card (white bg, colored text)
+    // This creates contrast against the colored card background
+    const iconLogo = useMemo(() => {
+        const svg = generateIconOnlySVG(brandName, primaryColor, accentColor, true); // inverted = true
+        return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }, [brandName, primaryColor, accentColor]);
+    
+    // Generate text logo for back of card (subtle watermark)
+    const textLogo = useMemo(() => {
         const typography = manifest?.identity?.typography?.heading ? {
             family: manifest.identity.typography.heading.family,
             weight: manifest.identity.typography.heading.weights?.[0] || '600'
         } : null;
         return renderLogoWithColors(
             brandName,
-            { name: logoVariation.name, description: logoVariation.description },
+            { name: 'Text Only', description: '' },
             primaryColor,
             accentColor,
             typography
         );
-    }, [logoVariation, brandName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
+    }, [brandName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
 
-    // Get person details
-    const name = persona?.persona_name || "Alex Morgan";
-    const role = persona?.persona_role || "Founder & CEO";
-    const email = `alex@${brandName.toLowerCase().replace(/\s/g, '')}.com`;
+    // Get person details - prioritize manifest over props for single source of truth
+    const manifestPersona = manifest?.strategy?.persona;
+    const name = manifestPersona?.name || persona?.persona_name || "Alex Morgan";
+    const role = manifestPersona?.role || persona?.persona_role || "Founder & CEO";
+    const cleanBrandName = brandName.toLowerCase().replace(/\s/g, '').replace(/[^a-z0-9]/g, '');
+    const email = `${name.split(' ')[0]?.toLowerCase() || 'contact'}@${cleanBrandName}.com`;
     const phone = "+1 (555) 123-4567";
-    const website = `www.${brandName.toLowerCase().replace(/\s/g, '')}.com`;
+    const website = `www.${cleanBrandName}.com`;
 
     // Determine text colors based on background contrast
     const primaryTextColor = getContrastColor(primaryColor);
@@ -96,18 +103,14 @@ export function BusinessCardPreview({ project, manifest, persona }: BusinessCard
                         />
 
                         <div className="relative z-10 text-center">
-                            {logoUrl ? (
-                                <img
-                                    src={logoUrl}
-                                    alt="Logo"
-                                    className="h-16 w-auto mb-4 mx-auto object-contain filter brightness-0 invert"
-                                />
-                            ) : (
-                                <div className="text-4xl font-bold mb-2 tracking-tight">
-                                    {brandName}
-                                </div>
-                            )}
-                            <div className="h-1 w-12 bg-current opacity-50 mx-auto rounded-full" />
+                            <img
+                                src={iconLogo}
+                                alt="Logo"
+                                className="h-20 w-20 mb-4 mx-auto object-contain"
+                            />
+                            <div className="text-lg font-semibold tracking-wide opacity-90">
+                                {brandName}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,17 +147,11 @@ export function BusinessCardPreview({ project, manifest, persona }: BusinessCard
                         </div>
 
                         <div className="pl-6 flex justify-end">
-                            {logoUrl ? (
-                                <img
-                                    src={logoUrl}
-                                    alt="Logo"
-                                    className="h-6 w-auto opacity-50 grayscale"
-                                />
-                            ) : (
-                                <span className="text-xs font-bold text-muted-foreground tracking-widest uppercase opacity-50">
-                                    {brandName}
-                                </span>
-                            )}
+                            <img
+                                src={textLogo}
+                                alt="Logo"
+                                className="h-5 w-auto opacity-40"
+                            />
                         </div>
                     </div>
                 </div>

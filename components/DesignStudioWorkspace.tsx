@@ -139,19 +139,18 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   }, [workspaceData, uiValueProp, designAssets, chatMessages]);
 
   // 5.5 Sync manifest to designAssets when manifest changes (prevents flicker)
-  const prevManifestRef = useRef<string | null>(null);
+  // Only sync on initial load when designAssets is null - prevents flicker from re-syncing
+  const hasSyncedRef = useRef(false);
   useEffect(() => {
     if (!manifest || !flowId || !icpId) return;
     
-    // Only sync if manifest actually changed (check by lastUpdated timestamp)
-    const manifestKey = manifest.lastUpdated || 'initial';
-    if (prevManifestRef.current === manifestKey) {
-      return; // Already synced
+    // Only sync once on initial load (when designAssets is null)
+    // This prevents flicker from re-syncing when manifest updates
+    if (hasSyncedRef.current && designAssets) {
+      return; // Already synced, don't re-sync
     }
     
-    prevManifestRef.current = manifestKey;
-    
-    // Convert manifest to designAssets to keep UI in sync
+    // Convert manifest to designAssets to keep UI in sync (only on initial load)
     const updatedDesignAssets = convertManifestToDesignAssets(
       manifest,
       flowId,
@@ -159,16 +158,18 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       designAssets
     );
     
-    // Only update if actually changed (prevents unnecessary re-renders)
+    // Only update if designAssets is null (initial load) or if colors actually changed
     const currentColors = designAssets?.brand_guide?.colors?.primary?.[0]?.hex;
     const newColors = updatedDesignAssets.brand_guide?.colors?.primary?.[0]?.hex;
     
-    if (currentColors !== newColors || !designAssets) {
-      console.log('🔄 [Design Studio] Syncing manifest to designAssets...', {
+    if (!designAssets || currentColors !== newColors) {
+      console.log('🔄 [Design Studio] Syncing manifest to designAssets (initial load)...', {
         oldColor: currentColors,
-        newColor: newColors
+        newColor: newColors,
+        isInitial: !designAssets
       });
       setDesignAssets({ ...updatedDesignAssets });
+      hasSyncedRef.current = true;
       
       if (workspaceData) {
         setWorkspaceData({
@@ -177,7 +178,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
         });
       }
     }
-  }, [manifest?.lastUpdated, flowId, icpId, designAssets, workspaceData, setDesignAssets, setWorkspaceData]);
+  }, [manifest, flowId, icpId, designAssets, workspaceData, setDesignAssets, setWorkspaceData]);
 
   // 6. Chat Streaming
   const {

@@ -16,7 +16,9 @@ type EmailPreviewProps = {
 };
 
 export function EmailPreview({ project, persona, manifest }: EmailPreviewProps) {
-    const { valueProp, brandGuide } = project;
+    // Prioritize manifest over project/props for single source of truth
+    const valueProp = manifest?.strategy?.valueProp || project.valueProp;
+    const manifestPersona = manifest?.strategy?.persona;
 
     // Get dynamic colors
     const primaryColor = getPrimaryColor(manifest);
@@ -24,16 +26,16 @@ export function EmailPreview({ project, persona, manifest }: EmailPreviewProps) 
     const textGradientStyle = getTextGradientStyle(manifest);
 
     // Get brand name - try brandName from manifest first, fallback to persona_company
-    const brandName = manifest?.brandName || persona?.persona_company || "Your Company";
+    const brandName = manifest?.brandName || manifestPersona?.company || persona?.persona_company || "Your Company";
 
-    // Get CTA from value prop or use defaults
-    const primaryCTA = valueProp?.ctaSuggestions?.[0] || "Get Started";
+    // Get CTA from manifest or defaults - ctaSuggestions might be in project.valueProp
+    const primaryCTA = manifest?.components?.ctas?.primary?.[0] || (project.valueProp as any)?.ctaSuggestions?.[0] || "Get Started";
     const headline = valueProp?.headline || "Transform your workflow";
     const subheadline = valueProp?.subheadline || "Discover how we can help you achieve your goals";
     const benefits = valueProp?.benefits || ["Benefit 1", "Benefit 2", "Benefit 3"];
 
-    // Persona data for personalization
-    const personaName = persona?.persona_name?.split(' ')[0] || "there";
+    // Persona data for personalization - prioritize manifest
+    const personaName = (manifestPersona?.name || persona?.persona_name || "there").split(' ')[0];
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">

@@ -18,6 +18,7 @@ export function useGenerationOrchestration(
     // Generation states
     const [isGeneratingBrand, setIsGeneratingBrand] = useState(false);
     const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
+    const [isGeneratingStrategy, setIsGeneratingStrategy] = useState(false);
     const [isGeneratingLanding, setIsGeneratingLanding] = useState(false);
 
     // Track if generation has been triggered to prevent infinite loops
@@ -55,6 +56,41 @@ export function useGenerationOrchestration(
             console.error('❌ [Design Studio] Style guide generation error:', err);
         } finally {
             setIsGeneratingStyle(false);
+        }
+    }, [icpId, flowId, loadManifest]);
+
+    const generateStrategyContent = useCallback(async () => {
+        console.log('🎨 [Design Studio] Starting strategy content generation...');
+        setIsGeneratingStrategy(true);
+
+        // Update step to loading
+        setGenerationSteps(prev => prev.map(s =>
+            s.id === 'strategy' ? { ...s, status: 'loading' as const } : s
+        ));
+
+        try {
+            const strategyRes = await fetch('/api/brand-manifest/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ icpId, flowId, section: 'strategy' })
+            });
+
+            if (strategyRes.ok) {
+                // Load manifest to get updated data
+                await loadManifest(false);
+                console.log('✅ [Design Studio] Strategy content generated');
+
+                // Update step to complete
+                setGenerationSteps(prev => prev.map(s =>
+                    s.id === 'strategy' ? { ...s, status: 'complete' as const } : s
+                ));
+            } else {
+                console.error('❌ [Design Studio] Strategy content generation failed');
+            }
+        } catch (err) {
+            console.error('❌ [Design Studio] Strategy content generation error:', err);
+        } finally {
+            setIsGeneratingStrategy(false);
         }
     }, [icpId, flowId, loadManifest]);
 
@@ -98,32 +134,44 @@ export function useGenerationOrchestration(
         if (!workspaceData) return;
 
         const hasDesignAssets = designAssets !== null;
-        const generationState = designAssets?.generation_state || { brand: false, style: false, landing: false };
+        const generationState = designAssets?.generation_state || { brand: false, style: false, strategy: false, landing: false };
 
         // 🔍 Check if brand guide actually has data (not just the flag)
         const hasBrandData = (manifest?.identity?.tone?.keywords?.length ?? 0) > 0 ||
             (manifest?.identity?.logo?.variations?.length ?? 0) > 0 ||
             (manifest?.identity?.colors?.accent?.length ?? 0) > 0;
 
+        // 🔍 Check if strategy content has data
+        const hasStrategyData = (manifest?.strategy?.competitivePositioning?.competitors?.length ?? 0) > 0 ||
+            (manifest?.strategy?.messagingVariations?.length ?? 0) > 0;
+
         const needsBrandGeneration = !generationState.brand || (!!manifest && !hasBrandData);
+        const needsStrategyGeneration = !generationState.strategy || (!!manifest && !hasStrategyData);
 
         // Initialize generation steps based on current state
+        // Labels match tab names: Strategy, Identity, Components, Previews
         const steps = [
             {
                 id: 'brand',
-                label: 'Brand Guide',
+                label: 'Identity',
                 icon: '🎨',
                 status: (generationState.brand && hasBrandData) ? 'complete' as const : 'pending' as const
             },
             {
                 id: 'style',
-                label: 'Style Guide',
+                label: 'Components',
                 icon: '✨',
                 status: generationState.style ? 'complete' as const : 'pending' as const
             },
             {
+                id: 'strategy',
+                label: 'Strategy',
+                icon: '📊',
+                status: (generationState.strategy && hasStrategyData) ? 'complete' as const : 'pending' as const
+            },
+            {
                 id: 'landing',
-                label: 'Landing Page',
+                label: 'Previews',
                 icon: '🚀',
                 status: generationState.landing ? 'complete' as const : 'pending' as const
             }
@@ -131,7 +179,7 @@ export function useGenerationOrchestration(
 
         setGenerationSteps(steps);
 
-        const needsGeneration = needsBrandGeneration || !generationState.style || !generationState.landing;
+        const needsGeneration = needsBrandGeneration || !generationState.style || needsStrategyGeneration || !generationState.landing;
 
         if (needsGeneration) {
             // Show welcome with progress component in chat
@@ -158,7 +206,7 @@ export function useGenerationOrchestration(
         }
 
         // If all assets already generated with actual data, nothing to do
-        if (generationState.brand && hasBrandData && generationState.style && generationState.landing) {
+        if (generationState.brand && hasBrandData && generationState.style && generationState.strategy && hasStrategyData && generationState.landing) {
             console.log('✅ [Design Studio] All design assets already generated with data');
             return;
         }
@@ -196,7 +244,10 @@ export function useGenerationOrchestration(
                     // Step 2: Generate Style Guide (sequential)
                     await generateStyleGuide();
 
-                    // Step 3: Generate Landing Page (sequential)
+                    // Step 3: Generate Strategy Content (sequential) - NEW!
+                    await generateStrategyContent();
+
+                    // Step 4: Generate Landing Page (sequential)
                     await generateLandingPage();
                 } else {
                     console.error('❌ [Design Studio] Brand guide generation failed');
@@ -207,15 +258,18 @@ export function useGenerationOrchestration(
                 setIsGeneratingBrand(false);
             }
         } else {
-            // Brand already exists, generate style and landing sequentially
+            // Brand already exists, generate remaining steps sequentially
             if (!generationState.style) {
                 await generateStyleGuide();
+            }
+            if (needsStrategyGeneration) {
+                await generateStrategyContent();
             }
             if (!generationState.landing) {
                 await generateLandingPage();
             }
         }
-    }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest, setChatMessages, generateStyleGuide, generateLandingPage]);
+    }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest, setChatMessages, generateStyleGuide, generateStrategyContent, generateLandingPage]);
 
     // Trigger background generation after workspace data loads (only once)
     useEffect(() => {
@@ -236,6 +290,7 @@ export function useGenerationOrchestration(
     return {
         isGeneratingBrand,
         isGeneratingStyle,
+        isGeneratingStrategy,
         isGeneratingLanding,
         triggerBackgroundGeneration
     };

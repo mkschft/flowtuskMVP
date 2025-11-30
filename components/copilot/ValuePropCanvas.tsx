@@ -30,7 +30,10 @@ type ValuePropCanvasProps = {
 
 export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const { valueProp } = project;
+  
+  // Prioritize manifest over project/props for single source of truth
+  const valueProp = manifest?.strategy?.valueProp || project.valueProp;
+  const manifestPersona = manifest?.strategy?.persona;
 
   // Get dynamic colors from manifest
   const primaryColor = getPrimaryColor(manifest);
@@ -45,18 +48,20 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Use actual persona data
-  const personaName = persona.persona_name;
-  const personaRole = persona.persona_role;
-  const personaCompany = persona.persona_company;
-  const personaLocation = `${persona.location}, ${persona.country}`;
+  // Use manifest persona data with fallback to props
+  const personaName = manifestPersona?.name || persona?.persona_name || "Your Customer";
+  const personaRole = manifestPersona?.role || persona?.persona_role || "Decision Maker";
+  const personaCompany = manifestPersona?.company || persona?.persona_company || "Target Company";
+  const personaLocation = manifestPersona?.location 
+    ? `${manifestPersona.location}, ${manifestPersona.country || ''}` 
+    : persona ? `${persona.location}, ${persona.country}` : "Your Market";
 
   // Get brand name
   const brandName = manifest?.brandName || personaCompany || "Your Company";
 
   // Use value prop headline (set from variations), with fallbacks
-  const personaValueProp = valueProp.headline ||
-    valueProp.benefits?.[0] ||
+  const personaValueProp = valueProp?.headline ||
+    valueProp?.benefits?.[0] ||
     "Value proposition";
 
   // Generate avatar using professional style with persona name as seed

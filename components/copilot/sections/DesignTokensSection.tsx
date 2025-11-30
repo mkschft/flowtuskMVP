@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Ruler, Circle, Code, FileJson, Copy, Check, Sparkles } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { getGradientBgStyle, getPrimaryColor } from "@/lib/utils/color-utils";
+import { getGradientBgStyle, getPrimaryColor, getLightShade } from "@/lib/utils/color-utils";
 import { useState } from "react";
 
 type DesignTokensSectionProps = {
@@ -20,6 +20,7 @@ export function DesignTokensSection({ project, manifest }: DesignTokensSectionPr
     // Get dynamic colors from manifest
     const gradientBgStyle = getGradientBgStyle(manifest, "to-br");
     const primaryColor = getPrimaryColor(manifest);
+    const lightPrimaryBg = getLightShade(primaryColor, 0.1);
 
     // Safe access helpers with Array guards
     let spacing = Array.isArray(styleGuide?.spacing) ? styleGuide.spacing : [];
@@ -177,7 +178,10 @@ export function DesignTokensSection({ project, manifest }: DesignTokensSectionPr
                     size="sm"
                     variant="outline"
                     onClick={() => copyToClipboard(content, format)}
-                    className="gap-2"
+                    className="gap-2 transition-colors"
+                    style={{ borderColor: primaryColor, color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = lightPrimaryBg}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                     {copiedFormat === format ? (
                         <>

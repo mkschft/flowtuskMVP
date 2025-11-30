@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import { cn } from "@/lib/utils";
-import { renderLogoWithColors } from "@/lib/generation/logo-generator";
+import { renderLogoWithColors, generateIconOnlySVG } from "@/lib/generation/logo-generator";
 
 type Platform = "linkedin" | "twitter" | "instagram";
 
@@ -18,30 +18,35 @@ type SocialMediaPreviewProps = {
 export function SocialMediaPreview({ project, manifest }: SocialMediaPreviewProps) {
   const [platform, setPlatform] = useState<Platform>("linkedin");
 
-  // Extract brand data
+  // Extract brand data - prioritize manifest over project for single source of truth
   const companyName = manifest?.brandName || project.name;
-  const headline = project.valueProp?.headline || "Transform your brand with AI";
+  const valueProp = manifest?.strategy?.valueProp || project.valueProp;
+  const headline = valueProp?.headline || "Transform your brand with AI";
   const primaryColor = manifest?.identity?.colors?.primary?.[0]?.hex || "#6366F1";
   const secondaryColor = manifest?.identity?.colors?.secondary?.[0]?.hex || "#8B5CF6";
   const accentColor = manifest?.identity?.colors?.accent?.[0]?.hex || primaryColor;
   const headingFont = manifest?.identity?.typography?.heading?.family || "Inter";
   
-  // Generate logo dynamically with current colors (cascades when colors change)
-  const logoVariation = manifest?.identity?.logo?.variations?.[0];
-  const logo = useMemo(() => {
-    if (!logoVariation) return null;
+  // Generate icon logo for profile avatar (square, fits in circle)
+  const iconLogo = useMemo(() => {
+    const svg = generateIconOnlySVG(companyName, primaryColor, accentColor);
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }, [companyName, primaryColor, accentColor]);
+  
+  // Generate text logo for content overlay
+  const textLogo = useMemo(() => {
     const typography = manifest?.identity?.typography?.heading ? {
       family: manifest.identity.typography.heading.family,
       weight: manifest.identity.typography.heading.weights?.[0] || '600'
     } : null;
     return renderLogoWithColors(
       companyName,
-      { name: logoVariation.name, description: logoVariation.description },
-      primaryColor,
-      accentColor,
+      { name: 'Text Only', description: '' },
+      '#FFFFFF', // White for overlay
+      '#FFFFFF',
       typography
     );
-  }, [logoVariation, companyName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
+  }, [companyName, manifest?.identity?.typography?.heading]);
 
   // Platform-specific dimensions
   const dimensions = {
@@ -111,16 +116,11 @@ export function SocialMediaPreview({ project, manifest }: SocialMediaPreviewProp
       <div className="bg-white rounded-xl shadow-lg p-6 border">
         {/* Platform Header */}
         <div className="flex items-center gap-3 mb-4">
-          {logo ? (
-            <img src={logo} alt={companyName} className="w-12 h-12 rounded-full object-cover" />
-          ) : (
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-              style={{ backgroundColor: primaryColor }}
-            >
-              {companyName.charAt(0)}
-            </div>
-          )}
+          <img 
+            src={iconLogo} 
+            alt={companyName} 
+            className="w-12 h-12 rounded-full object-cover shadow-sm" 
+          />
           <div className="flex-1">
             <div className="font-semibold text-sm">{companyName}</div>
             <div className="text-xs text-muted-foreground">2h · 🌍</div>
@@ -150,14 +150,11 @@ export function SocialMediaPreview({ project, manifest }: SocialMediaPreviewProp
 
           {/* Content Overlay */}
           <div className="relative h-full flex flex-col items-center justify-center p-8 text-white">
-            {logo && (
-              <img
-                src={logo}
-                alt={companyName}
-                className="w-16 h-16 mb-4 opacity-90"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
-            )}
+            <img
+              src={textLogo}
+              alt={companyName}
+              className="h-10 mb-4 opacity-90"
+            />
             <h2
               className="text-2xl md:text-3xl font-bold text-center max-w-lg"
               style={{ fontFamily: headingFont }}
@@ -165,17 +162,14 @@ export function SocialMediaPreview({ project, manifest }: SocialMediaPreviewProp
               {headline}
             </h2>
 
-            {/* Subtle logo watermark at bottom */}
-            {logo && (
-              <div className="absolute bottom-4 right-4 opacity-20">
-                <img
-                  src={logo}
-                  alt=""
-                  className="w-12 h-12"
-                  style={{ filter: "brightness(0) invert(1)" }}
-                />
-              </div>
-            )}
+            {/* Subtle icon watermark at bottom */}
+            <div className="absolute bottom-4 right-4 opacity-30">
+              <img
+                src={iconLogo}
+                alt=""
+                className="w-10 h-10 rounded-lg"
+              />
+            </div>
           </div>
         </div>
 

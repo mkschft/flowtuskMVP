@@ -12,7 +12,7 @@ import {
     Zap
 } from "lucide-react";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { getPrimaryColor, getSecondaryColor, getTextGradientStyle, getLightShade } from "@/lib/utils/color-utils";
+import { getPrimaryColor, getTextGradientStyle, getLightShade } from "@/lib/utils/color-utils";
 
 type CardsSectionProps = {
     manifest?: BrandManifest | null;
@@ -35,7 +35,6 @@ type CardsSectionProps = {
 export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
     // Get dynamic colors from manifest
     const primaryColor = getPrimaryColor(manifest);
-    const secondaryColor = getSecondaryColor(manifest);
     const textGradientStyle = getTextGradientStyle(manifest);
     const lightPrimaryBg = getLightShade(primaryColor, 0.1);
 
@@ -186,7 +185,13 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                                         ))}
                                     </ul>
                                 )}
-                                <Button variant="outline" className="w-full">
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors"
+                                    style={{ borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = lightPrimaryBg}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     {card.cta || "Learn More"}
                                 </Button>
                             </Card>
@@ -280,8 +285,18 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                                     </ul>
                                 )}
                                 <Button
-                                    className="w-full"
+                                    className="w-full transition-colors"
                                     variant={isHighlighted ? "default" : "outline"}
+                                    style={isHighlighted 
+                                        ? { backgroundColor: primaryColor, color: 'white' }
+                                        : { borderColor: primaryColor, color: primaryColor }
+                                    }
+                                    onMouseEnter={(e) => {
+                                        if (!isHighlighted) e.currentTarget.style.backgroundColor = lightPrimaryBg;
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!isHighlighted) e.currentTarget.style.backgroundColor = 'transparent';
+                                    }}
                                 >
                                     {card.cta || "Get Started"}
                                 </Button>

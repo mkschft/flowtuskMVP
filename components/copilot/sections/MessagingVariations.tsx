@@ -10,13 +10,16 @@ import type { BrandManifest } from "@/lib/types/brand-manifest";
 
 type MessagingVariationsProps = {
     manifest?: BrandManifest | null;
-    valueProp: any; // Using any for flexibility with mock data structure
+    valueProp?: any; // Optional now - manifest is primary source
 };
 
-export function MessagingVariations({ manifest, valueProp }: MessagingVariationsProps) {
+export function MessagingVariations({ manifest, valueProp: propValueProp }: MessagingVariationsProps) {
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const primaryColor = getPrimaryColor(manifest);
     const lightPrimaryBg = getLightShade(primaryColor, 0.1);
+
+    // Prioritize manifest over props for single source of truth
+    const valueProp = manifest?.strategy?.valueProp || propValueProp || {};
 
     const handleCopy = async (text: string, id: string) => {
         await navigator.clipboard.writeText(text);
@@ -53,19 +56,19 @@ export function MessagingVariations({ manifest, valueProp }: MessagingVariations
         : [
             {
                 type: "Benefit-First",
-                text: valueProp.headline || "Transform your workflow with AI-powered automation.",
+                text: valueProp?.headline || "Transform your workflow with AI-powered automation.",
                 icon: <Sparkles className="w-4 h-4" />,
                 context: "Best for: Landing Page Hero, Ads"
             },
             {
                 type: "Problem-Agitate-Solve",
-                text: `${valueProp.problem} Stop the chaos. ${valueProp.solution}`,
+                text: `${valueProp?.problem || "Struggling with scattered tools?"} Stop the chaos. ${valueProp?.solution || "One unified platform."}`,
                 icon: <MessageSquare className="w-4 h-4" />,
                 context: "Best for: Email Outreach, Sales Calls"
             },
             {
                 type: "Social Proof",
-                text: `Join 10,000+ teams who use ${manifest?.brandName || "our platform"} to ${valueProp.outcome?.toLowerCase() || "achieve results"}.`,
+                text: `Join 10,000+ teams who use ${manifest?.brandName || "our platform"} to ${valueProp?.outcome?.toLowerCase() || "achieve results"}.`,
                 icon: <UsersIcon />,
                 context: "Best for: Retargeting, Footer CTA"
             }
@@ -80,7 +83,14 @@ export function MessagingVariations({ manifest, valueProp }: MessagingVariations
                         Tailored messages for different contexts
                     </p>
                 </div>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 transition-colors"
+                    style={{ borderColor: primaryColor, color: primaryColor }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = lightPrimaryBg}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                     <RefreshCw className="w-3 h-3" />
                     Regenerate
                 </Button>
@@ -99,8 +109,8 @@ export function MessagingVariations({ manifest, valueProp }: MessagingVariations
                                         variant="secondary"
                                         className="text-xs font-medium"
                                         style={{
-                                            backgroundColor: idx === 0 ? lightPrimaryBg : undefined,
-                                            color: idx === 0 ? primaryColor : undefined
+                                            backgroundColor: lightPrimaryBg,
+                                            color: primaryColor
                                         }}
                                     >
                                         {variation.icon && <span className="mr-1">{variation.icon}</span>}

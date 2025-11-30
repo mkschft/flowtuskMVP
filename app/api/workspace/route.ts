@@ -123,8 +123,20 @@ export async function GET(req: NextRequest) {
     // Try to fetch from brand_manifests first (new system)
     const manifest = await fetchBrandManifest(flowId, icpId);
 
+    // Also fetch chat messages from positioning_flows.generated_content.messages
+    const { data: flowData } = await supabase
+      .from('positioning_flows')
+      .select('generated_content')
+      .eq('id', flowId)
+      .single();
+
+    const chatMessages = (flowData?.generated_content as any)?.messages || [];
+
     if (manifest) {
       console.log('✅ [Workspace API] Using brand manifest as source');
+      if (chatMessages.length > 0) {
+        console.log(`✅ [Workspace API] Found ${chatMessages.length} chat messages to restore`);
+      }
 
       // 🔍 DEBUG: Log what data exists in manifest
       console.log('🔍 [DEBUG] Manifest Data Check:');
@@ -238,7 +250,7 @@ export async function GET(req: NextRequest) {
         generation_metadata: manifest.metadata || {}
       };
 
-      return NextResponse.json({ icp, valueProp, designAssets });
+      return NextResponse.json({ icp, valueProp, designAssets, chatMessages });
     }
 
     // No manifest found - this flow needs to be regenerated

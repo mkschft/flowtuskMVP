@@ -5,7 +5,7 @@ import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
-import { renderLogoWithColors } from "@/lib/generation/logo-generator";
+import { renderLogoWithColors, generateIconOnlySVG, generateTextOnlySVG } from "@/lib/generation/logo-generator";
 
 type SlideType = "title" | "problem" | "solution" | "closing";
 
@@ -17,40 +17,52 @@ type PitchDeckPreviewProps = {
 export function PitchDeckPreview({ project, manifest }: PitchDeckPreviewProps) {
   const [slideType, setSlideType] = useState<SlideType>("title");
 
-  // Extract brand data
+  // Extract brand data - prioritize manifest over project for single source of truth
   const companyName = manifest?.brandName || project.name;
-  const headline = project.valueProp?.headline || "Transform your brand with AI";
-  const subheadline = project.valueProp?.subheadline || "Build a cohesive brand system in minutes";
+  const valueProp = manifest?.strategy?.valueProp || project.valueProp;
+  const headline = valueProp?.headline || "Transform your brand with AI";
+  const subheadline = valueProp?.subheadline || "Build a cohesive brand system in minutes";
   const primaryColor = manifest?.identity?.colors?.primary?.[0]?.hex || "#6366F1";
   const secondaryColor = manifest?.identity?.colors?.secondary?.[0]?.hex || "#8B5CF6";
   const accentColor = manifest?.identity?.colors?.accent?.[0]?.hex || "#EC4899";
   const headingFont = manifest?.identity?.typography?.heading?.family || "Inter";
   const bodyFont = manifest?.identity?.typography?.body?.family || "Inter";
   
-  // Generate logo dynamically with current colors (cascades when colors change)
-  const logoVariation = manifest?.identity?.logo?.variations?.[0];
-  const logo = useMemo(() => {
-    if (!logoVariation) return null;
+  // Generate icon logo for slide corners/watermarks
+  const iconLogo = useMemo(() => {
+    const svg = generateIconOnlySVG(companyName, primaryColor, accentColor);
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }, [companyName, primaryColor, accentColor]);
+  
+  // Generate white icon logo for dark backgrounds
+  const whiteIconLogo = useMemo(() => {
+    const svg = generateIconOnlySVG(companyName, '#FFFFFF', '#FFFFFF');
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }, [companyName]);
+  
+  // Generate text logo for light backgrounds
+  const textLogo = useMemo(() => {
     const typography = manifest?.identity?.typography?.heading ? {
       family: manifest.identity.typography.heading.family,
       weight: manifest.identity.typography.heading.weights?.[0] || '600'
     } : null;
     return renderLogoWithColors(
       companyName,
-      { name: logoVariation.name, description: logoVariation.description },
+      { name: 'Text Only', description: '' },
       primaryColor,
       accentColor,
       typography
     );
-  }, [logoVariation, companyName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
+  }, [companyName, primaryColor, accentColor, manifest?.identity?.typography?.heading]);
 
-  // Extract pain points and benefits from value prop
-  const painPoints = [
+  // Extract pain points and benefits from manifest (single source of truth)
+  const persona = manifest?.strategy?.persona;
+  const painPoints = persona?.painPoints?.slice(0, 3) || [
     "Inconsistent brand across channels",
     "Time-consuming manual design",
     "Expensive agency costs"
   ];
-  const benefits = project.valueProp?.benefits || [
+  const benefits = valueProp?.benefits || [
     "Unified brand system",
     "AI-powered automation",
     "Professional results"
@@ -123,17 +135,12 @@ export function PitchDeckPreview({ project, manifest }: PitchDeckPreviewProps) {
       <div className="bg-white rounded-xl shadow-2xl overflow-hidden border" style={{ aspectRatio: "16/9" }}>
         {slideType === "title" && (
           <div className="relative h-full flex flex-col items-center justify-center p-12 bg-gradient-to-br from-slate-50 to-white">
-            {/* Logo */}
-            {logo ? (
-              <img src={logo} alt={companyName} className="h-12 mb-8 opacity-80" />
-            ) : (
-              <div
-                className="h-12 w-12 rounded-lg mb-8 flex items-center justify-center text-white font-bold text-xl"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {companyName.charAt(0)}
-              </div>
-            )}
+            {/* Icon Logo */}
+            <img 
+              src={iconLogo} 
+              alt={companyName} 
+              className="h-16 w-16 mb-6 rounded-xl shadow-lg" 
+            />
 
             {/* Company Name */}
             <h1
@@ -202,7 +209,7 @@ export function PitchDeckPreview({ project, manifest }: PitchDeckPreviewProps) {
 
             {/* Footer */}
             <div className="absolute bottom-4 right-4">
-              {logo && <img src={logo} alt="" className="h-6 opacity-30" />}
+              <img src={textLogo} alt="" className="h-5 opacity-30" />
             </div>
           </div>
         )}
@@ -254,15 +261,15 @@ export function PitchDeckPreview({ project, manifest }: PitchDeckPreviewProps) {
 
             {/* Footer */}
             <div className="absolute bottom-4 right-4">
-              {logo && <img src={logo} alt="" className="h-6 opacity-30" />}
+              <img src={textLogo} alt="" className="h-5 opacity-30" />
             </div>
           </div>
         )}
 
         {slideType === "closing" && (
           <div className="relative h-full flex flex-col items-center justify-center p-12 bg-gradient-to-br from-slate-50 to-white">
-            {/* Logo */}
-            {logo && <img src={logo} alt={companyName} className="h-16 mb-8" />}
+            {/* Icon Logo */}
+            <img src={iconLogo} alt={companyName} className="h-16 w-16 mb-8 rounded-xl shadow-lg" />
 
             {/* CTA */}
             <h2

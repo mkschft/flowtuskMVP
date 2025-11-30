@@ -3,6 +3,8 @@ import type {
     PositioningDesignAssets,
     CopilotWorkspaceData,
 } from "@/lib/types/design-assets";
+import type { ChatMessage } from "@/lib/design-studio-mock-data";
+import { useCopilotStore } from "@/lib/stores/use-copilot-store";
 
 // UI-friendly value prop structure (single source of truth)
 export type UiValueProp = {
@@ -33,7 +35,20 @@ export function useWorkspaceData(icpId: string, flowId: string) {
             const wsRes = await fetch(`/api/workspace?icpId=${icpId}&flowId=${flowId}`);
 
             if (wsRes.ok) {
-                const { icp, valueProp, designAssets: assets } = await wsRes.json();
+                const { icp, valueProp, designAssets: assets, chatMessages } = await wsRes.json();
+                
+                // Restore chat messages to copilot store if they exist
+                // Convert from app format (role: "assistant") to copilot format (role: "ai")
+                if (chatMessages && Array.isArray(chatMessages) && chatMessages.length > 0) {
+                    const { setChatMessages } = useCopilotStore.getState();
+                    const convertedMessages: ChatMessage[] = chatMessages.map((msg: any) => ({
+                        role: msg.role === 'assistant' ? 'ai' : msg.role,
+                        content: msg.content || '',
+                        timestamp: msg.timestamp
+                    }));
+                    console.log(`✅ [Workspace Data] Restoring ${convertedMessages.length} chat messages`);
+                    setChatMessages(convertedMessages);
+                }
 
                 console.log('✅ [Design Studio] Workspace data loaded:', {
                     hasIcp: !!icp,

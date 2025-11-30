@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Square, ArrowRight, Download, Play, Calendar, Share2, Heart } from "lucide-react";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
-import { getPrimaryColor } from "@/lib/utils/color-utils";
+import { getPrimaryColor, getSecondaryColor, getAccentColor, getLightShade } from "@/lib/utils/color-utils";
 
 type ButtonsSectionProps = {
     project: DesignProject;
@@ -15,7 +15,10 @@ type ButtonsSectionProps = {
 export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
     const { valueProp } = project;
     const primaryColor = getPrimaryColor(manifest);
+    const secondaryColor = getSecondaryColor(manifest);
+    const accentColor = getAccentColor(manifest);
     const buttonStyles = manifest?.components?.buttons;
+
 
     // Get CTAs from manifest with fallbacks
     const ctas = manifest?.components?.ctas;
@@ -120,7 +123,18 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                                 <p className="text-xs font-medium text-muted-foreground">
                                     {idx === 0 ? "Information" : idx === 1 ? "Video Content" : idx === 2 ? "Pricing" : idx === 3 ? "Documentation" : idx === 4 ? "Sales Contact" : "Resources"}
                                 </p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors hover:bg-opacity-10" 
+                                    style={{ 
+                                        borderRadius, 
+                                        borderColor: primaryColor, 
+                                        color: primaryColor,
+                                        ['--hover-bg' as string]: getLightShade(primaryColor, 0.1),
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     {cta.includes("Watch") || cta.includes("Demo") ? <Play className="w-4 h-4 mr-2" /> : null}
                                     {cta}
                                 </Button>
@@ -130,38 +144,74 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                         <>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Information</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Learn More
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Video Content</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     <Play className="w-4 h-4 mr-2" />
                                     Watch Demo
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Pricing</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     See Pricing
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Documentation</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Read Docs
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Sales Contact</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Talk to Sales
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Resources</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: primaryColor, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Browse Resources
                                 </Button>
                             </div>
@@ -187,7 +237,13 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                                 <p className="text-xs font-medium text-muted-foreground">
                                     {idx === 0 ? "Navigation" : idx === 1 ? "Skip Action" : idx === 2 ? "Dismiss" : idx === 3 ? "More Options" : idx === 4 ? "Back Navigation" : "Help/Support"}
                                 </p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     {cta}
                                 </Button>
                             </div>
@@ -196,37 +252,73 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                         <>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Navigation</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     View All
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Skip Action</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Skip for Now
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Dismiss</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     No Thanks
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">More Options</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Show More
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Back Navigation</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Go Back
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Help/Support</p>
-                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, color: primaryColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(primaryColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Get Help
                                 </Button>
                             </div>
@@ -252,7 +344,13 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                                 <p className="text-xs font-medium text-muted-foreground">
                                     {idx === 0 ? "Share" : idx === 1 ? "Save/Like" : idx === 2 ? "Community" : "Follow"}
                                 </p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: accentColor, color: accentColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(accentColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     {cta.includes("Share") ? <Share2 className="w-4 h-4 mr-2" /> : null}
                                     {cta.includes("Save") || cta.includes("Like") ? <Heart className="w-4 h-4 mr-2" /> : null}
                                     {cta}
@@ -263,27 +361,51 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                         <>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Share</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: accentColor, color: accentColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(accentColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     <Share2 className="w-4 h-4 mr-2" />
                                     Share
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Save/Like</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: accentColor, color: accentColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(accentColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     <Heart className="w-4 h-4 mr-2" />
                                     Save
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Community</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: accentColor, color: accentColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(accentColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Join Community
                                 </Button>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground">Follow</p>
-                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full transition-colors" 
+                                    style={{ borderRadius, borderColor: accentColor, color: accentColor }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = getLightShade(accentColor, 0.1)}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
                                     Follow Us
                                 </Button>
                             </div>

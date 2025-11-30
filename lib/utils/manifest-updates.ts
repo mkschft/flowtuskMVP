@@ -160,7 +160,7 @@ export function convertManifestToDesignAssets(
         brand_guide: null,
         style_guide: null,
         landing_page: null,
-        generation_state: { brand: false, style: false, landing: false },
+        generation_state: { brand: false, style: false, strategy: false, landing: false },
         generation_metadata: {},
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -217,6 +217,7 @@ export function convertManifestToDesignAssets(
         generation_state: {
             brand: true,
             style: true,
+            strategy: true,
             landing: true
         },
         generation_metadata: {
@@ -570,7 +571,7 @@ export function applyManifestUpdate(
 
     // Step 8: Reload workspace data in background ONLY if generation is still in progress
     // Skip reload once all generation is complete to prevent unnecessary UI refreshes
-    const generationState = context.designAssets?.generation_state || { brand: false, style: false, landing: false };
+    const generationState = context.designAssets?.generation_state || { brand: false, style: false, strategy: false, landing: false };
     const hasBrandData = manifest && (
         (manifest.identity?.tone?.keywords?.length ?? 0) > 0 ||
         (manifest.identity?.logo?.variations?.length ?? 0) > 0 ||

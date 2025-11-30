@@ -409,10 +409,9 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
           <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
             // Generate logo dynamically with current manifest colors
-            // This ensures logos update when colors change (cascading)
             const brandName = manifest?.brandName || project.name;
             const dynamicLogoUrl = renderLogoWithColors(
               brandName,
@@ -422,17 +421,48 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
               logoTypography
             );
 
+            // Determine background style based on variation type
+            const variationName = logo.name.toLowerCase();
+            const isIconOnly = variationName.includes('icon') || variationName.includes('symbol');
+            const isFullColor = variationName.includes('full') || variationName.includes('color');
+            const isTextOnly = variationName.includes('text') || variationName.includes('wordmark');
+
+            // Background patterns for different variations
+            const getBackgroundStyle = () => {
+              if (isFullColor) {
+                // Transparent/checkerboard pattern to show full color logo
+                return {
+                  background: `repeating-conic-gradient(#f0f0f0 0% 25%, #ffffff 0% 50%) 50% / 16px 16px`,
+                };
+              }
+              if (isIconOnly) {
+                // Subtle gradient background
+                return {
+                  background: `linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)`,
+                };
+              }
+              // Text only - clean white
+              return {
+                background: '#ffffff',
+              };
+            };
+
             return (
               <div
                 key={idx}
-                className="p-6 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+                className="group rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 overflow-hidden"
               >
-                <div className="h-32 flex items-center justify-center mb-3 rounded-lg overflow-hidden relative bg-background/50">
+                {/* Logo Preview Area */}
+                <div 
+                  className="h-36 flex items-center justify-center relative overflow-hidden"
+                  style={getBackgroundStyle()}
+                >
                   <img
                     src={dynamicLogoUrl}
                     alt={`${logo.name} logo for ${brandName}`}
-                    className="w-full h-full object-contain p-4"
-                    style={{ maxWidth: '100%', maxHeight: '100%' }}
+                    className={`max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 ${
+                      isFullColor ? 'p-2' : isIconOnly ? 'p-4' : 'p-6'
+                    }`}
                     onError={(e) => {
                       try {
                         const target = e.target as HTMLImageElement;
@@ -452,15 +482,20 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                     {brandName.charAt(0)}
                   </div>
                 </div>
-                <p className="font-semibold text-sm text-center">{logo.name}</p>
-                <p className="text-xs text-muted-foreground text-center">{logo.description}</p>
+                
+                {/* Label Area */}
+                <div className="p-4 border-t bg-muted/30">
+                  <p className="font-semibold text-sm text-center">{logo.name}</p>
+                  <p className="text-xs text-muted-foreground text-center mt-1 line-clamp-2">{logo.description}</p>
+                </div>
               </div>
             );
-          }) : <p className="text-sm text-muted-foreground italic col-span-2">No logo variations defined</p>}
+          }) : <p className="text-sm text-muted-foreground italic col-span-3">No logo variations defined</p>}
         </div>
         
-        <div className="text-xs text-muted-foreground text-center pt-4 border-t mt-4">
-          💡 Logos automatically update when you change colors in the palette above
+        <div className="text-xs text-muted-foreground text-center pt-4 border-t mt-4 flex items-center justify-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          Logos automatically update when you change colors in the palette above
         </div>
       </Card>
 
