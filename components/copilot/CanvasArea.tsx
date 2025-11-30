@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { ValuePropCanvas } from "./ValuePropCanvas";
 import { BrandGuideCanvas } from "./BrandGuideCanvas";
-import { StyleGuideCanvas } from "./StyleGuideCanvas";
+import { ComponentsCanvas } from "./ComponentsCanvas";
+// import { StyleGuideCanvas } from "./StyleGuideCanvas"; // BACKUP: Keep for rollback if needed
 import { LandingCanvas } from "./LandingCanvas";
 import { PreviewsCanvas } from "./PreviewsCanvas";
 import { BrandGuideCanvasSkeleton } from "./BrandGuideCanvasSkeleton";
@@ -119,7 +120,7 @@ export function CanvasArea({
             >
               {activeTab === "strategy" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
               {activeTab === "identity" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
-              {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <StyleGuideCanvas project={project} manifest={manifest} />)}
+              {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <ComponentsCanvas project={project} manifest={manifest} />)}
               {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <PreviewsCanvas project={project} manifest={manifest} />)}
             </motion.div>
           </AnimatePresence>

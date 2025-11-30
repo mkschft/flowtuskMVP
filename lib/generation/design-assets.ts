@@ -141,23 +141,66 @@ export async function generateStyleGuide(brandGuide: BrandGuide): Promise<StyleG
   const primaryColor = brandGuide.colors.primary[0]?.hex || '#3B82F6';
   const headingFont = brandGuide.typography.find(t => t.category === 'heading')?.fontFamily || 'Inter';
 
-  const prompt = `Create a style guide for UI components based on this brand:
+  const prompt = `Create a comprehensive style guide for UI components based on this brand:
 Primary Color: ${primaryColor}
 Heading Font: ${headingFont}
 Tone: ${brandGuide.toneOfVoice.join(', ')}
 
 Generate style specifications for:
-1. 5 button variants (Primary, Secondary, Outline, Ghost, Destructive)
-2. 4 card variants (Default, Elevated, Outlined, Interactive)
+1. 6 button variants (Primary, Secondary, Outline, Ghost, Destructive, Dark)
+2. 4 card variants with REALISTIC content:
+   - Feature Card (title, description, 3 features, CTA) - showcase a product feature
+   - Stat Card (metric with large number, label, trend indicator) - show business metric
+   - Pricing Card (tier name, price, 4 features, CTA, highlight flag) - pricing tier
+   - Testimonial Card (quote, author name, role, company, 5-star rating) - customer testimonial
 3. 6 form elements (Text Input, Textarea, Select, Checkbox, Radio, Toggle)
 4. 7 spacing values (xs to 3xl)
 5. 5 border radius values (sm to full)
 6. 4 shadow values (sm to xl)
 
+IMPORTANT for Cards:
+- Generate REALISTIC content that matches the brand tone
+- Feature Card: Use actual feature benefits (e.g., "AI-Powered Analytics", "Real-time Collaboration")
+- Stat Card: Include specific metrics (e.g., "98%", "2.5x faster", "$1.2M saved")
+- Pricing Card: Create believable pricing tiers (e.g., "Professional", "$49/month")
+- Testimonial Card: Write authentic-sounding quotes with real names and companies
+
 Return ONLY valid JSON:
 {
   "buttons": [{"variant": "Primary", "description": "Main CTAs"}],
-  "cards": [{"variant": "Default", "description": "Standard containers"}],
+  "cards": [
+    {
+      "type": "feature",
+      "title": "Realistic feature name",
+      "description": "Compelling feature description",
+      "features": ["Benefit 1", "Benefit 2", "Benefit 3"],
+      "cta": "Call to action"
+    },
+    {
+      "type": "stat",
+      "title": "98%",
+      "description": "Metric label",
+      "trend": "+12%"
+    },
+    {
+      "type": "pricing",
+      "title": "Tier name",
+      "description": "Tier description",
+      "price": "$49",
+      "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+      "cta": "Get Started",
+      "highlighted": true
+    },
+    {
+      "type": "testimonial",
+      "title": "Short testimonial headline",
+      "description": "Full testimonial quote text",
+      "author": "Full Name",
+      "role": "Job Title",
+      "company": "Company Name",
+      "rating": 5
+    }
+  ],
   "formElements": [{"element": "Text Input", "description": "Single-line entry"}],
   "spacing": [{"name": "xs", "value": "4px"}],
   "borderRadius": [{"name": "sm", "value": "4px"}],
