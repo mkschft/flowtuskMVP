@@ -44,6 +44,13 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
     const borderRadius = cardStyle?.borderRadius || "0.5rem";
     const shadow = cardStyle?.shadow || "0 10px 15px -3px rgba(0, 0, 0, 0.1)";
 
+    // Get card content from manifest
+    const cardContent = manifest?.components?.cardContent;
+    const featureCards = cardContent?.feature || [];
+    const statCards = cardContent?.stat || [];
+    const pricingCards = cardContent?.pricing || [];
+    const testimonialCards = cardContent?.testimonial || [];
+
     // Default cards if not provided
     const defaultCards = [
         {
@@ -84,7 +91,63 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
         }
     ];
 
-    const displayCards = cards.length > 0 ? cards : defaultCards;
+    // Build display cards from manifest or use provided cards or defaults
+    const buildDisplayCards = () => {
+        if (cards.length > 0) return cards;
+        
+        const manifestCards: any[] = [];
+        
+        // Add feature cards
+        if (featureCards.length > 0) {
+            manifestCards.push(...featureCards.map(c => ({
+                type: "feature",
+                title: c.title,
+                description: c.description,
+                features: c.features,
+                cta: c.cta
+            })));
+        }
+        
+        // Add stat cards
+        if (statCards.length > 0) {
+            manifestCards.push(...statCards.map(c => ({
+                type: "stat",
+                title: c.metric,
+                description: c.label,
+                trend: c.trend
+            })));
+        }
+        
+        // Add pricing cards
+        if (pricingCards.length > 0) {
+            manifestCards.push(...pricingCards.map(c => ({
+                type: "pricing",
+                title: c.tier,
+                description: c.description,
+                price: c.price,
+                features: c.features,
+                cta: c.cta,
+                highlighted: c.highlighted
+            })));
+        }
+        
+        // Add testimonial cards
+        if (testimonialCards.length > 0) {
+            manifestCards.push(...testimonialCards.map(c => ({
+                type: "testimonial",
+                title: c.quote.substring(0, 50) + "...",
+                description: c.quote,
+                author: c.author,
+                role: c.role,
+                company: c.company,
+                rating: c.rating
+            })));
+        }
+        
+        return manifestCards.length > 0 ? manifestCards : defaultCards;
+    };
+
+    const displayCards = buildDisplayCards();
 
     return (
         <div className="space-y-6">
@@ -115,7 +178,7 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                                 <p className="text-sm text-muted-foreground mb-4">{card.description}</p>
                                 {card.features && card.features.length > 0 && (
                                     <ul className="space-y-2 mb-4">
-                                        {card.features.map((feature, fIdx) => (
+                                        {card.features.map((feature: string, fIdx: number) => (
                                             <li key={fIdx} className="flex items-start gap-2 text-sm">
                                                 <Check className="w-4 h-4 mt-0.5" style={{ color: primaryColor }} />
                                                 <span>{feature}</span>
@@ -208,7 +271,7 @@ export function CardsSection({ manifest, cards = [] }: CardsSectionProps) {
                                 </div>
                                 {card.features && card.features.length > 0 && (
                                     <ul className="space-y-3 mb-6">
-                                        {card.features.map((feature, fIdx) => (
+                                        {card.features.map((feature: string, fIdx: number) => (
                                             <li key={fIdx} className="flex items-start gap-2 text-sm">
                                                 <Check className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: primaryColor }} />
                                                 <span>{feature}</span>

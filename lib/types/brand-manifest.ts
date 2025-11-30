@@ -26,6 +26,24 @@ export interface BrandManifest {
             benefits: string[];
             targetAudience: string;
         };
+        competitivePositioning?: {
+            competitors: Array<{
+                name: string;
+                x: number; // 0-100
+                y: number; // 0-100
+            }>;
+            differentiators: Array<{
+                title: string;
+                description: string;
+                icon?: string;
+            }>;
+        };
+        messagingVariations?: Array<{
+            type: string; // "Benefit-First", "Problem-Agitate-Solve", etc.
+            text: string;
+            context: string; // "Best for: Landing Page Hero"
+            useCase: string;
+        }>;
     };
 
     // Identity Layer
@@ -73,6 +91,70 @@ export interface BrandManifest {
         badges: {
             style: string; // "soft" | "outline" | "solid"
             borderRadius: string;
+        };
+        forms?: {
+            newsletter: {
+                title: string;
+                description: string;
+                emailLabel: string;
+                buttonText: string;
+                incentiveText: string;
+            };
+            contact: {
+                title: string;
+                description: string;
+                fields: Array<{ label: string; placeholder: string; type: string }>;
+                buttonText: string;
+            };
+            leadMagnet: {
+                title: string;
+                description: string;
+                offerName: string;
+                fields: Array<{ label: string; placeholder: string; required: boolean }>;
+                buttonText: string;
+            };
+            demoRequest: {
+                title: string;
+                description: string;
+                fields: Array<{ label: string; placeholder: string; type: string }>;
+                buttonText: string;
+            };
+        };
+        ctas?: {
+            primary: string[]; // Array of primary CTA texts
+            secondary: string[]; // Array of secondary CTA texts
+            tertiary: string[]; // Array of tertiary/ghost CTA texts
+            social: string[]; // Array of social engagement CTAs
+            destructive: string[]; // Array of destructive action CTAs
+        };
+        cardContent?: {
+            feature: Array<{
+                title: string;
+                description: string;
+                features: string[];
+                cta: string;
+            }>;
+            stat: Array<{
+                metric: string;
+                label: string;
+                trend?: string;
+            }>;
+            pricing: Array<{
+                tier: string;
+                description: string;
+                price: string;
+                period: string;
+                features: string[];
+                cta: string;
+                highlighted: boolean;
+            }>;
+            testimonial: Array<{
+                quote: string;
+                author: string;
+                role: string;
+                company: string;
+                rating: number;
+            }>;
         };
     };
 

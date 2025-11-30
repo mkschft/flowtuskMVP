@@ -24,27 +24,52 @@ export function MessagingVariations({ manifest, valueProp }: MessagingVariations
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    // Mock variations if not present in data
-    const variations = [
-        {
-            type: "Benefit-First",
-            text: valueProp.headline || "Transform your workflow with AI-powered automation.",
-            icon: <Sparkles className="w-4 h-4" />,
-            context: "Best for: Landing Page Hero, Ads"
-        },
-        {
-            type: "Problem-Agitate-Solve",
-            text: `${valueProp.problem} Stop the chaos. ${valueProp.solution}`,
-            icon: <MessageSquare className="w-4 h-4" />,
-            context: "Best for: Email Outreach, Sales Calls"
-        },
-        {
-            type: "Social Proof",
-            text: `Join 10,000+ teams who use ${manifest?.brandName || "our platform"} to ${valueProp.outcome?.toLowerCase() || "achieve results"}.`,
-            icon: <UsersIcon />,
-            context: "Best for: Retargeting, Footer CTA"
+    // Get messaging variations from manifest with fallback
+    const messagingVariations = manifest?.strategy?.messagingVariations || [];
+    
+    const getIconForType = (type: string) => {
+        switch (type) {
+            case "Benefit-First":
+                return <Sparkles className="w-4 h-4" />;
+            case "Problem-Agitate-Solve":
+                return <MessageSquare className="w-4 h-4" />;
+            case "Social Proof":
+                return <UsersIcon />;
+            case "Urgency":
+                return <RefreshCw className="w-4 h-4" />;
+            default:
+                return <Sparkles className="w-4 h-4" />;
         }
-    ];
+    };
+
+    // Build variations from manifest or use fallback
+    const variations = messagingVariations.length > 0
+        ? messagingVariations.map(v => ({
+            type: v.type,
+            text: v.text,
+            icon: getIconForType(v.type),
+            context: v.context
+        }))
+        : [
+            {
+                type: "Benefit-First",
+                text: valueProp.headline || "Transform your workflow with AI-powered automation.",
+                icon: <Sparkles className="w-4 h-4" />,
+                context: "Best for: Landing Page Hero, Ads"
+            },
+            {
+                type: "Problem-Agitate-Solve",
+                text: `${valueProp.problem} Stop the chaos. ${valueProp.solution}`,
+                icon: <MessageSquare className="w-4 h-4" />,
+                context: "Best for: Email Outreach, Sales Calls"
+            },
+            {
+                type: "Social Proof",
+                text: `Join 10,000+ teams who use ${manifest?.brandName || "our platform"} to ${valueProp.outcome?.toLowerCase() || "achieve results"}.`,
+                icon: <UsersIcon />,
+                context: "Best for: Retargeting, Footer CTA"
+            }
+        ];
 
     return (
         <Card className="p-6 bg-background border">

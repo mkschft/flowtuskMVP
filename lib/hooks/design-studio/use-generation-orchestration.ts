@@ -40,7 +40,8 @@ export function useGenerationOrchestration(
             });
 
             if (styleRes.ok) {
-                await loadWorkspaceData();
+                // Load manifest to get updated data (no need to reload workspace - manifest update handles it)
+                await loadManifest(false);
                 console.log('✅ [Design Studio] Style guide generated');
 
                 // Update step to complete
@@ -55,7 +56,7 @@ export function useGenerationOrchestration(
         } finally {
             setIsGeneratingStyle(false);
         }
-    }, [icpId, flowId, loadWorkspaceData]);
+    }, [icpId, flowId, loadManifest]);
 
     const generateLandingPage = useCallback(async () => {
         console.log('🎨 [Design Studio] Starting landing page generation...');
@@ -74,7 +75,8 @@ export function useGenerationOrchestration(
             });
 
             if (landingRes.ok) {
-                await loadWorkspaceData();
+                // Load manifest to get updated data (no need to reload workspace - manifest update handles it)
+                await loadManifest(false);
                 console.log('✅ [Design Studio] Landing page generated');
 
                 // Update step to complete and mark all done
@@ -89,7 +91,7 @@ export function useGenerationOrchestration(
         } finally {
             setIsGeneratingLanding(false);
         }
-    }, [icpId, flowId, loadWorkspaceData]);
+    }, [icpId, flowId, loadManifest]);
 
     // Background generation orchestration
     const triggerBackgroundGeneration = useCallback(async () => {
@@ -180,8 +182,6 @@ export function useGenerationOrchestration(
                 });
 
                 if (brandRes.ok) {
-                    // Reload workspace data to get updated manifest
-                    await loadWorkspaceData();
                     console.log('✅ [Design Studio] Brand guide generated');
 
                     // Update step to complete
@@ -189,7 +189,7 @@ export function useGenerationOrchestration(
                         s.id === 'brand' ? { ...s, status: 'complete' as const } : s
                     ));
 
-                    // Load manifest now that brand guide exists
+                    // Load manifest now that brand guide exists (this will update designAssets via applyManifestUpdate)
                     console.log('🔄 [Design Studio] Loading brand manifest after generation...');
                     await loadManifest(false);
 
@@ -215,7 +215,7 @@ export function useGenerationOrchestration(
                 await generateLandingPage();
             }
         }
-    }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest, loadWorkspaceData, setChatMessages, generateStyleGuide, generateLandingPage]);
+    }, [workspaceData, designAssets, manifest, icpId, flowId, loadManifest, setChatMessages, generateStyleGuide, generateLandingPage]);
 
     // Trigger background generation after workspace data loads (only once)
     useEffect(() => {

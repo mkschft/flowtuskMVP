@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
+import { convertManifestToDesignAssets } from "@/lib/utils/manifest-updates";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -136,6 +137,47 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       },
     };
   }, [workspaceData, uiValueProp, designAssets, chatMessages]);
+
+  // 5.5 Sync manifest to designAssets when manifest changes (prevents flicker)
+  const prevManifestRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!manifest || !flowId || !icpId) return;
+    
+    // Only sync if manifest actually changed (check by lastUpdated timestamp)
+    const manifestKey = manifest.lastUpdated || 'initial';
+    if (prevManifestRef.current === manifestKey) {
+      return; // Already synced
+    }
+    
+    prevManifestRef.current = manifestKey;
+    
+    // Convert manifest to designAssets to keep UI in sync
+    const updatedDesignAssets = convertManifestToDesignAssets(
+      manifest,
+      flowId,
+      icpId,
+      designAssets
+    );
+    
+    // Only update if actually changed (prevents unnecessary re-renders)
+    const currentColors = designAssets?.brand_guide?.colors?.primary?.[0]?.hex;
+    const newColors = updatedDesignAssets.brand_guide?.colors?.primary?.[0]?.hex;
+    
+    if (currentColors !== newColors || !designAssets) {
+      console.log('🔄 [Design Studio] Syncing manifest to designAssets...', {
+        oldColor: currentColors,
+        newColor: newColors
+      });
+      setDesignAssets({ ...updatedDesignAssets });
+      
+      if (workspaceData) {
+        setWorkspaceData({
+          ...workspaceData,
+          designAssets: { ...updatedDesignAssets }
+        });
+      }
+    }
+  }, [manifest?.lastUpdated, flowId, icpId, designAssets, workspaceData, setDesignAssets, setWorkspaceData]);
 
   // 6. Chat Streaming
   const {

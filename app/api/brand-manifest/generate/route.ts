@@ -102,6 +102,9 @@ export async function POST(req: NextRequest) {
       case "landing":
         updates = await generateLandingPage(manifest);
         break;
+      case "strategy":
+        updates = await generateStrategyContent(manifest);
+        break;
       default:
         return NextResponse.json(
           { error: `Invalid section: ${section}` },
@@ -382,11 +385,46 @@ async function generateStyleGuide(manifest: any) {
     throw new Error('Manifest missing brandName. Cannot generate style guide.');
   }
 
-  const prompt = `Generate a style guide for ${manifest.brandName} with button, card, input, and badge styles.
+  const persona = manifest?.strategy?.persona;
+  const valueProp = manifest?.strategy?.valueProp;
+  const tone = manifest?.identity?.tone?.keywords || [];
 
-IMPORTANT: You MUST include a spacing scale with at least xs, sm, md, lg, and xl values.
+  const prompt = `Generate a comprehensive style guide for ${manifest.brandName} targeting ${persona?.name || 'customers'} (${persona?.role || 'users'} at ${persona?.company || 'companies'}).
 
-Return ONLY valid JSON:
+Brand Tone: ${tone.join(', ') || 'Professional'}
+Value Proposition: ${valueProp?.headline || 'Delivering value'}
+
+Generate:
+
+1. Component Styles:
+   - Button styles (primary, secondary, outline)
+   - Card styles (style, borderRadius, shadow)
+   - Input styles (style, borderRadius, focusStyle)
+   - Badge styles (style, borderRadius)
+   - Spacing scale (xs, sm, md, lg, xl, 2xl, 3xl)
+
+2. Form Content (match brand tone):
+   - Newsletter subscribe: title, description, emailLabel, buttonText, incentiveText
+   - Contact us: title, description, fields array (label, placeholder, type), buttonText
+   - Lead magnet: title, description, offerName, fields array, buttonText
+   - Demo request: title, description, fields array, buttonText
+
+3. CTA Variations (6-8 each):
+   - Primary CTAs: conversion-focused actions
+   - Secondary CTAs: supporting actions
+   - Tertiary CTAs: minimal emphasis/ghost buttons
+   - Social CTAs: engagement actions
+   - Destructive CTAs: cancellations/deletions
+
+4. Card Content (realistic examples):
+   - Feature cards: title, description, 3 features, CTA
+   - Stat cards: metric (number), label, optional trend
+   - Pricing cards: tier name, description, price, period, 4 features, CTA, highlighted flag
+   - Testimonial cards: quote, author name, role, company, rating (1-5)
+
+All content must match the brand tone and persona. Use realistic, specific examples.
+
+Return ONLY valid JSON matching this structure:
 {
   "buttons": {
     "primary": { "style": "solid", "borderRadius": "8px", "shadow": "md" },
@@ -408,7 +446,92 @@ Return ONLY valid JSON:
     "borderRadius": "full"
   },
   "spacing": {
-    "scale": { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px" }
+    "scale": { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px", "2xl": "48px", "3xl": "64px" }
+  },
+  "forms": {
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Get weekly insights delivered to your inbox",
+      "emailLabel": "Email Address",
+      "buttonText": "Subscribe Now",
+      "incentiveText": "Join 10,000+ subscribers • Unsubscribe anytime"
+    },
+    "contact": {
+      "title": "Get in Touch",
+      "description": "We'd love to hear from you",
+      "fields": [
+        { "label": "Name", "placeholder": "Your name", "type": "text" },
+        { "label": "Email", "placeholder": "your@email.com", "type": "email" },
+        { "label": "Message", "placeholder": "How can we help?", "type": "textarea" }
+      ],
+      "buttonText": "Send Message"
+    },
+    "leadMagnet": {
+      "title": "Download Free Guide",
+      "description": "Get instant access to our comprehensive guide",
+      "offerName": "Ultimate Guide to Success",
+      "fields": [
+        { "label": "Name", "placeholder": "Your name", "required": true },
+        { "label": "Work Email", "placeholder": "you@company.com", "required": true },
+        { "label": "Company", "placeholder": "Company name", "required": false }
+      ],
+      "buttonText": "Download Now"
+    },
+    "demoRequest": {
+      "title": "Request a Demo",
+      "description": "See how we can help your team",
+      "fields": [
+        { "label": "Full Name", "placeholder": "Jane Smith", "type": "text" },
+        { "label": "Work Email", "placeholder": "jane@company.com", "type": "email" },
+        { "label": "Company", "placeholder": "Company name", "type": "text" },
+        { "label": "Phone", "placeholder": "+1 (555) 000-0000", "type": "tel" }
+      ],
+      "buttonText": "Schedule Demo"
+    }
+  },
+  "ctas": {
+    "primary": ["Get Started", "Start Free Trial", "Sign Up Now", "Claim Your Spot", "Download Now", "Book Demo"],
+    "secondary": ["Learn More", "Watch Demo", "See Pricing", "Read Docs", "Talk to Sales", "Browse Resources"],
+    "tertiary": ["View All", "Skip for Now", "No Thanks", "Show More", "Go Back", "Get Help"],
+    "social": ["Share", "Save", "Join Community", "Follow Us"],
+    "destructive": ["Cancel Subscription", "Delete Account", "Remove Item"]
+  },
+  "cardContent": {
+    "feature": [
+      {
+        "title": "AI-Powered Automation",
+        "description": "Automate your workflow with intelligent AI",
+        "features": ["Smart detection", "Auto-updates", "24/7 monitoring"],
+        "cta": "Learn More"
+      }
+    ],
+    "stat": [
+      {
+        "metric": "98%",
+        "label": "Customer Satisfaction",
+        "trend": "+12%"
+      }
+    ],
+    "pricing": [
+      {
+        "tier": "Professional",
+        "description": "For growing teams",
+        "price": "$49",
+        "period": "month",
+        "features": ["Unlimited projects", "Advanced analytics", "Priority support", "Custom integrations"],
+        "cta": "Get Started",
+        "highlighted": true
+      }
+    ],
+    "testimonial": [
+      {
+        "quote": "This tool transformed how we approach brand strategy.",
+        "author": "Sarah Chen",
+        "role": "Marketing Director",
+        "company": "TechCorp",
+        "rating": 5
+      }
+    ]
   }
 }`;
 
@@ -437,7 +560,10 @@ Return ONLY valid JSON:
       cards: content.cards,
       inputs: content.inputs,
       badges: content.badges,
-      spacing: content.spacing
+      spacing: content.spacing,
+      forms: content.forms,
+      ctas: content.ctas,
+      cardContent: content.cardContent
     }
   };
 }
@@ -535,6 +661,96 @@ IMPORTANT: Match the tone and content to the target persona (${persona.role}) an
   return {
     "previews": {
       landingPage: content
+    }
+  };
+}
+
+async function generateStrategyContent(manifest: any) {
+  // Validate manifest exists
+  if (!manifest?.brandName || !manifest?.strategy?.persona || !manifest?.strategy?.valueProp) {
+    throw new Error('Manifest missing required strategy data. Cannot generate strategy content.');
+  }
+
+  const persona = manifest.strategy.persona;
+  const valueProp = manifest.strategy.valueProp;
+  const brandName = manifest.brandName;
+  const industry = persona.industry || 'Professional Services';
+
+  const prompt = `Generate competitive positioning and messaging variations for ${brandName} targeting ${persona.name} (${persona.role} at ${persona.company} in ${industry}).
+
+Value Proposition: ${valueProp.headline}
+Key Benefits: ${valueProp.benefits?.join(', ') || 'Value delivery'}
+Pain Points Addressed: ${persona.painPoints?.join(', ') || 'Business challenges'}
+
+Generate:
+
+1. Competitive Positioning Map:
+   - 3-4 competitor names (realistic industry competitors)
+   - X/Y coordinates (0-100) for each competitor
+   - Your brand should be at x: 75, y: 75 (top-right quadrant - High Innovation + High Value)
+   - Competitors should be spread across other quadrants
+
+2. Key Differentiators (3-5):
+   - Title (short, impactful)
+   - Description (1-2 sentences explaining the advantage)
+   - Optional icon name (e.g., "Zap", "Shield", "Users")
+
+3. Messaging Variations (4-6):
+   - Different message types for different contexts
+   - Each with: type, text, context (where to use), useCase
+   - Types: "Benefit-First", "Problem-Agitate-Solve", "Social Proof", "Urgency", "Question-Based", etc.
+
+Return ONLY valid JSON:
+{
+  "competitivePositioning": {
+    "competitors": [
+      { "name": "Legacy Inc.", "x": 15, "y": 60 },
+      { "name": "CheapTool", "x": 30, "y": 30 },
+      { "name": "Enterprise Corp", "x": 65, "y": 45 },
+      { "name": "${brandName}", "x": 75, "y": 75 }
+    ],
+    "differentiators": [
+      {
+        "title": "Speed to Value",
+        "description": "Deploy in minutes, not months. 3x faster than legacy solutions.",
+        "icon": "Zap"
+      },
+      {
+        "title": "Enterprise Trust",
+        "description": "SOC2 compliant security with consumer-grade usability.",
+        "icon": "Shield"
+      }
+    ]
+  },
+  "messagingVariations": [
+    {
+      "type": "Benefit-First",
+      "text": "${valueProp.headline}",
+      "context": "Best for: Landing Page Hero, Ads",
+      "useCase": "High-visibility conversion points"
+    },
+    {
+      "type": "Problem-Agitate-Solve",
+      "text": "${persona.painPoints?.[0] || 'Problem'} Stop the chaos. ${valueProp.solution}",
+      "context": "Best for: Email Outreach, Sales Calls",
+      "useCase": "Direct engagement with prospects"
+    }
+  ]
+}`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+    response_format: { type: "json_object" },
+    temperature: 0.8,
+  });
+
+  const content = JSON.parse(response.choices[0].message.content || "{}");
+
+  return {
+    "strategy": {
+      competitivePositioning: content.competitivePositioning,
+      messagingVariations: content.messagingVariations
     }
   };
 }

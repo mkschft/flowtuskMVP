@@ -47,7 +47,12 @@ export function mapLegacyDataToManifest(
                 outcome: workspaceData?.valueProp?.outcome || '',
                 benefits: workspaceData?.valueProp?.benefits || [],
                 targetAudience: workspaceData?.valueProp?.targetAudience || ''
-            }
+            },
+            competitivePositioning: {
+                competitors: [],
+                differentiators: []
+            },
+            messagingVariations: []
         },
 
         identity: {
@@ -100,7 +105,26 @@ export function mapLegacyDataToManifest(
             },
             inputs: { style: 'outlined', borderRadius: '8px', focusStyle: 'ring' },
             badges: { style: 'soft', borderRadius: '9999px' },
-            spacing: { scale: {} }
+            spacing: { scale: {} },
+            forms: {
+                newsletter: { title: '', description: '', emailLabel: '', buttonText: '', incentiveText: '' },
+                contact: { title: '', description: '', fields: [], buttonText: '' },
+                leadMagnet: { title: '', description: '', offerName: '', fields: [], buttonText: '' },
+                demoRequest: { title: '', description: '', fields: [], buttonText: '' }
+            },
+            ctas: {
+                primary: [],
+                secondary: [],
+                tertiary: [],
+                social: [],
+                destructive: []
+            },
+            cardContent: {
+                feature: [],
+                stat: [],
+                pricing: [],
+                testimonial: []
+            }
         },
 
         previews: {

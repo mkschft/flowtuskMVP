@@ -17,8 +17,16 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
     const primaryColor = getPrimaryColor(manifest);
     const buttonStyles = manifest?.components?.buttons;
 
-    // Use persona-specific CTAs if available
-    const primaryCTA = valueProp?.ctaSuggestions?.[0] || "Get Started";
+    // Get CTAs from manifest with fallbacks
+    const ctas = manifest?.components?.ctas;
+    const primaryCTAs = ctas?.primary || [];
+    const secondaryCTAs = ctas?.secondary || [];
+    const tertiaryCTAs = ctas?.tertiary || [];
+    const socialCTAs = ctas?.social || [];
+    const destructiveCTAs = ctas?.destructive || [];
+
+    // Fallback to valueProp if manifest CTAs not available
+    const primaryCTA = primaryCTAs[0] || valueProp?.ctaSuggestions?.[0] || "Get Started";
 
     const borderRadius = buttonStyles?.primary?.borderRadius || "0.375rem";
 
@@ -35,45 +43,63 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Lead Generation</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            {primaryCTA}
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Free Trial</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            Start Free Trial
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Action-Oriented</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Now
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Booking/Scheduling</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Book Demo
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">With Arrow</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            Get Started
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Urgency</p>
-                        <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
-                            Claim Your Spot
-                        </Button>
-                    </div>
+                    {primaryCTAs.length > 0 ? (
+                        primaryCTAs.slice(0, 6).map((cta, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    {idx === 0 ? "Lead Generation" : idx === 1 ? "Free Trial" : idx === 2 ? "Action-Oriented" : idx === 3 ? "Booking" : idx === 4 ? "With Arrow" : "Urgency"}
+                                </p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    {cta.includes("Download") && <Download className="w-4 h-4 mr-2" />}
+                                    {cta.includes("Demo") || cta.includes("Book") ? <Calendar className="w-4 h-4 mr-2" /> : null}
+                                    {cta}
+                                    {idx === 4 && <ArrowRight className="w-4 h-4 ml-2" />}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Lead Generation</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    {primaryCTA}
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Free Trial</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    Start Free Trial
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Action-Oriented</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Download Now
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Booking/Scheduling</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    <Calendar className="w-4 h-4 mr-2" />
+                                    Book Demo
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">With Arrow</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    Get Started
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Urgency</p>
+                                <Button className="w-full" style={{ backgroundColor: primaryColor, borderRadius }}>
+                                    Claim Your Spot
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </Card>
 
@@ -88,43 +114,59 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Information</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Learn More
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Video Content</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            <Play className="w-4 h-4 mr-2" />
-                            Watch Demo
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Pricing</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            See Pricing
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Documentation</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Read Docs
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Sales Contact</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Talk to Sales
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Resources</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Browse Resources
-                        </Button>
-                    </div>
+                    {secondaryCTAs.length > 0 ? (
+                        secondaryCTAs.slice(0, 6).map((cta, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    {idx === 0 ? "Information" : idx === 1 ? "Video Content" : idx === 2 ? "Pricing" : idx === 3 ? "Documentation" : idx === 4 ? "Sales Contact" : "Resources"}
+                                </p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    {cta.includes("Watch") || cta.includes("Demo") ? <Play className="w-4 h-4 mr-2" /> : null}
+                                    {cta}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Information</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Learn More
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Video Content</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    <Play className="w-4 h-4 mr-2" />
+                                    Watch Demo
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Pricing</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    See Pricing
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Documentation</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Read Docs
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Sales Contact</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Talk to Sales
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Resources</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Browse Resources
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </Card>
 
@@ -139,42 +181,57 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Navigation</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            View All
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Skip Action</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            Skip for Now
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Dismiss</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            No Thanks
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">More Options</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            Show More
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Back Navigation</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            Go Back
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Help/Support</p>
-                        <Button variant="ghost" className="w-full" style={{ borderRadius }}>
-                            Get Help
-                        </Button>
-                    </div>
+                    {tertiaryCTAs.length > 0 ? (
+                        tertiaryCTAs.slice(0, 6).map((cta, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    {idx === 0 ? "Navigation" : idx === 1 ? "Skip Action" : idx === 2 ? "Dismiss" : idx === 3 ? "More Options" : idx === 4 ? "Back Navigation" : "Help/Support"}
+                                </p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    {cta}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Navigation</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    View All
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Skip Action</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    Skip for Now
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Dismiss</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    No Thanks
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">More Options</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    Show More
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Back Navigation</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    Go Back
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Help/Support</p>
+                                <Button variant="ghost" className="w-full" style={{ borderRadius }}>
+                                    Get Help
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </Card>
 
@@ -189,32 +246,49 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Share</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            <Share2 className="w-4 h-4 mr-2" />
-                            Share
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Save/Like</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            <Heart className="w-4 h-4 mr-2" />
-                            Save
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Community</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Join Community
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Follow</p>
-                        <Button variant="outline" className="w-full" style={{ borderRadius }}>
-                            Follow Us
-                        </Button>
-                    </div>
+                    {socialCTAs.length > 0 ? (
+                        socialCTAs.slice(0, 4).map((cta, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    {idx === 0 ? "Share" : idx === 1 ? "Save/Like" : idx === 2 ? "Community" : "Follow"}
+                                </p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    {cta.includes("Share") ? <Share2 className="w-4 h-4 mr-2" /> : null}
+                                    {cta.includes("Save") || cta.includes("Like") ? <Heart className="w-4 h-4 mr-2" /> : null}
+                                    {cta}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Share</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    <Share2 className="w-4 h-4 mr-2" />
+                                    Share
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Save/Like</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    <Heart className="w-4 h-4 mr-2" />
+                                    Save
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Community</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Join Community
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Follow</p>
+                                <Button variant="outline" className="w-full" style={{ borderRadius }}>
+                                    Follow Us
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </Card>
 
@@ -229,24 +303,43 @@ export function ButtonsSection({ project, manifest }: ButtonsSectionProps) {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Cancel Subscription</p>
-                        <Button variant="destructive" className="w-full" style={{ borderRadius }}>
-                            Cancel Subscription
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Delete</p>
-                        <Button variant="destructive" className="w-full" style={{ borderRadius }}>
-                            Delete Account
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">Remove</p>
-                        <Button variant="outline" className="w-full border-red-500 text-red-500 hover:bg-red-50" style={{ borderRadius }}>
-                            Remove Item
-                        </Button>
-                    </div>
+                    {destructiveCTAs.length > 0 ? (
+                        destructiveCTAs.slice(0, 3).map((cta, idx) => (
+                            <div key={idx} className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                    {idx === 0 ? "Cancel Subscription" : idx === 1 ? "Delete" : "Remove"}
+                                </p>
+                                <Button 
+                                    variant={idx === 2 ? "outline" : "destructive"} 
+                                    className={idx === 2 ? "w-full border-red-500 text-red-500 hover:bg-red-50" : "w-full"} 
+                                    style={{ borderRadius }}
+                                >
+                                    {cta}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Cancel Subscription</p>
+                                <Button variant="destructive" className="w-full" style={{ borderRadius }}>
+                                    Cancel Subscription
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Delete</p>
+                                <Button variant="destructive" className="w-full" style={{ borderRadius }}>
+                                    Delete Account
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">Remove</p>
+                                <Button variant="outline" className="w-full border-red-500 text-red-500 hover:bg-red-50" style={{ borderRadius }}>
+                                    Remove Item
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
             </Card>
         </div>

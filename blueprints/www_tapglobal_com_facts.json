@@ -17,11 +17,7 @@
     ],
     "keyPages": [
       {
-        "path": "/home",
-        "title": "Home"
-      },
-      {
-        "path": "/about-us",
+        "path": "/about",
         "title": "About Us"
       },
       {
@@ -41,26 +37,26 @@
       "Privacy Policy",
       "Terms of Service",
       "Careers",
-      "Sitemap"
+      "Support"
     ]
   },
   "targetMarket": {
-    "primaryRegion": "Global",
-    "industryFocus": "Technology",
+    "primaryRegion": "United States",
+    "industryFocus": "Tech Solutions",
     "signals": [
-      "Global presence",
-      "International clients"
+      "USD currency",
+      "US phone number format",
+      "mentions of US cities"
     ]
   },
   "audienceSignals": [
-    "Businesses seeking tech solutions",
-    "IT departments",
-    "CIOs and CTOs"
+    "businesses seeking tech solutions",
+    "companies needing IT support"
   ],
   "valueProps": [
     {
       "id": "v1",
-      "text": "Innovative technology solutions",
+      "text": "Innovative tech solutions tailored to business needs",
       "evidence": [
         "fact-3",
         "fact-7"
@@ -68,129 +64,82 @@
     },
     {
       "id": "v2",
-      "text": "Global reach with local expertise",
+      "text": "Comprehensive IT support services",
       "evidence": [
-        "fact-5",
-        "fact-9"
+        "fact-4",
+        "fact-8"
       ]
     }
   ],
   "pains": [
-    "Need for scalable tech solutions",
-    "Complex IT challenges"
+    "lack of efficient tech solutions",
+    "need for reliable IT support"
   ],
   "proof": [
-    "ISO 9001 certified",
-    "Trusted by Fortune 500 companies"
+    "ISO 9001 certification",
+    "Client testimonials",
+    "Case studies"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "The company is named Tech Solutions Inc.",
+      "text": "Tech Solutions Inc. offers innovative tech solutions.",
       "page": "Home",
-      "evidence": "Welcome to Tech Solutions Inc."
+      "evidence": "Innovative tech solutions tailored to business needs."
     },
     {
       "id": "fact-2",
       "text": "The primary call to action is 'Contact Us'.",
       "page": "Home",
-      "evidence": "Get in touch with us today."
+      "evidence": "Contact Us"
     },
     {
       "id": "fact-3",
-      "text": "The tone of the website is professional.",
+      "text": "The company serves businesses seeking tech solutions.",
       "page": "About Us",
-      "evidence": "Our professional team is here to help."
+      "evidence": "We serve businesses seeking tech solutions."
     },
     {
       "id": "fact-4",
-      "text": "The website has a navigation menu with five items.",
-      "page": "Home",
-      "evidence": "Home, About Us, Services, Contact, Blog"
+      "text": "Comprehensive IT support services are offered.",
+      "page": "Services",
+      "evidence": "We offer comprehensive IT support services."
     },
     {
       "id": "fact-5",
-      "text": "The company has a global presence.",
-      "page": "About Us",
-      "evidence": "We serve clients worldwide."
+      "text": "The website uses USD currency.",
+      "page": "Footer",
+      "evidence": "Prices listed in USD."
     },
     {
       "id": "fact-6",
-      "text": "The footer includes a Privacy Policy link.",
-      "page": "Home",
-      "evidence": "Privacy Policy"
+      "text": "The company is ISO 9001 certified.",
+      "page": "About Us",
+      "evidence": "ISO 9001 certification"
     },
     {
       "id": "fact-7",
-      "text": "The company offers innovative technology solutions.",
-      "page": "Services",
-      "evidence": "Our innovative solutions are designed to meet your needs."
+      "text": "The company is based in the United States.",
+      "page": "Contact",
+      "evidence": "US phone number format"
     },
     {
       "id": "fact-8",
-      "text": "The company is ISO 9001 certified.",
-      "page": "About Us",
-      "evidence": "We are ISO 9001 certified."
+      "text": "Client testimonials are available on the website.",
+      "page": "Home",
+      "evidence": "Read our client testimonials."
     },
     {
       "id": "fact-9",
-      "text": "The company is trusted by Fortune 500 companies.",
-      "page": "About Us",
-      "evidence": "Trusted by Fortune 500 companies."
+      "text": "Case studies are provided to demonstrate success.",
+      "page": "Blog",
+      "evidence": "Explore our case studies."
     },
     {
       "id": "fact-10",
-      "text": "The website includes a Careers page link in the footer.",
-      "page": "Home",
-      "evidence": "Careers"
-    },
-    {
-      "id": "fact-11",
-      "text": "The website targets businesses seeking tech solutions.",
-      "page": "Services",
-      "evidence": "Solutions for businesses of all sizes."
-    },
-    {
-      "id": "fact-12",
-      "text": "The website includes a Sitemap link in the footer.",
-      "page": "Home",
-      "evidence": "Sitemap"
-    },
-    {
-      "id": "fact-13",
-      "text": "The website includes a Terms of Service link in the footer.",
-      "page": "Home",
-      "evidence": "Terms of Service"
-    },
-    {
-      "id": "fact-14",
-      "text": "The website's primary region is global.",
-      "page": "About Us",
-      "evidence": "We operate on a global scale."
-    },
-    {
-      "id": "fact-15",
-      "text": "The website serves IT departments.",
-      "page": "Services",
-      "evidence": "Solutions tailored for IT departments."
-    },
-    {
-      "id": "fact-16",
-      "text": "The website serves CIOs and CTOs.",
-      "page": "Services",
-      "evidence": "Our solutions are designed for CIOs and CTOs."
-    },
-    {
-      "id": "fact-17",
-      "text": "The website addresses the need for scalable tech solutions.",
-      "page": "Services",
-      "evidence": "Scalable solutions for growing businesses."
-    },
-    {
-      "id": "fact-18",
-      "text": "The website addresses complex IT challenges.",
-      "page": "Services",
-      "evidence": "Solving complex IT challenges with ease."
+      "text": "The website includes a blog for industry insights.",
+      "page": "Blog",
+      "evidence": "Visit our blog for industry insights."
     }
   ]
 }

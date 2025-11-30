@@ -9,7 +9,7 @@ import type { ChatMessage } from "@/lib/design-studio-mock-data";
  * Converts BrandManifest to PositioningDesignAssets format
  * This ensures UI components get immediate updates without waiting for API calls
  */
-function convertManifestToDesignAssets(
+export function convertManifestToDesignAssets(
     manifest: BrandManifest,
     flowId: string,
     icpId: string,
@@ -454,16 +454,27 @@ export function applyManifestUpdate(
             primaryColors: updatedDesignAssets.brand_guide?.colors.primary.length || 0
         });
 
-        // Update designAssets state immediately
-        // Create new object reference to ensure React detects the change
-        context.setDesignAssets({ ...updatedDesignAssets });
+        // Only update designAssets if it actually changed (prevents unnecessary re-renders on initial load)
+        const currentBrandGuide = context.designAssets?.brand_guide;
+        const newBrandGuide = updatedDesignAssets.brand_guide;
+        const hasChanged = !currentBrandGuide || 
+            JSON.stringify(currentBrandGuide?.colors) !== JSON.stringify(newBrandGuide?.colors) ||
+            JSON.stringify(currentBrandGuide?.typography) !== JSON.stringify(newBrandGuide?.typography);
 
-        // Also update workspaceData if it exists
-        if (context.workspaceData) {
-            context.setWorkspaceData({
-                ...context.workspaceData,
-                designAssets: { ...updatedDesignAssets }  // ← Add spread here too
-            });
+        if (hasChanged) {
+            // Update designAssets state immediately
+            // Create new object reference to ensure React detects the change
+            context.setDesignAssets({ ...updatedDesignAssets });
+
+            // Also update workspaceData if it exists
+            if (context.workspaceData) {
+                context.setWorkspaceData({
+                    ...context.workspaceData,
+                    designAssets: { ...updatedDesignAssets }  // ← Add spread here too
+                });
+            }
+        } else {
+            console.log('⏭️ [Manifest Update] DesignAssets unchanged, skipping update to prevent flicker');
         }
     } else {
         console.warn('⚠️ [Manifest Update] Missing flowId or icpId, skipping designAssets conversion');
@@ -505,8 +516,9 @@ export function applyManifestUpdate(
 
     // Step 4: Update UI value prop from manifest immediately
     console.log('📝 [Manifest Update] Updating UI value prop...');
+    // Only update UI value prop if it actually has data (prevents overwriting with empty on initial load)
     const valueProp = manifest.strategy?.valueProp;
-    if (valueProp) {
+    if (valueProp && (valueProp.headline || valueProp.problem || valueProp.solution)) {
         context.setUiValueProp({
             headline: valueProp.headline || '',
             subheadline: valueProp.subheadline || '',

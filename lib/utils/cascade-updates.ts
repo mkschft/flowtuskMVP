@@ -45,6 +45,9 @@ export function cascadeColorUpdates(
         inputs: manifest.components?.inputs || { style: "outlined", borderRadius: "8px", focusStyle: "ring" },
         badges: manifest.components?.badges || { style: "soft", borderRadius: "9999px" },
         spacing: manifest.components?.spacing || { scale: {} },
+        forms: manifest.components?.forms,
+        ctas: manifest.components?.ctas,
+        cardContent: manifest.components?.cardContent,
       };
     }
 
@@ -94,6 +97,61 @@ export function cascadeColorUpdates(
       };
     }
   }
+
+  return cascaded;
+}
+
+/**
+ * Cascades typography updates to related components
+ * When typography changes, update form labels and button text styles
+ */
+export function cascadeTypographyUpdates(
+  manifest: BrandManifest,
+  typographyUpdates: Partial<BrandManifest["identity"]["typography"]>
+): Partial<BrandManifest> {
+  const cascaded: Partial<BrandManifest> = {};
+
+  // Typography changes don't require component updates in the manifest structure
+  // The actual rendering happens in UI components which read from manifest.identity.typography
+  // This function is a placeholder for future enhancements if needed
+
+  return cascaded;
+}
+
+/**
+ * Cascades valueProp updates to related components
+ * When valueProp changes, regenerate CTAs and messaging variations
+ */
+export function cascadeValuePropUpdates(
+  manifest: BrandManifest,
+  valuePropUpdates: Partial<BrandManifest["strategy"]["valueProp"]>
+): Partial<BrandManifest> {
+  const cascaded: Partial<BrandManifest> = {};
+
+  // ValueProp changes should trigger regeneration of:
+  // - CTAs (components.ctas) - these should be regenerated via AI
+  // - Messaging variations (strategy.messagingVariations) - these should be regenerated via AI
+  // For now, we just mark these as needing regeneration
+  // Actual regeneration happens via API calls to generateStrategyContent
+
+  return cascaded;
+}
+
+/**
+ * Cascades persona updates to related components
+ * When persona changes, regenerate forms and competitive positioning
+ */
+export function cascadePersonaUpdates(
+  manifest: BrandManifest,
+  personaUpdates: Partial<BrandManifest["strategy"]["persona"]>
+): Partial<BrandManifest> {
+  const cascaded: Partial<BrandManifest> = {};
+
+  // Persona changes should trigger regeneration of:
+  // - Forms (components.forms) - these should be regenerated via AI
+  // - Competitive positioning (strategy.competitivePositioning) - these should be regenerated via AI
+  // For now, we just mark these as needing regeneration
+  // Actual regeneration happens via API calls to generateStyleGuide and generateStrategyContent
 
   return cascaded;
 }

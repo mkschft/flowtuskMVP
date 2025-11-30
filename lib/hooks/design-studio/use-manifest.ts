@@ -10,15 +10,29 @@ export function useManifest(
 ) {
     const [manifest, setManifest] = useState<BrandManifest | null>(null);
     const pollingStoppedRef = useRef(false);
+    const hasLoadedRef = useRef(false);
+    const isLoadingRef = useRef(false);
 
     const loadManifest = useCallback(async (skipIfNoAssets = false) => {
+        // Prevent duplicate concurrent loads
+        if (isLoadingRef.current) {
+            console.log('⏭️ [Manifest] Already loading, skipping duplicate request');
+            return;
+        }
+
         try {
+            isLoadingRef.current = true;
+
             // Skip if tab is not visible to save resources
-            if (typeof document !== 'undefined' && document.hidden) return;
+            if (typeof document !== 'undefined' && document.hidden) {
+                isLoadingRef.current = false;
+                return;
+            }
 
             // Skip if design assets don't exist yet (prevents failed migration attempts)
             if (skipIfNoAssets && !designAssets?.generation_state?.brand) {
                 console.log('⏭️ [Manifest] Skipping - design assets not generated yet');
+                isLoadingRef.current = false;
                 return;
             }
 
@@ -34,8 +48,8 @@ export function useManifest(
                         if (!prev || prev.lastUpdated !== loadedManifest.lastUpdated) {
                             console.log('✅ [Manifest] Updated @', loadedManifest.lastUpdated);
 
-                            // Keep UI value prop in sync with manifest
-                            setUiValueProp({
+                            // Keep UI value prop in sync with manifest (only if it actually changed)
+                            const newVp = {
                                 headline: loadedManifest.strategy?.valueProp?.headline || '',
                                 subheadline: loadedManifest.strategy?.valueProp?.subheadline || '',
                                 problem: loadedManifest.strategy?.valueProp?.problem || '',
@@ -43,7 +57,13 @@ export function useManifest(
                                 outcome: loadedManifest.strategy?.valueProp?.outcome || '',
                                 benefits: loadedManifest.strategy?.valueProp?.benefits || [],
                                 targetAudience: loadedManifest.strategy?.valueProp?.targetAudience || ''
-                            });
+                            };
+                            
+                            // Only update if manifest actually has value prop data (prevents overwriting with empty)
+                            if (newVp.headline || newVp.problem || newVp.solution) {
+                                setUiValueProp(newVp);
+                            }
+                            
                             return loadedManifest;
                         }
                         return prev;
@@ -54,13 +74,27 @@ export function useManifest(
             }
         } catch (err) {
             console.error("❌ [Manifest] Error loading manifest:", err);
+        } finally {
+            isLoadingRef.current = false;
         }
-    }, [flowId, designAssets, setUiValueProp]);
+    }, [flowId, setUiValueProp]); // Removed designAssets from deps to prevent re-triggers
 
-    // Initial load & when deps change (e.g. designAssets loaded)
+    // Initial load only once (not when designAssets changes)
     useEffect(() => {
-        loadManifest(true);
-    }, [loadManifest]);
+        if (!hasLoadedRef.current) {
+            hasLoadedRef.current = true;
+            loadManifest(true);
+        }
+    }, [flowId]); // Only depend on flowId, not loadManifest callback
+
+    // Separate effect to check if we should load manifest when designAssets becomes available
+    useEffect(() => {
+        // If manifest hasn't loaded yet and designAssets is now available, try loading
+        if (!manifest && designAssets?.generation_state?.brand && !isLoadingRef.current) {
+            console.log('🔄 [Manifest] DesignAssets available, loading manifest...');
+            loadManifest(false);
+        }
+    }, [designAssets?.generation_state?.brand, manifest, loadManifest]);
 
     // Poll for manifest updates ONLY when generation is in progress
     // Stop polling once all components are generated
@@ -88,8 +122,18 @@ export function useManifest(
             return;
         }
         
+        // Don't start polling if manifest hasn't loaded yet
+        if (!manifest) {
+            return;
+        }
+        
         // Poll every 30s only when generation is in progress
         const interval = setInterval(() => {
+            // Prevent polling if already loading
+            if (isLoadingRef.current) {
+                return;
+            }
+
             // Double-check before polling - if complete, stop immediately
             const currentState = designAssets?.generation_state || { brand: false, style: false, landing: false };
             const currentHasBrandData = manifest && (
@@ -110,7 +154,7 @@ export function useManifest(
         }, 30000);
         
         return () => clearInterval(interval);
-    }, [loadManifest, designAssets, manifest]);
+    }, [designAssets?.generation_state, manifest, loadManifest]); // More specific deps
 
     return {
         manifest,

@@ -54,33 +54,27 @@ export function DesignTokensSection({ project, manifest }: DesignTokensSectionPr
 
     // Generate export formats
     const generateFigmaTokens = () => {
-        const colors = manifest?.identity?.colors || {};
-        const typography = manifest?.identity?.typography || {};
-
         return JSON.stringify({
             "colors": {
-                "primary": colors.primary?.[0]?.hex || "#000000",
-                "secondary": colors.secondary?.[0]?.hex || "#666666",
-                "accent": colors.accent?.[0]?.hex || "#0066FF"
+                "primary": manifest?.identity?.colors?.primary?.[0]?.hex || "#000000",
+                "secondary": manifest?.identity?.colors?.secondary?.[0]?.hex || "#666666",
+                "accent": manifest?.identity?.colors?.accent?.[0]?.hex || "#0066FF"
             },
             "spacing": Object.fromEntries(spacing.map(s => [s.name, s.value])),
             "borderRadius": Object.fromEntries(borderRadius.map(r => [r.name.toLowerCase(), r.value])),
             "typography": {
-                "heading": typography.heading?.family || "Inter",
-                "body": typography.body?.family || "Inter"
+                "heading": manifest?.identity?.typography?.heading?.family || "Inter",
+                "body": manifest?.identity?.typography?.body?.family || "Inter"
             }
         }, null, 2);
     };
 
     const generateCSSVariables = () => {
-        const colors = manifest?.identity?.colors || {};
-        const typography = manifest?.identity?.typography || {};
-
         let css = ":root {\n";
         css += `  /* Colors */\n`;
-        css += `  --color-primary: ${colors.primary?.[0]?.hex || "#000000"};\n`;
-        css += `  --color-secondary: ${colors.secondary?.[0]?.hex || "#666666"};\n`;
-        css += `  --color-accent: ${colors.accent?.[0]?.hex || "#0066FF"};\n\n`;
+        css += `  --color-primary: ${manifest?.identity?.colors?.primary?.[0]?.hex || "#000000"};\n`;
+        css += `  --color-secondary: ${manifest?.identity?.colors?.secondary?.[0]?.hex || "#666666"};\n`;
+        css += `  --color-accent: ${manifest?.identity?.colors?.accent?.[0]?.hex || "#0066FF"};\n\n`;
 
         css += `  /* Spacing */\n`;
         spacing.forEach(s => {
@@ -93,50 +87,45 @@ export function DesignTokensSection({ project, manifest }: DesignTokensSectionPr
         });
 
         css += `\n  /* Typography */\n`;
-        css += `  --font-heading: ${typography.heading?.family || "Inter"};\n`;
-        css += `  --font-body: ${typography.body?.family || "Inter"};\n`;
+        css += `  --font-heading: ${manifest?.identity?.typography?.heading?.family || "Inter"};\n`;
+        css += `  --font-body: ${manifest?.identity?.typography?.body?.family || "Inter"};\n`;
         css += "}";
 
         return css;
     };
 
     const generateStyleDictionary = () => {
-        const colors = manifest?.identity?.colors || {};
-        const typography = manifest?.identity?.typography || {};
-
         return JSON.stringify({
             "color": {
-                "primary": { "value": colors.primary?.[0]?.hex || "#000000" },
-                "secondary": { "value": colors.secondary?.[0]?.hex || "#666666" },
-                "accent": { "value": colors.accent?.[0]?.hex || "#0066FF" }
+                "primary": { "value": manifest?.identity?.colors?.primary?.[0]?.hex || "#000000" },
+                "secondary": { "value": manifest?.identity?.colors?.secondary?.[0]?.hex || "#666666" },
+                "accent": { "value": manifest?.identity?.colors?.accent?.[0]?.hex || "#0066FF" }
             },
             "size": {
                 "spacing": Object.fromEntries(spacing.map(s => [s.name, { value: s.value }]))
             },
             "radius": Object.fromEntries(borderRadius.map(r => [r.name.toLowerCase(), { value: r.value }])),
             "font": {
-                "heading": { "value": typography.heading?.family || "Inter" },
-                "body": { "value": typography.body?.family || "Inter" }
+                "heading": { "value": manifest?.identity?.typography?.heading?.family || "Inter" },
+                "body": { "value": manifest?.identity?.typography?.body?.family || "Inter" }
             }
         }, null, 2);
     };
 
     const generateAIPrompt = () => {
-        const colors = manifest?.identity?.colors || {};
-        const typography = manifest?.identity?.typography || {};
         const brandName = manifest?.brandName || "our brand";
 
         let prompt = `# Brand Design System for ${brandName}\n\n`;
         prompt += `Use this design system when generating code or designs:\n\n`;
 
         prompt += `## Colors\n`;
-        prompt += `- Primary: ${colors.primary?.[0]?.hex || "#000000"} (${colors.primary?.[0]?.usage || "Main brand color"})\n`;
-        prompt += `- Secondary: ${colors.secondary?.[0]?.hex || "#666666"}\n`;
-        prompt += `- Accent: ${colors.accent?.[0]?.hex || "#0066FF"}\n\n`;
+        prompt += `- Primary: ${manifest?.identity?.colors?.primary?.[0]?.hex || "#000000"} (${manifest?.identity?.colors?.primary?.[0]?.usage || "Main brand color"})\n`;
+        prompt += `- Secondary: ${manifest?.identity?.colors?.secondary?.[0]?.hex || "#666666"}\n`;
+        prompt += `- Accent: ${manifest?.identity?.colors?.accent?.[0]?.hex || "#0066FF"}\n\n`;
 
         prompt += `## Typography\n`;
-        prompt += `- Headings: ${typography.heading?.family || "Inter"}\n`;
-        prompt += `- Body: ${typography.body?.family || "Inter"}\n\n`;
+        prompt += `- Headings: ${manifest?.identity?.typography?.heading?.family || "Inter"}\n`;
+        prompt += `- Body: ${manifest?.identity?.typography?.body?.family || "Inter"}\n\n`;
 
         prompt += `## Spacing Scale\n`;
         spacing.forEach(s => {

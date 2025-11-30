@@ -41,7 +41,12 @@ export async function createBrandManifest(
             },
             valueProp: {
                 headline: '', subheadline: '', problem: '', solution: '', outcome: '', benefits: [], targetAudience: ''
-            }
+            },
+            competitivePositioning: {
+                competitors: [],
+                differentiators: []
+            },
+            messagingVariations: []
         },
         identity: initialData.identity || {
             colors: { primary: [], secondary: [], accent: [], neutral: [] },
@@ -58,7 +63,26 @@ export async function createBrandManifest(
             cards: { style: 'flat', borderRadius: '12px', shadow: 'sm' },
             inputs: { style: 'outlined', borderRadius: '8px', focusStyle: 'ring' },
             badges: { style: 'soft', borderRadius: '9999px' },
-            spacing: { scale: {} }
+            spacing: { scale: {} },
+            forms: {
+                newsletter: { title: '', description: '', emailLabel: '', buttonText: '', incentiveText: '' },
+                contact: { title: '', description: '', fields: [], buttonText: '' },
+                leadMagnet: { title: '', description: '', offerName: '', fields: [], buttonText: '' },
+                demoRequest: { title: '', description: '', fields: [], buttonText: '' }
+            },
+            ctas: {
+                primary: [],
+                secondary: [],
+                tertiary: [],
+                social: [],
+                destructive: []
+            },
+            cardContent: {
+                feature: [],
+                stat: [],
+                pricing: [],
+                testimonial: []
+            }
         },
         previews: initialData.previews || {
             landingPage: {
