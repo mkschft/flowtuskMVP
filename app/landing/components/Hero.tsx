@@ -1,16 +1,44 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowUp } from "lucide-react";
 
 export function Hero() {
   const [playing, setPlaying] = useState(false);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
 
   const handlePlay = () => {
     if (videoRef.current) {
       videoRef.current.play();
       setPlaying(true);
     }
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!websiteUrl.trim()) return;
+    
+    setIsSubmitting(true);
+    // Redirect to app with URL parameter
+    const encodedUrl = encodeURIComponent(websiteUrl.trim());
+    router.push(`/app?url=${encodedUrl}`);
+  };
+
+  const exampleUrls = [
+    { label: "https://taxstar.app", url: "taxstar.app" },
+    { label: "https://stripe.com", url: "stripe.com" },
+    { label: "https://linear.app", url: "linear.app" },
+  ];
+
+  const handleExampleClick = (url: string) => {
+    setWebsiteUrl(url);
+    setIsSubmitting(true);
+    const encodedUrl = encodeURIComponent(url);
+    router.push(`/app?url=${encodedUrl}`);
   };
 
   return (
@@ -23,15 +51,57 @@ export function Hero() {
           <p className="text-base sm:text-lg leading-relaxed mt-6 text-base-700 font-medium max-w-3xl mx-auto">
             Get agency-quality brand strategy in 10 minutes. From personas to messaging to launch-ready content.
           </p>
-          <div className="flex flex-wrap items-center gap-3 justify-center mx-auto mt-10">
-            <a
-              href="https://calendar.app.google/fVMLbGtD9LWPeoTL9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center focus:ring-2 focus:outline-none focus:ring-purple-500/50 h-11 px-6 py-3 text-base font-semibold text-white rounded-full transition-all hover:shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)' }}>
-              Book a Demo
-            </a>
+          
+          {/* URL Input Section */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  placeholder="Paste any website URL (e.g., https://yoursite.com)..."
+                  className="w-full h-14 pl-6 pr-16 text-base text-gray-900 bg-white border-2 border-gray-200 rounded-full shadow-lg focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                />
+                <button
+                  type="submit"
+                  disabled={!websiteUrl.trim() || isSubmitting}
+                  className="absolute right-2 w-10 h-10 flex items-center justify-center rounded-full text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-105 active:scale-95"
+                  style={{ 
+                    background: websiteUrl.trim() 
+                      ? 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)' 
+                      : '#d1d5db'
+                  }}
+                  aria-label="Analyze website"
+                >
+                  {isSubmitting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </form>
+            
+            {/* Example URLs */}
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <p className="text-sm text-gray-500">
+                Try these examples or paste any public website URL:
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {exampleUrls.map((example) => (
+                  <button
+                    key={example.url}
+                    onClick={() => handleExampleClick(example.url)}
+                    disabled={isSubmitting}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {example.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         

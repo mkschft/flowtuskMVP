@@ -83,6 +83,7 @@ function ChatPageContent() {
   // DB Integration states
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false); // Track guest mode for data persistence
 
   // New Hero UI states
   const useHeroUI = process.env.NEXT_PUBLIC_USE_HERO_UI === 'true';
@@ -139,17 +140,41 @@ function ChatPageContent() {
 
       setUser(authUser);
 
-      // Demo mode bypass
-      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
-
-      if (!authUser && !isDemoMode) {
-        console.log('🔒 [Auth] Not authenticated, redirecting to login');
+      // Guest mode: Allow unauthenticated users to experience the product
+      if (!authUser) {
+        console.log('👤 [Auth] Guest mode - allowing product experience without login');
+        setIsGuest(true);
         setAuthLoading(false);
-        window.location.href = '/auth/login';
+        
+        // Load any existing guest data from localStorage
+        const savedConversations = localStorage.getItem('flowtusk_guest_conversations');
+        const savedActiveId = localStorage.getItem('flowtusk_guest_active_id');
+        
+        if (savedConversations) {
+          try {
+            const parsed = JSON.parse(savedConversations);
+            console.log(`📦 [Guest] Loaded ${parsed.length} conversations from localStorage`);
+            setConversations(parsed);
+            if (savedActiveId) {
+              setActiveConversationId(savedActiveId);
+              const activeConv = parsed.find((c: any) => c.id === savedActiveId);
+              if (activeConv) {
+                setWebsiteUrl(activeConv.memory?.websiteUrl || "");
+                setSelectedIcp(activeConv.memory?.selectedIcp || null);
+              }
+            }
+          } catch (error) {
+            console.error('❌ [Guest] Failed to load saved conversations:', error);
+          }
+        }
         return;
       }
 
-      console.log('✅ [Auth] User authenticated or demo mode');
+      console.log('✅ [Auth] User authenticated');
+      setIsGuest(false);
+
+      // Check for guest data to migrate
+      await migrateGuestDataToDb();
 
       // Load flows from DB (this will populate conversations)
       await loadFlowsFromDB();
@@ -163,6 +188,75 @@ function ChatPageContent() {
   const realtimeChannelRef = useRef<any>(null);
   const thinkingMsgIdRef = useRef<string | null>(null);
   const isSubmittingRef = useRef(false); // ✅ Prevent duplicate submissions
+
+  // Migrate guest data to database after user authenticates
+  async function migrateGuestDataToDb() {
+    try {
+      const savedConversations = localStorage.getItem('flowtusk_guest_conversations');
+      if (!savedConversations) {
+        console.log('📦 [Migration] No guest data to migrate');
+        return;
+      }
+
+      const guestConversations = JSON.parse(savedConversations) as Conversation[];
+      if (guestConversations.length === 0) {
+        console.log('📦 [Migration] Guest conversations array is empty');
+        return;
+      }
+
+      console.log(`🔄 [Migration] Migrating ${guestConversations.length} guest conversation(s) to database...`);
+
+      // Migrate each conversation that has actual data (factsJson or messages)
+      for (const conv of guestConversations) {
+        // Only migrate conversations that have been used (have factsJson or websiteUrl)
+        if (!conv.memory?.websiteUrl && !conv.memory?.factsJson) {
+          console.log(`⏭️ [Migration] Skipping empty conversation: ${conv.id.slice(0, 8)}`);
+          continue;
+        }
+
+        try {
+          const title = conv.title || (conv.memory?.websiteUrl ? new URL(conv.memory.websiteUrl).hostname : 'Untitled');
+          
+          // Create flow in database
+          const { flow, isNew } = await flowsClient.findOrCreateFlow({
+            title,
+            website_url: conv.memory?.websiteUrl || undefined,
+            facts_json: conv.memory?.factsJson || undefined,
+            step: conv.userJourney?.valuePropGenerated ? 'value_prop' : 
+                  conv.userJourney?.icpSelected ? 'icp_selected' :
+                  conv.userJourney?.websiteAnalyzed ? 'analyzed' : 'initial',
+          });
+
+          // If the flow already exists and is newer, update it with any missing data
+          if (!isNew && conv.memory?.factsJson) {
+            await flowsClient.updateFlow(flow.id, {
+              facts_json: conv.memory.factsJson,
+              selected_icp: conv.memory?.selectedIcp ?? undefined,
+              generated_content: {
+                messages: conv.messages,
+                generationState: conv.generationState,
+                userJourney: conv.userJourney,
+              },
+            });
+          }
+
+          console.log(`✅ [Migration] ${isNew ? 'Created' : 'Updated'} flow for: ${title} (${flow.id.slice(0, 8)})`);
+        } catch (err) {
+          console.error(`❌ [Migration] Failed to migrate conversation: ${conv.id.slice(0, 8)}`, err);
+        }
+      }
+
+      // Clear guest data from localStorage after successful migration
+      localStorage.removeItem('flowtusk_guest_conversations');
+      localStorage.removeItem('flowtusk_guest_active_id');
+      localStorage.removeItem('flowtusk_pending_redirect');
+      console.log('✅ [Migration] Guest data cleared from localStorage');
+
+    } catch (error) {
+      console.error('❌ [Migration] Failed to migrate guest data:', error);
+      // Don't fail silently - keep guest data for retry
+    }
+  }
 
   async function loadFlowsFromDB() {
     try {
@@ -300,6 +394,12 @@ function ChatPageContent() {
 
   async function debouncedSaveToDb(conversation: Conversation) {
     try {
+      // Skip DB auto-save for guests - they use localStorage instead
+      if (isGuest) {
+        console.log(`👤 [Guest] Skipping DB auto-save - using localStorage`);
+        return;
+      }
+
       // Skip auto-save if conversation ID is not a UUID (still local nanoid)
       // UUIDs are 36 chars with dashes (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
       // nanoids are shorter (typically 21 chars, no dashes)
@@ -431,6 +531,21 @@ function ChatPageContent() {
       }
     }
   }, [searchParams, conversations, activeConversationId]);
+
+  // Auto-save guest data to localStorage whenever conversations change
+  useEffect(() => {
+    if (isGuest && conversations.length > 0) {
+      try {
+        localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(conversations));
+        if (activeConversationId) {
+          localStorage.setItem('flowtusk_guest_active_id', activeConversationId);
+        }
+        console.log('💾 [Guest] Auto-saved conversations to localStorage');
+      } catch (e) {
+        console.error('❌ [Guest] Failed to auto-save:', e);
+      }
+    }
+  }, [isGuest, conversations, activeConversationId]);
 
   // Auto-submit after input is set from URL param
   useEffect(() => {
@@ -750,14 +865,21 @@ function ChatPageContent() {
         console.log('⏱️ [Fetch] Starting website analysis with 60s timeout:', url);
         const controller = new AbortController();
         setCurrentAbortController(controller);
-        // Check if URL has already been crawled
-        console.log('🔍 [Cache] Checking if URL already crawled...');
-        const existingCrawl = await flowsClient.findExistingCrawl(url);
-
+        
         let content: string;
         let metadata: any;
         let factsJson: any;
         let wasCached = false;
+
+        // Check if URL has already been crawled (authenticated users only)
+        // Guests skip DB cache check but can still use API-level caching
+        let existingCrawl = null;
+        if (!isGuest) {
+          console.log('🔍 [Cache] Checking if URL already crawled...');
+          existingCrawl = await flowsClient.findExistingCrawl(url);
+        } else {
+          console.log('👤 [Guest] Skipping DB cache check');
+        }
 
         if (existingCrawl && existingCrawl.facts_json) {
           // Reuse existing crawl data
@@ -849,74 +971,109 @@ function ChatPageContent() {
           )
         );
 
-        // Find or create flow in database (prevents duplicates)
-        // If we used cached data, the flow already exists, so we just need to ensure it's up to date
-        console.log('💾 [Flow] Finding or creating flow in database...');
+        // For guests: Use temporary ID and save to localStorage
+        // For authenticated users: Create/find flow in database
+        let flowId = activeConversationId;
         const hostTitle = new URL(url).hostname;
-        const { flow, isNew } = await flowsClient.findOrCreateFlow({
-          title: hostTitle,
-          website_url: url, // Always ensure website_url is set
-          facts_json: factsJson || undefined,
-          step: 'analyzed'
-        });
 
-        // If flow was found but website_url was missing, log it (should be fixed by the update)
-        if (!isNew && !flow.website_url) {
-          console.warn('⚠️ [Flow] Found flow without website_url, should be updated now');
-        }
+        if (!isGuest) {
+          // Find or create flow in database (prevents duplicates)
+          console.log('💾 [Flow] Finding or creating flow in database...');
+          const { flow, isNew: flowIsNew } = await flowsClient.findOrCreateFlow({
+            title: hostTitle,
+            website_url: url,
+            facts_json: factsJson || undefined,
+            step: 'analyzed'
+          });
 
-        console.log(`✅ [Flow] ${isNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
-        console.log(`🔄 [ID Sync] Updating conversation ID from ${activeConversationId.slice(0, 8)}... to ${flow.id.slice(0, 8)}...`);
-
-        // Store flow ID and align conversation ID with DB flow ID
-        setConversations(prev => {
-          const updated = prev.map(conv =>
-            conv.id === activeConversationId
-              ? {
-                ...conv,
-                id: flow.id,
-                memory: {
-                  ...conv.memory,
-                  id: flow.id,
-                  flowId: flow.id,
-                  websiteUrl: url, // Ensure website_url is set in memory
-                }
-              }
-              : conv
-          );
-          console.log(`✅ [ID Sync] Conversation ID updated. Active conversation now has DB ID: ${flow.id.slice(0, 8)}...`);
-          return updated;
-        });
-
-        // Wait for state update to complete before changing active ID
-        // Use setTimeout to ensure state update processes first and prevent race condition
-        setTimeout(() => {
-          setActiveConversationId(flow.id);
-          console.log(`✅ [ID Sync] Active conversation ID set to: ${flow.id.slice(0, 8)}...`);
-        }, 0);
-
-        // Subscribe to realtime updates for this flow (step transitions)
-        try {
-          const supabase = createClient();
-          if (realtimeChannelRef.current) {
-            supabase.removeChannel(realtimeChannelRef.current);
-            realtimeChannelRef.current = null;
+          if (!flowIsNew && !flow.website_url) {
+            console.warn('⚠️ [Flow] Found flow without website_url, should be updated now');
           }
-          const channel = supabase.channel(`flow:${flow.id}`)
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'positioning_flows', filter: `id=eq.${flow.id}` }, (payload) => {
-              const newStep = (payload.new as any)?.step;
-              if (!newStep) return;
-              const msgId = thinkingMsgIdRef.current;
-              if (!msgId) return;
-              if (newStep === 'analyzed') {
-                updateThinkingStep(msgId, 'analyze', { status: 'complete' });
-              } else if (newStep === 'icps') {
-                updateThinkingStep(msgId, 'generate', { status: 'complete' });
-              }
-            })
-            .subscribe();
-          realtimeChannelRef.current = channel;
-        } catch { }
+
+          console.log(`✅ [Flow] ${flowIsNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
+          console.log(`🔄 [ID Sync] Updating conversation ID from ${activeConversationId.slice(0, 8)}... to ${flow.id.slice(0, 8)}...`);
+          flowId = flow.id;
+
+          // Store flow ID and align conversation ID with DB flow ID
+          setConversations(prev => {
+            const updated = prev.map(conv =>
+              conv.id === activeConversationId
+                ? {
+                  ...conv,
+                  id: flow.id,
+                  memory: {
+                    ...conv.memory,
+                    id: flow.id,
+                    flowId: flow.id,
+                    websiteUrl: url,
+                  }
+                }
+                : conv
+            );
+            console.log(`✅ [ID Sync] Conversation ID updated. Active conversation now has DB ID: ${flow.id.slice(0, 8)}...`);
+            return updated;
+          });
+
+          // Wait for state update to complete before changing active ID
+          setTimeout(() => {
+            setActiveConversationId(flow.id);
+            console.log(`✅ [ID Sync] Active conversation ID set to: ${flow.id.slice(0, 8)}...`);
+          }, 0);
+
+          // Subscribe to realtime updates for this flow
+          try {
+            const supabase = createClient();
+            if (realtimeChannelRef.current) {
+              supabase.removeChannel(realtimeChannelRef.current);
+              realtimeChannelRef.current = null;
+            }
+            const channel = supabase.channel(`flow:${flow.id}`)
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'positioning_flows', filter: `id=eq.${flow.id}` }, (payload) => {
+                const newStep = (payload.new as any)?.step;
+                if (!newStep) return;
+                const msgId = thinkingMsgIdRef.current;
+                if (!msgId) return;
+                if (newStep === 'analyzed') {
+                  updateThinkingStep(msgId, 'analyze', { status: 'complete' });
+                } else if (newStep === 'icps') {
+                  updateThinkingStep(msgId, 'generate', { status: 'complete' });
+                }
+              })
+              .subscribe();
+            realtimeChannelRef.current = channel;
+          } catch { }
+        } else {
+          // Guest mode: Keep temporary ID and save to localStorage
+          console.log('👤 [Guest] Using temporary flow ID:', activeConversationId.slice(0, 8));
+          
+          // Update conversation with URL and facts
+          setConversations(prev => {
+            const updated = prev.map(conv =>
+              conv.id === activeConversationId
+                ? {
+                  ...conv,
+                  title: hostTitle,
+                  memory: {
+                    ...conv.memory,
+                    websiteUrl: url,
+                    factsJson: factsJson || undefined,
+                  }
+                }
+                : conv
+            );
+            
+            // Save to localStorage for persistence
+            try {
+              localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(updated));
+              localStorage.setItem('flowtusk_guest_active_id', activeConversationId);
+              console.log('💾 [Guest] Saved conversation to localStorage');
+            } catch (e) {
+              console.error('❌ [Guest] Failed to save to localStorage:', e);
+            }
+            
+            return updated;
+          });
+        }
 
         console.log('🎯 [Flow] Proceeding to Step 2: Extract visuals');
         // Step 2: Extract visuals
@@ -2479,6 +2636,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                           personas={showcaseData.personas}
                           selectedPersonaId={showcaseData.selectedPersonaId}
                           valuePropData={showcaseData.valuePropData}
+                          isGuest={isGuest}
+                          flowId={activeConversationId}
                           onPersonaChange={(personaId) => {
                             // Update the message data to reflect new selection
                             setConversations(prev =>
@@ -2498,6 +2657,21 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                           }}
                           onExport={handleExport}
                           onLaunchCopilot={handleLaunchCopilot}
+                          onSignIn={(returnUrl) => {
+                            // Save current conversation to localStorage before redirecting
+                            try {
+                              const currentConv = conversations.find(c => c.id === activeConversationId);
+                              if (currentConv) {
+                                localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(conversations));
+                                localStorage.setItem('flowtusk_guest_active_id', activeConversationId);
+                                localStorage.setItem('flowtusk_pending_redirect', returnUrl);
+                              }
+                            } catch (e) {
+                              console.error('Failed to save guest data before auth:', e);
+                            }
+                            // Redirect to login with return URL
+                            window.location.href = `/auth/login?redirectTo=${encodeURIComponent(returnUrl)}`;
+                          }}
                           readOnly={false}
                         />
                       );

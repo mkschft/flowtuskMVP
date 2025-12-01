@@ -75,6 +75,9 @@ type PersonaShowcaseProps = {
   onGenerateLinkedIn?: (persona: ICP) => void;
   onGenerateEmail?: (persona: ICP) => void;
   onLaunchCopilot?: (persona: ICP) => void;
+  onSignIn?: (returnUrl: string) => void;
+  isGuest?: boolean;
+  flowId?: string;
   readOnly?: boolean;
 };
 
@@ -88,6 +91,9 @@ export function PersonaShowcase({
   onGenerateLinkedIn,
   onGenerateEmail,
   onLaunchCopilot,
+  onSignIn,
+  isGuest = false,
+  flowId,
   readOnly = false
 }: PersonaShowcaseProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -324,8 +330,30 @@ export function PersonaShowcase({
 
                         {/* Action Buttons */}
                         <div className="pt-3 space-y-3">
-                          {/* Launch Brand Canvas Button - Primary CTA */}
-                          {onLaunchCopilot && (
+                          {/* Launch Brand Canvas / Sign In Button - Primary CTA */}
+                          {isGuest ? (
+                            // Guest users see "Sign in to continue" button
+                            <Button
+                              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Build the return URL for after auth
+                                const returnUrl = flowId 
+                                  ? `/copilot?icpId=${persona.id}&flowId=${flowId}`
+                                  : `/app`;
+                                if (onSignIn) {
+                                  onSignIn(returnUrl);
+                                } else {
+                                  // Fallback: redirect to login with return URL
+                                  window.location.href = `/auth/login?redirectTo=${encodeURIComponent(returnUrl)}`;
+                                }
+                              }}
+                            >
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              Sign in to continue
+                            </Button>
+                          ) : onLaunchCopilot && (
+                            // Authenticated users see "Launch Brand Canvas" button
                             <Button
                               className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md"
                               onClick={(e) => {
