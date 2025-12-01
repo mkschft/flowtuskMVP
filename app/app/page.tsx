@@ -1667,6 +1667,13 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
       // Memory state is already in the conversation object
 
+      // Update URL with conversation ID (remove url param, add c param)
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('url');
+      newUrl.searchParams.set('c', newConv.id);
+      window.history.replaceState({}, '', newUrl.toString());
+      console.log('🔗 [Conversation] Updated URL with conversation ID:', newConv.id);
+
       return newConv.id; // Return the new ID immediately
     }
     return activeConversationId;
