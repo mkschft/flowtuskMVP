@@ -974,13 +974,18 @@ function ChatPageContent() {
       // Check if it's a URL - analyze website
       // Match URLs with or without protocol
       const urlPattern = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&\/=]*/;
-      if (urlPattern.test(userInput)) {
+      const isUrl = urlPattern.test(userInput);
+      console.log('🔍 [URL Check]', { userInput, isUrl });
+
+      if (isUrl) {
         let url = userInput.match(urlPattern)?.[0] || "";
+        console.log('🌐 [URL Match]', { matched: url });
 
         // Normalize URL to ensure it has a protocol
         if (!/^https?:\/\//i.test(url)) {
           url = `https://${url}`;
         }
+        console.log('✅ [URL Normalized]', { normalized: url });
 
         setWebsiteUrl(url);
         updateConversationTitle(new URL(url).hostname);
@@ -988,6 +993,7 @@ function ChatPageContent() {
         // Create thinking message with all steps
         const thinkingMsgId = nanoid();
         thinkingMsgIdRef.current = thinkingMsgId;
+        console.log('💭 [Creating Thinking Message]', { thinkingMsgId });
         addMessage({
           id: thinkingMsgId,
           role: "assistant",
@@ -998,6 +1004,7 @@ function ChatPageContent() {
             { id: 'generate', label: 'Generating customer profiles', status: 'pending' },
           ],
         });
+        console.log('✅ [Thinking Message Added]');
 
         // Step 1: Analyze website
         const analyzeStart = Date.now();
