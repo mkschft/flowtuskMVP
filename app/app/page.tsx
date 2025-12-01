@@ -2953,6 +2953,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
             ))}
 
             {isLoading && !activeConversation?.messages.some(m =>
+              m.content === "thinking" ||
               m.content.includes("🔍") ||
               m.content.includes("✨") ||
               m.content.includes("🧠")
