@@ -195,17 +195,21 @@ export class FlowsClient {
    * Find an existing flow by website URL, or create a new one if not found
    * This prevents duplicate flows for the same website
    */
-  async findOrCreateFlow(input: CreateFlowInput & { website_url: string }): Promise<{ flow: Flow; isNew: boolean }> {
+  async findOrCreateFlow(input: CreateFlowInput): Promise<{ flow: Flow; isNew: boolean }> {
     try {
-      // Normalize URL for comparison
-      const normalizedUrl = this.normalizeUrl(input.website_url);
+      let existingFlow: Flow | undefined;
 
-      // First, try to find existing flow by website URL (normalized)
-      const flows = await this.listFlows({ archived: false });
-      const existingFlow = flows.find(f => {
-        if (!f.website_url) return false;
-        return this.normalizeUrl(f.website_url) === normalizedUrl;
-      });
+      if (input.website_url) {
+        // Normalize URL for comparison
+        const normalizedUrl = this.normalizeUrl(input.website_url);
+
+        // First, try to find existing flow by website URL (normalized)
+        const flows = await this.listFlows({ archived: false });
+        existingFlow = flows.find(f => {
+          if (!f.website_url) return false;
+          return this.normalizeUrl(f.website_url) === normalizedUrl;
+        });
+      }
 
       if (existingFlow) {
         console.log('✅ [DB] Found existing flow for website:', existingFlow.id);
@@ -218,7 +222,7 @@ export class FlowsClient {
           if (input.facts_json) updateData.facts_json = input.facts_json;
           if (input.step) updateData.step = input.step;
           // Always set website_url if: provided in input OR existing flow is missing it
-          if (input.website_url || !existingFlow.website_url) {
+          if (input.website_url) {
             updateData.website_url = input.website_url;
           }
 
@@ -229,7 +233,7 @@ export class FlowsClient {
       }
 
       // No existing flow found, create a new one
-      console.log('✅ [DB] Creating new flow for website:', input.website_url);
+      console.log('✅ [DB] Creating new flow for website:', input.website_url || 'Untitled');
       const flow = await this.createFlow(input);
       return { flow, isNew: true };
     } catch (error) {
@@ -237,14 +241,24 @@ export class FlowsClient {
       if (error instanceof Error && error.message.includes('already exists')) {
         console.warn('⚠️ [DB] Conflict detected, retrying find...');
         const flows = await this.listFlows({ archived: false });
-        const normalizedUrl = this.normalizeUrl(input.website_url);
-        const existingFlow = flows.find(f => {
-          if (f.website_url && this.normalizeUrl(f.website_url) === normalizedUrl) return true;
-          if (f.title === input.title) return true;
-          return false;
-        });
-        if (existingFlow) {
-          return { flow: existingFlow, isNew: false };
+        
+        // Try to find by URL if we have one
+        if (input.website_url) {
+          const normalizedUrl = this.normalizeUrl(input.website_url);
+          const existingFlow = flows.find(f => {
+            if (f.website_url && this.normalizeUrl(f.website_url) === normalizedUrl) return true;
+            if (f.title === input.title) return true;
+            return false;
+          });
+          if (existingFlow) {
+            return { flow: existingFlow, isNew: false };
+          }
+        } else {
+          // Fallback to title match
+          const existingFlow = flows.find(f => f.title === input.title);
+          if (existingFlow) {
+            return { flow: existingFlow, isNew: false };
+          }
         }
       }
       throw error;
