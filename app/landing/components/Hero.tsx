@@ -52,17 +52,17 @@ export function Hero() {
         }}
       />
       
-      <div className="px-8 py-32 mx-auto md:px-12 lg:px-24 max-w-7xl relative w-full z-10">
-        <div className="max-w-4xl text-center mx-auto lg:text-balance mb-12 animate-fade-in-up">
+      <div className="px-8 py-20 md:py-24 mx-auto md:px-12 lg:px-24 max-w-7xl relative w-full z-10">
+        <div className="max-w-4xl text-center mx-auto lg:text-balance mb-16 animate-fade-in-up">
           <h1 className="text-5xl leading-tight tracking-tight font-semibold text-base-900 hero-title-glow">
             AI brand agent that builds your brand in minutes not weeks
           </h1>
-          <p className="text-base sm:text-lg leading-relaxed mt-6 text-base-700 font-medium max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg leading-relaxed mt-8 text-base-700 font-medium max-w-3xl mx-auto">
             Get agency-quality brand strategy in 10 minutes. From personas to messaging to launch-ready content.
           </p>
           
           {/* URL Input Section - Matching /app styling */}
-          <div className="mt-10 max-w-2xl mx-auto px-4">
+          <div className="mt-12 max-w-2xl mx-auto px-4">
             {/* Enhanced Glow effect behind input - Similar to the reference */}
             <div className="relative">
               {/* Outer glow - warm purple gradient */}
@@ -90,7 +90,7 @@ export function Hero() {
                 }}
               />
             
-            <form onSubmit={handleSubmit} className="relative w-full mb-6 group">
+            <form onSubmit={handleSubmit} className="relative w-full mb-12 group">
               <div className="relative w-full rounded-3xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-2xl transition-all hover:shadow-xl">
                 <Input
                   type="text"
@@ -117,10 +117,10 @@ export function Hero() {
             </div>
             
             {/* Example URLs */}
-            <p className="text-sm text-gray-500 text-center mb-3 relative">
+            <p className="text-sm text-gray-500 text-center mb-4 relative">
               Try these examples or paste any public website URL:
             </p>
-            <div className="flex flex-wrap justify-center gap-2 relative">
+            <div className="flex flex-wrap justify-center gap-3 relative">
               {exampleUrls.map((example) => (
                 <button
                   key={example.url}
