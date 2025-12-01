@@ -560,14 +560,23 @@ function ChatPageContent() {
       console.log('🚀 [Auto-Submit] Triggering form submission...');
       // Reset flag to prevent duplicate submissions
       setShouldAutoSubmit(false);
-      // Trigger form submission now that input state is updated
-      const form = document.querySelector('form[data-chat-form]');
-      if (form) {
-        console.log('✅ [Auto-Submit] Form found, calling requestSubmit()');
-        (form as HTMLFormElement).requestSubmit();
-      } else {
-        console.error('❌ [Auto-Submit] Form not found! Cannot auto-submit.');
-      }
+      
+      // Retry finding the form with a delay to ensure it's rendered
+      const attemptSubmit = (attempts = 0) => {
+        const form = document.querySelector('form[data-chat-form]');
+        if (form) {
+          console.log('✅ [Auto-Submit] Form found, calling requestSubmit()');
+          (form as HTMLFormElement).requestSubmit();
+        } else if (attempts < 10) {
+          // Retry up to 10 times with 100ms delay
+          console.log(`⏳ [Auto-Submit] Form not found, retrying... (attempt ${attempts + 1})`);
+          setTimeout(() => attemptSubmit(attempts + 1), 100);
+        } else {
+          console.error('❌ [Auto-Submit] Form not found after 10 attempts!');
+        }
+      };
+      
+      attemptSubmit();
     }
   }, [input, shouldAutoSubmit]);
 

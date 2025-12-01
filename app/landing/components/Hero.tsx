@@ -52,55 +52,48 @@ export function Hero() {
             Get agency-quality brand strategy in 10 minutes. From personas to messaging to launch-ready content.
           </p>
           
-          {/* URL Input Section */}
-          <div className="mt-10 max-w-2xl mx-auto">
-            <form onSubmit={handleSubmit} className="relative">
-              <div className="relative flex items-center">
+          {/* URL Input Section - Matching /app styling */}
+          <div className="mt-10 max-w-2xl mx-auto px-4">
+            <form onSubmit={handleSubmit} className="relative w-full mb-6">
+              <div className="relative w-full rounded-3xl border-2 border-gray-200 bg-white p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all">
                 <input
                   type="text"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
                   placeholder="Paste any website URL (e.g., https://yoursite.com)..."
-                  className="w-full h-14 pl-6 pr-16 text-base text-gray-900 bg-white border-2 border-gray-200 rounded-full shadow-lg focus:outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all placeholder:text-gray-400"
                   disabled={isSubmitting}
+                  className="w-full border-0 outline-none ring-0 focus:ring-0 focus-visible:ring-0 pr-14 sm:pr-16 bg-transparent text-base sm:text-lg h-12 sm:h-14 text-gray-900 placeholder:text-gray-400"
                 />
                 <button
                   type="submit"
                   disabled={!websiteUrl.trim() || isSubmitting}
-                  className="absolute right-2 w-10 h-10 flex items-center justify-center rounded-full text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-105 active:scale-95"
-                  style={{ 
-                    background: websiteUrl.trim() 
-                      ? 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)' 
-                      : '#d1d5db'
-                  }}
+                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d28d9] hover:to-[#7c3aed] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Analyze website"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <ArrowUp className="w-5 h-5" />
+                    <ArrowUp className="h-6 w-6 text-white" />
                   )}
                 </button>
               </div>
             </form>
             
             {/* Example URLs */}
-            <div className="mt-4 flex flex-col items-center gap-3">
-              <p className="text-sm text-gray-500">
-                Try these examples or paste any public website URL:
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {exampleUrls.map((example) => (
-                  <button
-                    key={example.url}
-                    onClick={() => handleExampleClick(example.url)}
-                    disabled={isSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {example.label}
-                  </button>
-                ))}
-              </div>
+            <p className="text-sm text-gray-500 text-center mb-3">
+              Try these examples or paste any public website URL:
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {exampleUrls.map((example) => (
+                <button
+                  key={example.url}
+                  onClick={() => handleExampleClick(example.url)}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-[#8b5cf6] hover:bg-purple-50 hover:text-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {example.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
