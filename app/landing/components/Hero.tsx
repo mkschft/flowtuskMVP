@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export function Hero() {
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -47,13 +48,13 @@ export function Hero() {
           <div className="mt-10 max-w-2xl mx-auto px-4">
             <form onSubmit={handleSubmit} className="relative w-full mb-6">
               <div className="relative w-full rounded-3xl border-2 border-gray-200 bg-white p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all">
-                <input
+                <Input
                   type="text"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
                   placeholder="Paste any website URL (e.g., https://yoursite.com)..."
                   disabled={isSubmitting}
-                  className="w-full border-0 outline-none ring-0 focus:ring-0 focus-visible:ring-0 pr-14 sm:pr-16 bg-transparent text-base sm:text-lg h-12 sm:h-14 text-gray-900 placeholder:text-gray-400"
+                  className="!border-0 !ring-0 !outline-0 rounded-none pr-14 sm:pr-16 focus-visible:!ring-0 focus-visible:!outline-0 focus:!ring-0 focus:!outline-0 active:!ring-0 active:!outline-0 shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left [&:focus]:ring-0 [&:focus-visible]:ring-0"
                 />
                 <button
                   type="submit"
