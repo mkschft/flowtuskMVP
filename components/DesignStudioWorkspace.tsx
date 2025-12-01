@@ -143,13 +143,13 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
   const hasSyncedRef = useRef(false);
   useEffect(() => {
     if (!manifest || !flowId || !icpId) return;
-    
+
     // Only sync once on initial load (when designAssets is null)
     // This prevents flicker from re-syncing when manifest updates
     if (hasSyncedRef.current && designAssets) {
       return; // Already synced, don't re-sync
     }
-    
+
     // Convert manifest to designAssets to keep UI in sync (only on initial load)
     const updatedDesignAssets = convertManifestToDesignAssets(
       manifest,
@@ -157,11 +157,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       icpId,
       designAssets
     );
-    
+
     // Only update if designAssets is null (initial load) or if colors actually changed
     const currentColors = designAssets?.brand_guide?.colors?.primary?.[0]?.hex;
     const newColors = updatedDesignAssets.brand_guide?.colors?.primary?.[0]?.hex;
-    
+
     if (!designAssets || currentColors !== newColors) {
       console.log('🔄 [Design Studio] Syncing manifest to designAssets (initial load)...', {
         oldColor: currentColors,
@@ -170,7 +170,7 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
       });
       setDesignAssets({ ...updatedDesignAssets });
       hasSyncedRef.current = true;
-      
+
       if (workspaceData) {
         setWorkspaceData({
           ...workspaceData,
@@ -216,6 +216,15 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     reloadManifest,
     setChatMessages
   );
+
+  // Cleanup: Reset store when component unmounts (user navigates away)
+  useEffect(() => {
+    return () => {
+      console.log('🧹 [Design Studio] Cleaning up - resetting copilot store');
+      const { reset } = useCopilotStore.getState();
+      reset();
+    };
+  }, []);
 
   // --- Event Handlers ---
 

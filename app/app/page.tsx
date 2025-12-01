@@ -120,11 +120,18 @@ function ChatPageContent() {
       // ✅ Initialize cache management (checks version, clears if stale)
       await initializeCache();
 
+      // Check if there's a URL param from landing page to preserve
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlParam = urlParams.get('url');
+
       // ✅ CLEANUP: Clear all state first for fresh start
-      console.log('🧹 [Init] Clearing state for fresh start...');
+      console.log('🧹 [Init] Clearing state for fresh start...', { urlParam });
       setConversations([]);
       setActiveConversationId("");
-      setInput("");
+      // Only clear input if there's no pending URL param to process
+      if (!urlParam) {
+        setInput("");
+      }
       setWebsiteUrl("");
       setSelectedIcp(null);
       setIsLoading(false);
@@ -145,11 +152,11 @@ function ChatPageContent() {
         console.log('👤 [Auth] Guest mode - allowing product experience without login');
         setIsGuest(true);
         setAuthLoading(false);
-        
+
         // Load any existing guest data from localStorage
         const savedConversations = localStorage.getItem('flowtusk_guest_conversations');
         const savedActiveId = localStorage.getItem('flowtusk_guest_active_id');
-        
+
         if (savedConversations) {
           try {
             const parsed = JSON.parse(savedConversations);
@@ -173,12 +180,19 @@ function ChatPageContent() {
       console.log('✅ [Auth] User authenticated');
       setIsGuest(false);
 
-      // Check for guest data to migrate
-      await migrateGuestDataToDb();
+      // Check for guest data to migrate (returns pending redirect if any)
+      const pendingRedirect = await migrateGuestDataToDb();
 
       // Load flows from DB (this will populate conversations)
       await loadFlowsFromDB();
       setAuthLoading(false);
+
+      // If there's a pending redirect from guest session, navigate to it
+      if (pendingRedirect) {
+        console.log(`🔗 [Auth] Redirecting to pending URL: ${pendingRedirect}`);
+        router.push(pendingRedirect);
+        return;
+      }
     } catch (error) {
       console.error('❌ [Init] Failed to initialize:', error);
       setAuthLoading(false);
@@ -190,21 +204,37 @@ function ChatPageContent() {
   const isSubmittingRef = useRef(false); // ✅ Prevent duplicate submissions
 
   // Migrate guest data to database after user authenticates
-  async function migrateGuestDataToDb() {
+  // Returns the pending redirect URL if one exists, or null
+  async function migrateGuestDataToDb(): Promise<string | null> {
     try {
       const savedConversations = localStorage.getItem('flowtusk_guest_conversations');
+      const pendingRedirect = localStorage.getItem('flowtusk_pending_redirect');
+
       if (!savedConversations) {
         console.log('📦 [Migration] No guest data to migrate');
-        return;
+        // Still check for pending redirect even if no conversations to migrate
+        if (pendingRedirect) {
+          localStorage.removeItem('flowtusk_pending_redirect');
+          return pendingRedirect;
+        }
+        return null;
       }
 
       const guestConversations = JSON.parse(savedConversations) as Conversation[];
       if (guestConversations.length === 0) {
         console.log('📦 [Migration] Guest conversations array is empty');
-        return;
+        if (pendingRedirect) {
+          localStorage.removeItem('flowtusk_pending_redirect');
+          return pendingRedirect;
+        }
+        return null;
       }
 
       console.log(`🔄 [Migration] Migrating ${guestConversations.length} guest conversation(s) to database...`);
+
+      // Track the new flow ID for the active conversation (for redirect URL update)
+      let migratedFlowId: string | null = null;
+      const savedActiveId = localStorage.getItem('flowtusk_guest_active_id');
 
       // Migrate each conversation that has actual data (factsJson or messages)
       for (const conv of guestConversations) {
@@ -216,28 +246,115 @@ function ChatPageContent() {
 
         try {
           const title = conv.title || (conv.memory?.websiteUrl ? new URL(conv.memory.websiteUrl).hostname : 'Untitled');
-          
+
           // Create flow in database
           const { flow, isNew } = await flowsClient.findOrCreateFlow({
             title,
             website_url: conv.memory?.websiteUrl || undefined,
             facts_json: conv.memory?.factsJson || undefined,
-            step: conv.userJourney?.valuePropGenerated ? 'value_prop' : 
-                  conv.userJourney?.icpSelected ? 'icp_selected' :
-                  conv.userJourney?.websiteAnalyzed ? 'analyzed' : 'initial',
+            step: conv.userJourney?.valuePropGenerated ? 'value_prop' :
+              conv.userJourney?.icpSelected ? 'icp_selected' :
+                conv.userJourney?.websiteAnalyzed ? 'analyzed' : 'initial',
           });
 
-          // If the flow already exists and is newer, update it with any missing data
-          if (!isNew && conv.memory?.factsJson) {
-            await flowsClient.updateFlow(flow.id, {
-              facts_json: conv.memory.factsJson,
-              selected_icp: conv.memory?.selectedIcp ?? undefined,
-              generated_content: {
-                messages: conv.messages,
-                generationState: conv.generationState,
-                userJourney: conv.userJourney,
-              },
-            });
+          // Update flow with any missing data
+          await flowsClient.updateFlow(flow.id, {
+            facts_json: conv.memory?.factsJson ?? undefined,
+            selected_icp: conv.memory?.selectedIcp ?? undefined,
+            generated_content: {
+              messages: conv.messages,
+              generationState: conv.generationState,
+              userJourney: conv.userJourney,
+            },
+          });
+
+          // Extract ICP data from conversation messages to create brand_manifest
+          const icpMessage = conv.messages.find(m => m.component === 'icps');
+          const icps = icpMessage?.data as ICP[] | undefined;
+          const selectedIcp = conv.memory?.selectedIcp;
+
+          // If we have ICP data and a selected ICP, create the brand_manifest
+          if (icps && icps.length > 0 && selectedIcp) {
+            console.log(`📋 [Migration] Creating brand manifest for flow: ${flow.id.slice(0, 8)}`);
+
+            try {
+              const hostname = conv.memory?.websiteUrl
+                ? new URL(conv.memory.websiteUrl).hostname.replace(/^www\./, '')
+                : title;
+
+              // Build manifest from conversation data
+              const manifestData = {
+                flowId: flow.id,
+                manifest: {
+                  version: "1.0",
+                  brandName: hostname,
+                  brandKey: flow.id.slice(0, 8).toUpperCase(),
+                  lastUpdated: new Date().toISOString(),
+                  strategy: {
+                    icps: icps.map((icp: ICP) => ({
+                      id: icp.id,
+                      title: icp.title,
+                      description: icp.description,
+                      personaName: icp.personaName,
+                      personaRole: icp.personaRole,
+                      personaCompany: icp.personaCompany,
+                      location: icp.location,
+                      country: icp.country,
+                      painPoints: icp.painPoints || [],
+                      goals: icp.goals || [],
+                      demographics: icp.demographics || ''
+                    })),
+                    persona: {
+                      id: selectedIcp.id,
+                      name: selectedIcp.personaName,
+                      role: selectedIcp.personaRole,
+                      company: selectedIcp.personaCompany,
+                      industry: selectedIcp.title,
+                      location: selectedIcp.location,
+                      country: selectedIcp.country,
+                      painPoints: selectedIcp.painPoints || [],
+                      goals: selectedIcp.goals || []
+                    },
+                    valueProp: conv.generationState?.generatedContent?.valueProp || {}
+                  },
+                  identity: { colors: { primary: [], secondary: [], accent: [], neutral: [] }, typography: {}, logo: {}, tone: {} },
+                  components: { buttons: {}, cards: {}, inputs: {}, spacing: {} },
+                  previews: { landingPage: {} },
+                  metadata: {
+                    generationHistory: [{
+                      timestamp: new Date().toISOString(),
+                      action: 'migrated_from_guest',
+                      changedFields: ['strategy']
+                    }],
+                    regenerationCount: 0,
+                    sourceFlowId: flow.id,
+                    sourceIcpId: selectedIcp.id
+                  }
+                }
+              };
+
+              // Save brand manifest
+              const manifestRes = await fetch("/api/brand-manifest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(manifestData),
+              });
+
+              if (manifestRes.ok) {
+                console.log(`✅ [Migration] Brand manifest created for flow: ${flow.id.slice(0, 8)}`);
+              } else {
+                const error = await manifestRes.json().catch(() => ({}));
+                console.warn(`⚠️ [Migration] Brand manifest creation failed:`, error);
+              }
+            } catch (manifestErr) {
+              console.error(`❌ [Migration] Failed to create brand manifest:`, manifestErr);
+            }
+          }
+
+          // Track the migrated flow ID for the active conversation
+          if (conv.id === savedActiveId) {
+            migratedFlowId = flow.id;
+            console.log(`📌 [Migration] Active conversation migrated to flow: ${flow.id.slice(0, 8)}`);
           }
 
           console.log(`✅ [Migration] ${isNew ? 'Created' : 'Updated'} flow for: ${title} (${flow.id.slice(0, 8)})`);
@@ -252,9 +369,26 @@ function ChatPageContent() {
       localStorage.removeItem('flowtusk_pending_redirect');
       console.log('✅ [Migration] Guest data cleared from localStorage');
 
+      // Update the pending redirect URL with the new flow ID if available
+      if (pendingRedirect && migratedFlowId) {
+        try {
+          const url = new URL(pendingRedirect, window.location.origin);
+          url.searchParams.set('flowId', migratedFlowId);
+          const updatedRedirect = url.pathname + url.search;
+          console.log(`🔗 [Migration] Updated redirect URL with new flow ID: ${updatedRedirect}`);
+          return updatedRedirect;
+        } catch (e) {
+          console.error('❌ [Migration] Failed to update redirect URL:', e);
+          return pendingRedirect;
+        }
+      }
+
+      return pendingRedirect;
+
     } catch (error) {
       console.error('❌ [Migration] Failed to migrate guest data:', error);
       // Don't fail silently - keep guest data for retry
+      return null;
     }
   }
 
@@ -496,11 +630,13 @@ function ChatPageContent() {
     console.log('🔍 [URL Param Check]', {
       urlParam,
       hasProcessedUrlParam,
+      authLoading,
       conversationsCount: conversations.length,
-      willProcess: !!(urlParam && !hasProcessedUrlParam)
+      willProcess: !!(urlParam && !hasProcessedUrlParam && !authLoading)
     });
 
-    if (urlParam && !hasProcessedUrlParam) {
+    // Wait for auth to complete before processing URL param
+    if (urlParam && !hasProcessedUrlParam && !authLoading) {
       console.log('✅ [URL Param] Processing URL from landing page:', urlParam);
       setHasProcessedUrlParam(true);
       // Pre-fill the input with URL from landing page
@@ -509,7 +645,7 @@ function ChatPageContent() {
       setShouldAutoSubmit(true);
       console.log('🎯 [URL Param] Input set, auto-submit flag enabled');
     }
-  }, [searchParams, hasProcessedUrlParam]);
+  }, [searchParams, hasProcessedUrlParam, authLoading]);
 
   // Handle flowId parameter to select specific conversation (e.g., when returning from /copilot)
   useEffect(() => {
@@ -560,7 +696,7 @@ function ChatPageContent() {
       console.log('🚀 [Auto-Submit] Triggering form submission...');
       // Reset flag to prevent duplicate submissions
       setShouldAutoSubmit(false);
-      
+
       // Retry finding the form with a delay to ensure it's rendered
       const attemptSubmit = (attempts = 0) => {
         const form = document.querySelector('form[data-chat-form]');
@@ -575,7 +711,7 @@ function ChatPageContent() {
           console.error('❌ [Auto-Submit] Form not found after 10 attempts!');
         }
       };
-      
+
       attemptSubmit();
     }
   }, [input, shouldAutoSubmit]);
@@ -874,7 +1010,7 @@ function ChatPageContent() {
         console.log('⏱️ [Fetch] Starting website analysis with 60s timeout:', url);
         const controller = new AbortController();
         setCurrentAbortController(controller);
-        
+
         let content: string;
         let metadata: any;
         let factsJson: any;
@@ -1054,7 +1190,7 @@ function ChatPageContent() {
         } else {
           // Guest mode: Keep temporary ID and save to localStorage
           console.log('👤 [Guest] Using temporary flow ID:', activeConversationId.slice(0, 8));
-          
+
           // Update conversation with URL and facts
           setConversations(prev => {
             const updated = prev.map(conv =>
@@ -1070,7 +1206,7 @@ function ChatPageContent() {
                 }
                 : conv
             );
-            
+
             // Save to localStorage for persistence
             try {
               localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(updated));
@@ -1079,7 +1215,7 @@ function ChatPageContent() {
             } catch (e) {
               console.error('❌ [Guest] Failed to save to localStorage:', e);
             }
-            
+
             return updated;
           });
         }
@@ -1187,9 +1323,7 @@ function ChatPageContent() {
         // Note: brandColors saved for future use
 
         // Save ICPs to brand_manifests (single source of truth)
-        console.log('💾 [ICPs] Saving to brand_manifests...');
-        console.log('📋 [ICPs] FlowID:', flow.id);
-        console.log('🔢 [ICPs] Count:', icps.length);
+        // Note: Only for authenticated users - guests will get this during migration
 
         // ICPs already have generated IDs from /api/generate-icps
         const icpsWithDbIds = icps;
@@ -1197,69 +1331,77 @@ function ChatPageContent() {
         // Extract hostname from URL
         const hostname = url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
 
-        // Create/update brand manifest with ICPs
-        const saveManifestRes = await fetch("/api/brand-manifest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            flowId: flow.id,
-            manifest: {
-              version: "1.0",
-              brandName: hostname,
-              brandKey: flow.id.slice(0, 8).toUpperCase(),
-              lastUpdated: new Date().toISOString(),
-              strategy: {
-                icps: icps.map((icp: ICP) => ({
-                  id: icp.id,
-                  title: icp.title,
-                  description: icp.description,
-                  personaName: icp.personaName,
-                  personaRole: icp.personaRole,
-                  personaCompany: icp.personaCompany,
-                  location: icp.location,
-                  country: icp.country,
-                  painPoints: icp.painPoints || [],
-                  goals: icp.goals || [],
-                  demographics: icp.demographics || ''
-                })),
-                persona: {}, // Will be set when user selects an ICP
-                valueProp: {} // Will be generated later
-              },
-              identity: { colors: brandColors || { primary: [], secondary: [], accent: [], neutral: [] }, typography: {}, logo: {}, tone: {} },
-              components: { buttons: {}, cards: {}, inputs: {}, spacing: {} },
-              previews: { landingPage: {} },
-              metadata: {
-                generationHistory: [{
-                  timestamp: new Date().toISOString(),
-                  action: 'icps_generated',
-                  changedFields: ['strategy.icps']
-                }],
-                regenerationCount: 0,
-                sourceFlowId: flow.id,
-                sourceIcpId: ''
+        if (!isGuest) {
+          console.log('💾 [ICPs] Saving to brand_manifests...');
+          console.log('📋 [ICPs] FlowID:', flowId);
+          console.log('🔢 [ICPs] Count:', icps.length);
+
+          // Create/update brand manifest with ICPs
+          const saveManifestRes = await fetch("/api/brand-manifest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              flowId: flowId,
+              manifest: {
+                version: "1.0",
+                brandName: hostname,
+                brandKey: flowId.slice(0, 8).toUpperCase(),
+                lastUpdated: new Date().toISOString(),
+                strategy: {
+                  icps: icps.map((icp: ICP) => ({
+                    id: icp.id,
+                    title: icp.title,
+                    description: icp.description,
+                    personaName: icp.personaName,
+                    personaRole: icp.personaRole,
+                    personaCompany: icp.personaCompany,
+                    location: icp.location,
+                    country: icp.country,
+                    painPoints: icp.painPoints || [],
+                    goals: icp.goals || [],
+                    demographics: icp.demographics || ''
+                  })),
+                  persona: {}, // Will be set when user selects an ICP
+                  valueProp: {} // Will be generated later
+                },
+                identity: { colors: brandColors || { primary: [], secondary: [], accent: [], neutral: [] }, typography: {}, logo: {}, tone: {} },
+                components: { buttons: {}, cards: {}, inputs: {}, spacing: {} },
+                previews: { landingPage: {} },
+                metadata: {
+                  generationHistory: [{
+                    timestamp: new Date().toISOString(),
+                    action: 'icps_generated',
+                    changedFields: ['strategy.icps']
+                  }],
+                  regenerationCount: 0,
+                  sourceFlowId: flowId,
+                  sourceIcpId: ''
+                }
               }
-            }
-          }),
-        });
+            }),
+          });
 
-        if (saveManifestRes.ok) {
-          console.log('✅ [ICPs] Saved to brand_manifests');
+          if (saveManifestRes.ok) {
+            console.log('✅ [ICPs] Saved to brand_manifests');
 
-          // Boundary step update -> 'icps' (triggers realtime event)
-          try {
-            await fetch(`/api/flows/${flow.id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ step: 'icps' }),
-            });
-          } catch { }
+            // Boundary step update -> 'icps' (triggers realtime event)
+            try {
+              await fetch(`/api/flows/${flowId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 'icps' }),
+              });
+            } catch { }
+          } else {
+            const errorData = await saveManifestRes.json().catch(() => ({}));
+            console.error('❌ [ICPs] Failed to save to brand_manifests!');
+            console.error('   Status:', saveManifestRes.status, saveManifestRes.statusText);
+            console.error('   Error:', errorData.error || 'Unknown error');
+            console.error('   Details:', errorData.details || 'No details');
+            console.warn('⚠️ [ICPs] Continuing with in-memory data');
+          }
         } else {
-          const errorData = await saveManifestRes.json().catch(() => ({}));
-          console.error('❌ [ICPs] Failed to save to brand_manifests!');
-          console.error('   Status:', saveManifestRes.status, saveManifestRes.statusText);
-          console.error('   Error:', errorData.error || 'Unknown error');
-          console.error('   Details:', errorData.details || 'No details');
-          console.warn('⚠️ [ICPs] Continuing with in-memory data');
+          console.log('👤 [Guest] Skipping brand_manifest save - will be created during migration');
         }
 
         updateThinkingStep(thinkingMsgId, 'generate', {
@@ -1290,14 +1432,14 @@ ${painPoints.slice(0, 3).map((p: { pain: string; metric: string }) => `• **${p
 I've identified **${icps.length} ideal customer profiles** below. Select one to customize your funnel:`;
 
         // Show summary
-        addMessageTo(flow.id, {
+        addMessageTo(flowId, {
           id: nanoid(),
           role: "assistant",
           content: summaryText,
         });
 
         // Show ICP cards with database IDs
-        addMessageTo(flow.id, {
+        addMessageTo(flowId, {
           id: nanoid(),
           role: "assistant",
           content: "",
@@ -1305,8 +1447,42 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
           data: icpsWithDbIds,
         });
 
+        // For guest users: explicitly save to localStorage after ICP generation
+        // This matches the pattern used in website analysis (lines 1210-1217)
+        if (isGuest) {
+          // Wait for state update to complete, then save
+          setTimeout(() => {
+            setConversations(prev => {
+              const updated = [...prev];
+
+              // Explicit save to localStorage
+              try {
+                localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(updated));
+                localStorage.setItem('flowtusk_guest_active_id', flowId);
+                console.log('💾 [Guest] Explicitly saved ICP data to localStorage');
+                console.log(`   - Conversation count: ${updated.length}`);
+                console.log(`   - Active ID: ${flowId.slice(0, 8)}...`);
+                const activeConv = updated.find(c => c.id === flowId);
+                if (activeConv) {
+                  console.log(`   - Messages in active conv: ${activeConv.messages.length}`);
+                  const icpMsg = activeConv.messages.find(m => m.component === 'icps');
+                  if (icpMsg) {
+                    console.log(`   - ICP message found with ${Array.isArray(icpMsg.data) ? icpMsg.data.length : 0} ICPs`);
+                  } else {
+                    console.warn('   ⚠️ No ICP message found in conversation!');
+                  }
+                }
+              } catch (e) {
+                console.error('❌ [Guest] Failed to save ICP data to localStorage:', e);
+              }
+
+              return updated;
+            });
+          }, 100); // Small delay to ensure addMessageTo state updates have completed
+        }
+
         // Record website analysis completion
-        updateUserJourneyFor(flow.id, { websiteAnalyzed: true });
+        updateUserJourneyFor(flowId, { websiteAnalyzed: true });
       } else if (selectedIcp && websiteUrl) {
         // Chat refinement
         const response = await fetch("/api/chat", {
@@ -2103,43 +2279,48 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
       );
 
       // Update brand_manifests with selected ICP and value prop
-      console.log('💾 [handleSelectIcp] Saving to brand manifest...');
-      const updateRes = await fetch('/api/brand-manifest', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          flowId: activeConversationId,
-          updates: {
-            'strategy.persona': {
-              name: icp.personaName,
-              role: icp.personaRole,
-              company: icp.personaCompany,
-              industry: icp.title,
-              location: icp.location,
-              country: icp.country,
-              painPoints: icp.painPoints || [],
-              goals: icp.goals || []
-            },
-            'strategy.valueProp': {
-              headline: valuePropData.headline || valuePropData.summary?.mainInsight || valuePropData.variations?.[0]?.text || '',
-              subheadline: valuePropData.subheadline || valuePropData.summary?.approachStrategy || '',
-              problem: valuePropData.problem || (Array.isArray(valuePropData.summary?.painPointsAddressed) ? valuePropData.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp.painPoints) ? icp.painPoints[0] : ''),
-              solution: valuePropData.solution || valuePropData.summary?.approachStrategy || '',
-              outcome: valuePropData.outcome || valuePropData.summary?.expectedImpact || '',
-              benefits: valuePropData.benefits || (Array.isArray(valuePropData.variations) ? valuePropData.variations.map((v: any) => v.text) : []),
-              targetAudience: valuePropData.targetAudience || icp.title || ''
-            },
-            'brandName': icp.personaCompany || 'Untitled Brand',
-            'metadata.sourceIcpId': icp.id,
-            'metadata.sourceFlowId': activeConversationId
-          }
-        })
-      });
+      // Note: Only for authenticated users - guests will get this during migration
+      if (!isGuest) {
+        console.log('💾 [handleSelectIcp] Saving to brand manifest...');
+        const updateRes = await fetch('/api/brand-manifest', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            flowId: activeConversationId,
+            updates: {
+              'strategy.persona': {
+                name: icp.personaName,
+                role: icp.personaRole,
+                company: icp.personaCompany,
+                industry: icp.title,
+                location: icp.location,
+                country: icp.country,
+                painPoints: icp.painPoints || [],
+                goals: icp.goals || []
+              },
+              'strategy.valueProp': {
+                headline: valuePropData.headline || valuePropData.summary?.mainInsight || valuePropData.variations?.[0]?.text || '',
+                subheadline: valuePropData.subheadline || valuePropData.summary?.approachStrategy || '',
+                problem: valuePropData.problem || (Array.isArray(valuePropData.summary?.painPointsAddressed) ? valuePropData.summary.painPointsAddressed.join(', ') : '') || (Array.isArray(icp.painPoints) ? icp.painPoints[0] : ''),
+                solution: valuePropData.solution || valuePropData.summary?.approachStrategy || '',
+                outcome: valuePropData.outcome || valuePropData.summary?.expectedImpact || '',
+                benefits: valuePropData.benefits || (Array.isArray(valuePropData.variations) ? valuePropData.variations.map((v: any) => v.text) : []),
+                targetAudience: valuePropData.targetAudience || icp.title || ''
+              },
+              'brandName': icp.personaCompany || 'Untitled Brand',
+              'metadata.sourceIcpId': icp.id,
+              'metadata.sourceFlowId': activeConversationId
+            }
+          })
+        });
 
-      if (!updateRes.ok) {
-        console.error('❌ Failed to update brand manifest with ICP selection:', await updateRes.text());
+        if (!updateRes.ok) {
+          console.error('❌ Failed to update brand manifest with ICP selection:', await updateRes.text());
+        } else {
+          console.log('✅ [handleSelectIcp] Brand manifest updated successfully');
+        }
       } else {
-        console.log('✅ [handleSelectIcp] Brand manifest updated successfully');
+        console.log('👤 [Guest] Skipping brand_manifest update - will be created during migration');
       }
 
       // Show persona showcase directly
@@ -2156,6 +2337,38 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
           }
         }
       });
+
+      // For guest users: explicitly save to localStorage after value prop generation
+      // This ensures persona showcase data is persisted before sign-in
+      if (isGuest) {
+        setTimeout(() => {
+          setConversations(prev => {
+            const updated = [...prev];
+
+            // Explicit save to localStorage
+            try {
+              localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(updated));
+              localStorage.setItem('flowtusk_guest_active_id', activeConversationId);
+              console.log('💾 [Guest] Explicitly saved value prop data to localStorage');
+              console.log(`   - Active ID: ${activeConversationId.slice(0, 8)}...`);
+              const activeConv = updated.find(c => c.id === activeConversationId);
+              if (activeConv) {
+                console.log(`   - Messages in active conv: ${activeConv.messages.length}`);
+                const personaMsg = activeConv.messages.find(m => m.component === 'persona-showcase');
+                if (personaMsg) {
+                  console.log(`   - Persona showcase message found with value prop data`);
+                } else {
+                  console.warn('   ⚠️ No persona showcase message found!');
+                }
+              }
+            } catch (e) {
+              console.error('❌ [Guest] Failed to save value prop data to localStorage:', e);
+            }
+
+            return updated;
+          });
+        }, 100); // Small delay ensures addMessage state updates complete
+      }
 
       // Update state with generated content (include ICP for export functionality)
       updateGenerationState({
@@ -2295,72 +2508,95 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         {/* Messages */}
         <ScrollArea className="flex-1 h-full w-full px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
           <div className="space-y-4 mx-auto max-w-3xl">
-            {!activeConversation?.messages.length && (
-              <div className="text-center py-12 sm:py-20 px-4">
-                <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
-                <h2 className="text-xl sm:text-2xl font-bold mb-2">
-                  Find users who love your brand
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
-                  Paste your website and get a complete brand guide—colors, logos, messaging—customized for your ideal customer
-                </p>
+            {!activeConversation?.messages.length && (() => {
+              const urlParam = searchParams.get('url');
+              const isProcessingUrl = urlParam && (shouldAutoSubmit || isLoading);
 
-                {/* Input */}
-                <div className="mx-auto w-full max-w-2xl px-4 mb-6">
-                  <form
-                    data-chat-form
-                    onSubmit={handleSendMessage}
-                    className="relative w-full rounded-3xl border-2 border-border bg-background p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all"
-                  >
-                    <Input
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder={
-                        !websiteUrl
-                          ? "Paste any website URL (e.g., https://yoursite.com)..."
-                          : selectedIcp
-                            ? "Ask me to refine the page..."
-                            : "What would you like to do?"
-                      }
-                      disabled={isLoading}
-                      className="!border-0 !ring-0 !outline-0 rounded-none pr-14 sm:pr-16 focus-visible:!ring-0 focus-visible:!outline-0 focus:!ring-0 focus:!outline-0 active:!ring-0 active:!outline-0 shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left [&:focus]:ring-0 [&:focus-visible]:ring-0"
-                    />
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !input.trim()}
-                      size="icon"
-                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full shrink-0 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d28d9] hover:to-[#7c3aed] transition-all"
-                    >
-                      <ArrowUp className="h-6 w-6" />
-                    </Button>
-                  </form>
-                </div>
+              // Show analyzing state when processing URL from landing
+              if (isProcessingUrl) {
+                return (
+                  <div className="text-center py-12 sm:py-20 px-4">
+                    <div className="flex items-center justify-center mb-4">
+                      <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-[#8b5cf6]" />
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                      Starting Analysis...
+                    </h2>
+                    <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
+                      Analyzing {urlParam} to create your brand guide
+                    </p>
+                  </div>
+                );
+              }
 
-                <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
-                  Try these examples or paste any public website URL:
-                </p>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center max-w-sm sm:max-w-none mx-auto">
-                  {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
-                    <Button
-                      key={url}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (!activeConversation) createNewConversation();
-                        setInput(url);
-                        setTimeout(() => {
-                          const form = document.querySelector('form');
-                          form?.requestSubmit();
-                        }, 100);
-                      }}
-                      className="text-xs sm:text-sm w-full sm:w-auto"
+              // Show input form for new conversations
+              return (
+                <div className="text-center py-12 sm:py-20 px-4">
+                  <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                    Find users who love your brand
+                  </h2>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
+                    Paste your website and get a complete brand guide—colors, logos, messaging—customized for your ideal customer
+                  </p>
+
+                  {/* Input */}
+                  <div className="mx-auto w-full max-w-2xl px-4 mb-6">
+                    <form
+                      data-chat-form
+                      onSubmit={handleSendMessage}
+                      className="relative w-full rounded-3xl border-2 border-border bg-background p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all"
                     >
-                      {url}
-                    </Button>
-                  ))}
+                      <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder={
+                          !websiteUrl
+                            ? "Paste any website URL (e.g., https://yoursite.com)..."
+                            : selectedIcp
+                              ? "Ask me to refine the page..."
+                              : "What would you like to do?"
+                        }
+                        disabled={isLoading}
+                        className="!border-0 !ring-0 !outline-0 rounded-none pr-14 sm:pr-16 focus-visible:!ring-0 focus-visible:!outline-0 focus:!ring-0 focus:!outline-0 active:!ring-0 active:!outline-0 shadow-none bg-transparent text-base sm:text-lg h-12 sm:h-14 text-left [&:focus]:ring-0 [&:focus-visible]:ring-0"
+                      />
+                      <Button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        size="icon"
+                        className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-11 sm:w-11 rounded-full shrink-0 bg-gradient-to-r from-[#7c3aed] to-[#8b5cf6] hover:from-[#6d28d9] hover:to-[#7c3aed] transition-all"
+                      >
+                        <ArrowUp className="h-6 w-6" />
+                      </Button>
+                    </form>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
+                    Try these examples or paste any public website URL:
+                  </p>
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center max-w-sm sm:max-w-none mx-auto">
+                    {["https://taxstar.app", "https://stripe.com", "https://linear.app"].map(url => (
+                      <Button
+                        key={url}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!activeConversation) createNewConversation();
+                          setInput(url);
+                          setTimeout(() => {
+                            const form = document.querySelector('form');
+                            form?.requestSubmit();
+                          }, 100);
+                        }}
+                        className="text-xs sm:text-sm w-full sm:w-auto"
+                      >
+                        {url}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {activeConversation?.messages.map(message => (
               <div
@@ -2678,8 +2914,8 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                             } catch (e) {
                               console.error('Failed to save guest data before auth:', e);
                             }
-                            // Redirect to login with return URL
-                            window.location.href = `/auth/login?redirectTo=${encodeURIComponent(returnUrl)}`;
+                            // Redirect to login, then back to /app for migration (which will then redirect to copilot)
+                            window.location.href = `/auth/login?redirectTo=${encodeURIComponent('/app')}`;
                           }}
                           readOnly={false}
                         />

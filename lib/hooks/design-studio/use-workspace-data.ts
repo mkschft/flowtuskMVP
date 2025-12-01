@@ -23,8 +23,18 @@ export function useWorkspaceData(icpId: string, flowId: string) {
     const [uiValueProp, setUiValueProp] = useState<UiValueProp | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
 
     const loadWorkspaceData = useCallback(async () => {
+        // Detect if we're switching to a different flow
+        const isNewFlow = currentFlowId !== null && currentFlowId !== flowId;
+        if (isNewFlow) {
+            console.log(`🔄 [Workspace Data] Switching from flow ${currentFlowId} to ${flowId} - clearing messages`);
+            const { setChatMessages } = useCopilotStore.getState();
+            setChatMessages([]);
+        }
+        setCurrentFlowId(flowId);
+        
         setLoading(true);
         setError(null);
 
@@ -37,17 +47,23 @@ export function useWorkspaceData(icpId: string, flowId: string) {
             if (wsRes.ok) {
                 const { icp, valueProp, designAssets: assets, chatMessages } = await wsRes.json();
                 
-                // Restore chat messages to copilot store if they exist
-                // Convert from app format (role: "assistant") to copilot format (role: "ai")
+                // Restore chat messages to copilot store
+                // ALWAYS clear first to prevent messages from previous conversations
+                const { setChatMessages } = useCopilotStore.getState();
+                
                 if (chatMessages && Array.isArray(chatMessages) && chatMessages.length > 0) {
-                    const { setChatMessages } = useCopilotStore.getState();
+                    // Convert from app format (role: "assistant") to copilot format (role: "ai")
                     const convertedMessages: ChatMessage[] = chatMessages.map((msg: any) => ({
                         role: msg.role === 'assistant' ? 'ai' : msg.role,
                         content: msg.content || '',
                         timestamp: msg.timestamp
                     }));
-                    console.log(`✅ [Workspace Data] Restoring ${convertedMessages.length} chat messages`);
+                    console.log(`✅ [Workspace Data] Restoring ${convertedMessages.length} chat messages for flow ${flowId}`);
                     setChatMessages(convertedMessages);
+                } else {
+                    // No messages in DB, start fresh
+                    console.log(`✅ [Workspace Data] No messages found, starting fresh for flow ${flowId}`);
+                    setChatMessages([]);
                 }
 
                 console.log('✅ [Design Studio] Workspace data loaded:', {
@@ -121,7 +137,7 @@ export function useWorkspaceData(icpId: string, flowId: string) {
             setError(err instanceof Error ? err.message : "Failed to load data");
             setLoading(false);
         }
-    }, [icpId, flowId]);
+    }, [icpId, flowId, currentFlowId]);
 
     // Load data on mount
     useEffect(() => {

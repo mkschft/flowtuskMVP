@@ -194,20 +194,23 @@ export const useCopilotStore = create<CopilotState>((set, get) => ({
   },
 
   // Helpers
-  reset: () => set({
-    activeTab: 'strategy',
-    icpId: null,
-    flowId: null,
-    loading: true,
-    error: null,
-    workspaceData: null,
-    designAssets: null,
-    chatMessages: [],  // Reset to empty - will be re-initialized on next load
-    isStreaming: false,
-    isChatVisible: true,
-    regenerationCount: 0,
-    generationSteps: [],
-    shareModalOpen: false,
-    toasts: [],
-  }),
+  reset: () => {
+    console.log('🔄 [CopilotStore] Store reset complete');
+    set({
+      activeTab: 'strategy',
+      icpId: null,
+      flowId: null,
+      loading: true,
+      error: null,
+      workspaceData: null,
+      designAssets: null,
+      chatMessages: [],
+      isStreaming: false,
+      isChatVisible: true,
+      regenerationCount: 0,
+      generationSteps: [],
+      shareModalOpen: false,
+      toasts: [],
+    });
+  },
 }));
