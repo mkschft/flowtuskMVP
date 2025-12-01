@@ -8,7 +8,7 @@ export function BrandGuideCanvasSkeleton() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Colors Section */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Palette className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Color Palette</h3>
@@ -66,7 +66,7 @@ export function BrandGuideCanvasSkeleton() {
       </Card>
 
       {/* Typography */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Type className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Typography</h3>
@@ -89,7 +89,7 @@ export function BrandGuideCanvasSkeleton() {
       </Card>
 
       {/* Logo Variations */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <ImageIcon className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Logo Variations</h3>
@@ -107,7 +107,7 @@ export function BrandGuideCanvasSkeleton() {
       </Card>
 
       {/* Tone of Voice */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <MessageSquare className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Tone of Voice</h3>
@@ -121,7 +121,7 @@ export function BrandGuideCanvasSkeleton() {
       </Card>
 
       {/* Brand Personality */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <MessageSquare className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Brand Personality</h3>

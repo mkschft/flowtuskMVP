@@ -8,7 +8,7 @@ export function LandingCanvasSkeleton() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Hero Section */}
-      <Card className="p-8 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Globe className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Hero Section</h3>
@@ -26,7 +26,7 @@ export function LandingCanvasSkeleton() {
       </Card>
 
       {/* Features Grid */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <h3 className="font-bold text-lg mb-6">Features</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -42,7 +42,7 @@ export function LandingCanvasSkeleton() {
       </Card>
 
       {/* Social Proof */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <h3 className="font-bold text-lg mb-6">Testimonials</h3>
 
         <div className="space-y-4">
@@ -56,7 +56,7 @@ export function LandingCanvasSkeleton() {
       </Card>
 
       {/* Pricing (Optional) */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <h3 className="font-bold text-lg mb-6">Pricing</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -76,7 +76,7 @@ export function LandingCanvasSkeleton() {
       </Card>
 
       {/* Footer */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="space-y-3">

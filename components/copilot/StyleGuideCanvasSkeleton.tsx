@@ -8,7 +8,7 @@ export function StyleGuideCanvasSkeleton() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Buttons */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Square className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Buttons</h3>
@@ -28,7 +28,7 @@ export function StyleGuideCanvasSkeleton() {
       </Card>
 
       {/* Cards */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Layers className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Cards</h3>
@@ -45,7 +45,7 @@ export function StyleGuideCanvasSkeleton() {
       </Card>
 
       {/* Form Elements */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <FormInput className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Form Elements</h3>
@@ -65,7 +65,7 @@ export function StyleGuideCanvasSkeleton() {
       </Card>
 
       {/* Spacing System */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Ruler className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Spacing System</h3>
@@ -82,7 +82,7 @@ export function StyleGuideCanvasSkeleton() {
       </Card>
 
       {/* Border Radius */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Circle className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Border Radius</h3>
@@ -100,7 +100,7 @@ export function StyleGuideCanvasSkeleton() {
       </Card>
 
       {/* Shadows */}
-      <Card className="p-6 bg-background border-2">
+      <Card className="p-6 bg-background border">
         <div className="flex items-center gap-2 mb-6">
           <Layers className="w-5 h-5 text-purple-600" />
           <h3 className="font-bold text-lg">Shadows</h3>
