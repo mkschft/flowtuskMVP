@@ -63,25 +63,35 @@ export function Hero() {
           
           {/* URL Input Section - Matching /app styling */}
           <div className="mt-10 max-w-2xl mx-auto px-4">
-            {/* Glow effect behind input */}
+            {/* Enhanced Glow effect behind input - Similar to the reference */}
             <div className="relative">
+              {/* Outer glow - warm purple gradient */}
               <div 
-                className="absolute -inset-6 rounded-[3rem] opacity-40 group-hover:opacity-70 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"
+                className="absolute -inset-8 rounded-[3rem] opacity-60 group-hover:opacity-80 group-focus-within:opacity-100 transition-opacity duration-700 pointer-events-none"
                 style={{ 
-                  background: 'radial-gradient(ellipse 130% 90% at 50% 50%, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.1) 50%, transparent 80%)',
+                  background: 'radial-gradient(ellipse 140% 100% at 50% 50%, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0.25) 30%, rgba(236, 72, 153, 0.15) 60%, transparent 100%)',
+                  filter: 'blur(60px)'
+                }}
+              />
+              {/* Middle glow - brighter purple */}
+              <div 
+                className="absolute -inset-5 rounded-[2.5rem] opacity-70 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ 
+                  background: 'radial-gradient(ellipse 120% 80% at 50% 50%, rgba(139, 92, 246, 0.4) 0%, rgba(168, 85, 247, 0.2) 50%, transparent 80%)',
                   filter: 'blur(40px)'
                 }}
               />
+              {/* Inner glow - brightest, tight to input */}
               <div 
-                className="absolute -inset-3 rounded-[2.5rem] opacity-50 group-focus-within:opacity-80 transition-opacity duration-300 pointer-events-none"
+                className="absolute -inset-3 rounded-[2.5rem] opacity-40 group-focus-within:opacity-70 transition-opacity duration-300 pointer-events-none"
                 style={{ 
-                  background: 'radial-gradient(ellipse 115% 75% at 50% 50%, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
-                  filter: 'blur(25px)'
+                  background: 'radial-gradient(ellipse 110% 70% at 50% 50%, rgba(168, 85, 247, 0.25) 0%, rgba(147, 51, 234, 0.15) 40%, transparent 70%)',
+                  filter: 'blur(20px)'
                 }}
               />
             
             <form onSubmit={handleSubmit} className="relative w-full mb-6 group">
-              <div className="relative w-full rounded-3xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-xl transition-all hover:shadow-xl">
+              <div className="relative w-full rounded-3xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4 shadow-lg focus-within:border-[#8b5cf6] focus-within:shadow-2xl transition-all hover:shadow-xl">
                 <Input
                   type="text"
                   value={websiteUrl}
