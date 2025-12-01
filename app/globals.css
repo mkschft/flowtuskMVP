@@ -204,6 +204,20 @@
   background-clip: text;
 }
 
+/* Shimmer animation for loading indicators */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
 /* Fix double border on main URL input - form has border, input should not */
 form[data-chat-form] input {
   border: 0 !important;

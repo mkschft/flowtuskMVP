@@ -8,6 +8,9 @@ import { User, Send, Sparkles } from "lucide-react";
 import type { ChatMessage } from "@/lib/design-studio-mock-data";
 import { cn } from "@/lib/utils";
 import { GenerationProgress } from "@/components/copilot/GenerationProgress";
+import { SystemUpdateCard } from "@/components/copilot/SystemUpdateCard";
+import { ThinkingIndicator } from "@/components/copilot/ThinkingIndicator";
+import { ConversationalMessage } from "@/components/copilot/ConversationalMessage";
 
 type ChatPanelProps = {
   messages: ChatMessage[];
@@ -52,13 +55,48 @@ export function ChatPanel({
     }
   };
 
+  // Parse message type and metadata
+  const parseMessageType = (content: string): {
+    type: 'generation-progress' | 'system-update' | 'conversational' | 'user';
+    metadata: { updates?: string[]; message?: string }
+  } => {
+    if (content === '__GENERATION_PROGRESS__' || content === '__UPDATE_PROGRESS__') {
+      return { type: 'generation-progress', metadata: {} };
+    }
+
+    if (content.startsWith('__MANIFEST_UPDATED__')) {
+      try {
+        // Try to parse JSON after marker
+        const jsonStr = content.replace('__MANIFEST_UPDATED__', '').trim();
+        if (jsonStr) {
+          const parsed = JSON.parse(jsonStr);
+          return {
+            type: 'system-update',
+            metadata: {
+              updates: parsed.updates || [],
+              message: parsed.message || "Applied your changes"
+            }
+          };
+        }
+      } catch {
+        // If parsing fails, return default system update
+        return { type: 'system-update', metadata: { updates: [], message: "Applied your changes" } };
+      }
+      return { type: 'system-update', metadata: { updates: [], message: "Applied your changes" } };
+    }
+
+    // Default to conversational
+    return { type: 'conversational', metadata: {} };
+  };
+
   return (
     <div className="w-[420px] flex flex-col bg-background h-full">
       <Card className="relative overflow-hidden border-0 border-r flex flex-col h-full rounded-none">
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, idx) => {
-            // Strip any code blocks, function calls, and JSON
+            // Parse message type
+            const { type, metadata } = parseMessageType(message.content);
             const originalContent = message.content;
 
             // Count function calls for status indicator
@@ -85,7 +123,7 @@ export function ChatPanel({
             }
 
             // Render GenerationProgress component for special markers
-            if (originalContent === '__GENERATION_PROGRESS__' || originalContent === '__UPDATE_PROGRESS__') {
+            if (type === 'generation-progress') {
               const allComplete = generationSteps.every(s => s.status === 'complete');
 
               // Only show if there are steps to display
@@ -98,47 +136,58 @@ export function ChatPanel({
               );
             }
 
-            // Hide manifest update markers entirely
-            if (originalContent.startsWith('__MANIFEST_UPDATED__')) {
-              return null;
-            }
-
-            return (
-              <div
-                key={idx}
-                className={cn(
-                  "flex gap-3",
-                  message.role === "user" ? "justify-end" : "justify-start"
-                )}
-              >
-                {message.role === "ai" && (
+            // Render SystemUpdateCard for manifest updates
+            if (type === 'system-update') {
+              return (
+                <div key={idx} className="flex gap-3 justify-start">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                )}
+                  <SystemUpdateCard updates={metadata.updates} message={metadata.message} />
+                </div>
+              );
+            }
 
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-3",
-                    message.role === "user"
-                      ? "bg-purple-100 text-foreground ml-auto"
-                      : "bg-muted text-foreground"
-                  )}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-line">
-                    {displayContent || (message.role === "ai" ? "Applied your requested changes." : message.content)}
-                  </p>
+            // User messages (keep existing styling)
+            if (message.role === "user") {
+              return (
+                <div key={idx} className="flex gap-3 justify-end">
+                  <div
+                    className="max-w-[80%] rounded-2xl px-4 py-3 bg-purple-100 text-foreground ml-auto"
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-line">
+                      {displayContent || message.content}
+                    </p>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                    <User className="w-4 h-4" />
+                  </div>
+                </div>
+              );
+            }
+
+            // AI conversational messages with enhanced formatting
+            return (
+              <div
+                key={idx}
+                className="flex gap-3 justify-start"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+
+                <div className="flex flex-col gap-2 max-w-[80%]">
+                  <ConversationalMessage content={displayContent || "Applied your requested changes."} />
 
                   {/* Quick Action Buttons for AI confirmation questions */}
-                  {message.role === "ai" &&
-                    idx === messages.length - 1 &&
+                  {idx === messages.length - 1 &&
                     !isStreaming &&
                     (displayContent.toLowerCase().includes("would you like") ||
                       displayContent.toLowerCase().includes("shall i") ||
                       displayContent.toLowerCase().includes("proceed with") ||
                       displayContent.toLowerCase().includes("implement these") ||
                       displayContent.toLowerCase().includes("do you want")) && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+                      <div className="flex gap-2">
                         <Button
                           size="sm"
                           onClick={() => {
@@ -161,12 +210,6 @@ export function ChatPanel({
                       </div>
                     )}
                 </div>
-
-                {message.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                    <User className="w-4 h-4" />
-                  </div>
-                )}
               </div>
             );
           })}
@@ -177,22 +220,7 @@ export function ChatPanel({
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-muted rounded-2xl px-4 py-3">
-                <div className="flex gap-1">
-                  <div
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
-                    style={{ animationDelay: "0ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
-                    style={{ animationDelay: "150ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 rounded-full bg-purple-400 animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  />
-                </div>
-              </div>
+              <ThinkingIndicator />
             </div>
           )}
 

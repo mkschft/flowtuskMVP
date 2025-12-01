@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useEffect, useRef } from "react";
 
 type GenerationStep = {
   id: string;
@@ -19,6 +20,30 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
   const completedCount = steps.filter(s => s.status === 'complete').length;
   const totalCount = steps.length;
   const progress = (completedCount / totalCount) * 100;
+  const previousAllCompleteRef = useRef(false);
+
+  // Trigger confetti when all steps complete
+  useEffect(() => {
+    const triggerConfetti = async () => {
+      if (allComplete && !previousAllCompleteRef.current) {
+        previousAllCompleteRef.current = true;
+
+        try {
+          const confetti = (await import('canvas-confetti')).default;
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#8b5cf6', '#a78bfa', '#c4b5fd'],
+          });
+        } catch (error) {
+          console.error('Failed to load confetti:', error);
+        }
+      }
+    };
+
+    triggerConfetti();
+  }, [allComplete]);
   
   return (
     <Card className="p-4 border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-transparent">
@@ -64,10 +89,10 @@ export function GenerationProgress({ steps, allComplete }: GenerationProgressPro
             >
               {/* Status Icon */}
               <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                step.status === 'complete' 
-                  ? 'bg-green-100' 
+                step.status === 'complete'
+                  ? 'bg-green-100'
                   : step.status === 'loading'
-                  ? 'bg-purple-100'
+                  ? 'bg-purple-100 animate-pulse'
                   : 'bg-muted'
               }`}>
                 {step.status === 'complete' && (
