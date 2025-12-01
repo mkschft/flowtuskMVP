@@ -52,7 +52,7 @@ export function Hero() {
         }}
       />
       
-      <div className="px-8 py-20 md:py-24 mx-auto md:px-12 lg:px-24 max-w-7xl relative w-full z-10">
+      <div className="px-8 pt-12 md:pt-16 pb-20 md:pb-24 mx-auto md:px-12 lg:px-24 max-w-7xl relative w-full z-10">
         <div className="max-w-4xl text-center mx-auto lg:text-balance mb-16 animate-fade-in-up">
           <h1 className="text-5xl leading-tight tracking-tight font-semibold text-base-900 hero-title-glow">
             AI brand agent that builds your brand in minutes not weeks
