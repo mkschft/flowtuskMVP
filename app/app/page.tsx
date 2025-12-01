@@ -2549,29 +2549,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
         {/* Messages */}
         <ScrollArea className="flex-1 h-full w-full px-3 sm:px-4 py-6 sm:py-12" ref={scrollRef}>
           <div className="space-y-4 mx-auto max-w-3xl">
-            {!activeConversation?.messages.length && (() => {
-              const urlParam = searchParams.get('url');
-              const isProcessingUrl = urlParam && (shouldAutoSubmit || isLoading);
-
-              // Show analyzing state when processing URL from landing
-              if (isProcessingUrl) {
-                return (
-                  <div className="text-center py-12 sm:py-20 px-4">
-                    <div className="flex items-center justify-center mb-4">
-                      <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-[#8b5cf6]" />
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2">
-                      Starting Analysis...
-                    </h2>
-                    <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
-                      Analyzing {urlParam} to create your brand guide
-                    </p>
-                  </div>
-                );
-              }
-
-              // Show input form for new conversations
-              return (
+            {!activeConversation?.messages.length && (
                 <div className="text-center py-12 sm:py-20 px-4">
                   <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
                   <h2 className="text-xl sm:text-2xl font-bold mb-2">
@@ -2636,8 +2614,7 @@ This is your go-to resource for all messaging, marketing, and sales targeting **
                     ))}
                   </div>
                 </div>
-              );
-            })()}
+            )}
 
             {activeConversation?.messages.map(message => (
               <div
