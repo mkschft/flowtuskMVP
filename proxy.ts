@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
@@ -34,38 +34,42 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === "true";
-
-  // Allow demo routes without authentication
-  if (request.nextUrl.pathname.startsWith('/demo')) {
-    return supabaseResponse;
-  }
-
-  // Protected routes that require authentication (unless in demo mode)
+  // Routes that REQUIRE authentication (no guest access)
+  // /copilot requires login to access the brand canvas
   const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/app") ||
-    request.nextUrl.pathname.startsWith("/protected") ||
     request.nextUrl.pathname.startsWith("/copilot") ||
+    request.nextUrl.pathname.startsWith("/protected") ||
     request.nextUrl.pathname.startsWith("/gallery");
+
+  // Routes that allow guest access (try before signup)
+  // /app allows guests to experience the product
+  const isGuestAllowedRoute =
+    request.nextUrl.pathname.startsWith("/app");
 
   // Auth pages that should redirect to /app if already logged in
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/auth/login") ||
-    request.nextUrl.pathname.startsWith("/auth/sign-up") ||
-    request.nextUrl.pathname.startsWith("/auth/forgot-password");
+    request.nextUrl.pathname.startsWith("/auth/sign-up");
 
-  // If trying to access protected route without auth (and not in demo mode)
-  if (isProtectedRoute && !user && !isDemoMode) {
+  // If trying to access protected route without auth, redirect to login
+  if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
-    url.searchParams.set("redirectTo", request.nextUrl.pathname);
+    // Preserve the intended destination for redirect after login
+    url.searchParams.set("redirectTo", request.nextUrl.pathname + request.nextUrl.search);
     return NextResponse.redirect(url);
   }
 
+  // Guest-allowed routes (/app) don't need authentication
+  // Let them through regardless of auth status
+
   // If authenticated user trying to access auth pages, redirect to /app
-  if (isAuthPage && user && !isDemoMode) {
+  if (isAuthPage && user) {
+    // Check if there's a redirectTo param and honor it
+    const redirectTo = request.nextUrl.searchParams.get("redirectTo");
     const url = request.nextUrl.clone();
-    url.pathname = "/app";
+    url.pathname = redirectTo || "/app";
+    url.search = ""; // Clear search params
     return NextResponse.redirect(url);
   }
 
