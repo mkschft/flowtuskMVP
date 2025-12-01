@@ -18,6 +18,7 @@ import { SummaryApprovalCard } from "@/components/SummaryApprovalCard";
 import { nanoid } from "nanoid";
 import { flowsClient, type Flow } from "@/lib/flows-client";
 import { createClient } from "@/lib/supabase/client";
+import { fetchWithRetry } from "@/lib/utils/fetch-with-retry";
 import Image from "next/image";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingFlowsSkeleton } from "@/components/LoadingFlowsSkeleton";
@@ -1006,8 +1007,8 @@ function ChatPageContent() {
           substeps: ['Fetching website content...', 'Extracting structured facts with AI (15-30s)...']
         });
 
-        // Add timeout to prevent indefinite hangs (60s timeout for faster user feedback)
-        console.log('⏱️ [Fetch] Starting website analysis with 60s timeout:', url);
+        // Add timeout to prevent indefinite hangs (120s timeout - industry standard for web scraping)
+        console.log('⏱️ [Fetch] Starting website analysis with 120s timeout:', url);
         const controller = new AbortController();
         setCurrentAbortController(controller);
 
@@ -1045,31 +1046,71 @@ function ChatPageContent() {
           // Need to scrape - proceed with API call
           console.log('📡 [Cache] No existing crawl found, scraping now...');
           const fetchStartTime = Date.now();
+
+          // Timeout increased to 120s (industry standard: Perplexity uses 180s+)
           const timeoutId = setTimeout(() => {
             const elapsed = Date.now() - fetchStartTime;
-            console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (60s limit reached)`);
+            console.error(`⏰ [Timeout] Aborting after ${elapsed}ms (120s limit reached)`);
             controller.abort();
+          }, 120000);
+
+          // Progress updates via thinking step substeps for user feedback
+          const progress30s = setTimeout(() => {
+            updateThinkingStep(thinkingMsgId, 'analyze', {
+              status: 'running',
+              substeps: ['⏳ Still working - complex websites take up to 2 minutes...', 'Extracting facts with AI...']
+            });
+          }, 30000);
+
+          const progress60s = setTimeout(() => {
+            updateThinkingStep(thinkingMsgId, 'analyze', {
+              status: 'running',
+              substeps: ['⏳ Almost there - extracting final details...', 'Processing with GPT-4...']
+            });
           }, 60000);
+
+          const progress90s = setTimeout(() => {
+            updateThinkingStep(thinkingMsgId, 'analyze', {
+              status: 'running',
+              substeps: ['⏳ Taking longer than usual - large website...', 'Still processing...']
+            });
+          }, 90000);
 
           let analyzeRes;
           try {
-            analyzeRes = await fetch("/api/analyze-website", {
+            analyzeRes = await fetchWithRetry("/api/analyze-website", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ url }),
               signal: controller.signal,
+            }, {
+              maxRetries: 5,
+              onRetry: (attempt, error) => {
+                console.log(`🔄 [Retry] Attempt ${attempt}/5:`, error.message);
+                updateThinkingStep(thinkingMsgId, 'analyze', {
+                  status: 'running',
+                  substeps: [`🔄 Connection interrupted - retrying (${attempt}/5)...`, 'Please wait...']
+                });
+              }
             });
             const elapsed = Date.now() - fetchStartTime;
             console.log(`✅ [Fetch] Analysis completed in ${elapsed}ms`);
             clearTimeout(timeoutId);
+            clearTimeout(progress30s);
+            clearTimeout(progress60s);
+            clearTimeout(progress90s);
             setCurrentAbortController(null);
           } catch (fetchError) {
             const elapsed = Date.now() - fetchStartTime;
             clearTimeout(timeoutId);
+            clearTimeout(progress30s);
+            clearTimeout(progress60s);
+            clearTimeout(progress90s);
             setCurrentAbortController(null);
+
             if (fetchError instanceof Error && fetchError.name === 'AbortError') {
               console.error(`❌ [Timeout] Request aborted after ${elapsed}ms`);
-              throw new Error("Analysis cancelled. The website may be too large or slow to respond.");
+              throw new Error("Analysis timed out. Try a simpler website or check your connection.");
             }
             console.error(`❌ [Fetch] Error after ${elapsed}ms:`, fetchError);
             throw fetchError;

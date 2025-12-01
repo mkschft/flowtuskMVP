@@ -30,7 +30,7 @@ type ValuePropCanvasProps = {
 
 export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  
+
   // Prioritize manifest over project/props for single source of truth
   const valueProp = manifest?.strategy?.valueProp || project.valueProp;
   const manifestPersona = manifest?.strategy?.persona;
@@ -52,8 +52,8 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
   const personaName = manifestPersona?.name || persona?.persona_name || "Your Customer";
   const personaRole = manifestPersona?.role || persona?.persona_role || "Decision Maker";
   const personaCompany = manifestPersona?.company || persona?.persona_company || "Target Company";
-  const personaLocation = manifestPersona?.location 
-    ? `${manifestPersona.location}, ${manifestPersona.country || ''}` 
+  const personaLocation = manifestPersona?.location
+    ? `${manifestPersona.location}, ${manifestPersona.country || ''}`
     : persona ? `${persona.location}, ${persona.country}` : "Your Market";
 
   // Get brand name
@@ -72,21 +72,6 @@ export function ValuePropCanvas({ project, persona, manifest }: ValuePropCanvasP
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header Message */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-            <Target className="w-4 h-4 text-green-600" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-1">Strategic Foundation</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              This is your brand's source of truth. Changes here will affect your <strong>Identity</strong>, <strong>Components</strong>, and <strong>Previews</strong>.
-              Ask the AI to refine your messaging for different audiences.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Persona Card with Avatar */}
       <Card className="p-6 bg-background border relative overflow-hidden">

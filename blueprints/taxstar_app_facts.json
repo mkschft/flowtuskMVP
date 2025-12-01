@@ -2,8 +2,8 @@
   "brand": {
     "name": "Tax Star",
     "tones": [
-      "professional",
-      "informative"
+      "Professional",
+      "Informative"
     ],
     "primaryCTA": "Book a Demo"
   },
@@ -15,8 +15,7 @@
       "Other Tools",
       "About",
       "Resources",
-      "Pricing",
-      "Contact Us"
+      "Pricing"
     ],
     "keyPages": [
       {
@@ -109,19 +108,9 @@
       }
     ],
     "footer": [
-      "About us",
-      "FAQ",
-      "Contact Us",
-      "Our Partners",
-      "Security & Certifications",
-      "Video Tutorials",
-      "Podcast",
-      "Webinar",
-      "Blogs",
-      "Press",
-      "Tax Penalties",
-      "Corporate Tax Guide",
-      "Pricing"
+      "Sign Up",
+      "Log In",
+      "Book a Demo"
     ]
   },
   "targetMarket": {
@@ -141,96 +130,96 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "AI-powered Corporate Tax software for UAE businesses",
+      "text": "AI-powered Corporate Tax software for UAE businesses.",
       "evidence": [
         "fact-3",
-        "fact-7"
+        "fact-4"
       ]
     },
     {
       "id": "v2",
-      "text": "E-Invoicing that ensures FTA compliance",
+      "text": "E-Invoicing ensures FTA-compliance and seamless integration with corporate tax filing.",
       "evidence": [
-        "fact-8"
+        "fact-5"
       ]
     },
     {
       "id": "v3",
-      "text": "Zakat calculations for KSA",
+      "text": "Zakat calculations designed for KSA compliance.",
       "evidence": [
-        "fact-9"
+        "fact-6"
       ]
     }
   ],
   "pains": [
     "Compliance stress",
-    "Penalties for late document updates"
+    "Hefty penalties for document expiry"
   ],
   "proof": [
-    "AI Powered Corporate Tax Calculator",
-    "IFRS Financial Statements",
-    "Doc Expiry Reminders"
+    "Alpha Pro Partners logo",
+    "JRBCA logo",
+    "Legends Accounting logo"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "Tax Star offers Corporate Tax, E-Invoicing & Zakat Automation solutions.",
+      "text": "Tax Star provides a Corporate Tax Calculator.",
       "page": "Home",
-      "evidence": "Tax Star | Corporate Tax, E-Invoicing & Zakat Automation"
+      "evidence": "Corporate Tax Calculator"
     },
     {
       "id": "fact-2",
-      "text": "Tax Star's primary CTA is 'Book a Demo'.",
+      "text": "Tax Star offers automated returns and IFRS financial statement production.",
       "page": "Home",
-      "evidence": "[Book a Corporate Tax Demo](https://calendar.app.google/JC4VQuD3WcBHxwXKA)"
+      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
     },
     {
       "id": "fact-3",
-      "text": "Tax Star provides AI-powered Corporate Tax software for UAE businesses.",
+      "text": "Tax Star is an AI-powered Corporate Tax software for UAE businesses.",
       "page": "Home",
       "evidence": "At its core is our AI-powered Corporate Tax software for UAE businesses."
     },
     {
       "id": "fact-4",
-      "text": "Tax Star's compliance solutions include Corporate Tax for UAE.",
-      "page": "Compliance Solutions",
-      "evidence": "Corporate Tax (UAE)"
+      "text": "Tax Star's ecosystem includes E-Invoicing in the UAE.",
+      "page": "Home",
+      "evidence": "Alongside it, E-Invoicing in the UAE and Zakat in KSA complete the toolkit."
     },
     {
       "id": "fact-5",
-      "text": "Tax Star offers E-Invoicing solutions in the UAE.",
-      "page": "Other Tools",
-      "evidence": "E-invoicing (UAE)"
+      "text": "E-Invoicing ensures FTA-compliance and seamless integration with corporate tax filing.",
+      "page": "Home",
+      "evidence": "E-Invoicing that keeps your invoices FTA-compliant and ensures seamless integration with corporate tax filing."
     },
     {
       "id": "fact-6",
-      "text": "Tax Star provides Zakat solutions for businesses in KSA.",
-      "page": "Other Tools",
-      "evidence": "Zakat for Business (KSA)"
+      "text": "Zakat calculations are built for KSA.",
+      "page": "Home",
+      "evidence": "Zakat calculations built for KSA, designed to align smoothly with your overall compliance reporting."
     },
     {
       "id": "fact-7",
-      "text": "Tax Star's AI-powered software includes automated returns and smart reminders.",
+      "text": "Failure to update registration documents within 20 days of expiry results in AED 5,000 penalty.",
       "page": "Home",
-      "evidence": "Automated returns, IFRS financial statement, and smart reminders with Tax Star."
+      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
     },
     {
       "id": "fact-8",
-      "text": "Tax Star's E-Invoicing ensures FTA compliance.",
+      "text": "Tax Star notifies users of document expiry on a timely basis.",
       "page": "Home",
-      "evidence": "E-Invoicing that keeps your invoices FTA-compliant"
+      "evidence": "Tax Star notifies you when they are due on a timely basis."
     },
     {
       "id": "fact-9",
-      "text": "Tax Star's Zakat calculations are designed for KSA compliance.",
+      "text": "Tax Star's primary CTA is 'Book a Demo'.",
       "page": "Home",
-      "evidence": "Zakat calculations built for KSA"
+      "evidence": "[Book a Corporate Tax Demo]"
     },
     {
       "id": "fact-10",
-      "text": "Tax Star provides reminders to avoid AED 5,000 penalties for document expiry.",
-      "page": "Home",
-      "evidence": "Failure to update your registration documents within 20 days of expiry will result in hefty penalties."
+      "text": "Tax Star offers resources like Video Tutorials, Podcast, and Webinars.",
+      "page": "Resources",
+      "evidence": "[Video Tutorials][Podcast][Webinar]"
     }
   ]
 }

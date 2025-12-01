@@ -1,5 +1,3 @@
-Published Time: Mon, 01 Dec 2025 10:03:08 GMT
-
 Tax Star | Corporate Tax, E-Invoicing & Zakat Automation
 
 ===============
@@ -171,6 +169,8 @@ Our Clients
 
 ![Image 12: alpha pro partners](https://cdn.prod.website-files.com/67128d9c572a2012abee8f3c/6740d4ab815b2e4ac764d594_alphapropartners_logo.webp)
 
-![Image 13: jrbca](https://cdn.prod.website-files.com/67128d9c572a2012abee8f3c/6740d4abc0120ee6f1807cea_jrbca_
+![Image 13: jrbca](https://cdn.prod.website-files.com/67128d9c572a2012abee8f3c/6740d4abc0120ee6f1807cea_jrbca_logo.webp)
+
+![Image 14: legends accounting](htt
 
 [Content truncated for performance]

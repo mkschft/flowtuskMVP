@@ -1,0 +1,224 @@
+{
+  "brand": {
+    "name": "Stripe",
+    "tones": [
+      "Professional",
+      "Informative"
+    ],
+    "primaryCTA": "Contact sales"
+  },
+  "structure": {
+    "nav": [
+      "Products",
+      "Solutions",
+      "Developers",
+      "Resources",
+      "Pricing"
+    ],
+    "keyPages": [
+      {
+        "path": "/payments",
+        "title": "Payments"
+      },
+      {
+        "path": "/terminal",
+        "title": "Terminal"
+      },
+      {
+        "path": "/radar",
+        "title": "Radar"
+      },
+      {
+        "path": "/billing",
+        "title": "Billing"
+      },
+      {
+        "path": "/tax",
+        "title": "Tax"
+      },
+      {
+        "path": "/revenue-recognition",
+        "title": "Revenue Recognition"
+      },
+      {
+        "path": "/sigma",
+        "title": "Stripe Sigma"
+      },
+      {
+        "path": "/data-pipeline",
+        "title": "Data Pipeline"
+      },
+      {
+        "path": "/enterprise",
+        "title": "Enterprises"
+      },
+      {
+        "path": "/startups",
+        "title": "Startups"
+      }
+    ],
+    "footer": [
+      "API reference",
+      "Libraries and SDKs",
+      "App integrations",
+      "Support center",
+      "Managed support plans",
+      "Professional services",
+      "Contact sales",
+      "Blog",
+      "Customer stories",
+      "Guides",
+      "Sessions conference",
+      "Jobs",
+      "Newsroom",
+      "Stripe Press",
+      "Become a partner"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "FinTech",
+    "signals": [
+      "Global payments",
+      "Access to 100+ globally",
+      "Send money to third parties"
+    ]
+  },
+  "audienceSignals": [
+    "Enterprises",
+    "Startups",
+    "AI companies",
+    "Creator economy",
+    "Hospitality, travel, and leisure",
+    "Insurance",
+    "Media and entertainment",
+    "Nonprofits",
+    "Retail"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Comprehensive payment solutions",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Fraud prevention with Radar",
+      "evidence": [
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Revenue and finance automation",
+      "evidence": [
+        "fact-4",
+        "fact-5"
+      ]
+    }
+  ],
+  "pains": [
+    "Managing global payments",
+    "Fraud prevention",
+    "Revenue recognition"
+  ],
+  "proof": [
+    "Stripe App Marketplace",
+    "Partners"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Stripe offers online payment solutions.",
+      "page": "Global payments",
+      "evidence": "Payments Online payments"
+    },
+    {
+      "id": "fact-2",
+      "text": "Stripe provides in-person payment solutions through Terminal.",
+      "page": "Global payments",
+      "evidence": "Terminal In-person payments"
+    },
+    {
+      "id": "fact-3",
+      "text": "Stripe offers fraud prevention through Radar.",
+      "page": "Global payments",
+      "evidence": "Radar Fraud prevention"
+    },
+    {
+      "id": "fact-4",
+      "text": "Stripe offers subscription management through Billing.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Billing Subscription management"
+    },
+    {
+      "id": "fact-5",
+      "text": "Stripe provides sales tax and VAT automation through Tax.",
+      "page": "Revenue and Finance Automation",
+      "evidence": "Tax Sales tax & VAT automation"
+    },
+    {
+      "id": "fact-6",
+      "text": "Stripe supports enterprises and startups.",
+      "page": "By stage",
+      "evidence": "Enterprises, Startups"
+    },
+    {
+      "id": "fact-7",
+      "text": "Stripe offers solutions for AI companies and the creator economy.",
+      "page": "By industry",
+      "evidence": "AI companies, Creator economy"
+    },
+    {
+      "id": "fact-8",
+      "text": "Stripe provides solutions for hospitality, travel, and leisure industries.",
+      "page": "By industry",
+      "evidence": "Hospitality, travel, and leisure"
+    },
+    {
+      "id": "fact-9",
+      "text": "Stripe offers solutions for insurance and media industries.",
+      "page": "By industry",
+      "evidence": "Insurance, Media and entertainment"
+    },
+    {
+      "id": "fact-10",
+      "text": "Stripe supports nonprofits and retail industries.",
+      "page": "By industry",
+      "evidence": "Nonprofits, Retail"
+    },
+    {
+      "id": "fact-11",
+      "text": "Stripe offers a marketplace for app integrations.",
+      "page": "Ecosystem",
+      "evidence": "Stripe App Marketplace"
+    },
+    {
+      "id": "fact-12",
+      "text": "Stripe partners with other companies.",
+      "page": "Ecosystem",
+      "evidence": "Partners"
+    },
+    {
+      "id": "fact-13",
+      "text": "Stripe provides professional services.",
+      "page": "Resources",
+      "evidence": "Professional services"
+    },
+    {
+      "id": "fact-14",
+      "text": "Stripe offers managed support plans.",
+      "page": "Resources",
+      "evidence": "Managed support plans"
+    },
+    {
+      "id": "fact-15",
+      "text": "Stripe has a support center for customer assistance.",
+      "page": "Resources",
+      "evidence": "Support center"
+    }
+  ]
+}

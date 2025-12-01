@@ -37,7 +37,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
   // Get dynamic colors from manifest
   const primaryColor = getPrimaryColor(manifest);
   const accentColor = getAccentColor(manifest);
-  
+
   // Get typography for logo rendering
   const headingTypography = manifest?.identity?.typography?.heading;
   const logoTypography = useMemo(() => headingTypography ? {
@@ -63,21 +63,6 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header Message */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-            <Palette className="w-4 h-4 text-purple-600" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-1">Brand DNA</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Your visual and tonal identity. Try asking: <em>"Change the primary color to forest green"</em> or <em>"Make the tone more professional"</em>.
-              Changes here update <strong>Components</strong> and <strong>Previews</strong> instantly.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Colors Section */}
       <Card className="p-6 bg-background border">
@@ -453,16 +438,15 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                 className="group rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 overflow-hidden"
               >
                 {/* Logo Preview Area */}
-                <div 
+                <div
                   className="h-36 flex items-center justify-center relative overflow-hidden"
                   style={getBackgroundStyle()}
                 >
                   <img
                     src={dynamicLogoUrl}
                     alt={`${logo.name} logo for ${brandName}`}
-                    className={`max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 ${
-                      isFullColor ? 'p-2' : isIconOnly ? 'p-4' : 'p-6'
-                    }`}
+                    className={`max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 ${isFullColor ? 'p-2' : isIconOnly ? 'p-4' : 'p-6'
+                      }`}
                     onError={(e) => {
                       try {
                         const target = e.target as HTMLImageElement;
@@ -482,7 +466,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
                     {brandName.charAt(0)}
                   </div>
                 </div>
-                
+
                 {/* Label Area */}
                 <div className="p-4 border-t bg-muted/30">
                   <p className="font-semibold text-sm text-center">{logo.name}</p>
@@ -492,7 +476,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             );
           }) : <p className="text-sm text-muted-foreground italic col-span-3">No logo variations defined</p>}
         </div>
-        
+
         <div className="text-xs text-muted-foreground text-center pt-4 border-t mt-4 flex items-center justify-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
           Logos automatically update when you change colors in the palette above

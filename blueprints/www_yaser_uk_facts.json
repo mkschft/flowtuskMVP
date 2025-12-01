@@ -1,0 +1,168 @@
+{
+  "brand": {
+    "name": "YaserUK",
+    "tones": [
+      "Professional",
+      "Consultative"
+    ],
+    "primaryCTA": "Contact Us"
+  },
+  "structure": {
+    "nav": [
+      "Services",
+      "Industries",
+      "Insights",
+      "About"
+    ],
+    "keyPages": [
+      {
+        "path": "https://www.yaser.uk/services",
+        "title": "Services"
+      },
+      {
+        "path": "https://www.yaser.uk/webflow-seo-consultant",
+        "title": "Webflow SEO"
+      },
+      {
+        "path": "https://www.yaser.uk/technical-seo",
+        "title": "Technical SEO"
+      },
+      {
+        "path": "https://www.yaser.uk/email-marketing-agency",
+        "title": "Email Marketing"
+      },
+      {
+        "path": "https://www.yaser.uk/seo-audit-london",
+        "title": "SEO Audit"
+      },
+      {
+        "path": "https://www.yaser.uk/fintech-marketing-agency",
+        "title": "Fintech Marketing"
+      },
+      {
+        "path": "https://www.yaser.uk/digital-marketing-for-small-businesses",
+        "title": "Small Business"
+      },
+      {
+        "path": "https://www.yaser.uk/crypto-marketing-agency",
+        "title": "Crypto"
+      },
+      {
+        "path": "https://www.yaser.uk/ecommerce-seo",
+        "title": "e-Commerce SEO"
+      },
+      {
+        "path": "https://www.yaser.uk/pensions-marketing-agency",
+        "title": "Pensions"
+      }
+    ],
+    "footer": [
+      "SEO Agency London",
+      "SEO Copywriting",
+      "Local SEO",
+      "e-Commerce SEO",
+      "Technical SEO"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "UK",
+    "industryFocus": "Digital Marketing",
+    "signals": [
+      "London-based SEO consultant",
+      ".uk domain",
+      "Pound sign in images"
+    ]
+  },
+  "audienceSignals": [
+    "Businesses seeking SEO services",
+    "Companies in fintech, crypto, and e-commerce industries"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Expert SEO services tailored to different platforms",
+      "evidence": [
+        "fact-3",
+        "fact-5"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Comprehensive digital marketing solutions",
+      "evidence": [
+        "fact-4",
+        "fact-7"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for specialized SEO strategies",
+    "Complexity of digital marketing"
+  ],
+  "proof": [
+    "London-based expertise",
+    "Diverse service offerings"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "YaserUK is a London-based SEO consultant.",
+      "page": "Home",
+      "evidence": "London-based SEO consultant"
+    },
+    {
+      "id": "fact-2",
+      "text": "The website uses a .uk domain, indicating a UK focus.",
+      "page": "Home",
+      "evidence": "https://www.yaser.uk/"
+    },
+    {
+      "id": "fact-3",
+      "text": "YaserUK offers Webflow SEO consulting services.",
+      "page": "Services",
+      "evidence": "Webflow SEO Consultant"
+    },
+    {
+      "id": "fact-4",
+      "text": "YaserUK provides email marketing services.",
+      "page": "Services",
+      "evidence": "Email Marketing"
+    },
+    {
+      "id": "fact-5",
+      "text": "YaserUK offers SEO audits in London.",
+      "page": "Services",
+      "evidence": "SEO Audit"
+    },
+    {
+      "id": "fact-6",
+      "text": "YaserUK targets fintech, crypto, and e-commerce industries.",
+      "page": "Industries",
+      "evidence": "Fintech Marketing, Crypto, e-Commerce SEO"
+    },
+    {
+      "id": "fact-7",
+      "text": "YaserUK provides services for small businesses.",
+      "page": "Industries",
+      "evidence": "Small Business"
+    },
+    {
+      "id": "fact-8",
+      "text": "The website features a pound sign in images, indicating UK currency.",
+      "page": "Services",
+      "evidence": "pound sign white background"
+    },
+    {
+      "id": "fact-9",
+      "text": "YaserUK offers local SEO services.",
+      "page": "Services",
+      "evidence": "Local SEO"
+    },
+    {
+      "id": "fact-10",
+      "text": "YaserUK provides website migration services.",
+      "page": "Services",
+      "evidence": "Website Migrations"
+    }
+  ]
+}
