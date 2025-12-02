@@ -145,28 +145,28 @@ export function Hero() {
 
             {/* Social Proof / Quick Stats */}
             <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
                   {/* Avatar circles with DiceBear avatars */}
                   <img
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
                     alt="User avatar"
-                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                    className="w-10 h-10 rounded-full border-2 border-white bg-white shadow-sm ring-1 ring-gray-200"
                   />
                   <img
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=Michael"
                     alt="User avatar"
-                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                    className="w-10 h-10 rounded-full border-2 border-white bg-white shadow-sm ring-1 ring-gray-200"
                   />
                   <img
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=Emma"
                     alt="User avatar"
-                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                    className="w-10 h-10 rounded-full border-2 border-white bg-white shadow-sm ring-1 ring-gray-200"
                   />
                   <img
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=David"
                     alt="User avatar"
-                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                    className="w-10 h-10 rounded-full border-2 border-white bg-white shadow-sm ring-1 ring-gray-200"
                   />
                 </div>
                 <span className="font-medium text-gray-700">100+ brands created</span>
