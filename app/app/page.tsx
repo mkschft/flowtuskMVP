@@ -965,7 +965,7 @@ function ChatPageContent() {
       content: input,
     };
 
-    addMessage(userMessage);
+    addMessageTo(convId, userMessage);
     const userInput = input;
     setInput("");
     setIsLoading(true);
@@ -993,8 +993,8 @@ function ChatPageContent() {
         // Create thinking message with all steps
         const thinkingMsgId = nanoid();
         thinkingMsgIdRef.current = thinkingMsgId;
-        console.log('💭 [Creating Thinking Message]', { thinkingMsgId });
-        addMessage({
+        console.log('💭 [Creating Thinking Message]', { thinkingMsgId, convId });
+        addMessageTo(convId, {
           id: thinkingMsgId,
           role: "assistant",
           content: "thinking",
@@ -1004,7 +1004,7 @@ function ChatPageContent() {
             { id: 'generate', label: 'Generating customer profiles', status: 'pending' },
           ],
         });
-        console.log('✅ [Thinking Message Added]');
+        console.log('✅ [Thinking Message Added]', { convId });
 
         // Step 1: Analyze website
         const analyzeStart = Date.now();
@@ -1551,7 +1551,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
         let assistantMessage = "";
 
         const assistantMsgId = nanoid();
-        addMessage({ id: assistantMsgId, role: "assistant", content: "" });
+        addMessageTo(convId, { id: assistantMsgId, role: "assistant", content: "" });
 
         if (reader) {
           while (true) {
@@ -1625,7 +1625,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
         }
       }
 
-      addMessage({
+      addMessageTo(convId, {
         id: nanoid(),
         role: "assistant",
         content: userMessage,
