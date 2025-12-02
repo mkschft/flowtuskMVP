@@ -147,27 +147,27 @@ export function Hero() {
             <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {/* Avatar circles with small person icons */}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 border-2 border-white flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 border-2 border-white flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 border-2 border-white flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-400 border-2 border-white flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
+                  {/* Avatar circles with DiceBear avatars */}
+                  <img
+                    src="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                  />
+                  <img
+                    src="https://api.dicebear.com/7.x/notionists/svg?seed=Michael"
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                  />
+                  <img
+                    src="https://api.dicebear.com/7.x/notionists/svg?seed=Emma"
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                  />
+                  <img
+                    src="https://api.dicebear.com/7.x/notionists/svg?seed=David"
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full border-2 border-white bg-white"
+                  />
                 </div>
                 <span className="font-medium text-gray-700">100+ brands created</span>
               </div>

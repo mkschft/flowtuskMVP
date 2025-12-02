@@ -1,24 +1,21 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { Navigation } from "./landing/components/Navigation";
+import { Hero } from "./landing/components/Hero";
+import { HowItWorksSection } from "./landing/components/HowItWorksSection";
+import { DependableFeatures } from "./landing/components/DependableFeatures";
+import { Testimonial } from "./landing/components/Testimonial";
+import { Footer } from "./landing/components/Footer";
 
-// Root page redirects to landing or app based on auth state
-export default async function RootPage() {
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
-  
-  if (isDemoMode) {
-    // Demo mode: always show landing
-    redirect('/landing');
-  }
-  
-  // Check auth
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (user) {
-    // Authenticated: go to app
-    redirect('/app');
-  } else {
-    // Not authenticated: show landing
-    redirect('/landing');
-  }
+export default function LandingPage() {
+  return (
+    <>
+      <Navigation />
+      <main className="grow">
+        <Hero />
+        <HowItWorksSection />
+        <DependableFeatures />
+        <Testimonial />
+      </main>
+      <Footer />
+    </>
+  );
 }
