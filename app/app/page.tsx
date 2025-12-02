@@ -1151,7 +1151,7 @@ function ChatPageContent() {
         // Store factsJson and content in conversation memory for reuse
         setConversations(prev =>
           prev.map(conv =>
-            conv.id === activeConversationId
+            conv.id === convId
               ? {
                 ...conv,
                 memory: {
@@ -1166,7 +1166,7 @@ function ChatPageContent() {
 
         // For guests: Use temporary ID and save to localStorage
         // For authenticated users: Create/find flow in database
-        let flowId = activeConversationId;
+        let flowId = convId;
         const hostTitle = new URL(url).hostname;
 
         if (!isGuest) {
@@ -1184,13 +1184,13 @@ function ChatPageContent() {
           }
 
           console.log(`✅ [Flow] ${flowIsNew ? 'Created new' : 'Found existing'} flow with ID:`, flow.id);
-          console.log(`🔄 [ID Sync] Updating conversation ID from ${activeConversationId.slice(0, 8)}... to ${flow.id.slice(0, 8)}...`);
+          console.log(`🔄 [ID Sync] Updating conversation ID from ${convId.slice(0, 8)}... to ${flow.id.slice(0, 8)}...`);
           flowId = flow.id;
 
           // Store flow ID and align conversation ID with DB flow ID
           setConversations(prev => {
             const updated = prev.map(conv =>
-              conv.id === activeConversationId
+              conv.id === convId
                 ? {
                   ...conv,
                   id: flow.id,
@@ -1237,12 +1237,12 @@ function ChatPageContent() {
           } catch { }
         } else {
           // Guest mode: Keep temporary ID and save to localStorage
-          console.log('👤 [Guest] Using temporary flow ID:', activeConversationId.slice(0, 8));
+          console.log('👤 [Guest] Using temporary flow ID:', convId.slice(0, 8));
 
           // Update conversation with URL and facts
           setConversations(prev => {
             const updated = prev.map(conv =>
-              conv.id === activeConversationId
+              conv.id === convId
                 ? {
                   ...conv,
                   title: hostTitle,
@@ -1258,7 +1258,7 @@ function ChatPageContent() {
             // Save to localStorage for persistence
             try {
               localStorage.setItem('flowtusk_guest_conversations', JSON.stringify(updated));
-              localStorage.setItem('flowtusk_guest_active_id', activeConversationId);
+              localStorage.setItem('flowtusk_guest_active_id', convId);
               console.log('💾 [Guest] Saved conversation to localStorage');
             } catch (e) {
               console.error('❌ [Guest] Failed to save to localStorage:', e);
@@ -1563,7 +1563,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
             setConversations(prev =>
               prev.map(conv =>
-                conv.id === activeConversationId
+                conv.id === convId
                   ? {
                     ...conv,
                     messages: conv.messages.map(m =>
@@ -1583,7 +1583,7 @@ I've identified **${icps.length} ideal customer profiles** below. Select one to 
 
               setConversations(prev =>
                 prev.map(conv =>
-                  conv.id === activeConversationId
+                  conv.id === convId
                     ? {
                       ...conv,
                       messages: conv.messages.map(m =>
