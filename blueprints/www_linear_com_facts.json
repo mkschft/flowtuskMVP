@@ -1,0 +1,159 @@
+{
+  "brand": {
+    "name": "Analog Devices",
+    "tones": [
+      "informative",
+      "technical"
+    ],
+    "primaryCTA": "Explore Solutions"
+  },
+  "structure": {
+    "nav": [
+      "AI",
+      "Software Solutions",
+      "CodeFusion Studio",
+      "Get to Know Us",
+      "Solutions Gallery"
+    ],
+    "keyPages": [
+      {
+        "path": "/en/ai.html",
+        "title": "Where AI Gets Real"
+      },
+      {
+        "path": "/en/software.html",
+        "title": "ADI Software Solutions"
+      },
+      {
+        "path": "/en/resources/evaluation-hardware-and-software/embedded-development-software/codefusion-studio.html",
+        "title": "CodeFusion Studio"
+      },
+      {
+        "path": "/en/signals.html",
+        "title": "What We Do (Signals+)"
+      },
+      {
+        "path": "/en/solutions/aerospace-and-defense/military-communications.html",
+        "title": "Military Communications Solutions"
+      }
+    ],
+    "footer": [
+      "eShop",
+      "What We Do",
+      "ContentZone"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Technology",
+    "signals": [
+      "URL structure with '/en/' indicating English language",
+      "Global industry mentions like aerospace, automotive, communications, consumer, energy, industrial automation, and healthcare"
+    ]
+  },
+  "audienceSignals": [
+    "aerospace",
+    "automotive",
+    "communications",
+    "consumer",
+    "energy",
+    "industrial automation",
+    "healthcare"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Unlocking physical intelligence for new frontiers",
+      "evidence": [
+        "fact-1",
+        "fact-2"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Simplifying complexity with software solutions",
+      "evidence": [
+        "fact-3",
+        "fact-4"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Accelerating embedded development with CodeFusion Studio",
+      "evidence": [
+        "fact-5",
+        "fact-6"
+      ]
+    }
+  ],
+  "pains": [
+    "Complexity in system development",
+    "Need for efficient embedded development tools"
+  ],
+  "proof": [
+    "Global industry focus",
+    "Diverse solution offerings"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "ADI is unlocking physical intelligence.",
+      "page": "Where AI Gets Real",
+      "evidence": "Explore how ADI is unlocking physical intelligence."
+    },
+    {
+      "id": "fact-2",
+      "text": "ADI enables new frontiers in autonomous factories, intelligent robotics, software-defined vehicles, and predictive healthcare systems.",
+      "page": "Where AI Gets Real",
+      "evidence": "Enabling new frontiers in autonomous factories, intelligent robotics, software-defined vehicles, and predictive healthcare systems."
+    },
+    {
+      "id": "fact-3",
+      "text": "ADI offers a suite of software solutions, design tools, and expert resources.",
+      "page": "ADI Software Solutions",
+      "evidence": "Simplify complexity and speed up system development with a suite of software solutions, design tools, and expert resources."
+    },
+    {
+      "id": "fact-4",
+      "text": "ADI's software solutions help simplify complexity and speed up system development.",
+      "page": "ADI Software Solutions",
+      "evidence": "Simplify complexity and speed up system development with a suite of software solutions."
+    },
+    {
+      "id": "fact-5",
+      "text": "CodeFusion Studio unifies multicore management, debug, and resource plan in one open-source, VS Code–based IDE.",
+      "page": "CodeFusion Studio",
+      "evidence": "Unify multicore management, debug, and resource plan in one open-source, VS Code–based IDE."
+    },
+    {
+      "id": "fact-6",
+      "text": "CodeFusion Studio accelerates embedded development.",
+      "page": "CodeFusion Studio",
+      "evidence": "Accelerating embedded development."
+    },
+    {
+      "id": "fact-7",
+      "text": "ADI co-creates solutions across multiple industries.",
+      "page": "Get to Know Us",
+      "evidence": "Together, with our customers, we co-create solutions across aerospace, automotive, communications, consumer, energy, industrial automation, and healthcare."
+    },
+    {
+      "id": "fact-8",
+      "text": "ADI provides solutions for military communications addressing size, weight, power, and cost challenges.",
+      "page": "Solutions Gallery",
+      "evidence": "Amplify your secure military comms by addressing size, weight, power, and cost challenges for handheld, shipborne, and vehicle radios."
+    },
+    {
+      "id": "fact-9",
+      "text": "ADI offers solutions for guidance, navigation, flight control, data acquisition, power distribution, engine control, and motor control systems.",
+      "page": "Solutions Gallery",
+      "evidence": "Elevate your next innovations in guidance, navigation, flight control, data acquisition, power distribution, engine control, and motor control systems."
+    },
+    {
+      "id": "fact-10",
+      "text": "ADI provides superior beamforming, RF and microwave, data conversion, precision linear, and power systems for space technology.",
+      "page": "Solutions Gallery",
+      "evidence": "Superior beamforming, RF and microwave, data conversion, precision linear, and power systems for LEO, GEO, and beyond."
+    }
+  ]
+}

@@ -8,6 +8,8 @@ import {
   validateStyleGuideOutput,
   validateLandingPageOutput
 } from "@/lib/utils/validation";
+import { detectIndustry, getArchetype, getSuggestedGradientMood } from "@/lib/industry-archetypes";
+import { generateIntelligentGradient, generateGradientVariations } from "@/lib/utils/color-utils";
 
 // Helper to normalize color fields - GPT sometimes returns strings instead of arrays
 function normalizeColorField(value: any): { name: string; hex: string; usage?: string }[] {
@@ -186,38 +188,140 @@ async function generateBrandGuide(manifest: any) {
   const persona = manifest.strategy.persona;
   const valueProp = manifest.strategy.valueProp;
 
-  const prompt = `You are a brand designer. Generate a comprehensive brand guide for:
+  // Detect industry and get archetype for personalized guidance
+  const industry = detectIndustry({}, persona);
+  const archetype = getArchetype(industry);
+  const suggestedMood = getSuggestedGradientMood(industry);
 
+  console.log(`🎨 [Brand Guide] Detected industry: ${industry}, mood: ${suggestedMood}`);
+
+  const prompt = `You are an award-winning brand designer with deep expertise in ${industry} branding and color psychology.
+
+BUSINESS CONTEXT:
 Company: ${manifest.brandName}
-Persona: ${persona.name} - ${persona.role} at ${persona.company}
-Value Prop: ${valueProp.headline || 'Innovative solution'}
+Industry: ${persona.industry || industry}
+Target Persona: ${persona.name} - ${persona.role} at ${persona.company}
+Pain Points: ${persona.painPoints?.join(', ') || 'Not specified'}
+Goals: ${persona.goals?.join(', ') || 'Not specified'}
+Value Proposition: ${valueProp.headline || 'Innovative solution'}
 
-Generate a brand guide with:
-1. Color palette (primary, secondary, accent, AND NEUTRAL colors - whites, grays, blacks)
-2. Typography (heading and body fonts with sizes)
-3. Tone of voice (3-5 keywords and personality traits)
-4. Logo variations (2-3 types)
+INDUSTRY-SPECIFIC DESIGN GUIDANCE:
+This is a ${industry} brand. Follow these design principles:
 
-⚠️ CRITICAL VALIDATION REQUIREMENTS - Your response will be automatically validated. If ANY of these are missing, generation will FAIL:
+COLOR PSYCHOLOGY:
+- Recommended primary colors: ${archetype.colorPsychology.primary.join(', ')}
+- Reasoning: ${archetype.colorPsychology.reasoning}
+${archetype.colorPsychology.avoid ? `- AVOID: ${archetype.colorPsychology.avoid.join(', ')} - ${archetype.colorPsychology.avoidReason}` : ''}
+${archetype.colorPsychology.accent ? `- Accent colors: ${archetype.colorPsychology.accent.join(', ')} - ${archetype.colorPsychology.accentReason}` : ''}
+
+VISUAL STYLE:
+- Border Radius: ${archetype.visualStyle.borderRadius}
+- Shadows: ${archetype.visualStyle.shadows}
+- Icon Style: ${archetype.visualStyle.iconStyle}
+- Pattern Inspiration: ${archetype.visualStyle.patterns}
+
+TYPOGRAPHY:
+- Heading Fonts: ${archetype.typography.heading}
+- Body Fonts: ${archetype.typography.body}
+${archetype.typography.code ? `- Code Fonts: ${archetype.typography.code}` : ''}
+${archetype.typography.avoid ? `- AVOID: ${archetype.typography.avoid}` : ''}
+
+TONE ARCHETYPE: ${archetype.toneArchetype}
+Suggested Keywords: ${archetype.toneKeywords.join(', ')}
+
+IMPORTANT: Use these guidelines as inspiration, but make the brand UNIQUE to ${manifest.brandName}.
+Don't just copy the suggestions - adapt them to reflect this specific business's personality and value proposition.
+
+1. COLOR PALETTE (with sophisticated range and psychology):
+
+PRIMARY Colors (2-3 variations):
+- Choose colors aligned with ${industry} psychology
+- If value prop emphasizes SPEED → Warmer, energetic tones
+- If value prop emphasizes TRUST → Cooler, stable tones
+- If value prop emphasizes INNOVATION → Bolder, unexpected combinations
+- Provide light, standard, AND dark variations for depth
+- Example:
+  { "name": "Ocean Blue", "hex": "#0066FF", "usage": "Primary CTAs, hero sections" }
+  { "name": "Ocean Blue Light", "hex": "#3399FF", "usage": "Hover states, highlights" }
+  { "name": "Ocean Blue Dark", "hex": "#004499", "usage": "Text on light backgrounds" }
+
+SECONDARY Colors (2-3):
+- Must complement primary through color theory (analogous or complementary)
+- Add visual interest and hierarchy
+- NOT just a darker version of primary
+- Example: { "name": "Coral Accent", "hex": "#FF6B6B", "usage": "Important highlights, success states" }
+
+ACCENT Colors (2-3):
+- Bold, attention-grabbing for key moments
+- High contrast with primary for visibility
+- Use industry-appropriate accent hues
+- Example: { "name": "Electric Lime", "hex": "#CCFF00", "usage": "CTAs, achievement badges, alerts" }
+
+NEUTRAL Colors (4-6 REQUIRED):
+- Full grayscale range: Pure white → 2-3 light grays → 1 mid gray → 2 dark grays → Rich black
+- AVOID pure black (#000000), use warm or cool blacks (#0A0A0A, #1A1A1A)
+- Example:
+  { "name": "Soft White", "hex": "#FAFAFA", "usage": "Main backgrounds" }
+  { "name": "Light Gray", "hex": "#F5F5F5", "usage": "Card backgrounds" }
+  { "name": "Medium Gray", "hex": "#E5E5E5", "usage": "Borders, dividers" }
+  { "name": "Slate Gray", "hex": "#71717A", "usage": "Secondary text" }
+  { "name": "Dark Gray", "hex": "#27272A", "usage": "Primary text" }
+  { "name": "Rich Black", "hex": "#0A0A0A", "usage": "Headings, strong emphasis" }
+
+2. TYPOGRAPHY (industry-appropriate fonts):
+
+Heading Font:
+- Choose based on brand personality: ${archetype.typography.heading}
+- Provide weights: [600, 700, 800] for hierarchy
+- Sizes: h1 (48-60px), h2 (36-42px), h3 (24-30px), h4 (18-24px)
+
+Body Font:
+- Readable, accessible: ${archetype.typography.body}
+- Weights: [400, 500, 600]
+- Sizes: large (18-20px), regular (16px), small (14px)
+
+${archetype.typography.code ? `Code Font: ${archetype.typography.code} (weights: [400, 500])` : ''}
+
+3. TONE OF VOICE (specific, not generic):
+
+Keywords (5-7 specific descriptors):
+- DON'T use: "Professional", "Trustworthy", "Innovative" (too generic)
+- DO use specific descriptors that reflect THIS business
+- Example for tax software: ["No-jargon clarity", "Stress-free expertise", "15-minute simple", "Reassuring neighbor", "IRS-proof confident"]
+
+Personality Traits (3-4 with specific labels):
+- Make traits SPECIFIC to ${industry}
+- Example:
+  { "trait": "Formal expertise vs Friendly guidance", "value": 35, "leftLabel": "Formal expertise", "rightLabel": "Friendly guidance" }
+  { "trait": "Serious business vs Lighthearted approach", "value": 60, "leftLabel": "Serious business", "rightLabel": "Lighthearted approach" }
+
+4. LOGO VARIATIONS (2-3 types):
+
+Provide varied logo types:
+- "Primary": Full color for main usage
+- "Monochrome": Single color for special contexts
+- "Inverted": For dark backgrounds
+Optional: "Icon-only" for favicons
+
+⚠️ CRITICAL VALIDATION REQUIREMENTS - Your response will be automatically validated:
 
 **Colors (REQUIRED):**
-- ✅ At least 1 primary color
-- ✅ At least 1 secondary color  
-- ✅ At least 1 accent color
-- ✅ At least 2 neutral colors (e.g., White #FFFFFF, Light Gray #F5F5F5, Dark Gray #333333)
+- ✅ At least 2 primary colors (including variations)
+- ✅ At least 2 secondary colors
+- ✅ At least 2 accent colors
+- ✅ At least 4 neutral colors (FULL grayscale range required)
 - ✅ All colors MUST have "name", "hex", AND "usage" fields
-- ✅ Usage field must describe when/where to use this color (e.g., "CTA buttons", "Backgrounds", "Text")
-- ❌ DO NOT return empty arrays for any color type
-- ❌ DO NOT skip neutral colors (they are required for UI)
-- ❌ DO NOT skip the usage field (it is required for design guidance)
+- ✅ Usage field must be specific and contextual
+- ❌ DO NOT return generic names like "Color 1", "Color 2"
+- ❌ DO NOT skip variations (light/dark)
 
 **Typography (REQUIRED):**
 - ✅ Must include both "heading" and "body" font configs
 - ✅ Each must have: family, weights (array), sizes (object)
 
 **Tone (REQUIRED):**
-- ✅ At least 3 keywords
-- ✅ At least 2 personality traits
+- ✅ At least 5 specific keywords (not generic)
+- ✅ At least 3 personality traits
 - ✅ Each trait must have: trait, value (0-100), leftLabel, rightLabel
 
 **Logo (REQUIRED):**
@@ -227,32 +331,45 @@ Generate a brand guide with:
 Return ONLY valid JSON in this EXACT format (no markdown, no code blocks):
 {
   "colors": {
-    "primary": [{ "name": "Brand Blue", "hex": "#0066FF", "usage": "CTA buttons, links" }],
-    "secondary": [{ "name": "Deep Navy", "hex": "#1a2332", "usage": "Headers, accents" }],
-    "accent": [{ "name": "Bright Cyan", "hex": "#00D9FF", "usage": "Highlights, links" }],
+    "primary": [
+      { "name": "Ocean Blue", "hex": "#0066FF", "usage": "Primary CTAs, hero sections" },
+      { "name": "Ocean Blue Light", "hex": "#3399FF", "usage": "Hover states, highlights" }
+    ],
+    "secondary": [
+      { "name": "Coral Accent", "hex": "#FF6B6B", "usage": "Important highlights, success states" },
+      { "name": "Coral Deep", "hex": "#E63946", "usage": "Strong emphasis, alerts" }
+    ],
+    "accent": [
+      { "name": "Electric Lime", "hex": "#CCFF00", "usage": "CTAs, achievement badges" },
+      { "name": "Bright Cyan", "hex": "#00D9FF", "usage": "Links, interactive elements" }
+    ],
     "neutral": [
-      { "name": "White", "hex": "#FFFFFF", "usage": "Backgrounds" },
-      { "name": "Light Gray", "hex": "#F5F5F5", "usage": "Subtle backgrounds" },
-      { "name": "Dark Gray", "hex": "#333333", "usage": "Text" }
+      { "name": "Soft White", "hex": "#FAFAFA", "usage": "Main backgrounds" },
+      { "name": "Light Gray", "hex": "#F5F5F5", "usage": "Card backgrounds" },
+      { "name": "Medium Gray", "hex": "#E5E5E5", "usage": "Borders, dividers" },
+      { "name": "Slate Gray", "hex": "#71717A", "usage": "Secondary text" },
+      { "name": "Dark Gray", "hex": "#27272A", "usage": "Primary text" },
+      { "name": "Rich Black", "hex": "#0A0A0A", "usage": "Headings, strong emphasis" }
     ]
   },
   "typography": {
     "heading": {
       "family": "Inter",
-      "weights": ["600", "700"],
-      "sizes": { "h1": "48px", "h2": "36px", "h3": "24px" }
+      "weights": ["600", "700", "800"],
+      "sizes": { "h1": "48px", "h2": "36px", "h3": "24px", "h4": "20px" }
     },
     "body": {
       "family": "Inter",
-      "weights": ["400", "500"],
+      "weights": ["400", "500", "600"],
       "sizes": { "large": "18px", "regular": "16px", "small": "14px" }
     }
   },
   "tone": {
-    "keywords": ["Professional", "Innovative", "Trustworthy"],
+    "keywords": ["No-jargon clarity", "Stress-free expertise", "15-minute simple", "Reassuring neighbor", "IRS-proof confident"],
     "personality": [
-      { "trait": "Formal vs Casual", "value": 60, "leftLabel": "Formal", "rightLabel": "Casual" },
-      { "trait": "Serious vs Playful", "value": 40, "leftLabel": "Serious", "rightLabel": "Playful" }
+      { "trait": "Formal expertise vs Friendly guidance", "value": 35, "leftLabel": "Formal expertise", "rightLabel": "Friendly guidance" },
+      { "trait": "Serious business vs Lighthearted approach", "value": 60, "leftLabel": "Serious business", "rightLabel": "Lighthearted approach" },
+      { "trait": "Technical precision vs Plain language", "value": 75, "leftLabel": "Technical precision", "rightLabel": "Plain language" }
     ]
   },
   "logo": {
@@ -260,8 +377,134 @@ Return ONLY valid JSON in this EXACT format (no markdown, no code blocks):
       { "name": "Primary", "description": "Full color logo for light backgrounds" },
       { "name": "Monochrome", "description": "Single color version" }
     ]
+  },
+  "designSystem": {
+    "shadows": {
+      "xs": "0 1px 2px rgba(0,0,0,0.05)",
+      "sm": "0 2px 8px rgba(0,0,0,0.08)",
+      "md": "0 4px 16px rgba(0,0,0,0.12)",
+      "lg": "0 8px 32px rgba(0,0,0,0.16)",
+      "xl": "0 16px 64px rgba(0,0,0,0.20)",
+      "colored": "0 8px 32px rgba(0, 102, 255, 0.20)"
+    },
+    "elevation": {
+      "base": 0,
+      "raised": 1,
+      "overlay": 2,
+      "modal": 3,
+      "popover": 4
+    },
+    "blur": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "16px",
+      "xl": "40px"
+    },
+    "transitions": {
+      "fast": "150ms ease",
+      "normal": "250ms ease",
+      "slow": "400ms ease",
+      "bounce": "500ms cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    },
+    "iconography": {
+      "style": "outlined",
+      "library": "lucide",
+      "sizes": {
+        "sm": "16px",
+        "md": "24px",
+        "lg": "32px",
+        "xl": "48px"
+      }
+    }
   }
-}`;
+}
+
+5. DESIGN SYSTEM (for visual depth and polish):
+
+SHADOWS (6 levels):
+Generate shadow values that create depth and hierarchy:
+- xs: Subtle (for borders, dividers) - "0 1px 2px rgba(0,0,0,0.05)"
+- sm: Card elevation - "0 2px 8px rgba(0,0,0,0.08)"
+- md: Elevated elements - "0 4px 16px rgba(0,0,0,0.12)"
+- lg: Modals, dropdowns - "0 8px 32px rgba(0,0,0,0.16)"
+- xl: Hero elements - "0 16px 64px rgba(0,0,0,0.20)"
+- colored: Brand shadow using primary color at 20% opacity
+  Example: If primary is #0066FF, colored shadow is "0 8px 32px rgba(0, 102, 255, 0.20)"
+
+ELEVATION (z-index scale):
+- base: 0 (flat elements)
+- raised: 1 (slightly lifted)
+- overlay: 2 (cards, panels)
+- modal: 3 (dialogs)
+- popover: 4 (tooltips, dropdowns)
+
+BLUR (for glassmorphism effects):
+- sm: 4px (subtle blur)
+- md: 8px (standard glassmorphism)
+- lg: 16px (heavy blur)
+- xl: 40px (backdrop effects)
+
+TRANSITIONS (animation timings):
+- fast: 150ms ease (hover states, small interactions)
+- normal: 250ms ease (default transitions)
+- slow: 400ms ease (complex animations)
+- bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55) (playful effects)
+
+ICONOGRAPHY:
+- style: Choose based on ${industry} archetype
+  * ${archetype.visualStyle.iconStyle} is recommended
+  * "outlined" = minimal, modern
+  * "solid" = bold, impactful
+  * "duo-tone" = tech-forward, sophisticated
+- library: "lucide" (default), "heroicons", or "phosphor"
+- sizes: sm (16px), md (24px), lg (32px), xl (48px)
+
+6. BRAND RATIONALE (CRITICAL - Show your reasoning):
+
+This is YOUR UNIQUE MOAT. Provide transparent, evidence-based reasoning for WHY you made each design choice.
+
+COLORS RATIONALE (2-3 sentences):
+Explain why these specific colors were chosen for ${manifest.brandName}:
+- Reference the industry (${industry})
+- Reference the target persona's pain points: ${persona?.painPoints?.join(', ') || 'their needs'}
+- If possible, reference the value proposition: ${valueProp?.headline}
+- Explain the psychological impact
+
+Example: "Tax-season green (#2ECC71) was chosen because it evokes 'money saved' and financial growth, directly addressing the pain point of 'stressful tax filing'. The warm green creates a reassuring, optimistic feel rather than the intimidating blues often used in finance, making tax prep feel approachable for small business owners."
+
+TYPOGRAPHY RATIONALE (1-2 sentences):
+Explain why these fonts match ${manifest.brandName}:
+- How they reflect the brand personality
+- Why they work for ${industry}
+- How they serve the ${persona?.role || 'target audience'}
+
+Example: "Inter was chosen for its clean readability and professional tech aesthetic, perfect for software that needs to feel 'no-jargon' and accessible. The rounded letterforms soften the technical nature of tax filing."
+
+TONE RATIONALE (1-2 sentences):
+Explain why this specific tone (not generic "professional"):
+- How it differentiates from competitors
+- How it addresses the persona's emotional needs
+- Why it fits the ${industry} archetype
+
+Example: "The 'Expert neighbor' tone balances authority with approachability - ${persona?.name} needs to trust the tool but doesn't want to feel talked down to. This tone avoids both the sterile corporate speak of traditional tax software and the overly casual tone that might undermine credibility."
+
+OVERALL BRAND DIRECTION (2-3 sentences):
+Synthesize everything - why does this complete brand system work for ${manifest.brandName}?
+- How all elements work together
+- What makes it unique in ${industry}
+- What emotional response it creates
+
+Add rationale field to JSON:
+{
+  "rationale": {
+    "colors": "Tax-season green (#2ECC71) was chosen because...",
+    "typography": "Inter was chosen for its clean readability...",
+    "tone": "The 'Expert neighbor' tone balances...",
+    "overall": "This brand system creates a reassuring, no-nonsense experience..."
+  }
+}
+
+Return JSON matching the example above with ALL fields including designSystem AND rationale.`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -367,9 +610,20 @@ Return ONLY valid JSON in this EXACT format (no markdown, no code blocks):
       },
       logo: {
         variations: logoVariationsWithImages
-      }
+      },
+      designSystem: content.designSystem || undefined,
+      rationale: content.rationale || undefined
     }
   };
+
+  // Log rationale for debugging
+  if (content.rationale) {
+    console.log('✅ [Brand Guide] Rationale generated:');
+    console.log('  - Colors:', content.rationale.colors?.substring(0, 80) + '...');
+    console.log('  - Typography:', content.rationale.typography?.substring(0, 80) + '...');
+    console.log('  - Tone:', content.rationale.tone?.substring(0, 80) + '...');
+    console.log('  - Overall:', content.rationale.overall?.substring(0, 80) + '...');
+  }
 
   // Increment logo generation count in metadata if logos were generated
   if (logoGenerationIncremented) {
@@ -389,10 +643,32 @@ async function generateStyleGuide(manifest: any) {
   const valueProp = manifest?.strategy?.valueProp;
   const tone = manifest?.identity?.tone?.keywords || [];
 
-  const prompt = `Generate a comprehensive style guide for ${manifest.brandName} targeting ${persona?.name || 'customers'} (${persona?.role || 'users'} at ${persona?.company || 'companies'}).
+  // Detect industry and get archetype for personalized guidance
+  const industry = detectIndustry({}, persona);
+  const archetype = getArchetype(industry);
 
-Brand Tone: ${tone.join(', ') || 'Professional'}
-Value Proposition: ${valueProp?.headline || 'Delivering value'}
+  console.log(`🎨 [Style Guide] Detected industry: ${industry}`);
+
+  const prompt = `Generate a comprehensive, brand-specific style guide for ${manifest.brandName}.
+
+BRAND CONTEXT:
+- Target: ${persona?.name || 'customers'} (${persona?.role || 'users'} at ${persona?.company || 'companies'})
+- Industry: ${persona?.industry || industry}
+- Pain Points: ${persona?.painPoints?.join(', ') || 'Not specified'}
+- Value Proposition: ${valueProp?.headline || 'Delivering value'}
+- Brand Tone: ${tone.join(', ') || 'Professional'}
+
+INDUSTRY-SPECIFIC GUIDANCE (${industry}):
+- CTA Style: ${archetype.copyPatterns.ctaStyle}
+- Energy Level: ${archetype.copyPatterns.energyLevel || 'MEDIUM'}
+- Use Words: ${archetype.copyPatterns.useWords?.join(', ') || 'Not specified'}
+- Avoid Jargon: ${archetype.copyPatterns.avoidJargon?.join(', ') || 'None'}
+${archetype.copyPatterns.canUseJargon ? `- Can Use Industry Jargon: ${archetype.copyPatterns.canUseJargon.join(', ')}` : ''}
+
+IMPORTANT: All content must be SPECIFIC to ${manifest.brandName}, not generic templates.
+- CTAs should reference actual pain points: ${persona?.painPoints?.[0] || 'customer needs'}
+- Forms should be industry-appropriate
+- Card content should reflect real business value
 
 Generate:
 
@@ -581,20 +857,101 @@ async function generateLandingPage(manifest: any) {
   const persona = manifest.strategy.persona;
   const valueProp = manifest.strategy.valueProp;
 
-  const prompt = `Generate a landing page for:
+  // NEW: Detect industry for landing page guidance
+  const industry = detectIndustry({}, persona);
+  const archetype = getArchetype(industry);
+
+  console.log(`🎨 [Landing Page] Detected industry: ${industry}, using archetype guidance`);
+  console.log(`🎨 [Landing Page] Tone: ${archetype.toneArchetype}, CTA Style: ${archetype.copyPatterns.ctaStyle}`);
+
+  const prompt = `You are a conversion-focused landing page designer specializing in ${industry} businesses.
+
+BUSINESS CONTEXT:
 Company: ${manifest.brandName}
-Value Prop: ${valueProp.headline}
-Target: ${persona.role}
-Industry: ${persona.industry || 'Technology'}
-Location: ${persona.location || 'Global'}
+Industry: ${persona.industry || industry}
+Target Persona: ${persona.name} - ${persona.role} at ${persona.company}
+Pain Points: ${persona.painPoints?.join(', ') || 'Not specified'}
+Goals: ${persona.goals?.join(', ') || 'Not specified'}
+Value Proposition: ${valueProp.headline}
+Key Benefits: ${valueProp.benefits?.join(', ') || 'Value delivery'}
+
+INDUSTRY-SPECIFIC LANDING PAGE GUIDANCE (${industry}):
+
+TONE & COPY:
+- Tone Archetype: ${archetype.toneArchetype}
+- CTA Style: ${archetype.copyPatterns.ctaStyle}
+- Use Words: ${archetype.copyPatterns.useWords?.join(', ') || 'effective, reliable'}
+${archetype.copyPatterns.avoidJargon ? `- AVOID Jargon: ${archetype.copyPatterns.avoidJargon.join(', ')}` : ''}
+${archetype.copyPatterns.canUseJargon ? `- Can Use Industry Terms: ${archetype.copyPatterns.canUseJargon.join(', ')}` : ''}
+- Energy Level: ${archetype.copyPatterns.energyLevel || 'MEDIUM'}
+
+VISUAL STYLE:
+- Border Radius: ${archetype.visualStyle.borderRadius}
+- Shadow Style: ${archetype.visualStyle.shadows}
+- Icon Style: ${archetype.visualStyle.iconStyle}
+- Pattern Style: ${archetype.visualStyle.patterns}
 
 CRITICAL REQUIREMENTS:
-1. Generate 2-3 testimonials with realistic customer quotes relevant to the value proposition
-2. Generate 1-2 stats (e.g., "10,000+ customers", "50% faster workflow")
-3. Generate 6 features that directly address the persona's pain points
-4. Use the hero headline from the value proposition
-5. socialProof MUST include a "type" field: either "testimonial" or "stat"
-6. For testimonials, use "content" field (not "quote") with the full testimonial text
+
+1. VISUAL HIERARCHY:
+   - Hero headline: 48-64px (bold, attention-grabbing)
+   - Hero subheadline: 18-24px (supporting detail)
+   - Section headlines: 32-40px
+   - Feature titles: 20-24px
+   - Body text: 16-18px
+   - Use size contrast to guide eye flow: Hero → Features → Social Proof → CTA
+
+2. REALISTIC CONTENT (NOT GENERIC):
+   - Hero headline must reference ACTUAL pain points: "${persona.painPoints?.join(' or ') || 'their challenges'}"
+   - Features must solve SPECIFIC problems, not vague "improve workflow"
+   - Testimonials must sound like REAL people, not marketing copy
+   - Stats must be concrete: "15 minutes saved per day" NOT "faster workflow"
+   - Example (tax-prep): "File your taxes in 15 minutes, not 3 hours" NOT "Simplify your taxes"
+   - Example (dev-tools): "Deploy to production in 60 seconds" NOT "Ship faster"
+
+3. LAYOUT VARIETY (choose one style per section):
+   HERO OPTIONS:
+   - Single-column centered (calm, focused)
+   - Two-column split (visual + text)
+   - Full-width background with overlay (bold, immersive)
+
+   FEATURES LAYOUT:
+   - 3-column grid (standard, scannable)
+   - 2-column alternating (detailed, visual)
+   - Single column with large icons (mobile-friendly, simple)
+
+   SOCIAL PROOF:
+   - Testimonial cards in grid (trust-focused)
+   - Stats banner (metrics-driven)
+   - Logo wall + quote (authority)
+
+4. INDUSTRY-SPECIFIC HERO SECTIONS:
+   ${industry === 'tax-prep' ? '- Emphasize TIME SAVED and STRESS REDUCTION\n   - Use urgency: "File before the deadline" or "Done in 15 minutes"\n   - Reference IRS compliance, accuracy, no jargon' : ''}
+   ${industry === 'dev-tools' ? '- Emphasize SPEED and TECHNICAL POWER\n   - Use action verbs: "Ship", "Deploy", "Build", "Scale"\n   - Include code snippets, terminal examples, or CLI references\n   - Can use technical jargon: API, SDK, CLI, localhost' : ''}
+   ${industry === 'fitness' ? '- Emphasize TRANSFORMATION and ENERGY\n   - Use motivational language: "Crush your goals", "Transform your body"\n   - Include before/after visuals, progress metrics\n   - High energy, bold CTAs' : ''}
+   ${industry === 'finance' ? '- Emphasize TRUST, SECURITY, and WEALTH GROWTH\n   - Use professional tone: "Secure your future", "Strategic growth"\n   - Avoid "cheap" or "easy" - use "intelligent", "optimized", "strategic"\n   - Include security badges, certifications' : ''}
+   ${industry === 'healthcare' ? '- Emphasize CARE, COMPASSION, and EXPERTISE\n   - Use reassuring tone: "Get the care you need", "We understand"\n   - Include credentials, certifications, compassionate language' : ''}
+
+5. SOCIAL PROOF:
+   - Generate 2-3 testimonials with realistic customer quotes relevant to the value proposition
+   - Generate 1-2 stats (e.g., "10,000+ customers", "50% time saved")
+   - Testimonials must include: full name, realistic role, company name
+   - Stats must be SPECIFIC and industry-relevant
+   - socialProof MUST include a "type" field: either "testimonial" or "stat"
+   - For testimonials, use "content" field with the full testimonial text
+
+6. FEATURES:
+   - Generate 6 features that directly address the persona's pain points: ${persona.painPoints?.join(', ') || 'their challenges'}
+   - Each feature must be SPECIFIC, not generic
+   - Use industry-appropriate icons (${archetype.visualStyle.iconStyle})
+   - Example (tax-prep): "Auto-fill from W-2 scan" NOT "Smart automation"
+   - Example (dev-tools): "One-click Vercel deploy" NOT "Easy deployment"
+
+7. VISUAL ELEMENTS:
+   - Specify gradient backgrounds for hero (if energetic brand)
+   - Suggest illustration style (abstract, product screenshot, diagram)
+   - Include icon references (using Lucide icon names)
+   - Specify color usage (primary for CTAs, accent for highlights)
 
 Return ONLY valid JSON in this EXACT format:
 {
@@ -605,21 +962,30 @@ Return ONLY valid JSON in this EXACT format:
   "hero": {
     "headline": "${valueProp.headline || 'Transform your workflow'}",
     "subheadline": "${valueProp.subheadline || 'Relevant supporting text based on the value prop'}",
-    "cta": { "primary": "Get Started", "secondary": "Learn More" }
+    "cta": { "primary": "Get Started", "secondary": "Learn More" },
+    "layout": "two-column",
+    "visualElement": {
+      "type": "product-screenshot",
+      "description": "Dashboard preview showing key features",
+      "position": "right"
+    }
   },
   "features": [
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "sparkles" },
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "calendar" },
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "layers" },
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "chart" },
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "users" },
-    { "title": "Feature Title", "description": "Detailed benefit description", "icon": "settings" }
+    { "title": "Specific Feature Title", "description": "Detailed benefit that solves a specific pain point", "icon": "zap" },
+    { "title": "Feature Title", "description": "Benefit description", "icon": "shield" },
+    { "title": "Feature Title", "description": "Benefit description", "icon": "clock" },
+    { "title": "Feature Title", "description": "Benefit description", "icon": "users" },
+    { "title": "Feature Title", "description": "Benefit description", "icon": "trending-up" },
+    { "title": "Feature Title", "description": "Benefit description", "icon": "check-circle" }
   ],
+  "featuresLayout": "grid-3-column",
   "socialProof": [
-    { "type": "testimonial", "content": "\\"Detailed testimonial quote that sounds realistic\\" - Full Name, Role at Company" },
-    { "type": "testimonial", "content": "\\"Another realistic testimonial\\" - Full Name, Position" },
-    { "type": "stat", "content": "10,000+ teams use ${manifest.brandName}" }
+    { "type": "testimonial", "content": "\\"Detailed testimonial quote that sounds realistic and references actual benefits\\" - Full Name, Realistic Role at Realistic Company Name" },
+    { "type": "testimonial", "content": "\\"Another realistic testimonial with specific outcomes\\" - Full Name, Job Title at Company" },
+    { "type": "stat", "content": "10,000+ teams saved 15 hours/week with ${manifest.brandName}" },
+    { "type": "stat", "content": "Specific metric: 3x faster time to value" }
   ],
+  "socialProofLayout": "testimonial-grid",
   "footer": {
     "sections": [
       { "title": "Product", "links": ["Features", "Pricing", "Integration", "Updates"] },
@@ -629,7 +995,14 @@ Return ONLY valid JSON in this EXACT format:
   }
 }
 
-IMPORTANT: Match the tone and content to the target persona (${persona.role}) and value proposition.`;
+IMPORTANT:
+- Match tone and content to target persona: ${persona.role}
+- Reference actual pain points: ${persona.painPoints?.join(', ') || 'their challenges'}
+- Use ${industry}-appropriate language and CTAs
+- Make hero headline SPECIFIC to pain points, not generic
+- Features must solve REAL problems with concrete examples
+- Testimonials must sound authentic, not marketing-speak
+- Stats must be concrete and industry-relevant`;
 
   console.log('🎨 [Generate] Generating landing page with prompt length:', prompt.length);
 

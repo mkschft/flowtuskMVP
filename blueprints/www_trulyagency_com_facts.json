@@ -1,0 +1,163 @@
+{
+  "brand": {
+    "name": "Truly",
+    "tones": [
+      "Professional",
+      "Innovative"
+    ],
+    "primaryCTA": "Varaa tutustuminen"
+  },
+  "structure": {
+    "nav": [
+      "Varaa tutustuminen",
+      "Valmennus",
+      "Lataa käsikirja",
+      "Webinaarit"
+    ],
+    "keyPages": [
+      {
+        "path": "/varaa-tutustuminen",
+        "title": "Varaa tutustuminen"
+      },
+      {
+        "path": "/valmennus",
+        "title": "Valmennus"
+      },
+      {
+        "path": "/kasikirja",
+        "title": "Lataa käsikirja"
+      },
+      {
+        "path": "/webinaarit",
+        "title": "Webinaarit"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Finland",
+    "industryFocus": "B2B Marketing",
+    "signals": [
+      "Content in Finnish",
+      "Use of € symbol",
+      "Finnish company names"
+    ]
+  },
+  "audienceSignals": [
+    "B2B companies seeking marketing solutions",
+    "Companies aiming for growth"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "AI-accelerated B2B marketing engine",
+      "evidence": [
+        "fact-2",
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Customized marketing systems for sales needs",
+      "evidence": [
+        "fact-7",
+        "fact-8"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for effective B2B lead generation",
+    "Desire for systematic customer acquisition"
+  ],
+  "proof": [
+    "+50M€ sales generated for clients",
+    "+200 client companies assisted",
+    "Founded in 2016"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Truly is a B2B marketing partner.",
+      "page": "Homepage",
+      "evidence": "Truly – B2B-markkinoinnin luottokumppani"
+    },
+    {
+      "id": "fact-2",
+      "text": "Truly offers an AI-accelerated B2B marketing engine.",
+      "page": "Homepage",
+      "evidence": "Luo AI-vauhditettu B2B-markkinointi-koneisto, joka tuottaa tuloksia 24/7"
+    },
+    {
+      "id": "fact-3",
+      "text": "Truly's marketing engine operates 24/7.",
+      "page": "Homepage",
+      "evidence": "Luo AI-vauhditettu B2B-markkinointi-koneisto, joka tuottaa tuloksia 24/7"
+    },
+    {
+      "id": "fact-4",
+      "text": "Truly was founded in 2016.",
+      "page": "Homepage",
+      "evidence": "2016 perustettu"
+    },
+    {
+      "id": "fact-5",
+      "text": "Truly has generated over +50M€ in sales for clients.",
+      "page": "Homepage",
+      "evidence": "+50M€ myyntiä asiakkaille"
+    },
+    {
+      "id": "fact-6",
+      "text": "Truly has assisted over 200 client companies.",
+      "page": "Homepage",
+      "evidence": "+200 asiakasyritystä autettu"
+    },
+    {
+      "id": "fact-7",
+      "text": "Truly customizes marketing systems to meet specific sales needs.",
+      "page": "Homepage",
+      "evidence": "Hyödynnä satojen yritysten kanssa kehitettyä koneistoa, joka räätälöidään juuri sinun myyntitarpeisiisi."
+    },
+    {
+      "id": "fact-8",
+      "text": "Truly builds comprehensive B2B customer acquisition systems.",
+      "page": "Homepage",
+      "evidence": "Rakennamme kanssasi kokonaisvaltaisen koneiston B2B-asiakashankintaan"
+    },
+    {
+      "id": "fact-9",
+      "text": "Truly uses AI tools and automation in marketing.",
+      "page": "Homepage",
+      "evidence": "Kiteytämme avainviestit ja brändielementit, ja rakennamme AI-työkalut, automaatiot ja prosessin"
+    },
+    {
+      "id": "fact-10",
+      "text": "Truly's marketing strategies include social media and PR.",
+      "page": "Homepage",
+      "evidence": "Hyödynnämme maksettua ja orgaanista sosiaalista mediaa, hakumainontaa, lyhytvideoita, PR:ää ja podcasteja."
+    },
+    {
+      "id": "fact-11",
+      "text": "Truly's nurturing process involves email automation and webinars.",
+      "page": "Homepage",
+      "evidence": "Kehitämme verkkosivujasi ja hyödynnämme sähköpostiautomaatioita, henkilökohtaisia myyntiviestejä ja webinaareja."
+    },
+    {
+      "id": "fact-12",
+      "text": "Truly provides a B2B marketing guide.",
+      "page": "Homepage",
+      "evidence": "Lataa B2B-markkinoinnin käsikirja"
+    },
+    {
+      "id": "fact-13",
+      "text": "Truly's clients report significant sales growth.",
+      "page": "Homepage",
+      "evidence": "Yli 200 yritystä on jo kasvattanut myyntiään kanssamme"
+    },
+    {
+      "id": "fact-14",
+      "text": "Truly offers webinars for networking and learning.",
+      "page": "Homepage",
+      "evidence": "Haluatko tutustua meihin ja verkostoitua? ilmoittaudu tulevaan webinaariimme!"
+    }
+  ]
+}

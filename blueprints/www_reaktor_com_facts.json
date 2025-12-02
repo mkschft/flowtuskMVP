@@ -1,0 +1,150 @@
+{
+  "brand": {
+    "name": "Reaktor",
+    "tones": [
+      "professional",
+      "innovative"
+    ],
+    "primaryCTA": "Let's talk"
+  },
+  "structure": {
+    "nav": [
+      "Work",
+      "Services",
+      "Industries",
+      "Insights",
+      "Culture",
+      "Careers",
+      "About"
+    ],
+    "keyPages": [
+      {
+        "path": "/work",
+        "title": "Work"
+      },
+      {
+        "path": "/services",
+        "title": "Services"
+      },
+      {
+        "path": "/services/industries/overview",
+        "title": "Industries Overview"
+      },
+      {
+        "path": "/insights",
+        "title": "News & Insights"
+      },
+      {
+        "path": "/careers",
+        "title": "Careers"
+      },
+      {
+        "path": "/about-us",
+        "title": "About"
+      }
+    ],
+    "footer": [
+      "Privacy Statement",
+      "Cookie Preferences"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Technology Consultancy",
+    "signals": [
+      "global technology consultancy",
+      "category-defining digital solutions"
+    ]
+  },
+  "audienceSignals": [
+    "businesses looking for digital solutions",
+    "industries such as Aero, Defence & Security, Gaming, Health, Industrial, Public, Retail"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Designs and builds category-defining digital solutions",
+      "evidence": [
+        "fact-3"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Offers insights through white papers and events",
+      "evidence": [
+        "fact-5",
+        "fact-6"
+      ]
+    }
+  ],
+  "pains": [
+    "Need for personalized digital solutions",
+    "Effective targeting in advertising campaigns"
+  ],
+  "proof": [
+    "global technology consultancy",
+    "recent work with brands like adidas, ABB, HBO"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Reaktor is a global technology consultancy.",
+      "page": "Home",
+      "evidence": "We're a global technology consultancy that designs and builds category-defining digital solutions."
+    },
+    {
+      "id": "fact-2",
+      "text": "Reaktor's primary call to action is 'Let's talk'.",
+      "page": "Home",
+      "evidence": "Let's talk"
+    },
+    {
+      "id": "fact-3",
+      "text": "Reaktor designs and builds category-defining digital solutions.",
+      "page": "Home",
+      "evidence": "We're a global technology consultancy that designs and builds category-defining digital solutions."
+    },
+    {
+      "id": "fact-4",
+      "text": "Reaktor's website includes a privacy preference center.",
+      "page": "Privacy preference center",
+      "evidence": "When you visit our website, we store cookies on your browser to collect information."
+    },
+    {
+      "id": "fact-5",
+      "text": "Reaktor offers white papers as part of their insights.",
+      "page": "Home",
+      "evidence": "Download our new white paper"
+    },
+    {
+      "id": "fact-6",
+      "text": "Reaktor hosts events as part of their insights.",
+      "page": "Insights",
+      "evidence": "Events"
+    },
+    {
+      "id": "fact-7",
+      "text": "Reaktor serves industries such as Aero, Defence & Security, Gaming, Health, Industrial, Public, Retail.",
+      "page": "Industries",
+      "evidence": "Industries Aero, Defence & Security, Gaming, Health, Industrial, Public, Retail"
+    },
+    {
+      "id": "fact-8",
+      "text": "Reaktor's recent work includes projects with adidas, ABB, and HBO.",
+      "page": "Recent work",
+      "evidence": "adidas Outdoor, ABB, HBO"
+    },
+    {
+      "id": "fact-9",
+      "text": "Reaktor uses cookies to enhance user experience and execute marketing activities.",
+      "page": "Privacy preference center",
+      "evidence": "We respect your privacy and only use cookies that are essential for this site to function."
+    },
+    {
+      "id": "fact-10",
+      "text": "Reaktor's services page includes an overview of industries they serve.",
+      "page": "Industries Overview",
+      "evidence": "Overview"
+    }
+  ]
+}

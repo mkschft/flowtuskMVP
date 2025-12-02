@@ -1,0 +1,147 @@
+{
+  "brand": {
+    "name": "Lufthansa",
+    "tones": [
+      "informative",
+      "professional"
+    ],
+    "primaryCTA": "Book your flight now"
+  },
+  "structure": {
+    "nav": [
+      "Book & Prepare",
+      "My bookings",
+      "Discover Lufthansa"
+    ],
+    "keyPages": [
+      {
+        "path": "https://www.lufthansa.com/?max-length=12000#cti",
+        "title": "Current travel information"
+      },
+      {
+        "path": "https://www.lufthansa.com/?max-length=12000#nav",
+        "title": "Navigation"
+      },
+      {
+        "path": "https://www.lufthansa.com/?max-length=12000#main",
+        "title": "Main content"
+      },
+      {
+        "path": "https://www.lufthansa.com/?max-length=12000#flma",
+        "title": "Flight search"
+      },
+      {
+        "path": "https://www.lufthansa.com/?max-length=12000#footer",
+        "title": "Footer"
+      }
+    ],
+    "footer": [
+      "Go to footer"
+    ]
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Airline",
+    "signals": [
+      "US language and country selection",
+      "Flights to over 200 destinations"
+    ]
+  },
+  "audienceSignals": [
+    "Travelers looking for flights",
+    "Students planning to study abroad"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "Travel to over 200 destinations",
+      "evidence": [
+        "fact-1"
+      ]
+    },
+    {
+      "id": "v2",
+      "text": "Exclusive offers with car rental partners",
+      "evidence": [
+        "fact-10"
+      ]
+    },
+    {
+      "id": "v3",
+      "text": "Free on-board messaging with FlyNet®",
+      "evidence": [
+        "fact-9"
+      ]
+    }
+  ],
+  "pains": [
+    "Booking flights",
+    "Finding travel deals"
+  ],
+  "proof": [
+    "Lufthansa logo",
+    "Miles & More program"
+  ],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "Lufthansa offers flights to over 200 destinations.",
+      "page": "Homepage",
+      "evidence": "travel with Lufthansa to over 200 destinations"
+    },
+    {
+      "id": "fact-2",
+      "text": "Round trip is the current trip type.",
+      "page": "Flight search",
+      "evidence": "Round trip is the current trip type"
+    },
+    {
+      "id": "fact-3",
+      "text": "Additional fare options are available for personal travel.",
+      "page": "Flight search",
+      "evidence": "With the personal travel additional fare options are available."
+    },
+    {
+      "id": "fact-4",
+      "text": "Lufthansa offers a student product for those planning to study abroad.",
+      "page": "Student Offer",
+      "evidence": "Planning for your studies abroad can be a daunting task. But not to worry, we've got you covered!"
+    },
+    {
+      "id": "fact-5",
+      "text": "Lufthansa provides a tarmac delay plan and customer support in the US.",
+      "page": "Lufthansa in the US",
+      "evidence": "Here you can find important info about our tarmac delay plan, customer support and more."
+    },
+    {
+      "id": "fact-6",
+      "text": "Lufthansa offers exclusive benefits with hotel partners.",
+      "page": "Hotel offers",
+      "evidence": "Our hotel partner offers you a range of accommodation worldwide at the best price."
+    },
+    {
+      "id": "fact-7",
+      "text": "Lufthansa provides a 10% discount and donation option with Onboard Delights.",
+      "page": "Onboard Delights",
+      "evidence": "Save 10% and donate 10% to the help alliance at the same time."
+    },
+    {
+      "id": "fact-8",
+      "text": "Lufthansa's primary website language is English.",
+      "page": "Homepage",
+      "evidence": "Country and language selection which opens a new modal; currently:US"
+    },
+    {
+      "id": "fact-9",
+      "text": "Lufthansa offers free on-board messaging with FlyNet®.",
+      "page": "FlyNet®",
+      "evidence": "Free on-board messaging"
+    },
+    {
+      "id": "fact-10",
+      "text": "Lufthansa offers exclusive car rental discounts or extra miles.",
+      "page": "Car rental offers",
+      "evidence": "Get discounts or extra miles – now with our car rental partners."
+    }
+  ]
+}

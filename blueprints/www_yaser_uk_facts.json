@@ -2,8 +2,8 @@
   "brand": {
     "name": "YaserUK",
     "tones": [
-      "Professional",
-      "Consultative"
+      "professional",
+      "expert"
     ],
     "primaryCTA": "Contact Us"
   },
@@ -12,48 +12,89 @@
       "Services",
       "Industries",
       "Insights",
-      "About"
+      "About",
+      "Development"
     ],
     "keyPages": [
       {
-        "path": "https://www.yaser.uk/services",
+        "path": "/services",
         "title": "Services"
       },
       {
-        "path": "https://www.yaser.uk/webflow-seo-consultant",
+        "path": "/webflow-seo-consultant",
         "title": "Webflow SEO"
       },
       {
-        "path": "https://www.yaser.uk/technical-seo",
+        "path": "/technical-seo",
         "title": "Technical SEO"
       },
       {
-        "path": "https://www.yaser.uk/email-marketing-agency",
+        "path": "/email-marketing-agency",
         "title": "Email Marketing"
       },
       {
-        "path": "https://www.yaser.uk/seo-audit-london",
+        "path": "/wordpress-seo-consultant",
+        "title": "Wordpress SEO"
+      },
+      {
+        "path": "/local-seo-services",
+        "title": "Local SEO"
+      },
+      {
+        "path": "/marketing-consultant",
+        "title": "Marketing Consultant"
+      },
+      {
+        "path": "/squarespace-seo-expert",
+        "title": "Squarespace SEO"
+      },
+      {
+        "path": "/seo-copywriting-services",
+        "title": "SEO Copywriting"
+      },
+      {
+        "path": "/seo-audit-london",
         "title": "SEO Audit"
       },
       {
-        "path": "https://www.yaser.uk/fintech-marketing-agency",
+        "path": "/wix-seo-expert",
+        "title": "Wix SEO"
+      },
+      {
+        "path": "/seo-website-migration-service",
+        "title": "Website Migrations"
+      },
+      {
+        "path": "/fintech-marketing-agency",
         "title": "Fintech Marketing"
       },
       {
-        "path": "https://www.yaser.uk/digital-marketing-for-small-businesses",
+        "path": "/digital-marketing-for-small-businesses",
         "title": "Small Business"
       },
       {
-        "path": "https://www.yaser.uk/crypto-marketing-agency",
+        "path": "/crypto-marketing-agency",
         "title": "Crypto"
       },
       {
-        "path": "https://www.yaser.uk/ecommerce-seo",
+        "path": "/fintech-branding",
+        "title": "Fintech Branding"
+      },
+      {
+        "path": "/ecommerce-seo",
         "title": "e-Commerce SEO"
       },
       {
-        "path": "https://www.yaser.uk/pensions-marketing-agency",
+        "path": "/pensions-marketing-agency",
         "title": "Pensions"
+      },
+      {
+        "path": "/financial-services-seo",
+        "title": "Financial Services"
+      },
+      {
+        "path": "/dental-marketing-seo",
+        "title": "Dental Marketing SEO"
       }
     ],
     "footer": [
@@ -61,7 +102,16 @@
       "SEO Copywriting",
       "Local SEO",
       "e-Commerce SEO",
-      "Technical SEO"
+      "Technical SEO",
+      "SEO Audit",
+      "Marketing Consultant",
+      "Wordpress SEO Consultant",
+      "Webflow SEO Consultant",
+      "Wix SEO Consultant",
+      "Squarespace SEO",
+      "PPC Marketing Agency",
+      "Email Marketing",
+      "Website Migrations"
     ]
   },
   "targetMarket": {
@@ -80,89 +130,149 @@
   "valueProps": [
     {
       "id": "v1",
-      "text": "Expert SEO services tailored to different platforms",
+      "text": "Expertise in various SEO platforms including Webflow, Wordpress, and Squarespace",
       "evidence": [
         "fact-3",
-        "fact-5"
+        "fact-7"
       ]
     },
     {
       "id": "v2",
-      "text": "Comprehensive digital marketing solutions",
+      "text": "Comprehensive digital marketing services including PPC and email marketing",
       "evidence": [
-        "fact-4",
-        "fact-7"
+        "fact-5",
+        "fact-9"
       ]
     }
   ],
   "pains": [
-    "Need for specialized SEO strategies",
-    "Complexity of digital marketing"
+    "Need for specialized SEO services",
+    "Desire for improved online visibility"
   ],
   "proof": [
-    "London-based expertise",
-    "Diverse service offerings"
+    "London-based SEO consultant",
+    "Wide range of services offered"
   ],
   "facts": [
     {
       "id": "fact-1",
-      "text": "YaserUK is a London-based SEO consultant.",
+      "text": "The brand name is YaserUK.",
+      "page": "Home",
+      "evidence": "SEO Consultant | London-based SEO consultant"
+    },
+    {
+      "id": "fact-2",
+      "text": "The primary call to action is 'Contact Us'.",
+      "page": "Home",
+      "evidence": "Contact Us"
+    },
+    {
+      "id": "fact-3",
+      "text": "YaserUK offers Webflow SEO services.",
+      "page": "Webflow SEO",
+      "evidence": "Webflow SEO"
+    },
+    {
+      "id": "fact-4",
+      "text": "YaserUK is based in London.",
       "page": "Home",
       "evidence": "London-based SEO consultant"
     },
     {
-      "id": "fact-2",
-      "text": "The website uses a .uk domain, indicating a UK focus.",
-      "page": "Home",
-      "evidence": "https://www.yaser.uk/"
-    },
-    {
-      "id": "fact-3",
-      "text": "YaserUK offers Webflow SEO consulting services.",
-      "page": "Services",
-      "evidence": "Webflow SEO Consultant"
-    },
-    {
-      "id": "fact-4",
-      "text": "YaserUK provides email marketing services.",
-      "page": "Services",
-      "evidence": "Email Marketing"
-    },
-    {
       "id": "fact-5",
-      "text": "YaserUK offers SEO audits in London.",
-      "page": "Services",
-      "evidence": "SEO Audit"
+      "text": "YaserUK provides PPC Marketing services.",
+      "page": "PPC Marketing",
+      "evidence": "PPC Marketing"
     },
     {
       "id": "fact-6",
-      "text": "YaserUK targets fintech, crypto, and e-commerce industries.",
-      "page": "Industries",
-      "evidence": "Fintech Marketing, Crypto, e-Commerce SEO"
+      "text": "YaserUK offers Technical SEO services.",
+      "page": "Technical SEO",
+      "evidence": "Technical SEO"
     },
     {
       "id": "fact-7",
-      "text": "YaserUK provides services for small businesses.",
-      "page": "Industries",
-      "evidence": "Small Business"
+      "text": "YaserUK offers Wordpress SEO services.",
+      "page": "Wordpress SEO",
+      "evidence": "Wordpress SEO"
     },
     {
       "id": "fact-8",
-      "text": "The website features a pound sign in images, indicating UK currency.",
-      "page": "Services",
-      "evidence": "pound sign white background"
-    },
-    {
-      "id": "fact-9",
-      "text": "YaserUK offers local SEO services.",
-      "page": "Services",
+      "text": "YaserUK offers Local SEO services.",
+      "page": "Local SEO",
       "evidence": "Local SEO"
     },
     {
+      "id": "fact-9",
+      "text": "YaserUK provides Email Marketing services.",
+      "page": "Email Marketing",
+      "evidence": "Email Marketing"
+    },
+    {
       "id": "fact-10",
-      "text": "YaserUK provides website migration services.",
-      "page": "Services",
+      "text": "YaserUK offers Squarespace SEO services.",
+      "page": "Squarespace SEO",
+      "evidence": "Squarespace SEO"
+    },
+    {
+      "id": "fact-11",
+      "text": "YaserUK provides SEO Copywriting services.",
+      "page": "SEO Copywriting",
+      "evidence": "SEO Copywriting"
+    },
+    {
+      "id": "fact-12",
+      "text": "YaserUK offers SEO Audit services.",
+      "page": "SEO Audit",
+      "evidence": "SEO Audit"
+    },
+    {
+      "id": "fact-13",
+      "text": "YaserUK provides Wix SEO services.",
+      "page": "Wix SEO",
+      "evidence": "Wix SEO"
+    },
+    {
+      "id": "fact-14",
+      "text": "YaserUK offers Website Migrations services.",
+      "page": "Website Migrations",
       "evidence": "Website Migrations"
+    },
+    {
+      "id": "fact-15",
+      "text": "YaserUK targets businesses in the fintech industry.",
+      "page": "Fintech Marketing",
+      "evidence": "Fintech Marketing"
+    },
+    {
+      "id": "fact-16",
+      "text": "YaserUK targets small businesses.",
+      "page": "Small Business",
+      "evidence": "Small Business"
+    },
+    {
+      "id": "fact-17",
+      "text": "YaserUK targets businesses in the crypto industry.",
+      "page": "Crypto",
+      "evidence": "Crypto"
+    },
+    {
+      "id": "fact-18",
+      "text": "YaserUK targets businesses in the e-commerce industry.",
+      "page": "e-Commerce SEO",
+      "evidence": "e-Commerce SEO"
+    },
+    {
+      "id": "fact-19",
+      "text": "YaserUK targets businesses in the financial services industry.",
+      "page": "Financial Services",
+      "evidence": "Financial Services"
+    },
+    {
+      "id": "fact-20",
+      "text": "YaserUK targets businesses in the dental industry.",
+      "page": "Dental Marketing SEO",
+      "evidence": "Dental Marketing SEO"
     }
   ]
 }

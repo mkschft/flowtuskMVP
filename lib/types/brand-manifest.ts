@@ -66,6 +66,52 @@ export interface BrandManifest {
             keywords: string[]; // e.g., ["Confident", "Innovative", "Clear"]
             personality: { trait: string; value: number; leftLabel: string; rightLabel: string }[];
         };
+        designSystem?: {
+            shadows: {
+                xs: string;      // Subtle: "0 1px 2px rgba(0,0,0,0.05)"
+                sm: string;      // Card: "0 2px 8px rgba(0,0,0,0.08)"
+                md: string;      // Elevated: "0 4px 16px rgba(0,0,0,0.12)"
+                lg: string;      // Modal: "0 8px 32px rgba(0,0,0,0.16)"
+                xl: string;      // Hero: "0 16px 64px rgba(0,0,0,0.20)"
+                colored: string; // Brand shadow using primary color with opacity
+            };
+            elevation: {
+                base: number;    // 0 - Flat
+                raised: number;  // 1 - Slight lift
+                overlay: number; // 2 - Cards
+                modal: number;   // 3 - Dialogs
+                popover: number; // 4 - Tooltips
+            };
+            blur: {
+                sm: string;  // '4px'
+                md: string;  // '8px'
+                lg: string;  // '16px'
+                xl: string;  // '40px'
+            };
+            transitions: {
+                fast: string;   // '150ms ease'
+                normal: string; // '250ms ease'
+                slow: string;   // '400ms ease'
+                bounce: string; // '500ms cubic-bezier(...)'
+            };
+            iconography: {
+                style: 'outlined' | 'solid' | 'duo-tone';
+                library: 'lucide' | 'heroicons' | 'phosphor';
+                sizes: {
+                    sm: string; // '16px'
+                    md: string; // '24px'
+                    lg: string; // '32px'
+                    xl: string; // '48px'
+                };
+            };
+        };
+        rationale?: {
+            colors?: string;      // Why these colors were chosen
+            typography?: string;  // Why these fonts were chosen
+            tone?: string;        // Why this tone/personality
+            designSystem?: string; // Why this visual style
+            overall?: string;     // Overall brand direction reasoning
+        };
     };
 
     // Components Layer

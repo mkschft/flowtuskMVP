@@ -1,0 +1,310 @@
+{
+  "brand": {
+    "name": "DeepWiki",
+    "tones": [
+      "informative",
+      "technical"
+    ],
+    "primaryCTA": "Index your code with Devin"
+  },
+  "structure": {
+    "nav": [
+      "Index your code with Devin",
+      "Add repo"
+    ],
+    "keyPages": [
+      {
+        "path": "/private-repo",
+        "title": "Index your code with Devin"
+      },
+      {
+        "path": "/microsoft/vscode",
+        "title": "microsoft/vscode Visual Studio Code"
+      },
+      {
+        "path": "/mark3labs/mcp-go",
+        "title": "mark3labs/mcp-go"
+      },
+      {
+        "path": "/antiwork/gumroad",
+        "title": "antiwork/gumroad"
+      },
+      {
+        "path": "/langchain-ai/local-deep-researcher",
+        "title": "langchain-ai/local-deep-researcher"
+      },
+      {
+        "path": "/meta-llama/llama-models",
+        "title": "meta-llama/llama-models"
+      },
+      {
+        "path": "/huggingface/transformers",
+        "title": "huggingface/transformers"
+      },
+      {
+        "path": "/langchain-ai/langchain",
+        "title": "langchain-ai/langchain"
+      },
+      {
+        "path": "/expressjs/express",
+        "title": "expressjs/express"
+      },
+      {
+        "path": "/lodash/lodash",
+        "title": "lodash/lodash"
+      },
+      {
+        "path": "/sqlite/sqlite",
+        "title": "sqlite/sqlite"
+      },
+      {
+        "path": "/microsoft/monaco-editor",
+        "title": "microsoft/monaco-editor"
+      },
+      {
+        "path": "/openai/openai-agents-python",
+        "title": "openai/openai-agents-python"
+      },
+      {
+        "path": "/openai/openai-python",
+        "title": "openai/openai-python"
+      },
+      {
+        "path": "/anthropics/anthropic-sdk-python",
+        "title": "anthropics/anthropic-sdk-python"
+      },
+      {
+        "path": "/microsoft/markitdown",
+        "title": "microsoft/markitdown"
+      },
+      {
+        "path": "/hydralauncher/hydra",
+        "title": "hydralauncher/hydra"
+      },
+      {
+        "path": "/redis/redis",
+        "title": "redis/redis"
+      },
+      {
+        "path": "/microsoft/BitNet",
+        "title": "microsoft/BitNet"
+      },
+      {
+        "path": "/infiniflow/ragflow",
+        "title": "infiniflow/ragflow"
+      },
+      {
+        "path": "/localsend/localsend",
+        "title": "localsend/localsend"
+      },
+      {
+        "path": "/colinhacks/zod",
+        "title": "colinhacks/zod"
+      },
+      {
+        "path": "/mermaid-js/mermaid",
+        "title": "mermaid-js/mermaid"
+      },
+      {
+        "path": "/microsoft/playwright",
+        "title": "microsoft/playwright"
+      },
+      {
+        "path": "/remy/nodemon",
+        "title": "remy/nodemon"
+      },
+      {
+        "path": "/mlflow/mlflow",
+        "title": "mlflow/mlflow"
+      },
+      {
+        "path": "/freeCodeCamp/freeCodeCamp",
+        "title": "freeCodeCamp/freeCodeCamp"
+      },
+      {
+        "path": "/codecrafters-io/build-your-own-x",
+        "title": "codecrafters-io/build-your-own-x"
+      },
+      {
+        "path": "/EbookFoundation/free-programming-books",
+        "title": "EbookFoundation/free-programming-books"
+      },
+      {
+        "path": "/public-apis/public-apis",
+        "title": "public-apis/public-apis"
+      },
+      {
+        "path": "/jwasham/coding-interview-university",
+        "title": "jwasham/coding-interview-university"
+      },
+      {
+        "path": "/kamranahmedse/developer-roadmap",
+        "title": "kamranahmedse/developer-roadmap"
+      },
+      {
+        "path": "/donnemartin/system-design-primer",
+        "title": "donnemartin/system-design-primer"
+      },
+      {
+        "path": "/996icu/996.ICU",
+        "title": "996icu/996.ICU"
+      },
+      {
+        "path": "/facebook/react",
+        "title": "facebook/react"
+      },
+      {
+        "path": "/practical-tutorials/project-based-learning",
+        "title": "practical-tutorials/project-based-learning"
+      },
+      {
+        "path": "/vuejs/vue",
+        "title": "vuejs/vue"
+      },
+      {
+        "path": "/TheAlgorithms/Python",
+        "title": "TheAlgorithms/Python"
+      },
+      {
+        "path": "/torvalds/linux",
+        "title": "torvalds/linux"
+      },
+      {
+        "path": "/trekhleb/javascript-algorithms",
+        "title": "trekhleb/javascript-algorithms"
+      },
+      {
+        "path": "/tensorflow/tensorflow",
+        "title": "tensorflow/tensorflow"
+      },
+      {
+        "path": "/getify/You-Dont-Know-JS",
+        "title": "getify/You-Dont-Know-JS"
+      },
+      {
+        "path": "/CyC2018/CS-Notes",
+        "title": "CyC2018/CS-Notes"
+      },
+      {
+        "path": "/ossu/computer-science",
+        "title": "ossu/computer-science"
+      },
+      {
+        "path": "/Significant-Gravitas/AutoGPT",
+        "title": "Significant-Gravitas/AutoGPT"
+      },
+      {
+        "path": "/twbs/bootstrap",
+        "title": "twbs/bootstrap"
+      },
+      {
+        "path": "/flutter/flutter",
+        "title": "flutter/flutter"
+      },
+      {
+        "path": "/github/gitignore",
+        "title": "github/gitignore"
+      },
+      {
+        "path": "/jackfrued/Python-100-Days",
+        "title": "jackfrued/Python-100-Days"
+      },
+      {
+        "path": "/trimstray/the-book-of-secret-knowledge",
+        "title": "trimstray/the-book-of-secret-knowledge"
+      },
+      {
+        "path": "/jlevy/the-art-of-command-line",
+        "title": "jlevy/the-art-of-command-line"
+      },
+      {
+        "path": "/AUTOMATIC1111/stable-diffusion-webui",
+        "title": "AUTOMATIC1111/stable-diffusion-webui"
+      },
+      {
+        "path": "/Snailclimb/JavaGuide",
+        "title": "Snailclimb/JavaGuide"
+      },
+      {
+        "path": "/airbnb/javascript",
+        "title": "airbnb/javascript"
+      }
+    ],
+    "footer": []
+  },
+  "targetMarket": {
+    "primaryRegion": "Global",
+    "industryFocus": "Software Development",
+    "signals": [
+      "Repositories from global organizations like Microsoft, OpenAI, and Facebook"
+    ]
+  },
+  "audienceSignals": [
+    "Developers",
+    "Software Engineers",
+    "Tech Enthusiasts"
+  ],
+  "valueProps": [
+    {
+      "id": "v1",
+      "text": "AI documentation you can talk to, for every repo",
+      "evidence": [
+        "fact-1"
+      ]
+    }
+  ],
+  "pains": [
+    "Understanding complex code repositories"
+  ],
+  "proof": [],
+  "facts": [
+    {
+      "id": "fact-1",
+      "text": "DeepWiki offers AI documentation you can talk to, for every repo.",
+      "page": "Index",
+      "evidence": "AI documentation you can talk to, for every repo"
+    },
+    {
+      "id": "fact-2",
+      "text": "DeepWiki allows users to index their code with a tool called Devin.",
+      "page": "Index",
+      "evidence": "Index your code with Devin"
+    },
+    {
+      "id": "fact-3",
+      "text": "DeepWiki provides links to various code repositories.",
+      "page": "Index",
+      "evidence": "Links to repositories like microsoft/vscode and openai/openai-python"
+    },
+    {
+      "id": "fact-4",
+      "text": "DeepWiki targets developers and software engineers.",
+      "page": "Index",
+      "evidence": "Repositories from organizations like Microsoft and OpenAI"
+    },
+    {
+      "id": "fact-5",
+      "text": "DeepWiki's primary call to action is to index code with Devin.",
+      "page": "Index",
+      "evidence": "Index your code with Devin"
+    },
+    {
+      "id": "fact-6",
+      "text": "DeepWiki lists popular repositories such as freeCodeCamp and tensorflow.",
+      "page": "Index",
+      "evidence": "Repositories like freeCodeCamp/freeCodeCamp and tensorflow/tensorflow"
+    },
+    {
+      "id": "fact-7",
+      "text": "DeepWiki serves a global audience with repositories from international organizations.",
+      "page": "Index",
+      "evidence": "Repositories from global organizations like Microsoft, OpenAI, and Facebook"
+    },
+    {
+      "id": "fact-8",
+      "text": "DeepWiki addresses the pain point of understanding complex code repositories.",
+      "page": "Index",
+      "evidence": "Which repo would you like to understand?"
+    }
+  ]
+}

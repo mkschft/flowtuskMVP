@@ -71,7 +71,7 @@ function ChatPageContent() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
+  const [processedUrlParam, setProcessedUrlParam] = useState<string | null>(null);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -104,6 +104,15 @@ function ChatPageContent() {
   // Handle deep linking to conversation via ?c=ID
   useEffect(() => {
     const conversationId = searchParams.get('c');
+    const urlParam = searchParams.get('url');
+
+    // IMPORTANT: Don't process deep links if there's a fresh URL parameter
+    // URL parameter takes priority (new conversation creation)
+    if (urlParam && processedUrlParam !== urlParam) {
+      console.log('⏭️ [Deep Link] Skipping conversation deep link - fresh URL parameter detected');
+      return;
+    }
+
     if (conversationId && conversations.length > 0) {
       const targetConv = conversations.find(c => c.id === conversationId);
       if (targetConv && targetConv.id !== activeConversationId) {
@@ -113,7 +122,7 @@ function ChatPageContent() {
         setSelectedIcp(targetConv.memory.selectedIcp);
       }
     }
-  }, [searchParams, conversations, activeConversationId]);
+  }, [searchParams, conversations, activeConversationId, processedUrlParam]);
 
 
   async function checkAuthAndLoadFlows() {
@@ -628,25 +637,37 @@ function ChatPageContent() {
   // Handle URL from landing page on mount
   useEffect(() => {
     const urlParam = searchParams.get('url');
+    const hasProcessedThisUrl = processedUrlParam === urlParam;
+
     console.log('🔍 [URL Param Check]', {
       urlParam,
-      hasProcessedUrlParam,
+      processedUrlParam,
+      hasProcessedThisUrl,
       authLoading,
       conversationsCount: conversations.length,
-      willProcess: !!(urlParam && !hasProcessedUrlParam && !authLoading)
+      willProcess: !!(urlParam && !hasProcessedThisUrl && !authLoading)
     });
 
     // Wait for auth to complete before processing URL param
-    if (urlParam && !hasProcessedUrlParam && !authLoading) {
-      console.log('✅ [URL Param] Processing URL from landing page:', urlParam);
-      setHasProcessedUrlParam(true);
+    // Only process if it's a NEW url (different from last processed)
+    if (urlParam && !hasProcessedThisUrl && !authLoading) {
+      console.log('✅ [URL Param] Processing NEW URL from landing page:', urlParam);
+      setProcessedUrlParam(urlParam); // Mark this specific URL as processed
+
+      // IMPORTANT: Create a new conversation for fresh URL submission
+      // Don't use existing conversation to avoid confusion
+      console.log('🆕 [URL Param] Creating new conversation for URL submission');
+      setActiveConversationId(''); // Clear active conversation to force new one
+      setWebsiteUrl(''); // Clear website URL
+      setSelectedIcp(null); // Clear ICP
+
       // Pre-fill the input with URL from landing page
       setInput(urlParam);
       // Set flag to trigger auto-submit after input state updates
       setShouldAutoSubmit(true);
       console.log('🎯 [URL Param] Input set, auto-submit flag enabled');
     }
-  }, [searchParams, hasProcessedUrlParam, authLoading]);
+  }, [searchParams, processedUrlParam, authLoading]);
 
   // Handle flowId parameter to select specific conversation (e.g., when returning from /copilot)
   useEffect(() => {
