@@ -32,9 +32,9 @@ export function CompetitivePositioning({ manifest, brandName }: CompetitivePosit
             type: comp.name === brandName ? "hero" : "competitor"
         }))
         : [
-            { name: "Legacy Players", x: 20, y: 55, type: "competitor" },
-            { name: "Budget Tools", x: 25, y: 25, type: "competitor" },
-            { name: "Enterprise Suite", x: 60, y: 40, type: "competitor" },
+            { name: "Competitor A", x: 20, y: 55, type: "competitor" },
+            { name: "Competitor B", x: 25, y: 25, type: "competitor" },
+            { name: "Competitor C", x: 60, y: 40, type: "competitor" },
             { name: brandName, x: 78, y: 72, type: "hero" }, // Top-right but with safe margin
         ];
 

@@ -1058,10 +1058,12 @@ Pain Points Addressed: ${persona.painPoints?.join(', ') || 'Business challenges'
 Generate:
 
 1. Competitive Positioning Map:
-   - 3-4 competitor names (realistic industry competitors)
-   - X/Y coordinates (0-100) for each competitor
-   - Your brand should be at x: 75, y: 75 (top-right quadrant - High Innovation + High Value)
-   - Competitors should be spread across other quadrants
+   - Identify 3-4 REAL, SPECIFIC competitors in the ${industry} industry that would compete with ${brandName}
+   - Use actual company names or realistic competitor archetypes (e.g., "Salesforce", "HubSpot", "Monday.com" for SaaS)
+   - DO NOT use generic placeholder names like "Legacy Inc." or "CheapTool"
+   - X/Y coordinates (0-100) for each competitor based on Innovation (Y-axis) and Value (X-axis)
+   - Position ${brandName} at x: 75, y: 75 (top-right quadrant - High Innovation + High Value)
+   - Spread competitors realistically across quadrants based on their market position
 
 2. Key Differentiators (3-5):
    - Title (short, impactful)
@@ -1073,13 +1075,13 @@ Generate:
    - Each with: type, text, context (where to use), useCase
    - Types: "Benefit-First", "Problem-Agitate-Solve", "Social Proof", "Urgency", "Question-Based", etc.
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (use REAL competitor names from the ${industry} industry):
 {
   "competitivePositioning": {
     "competitors": [
-      { "name": "Legacy Inc.", "x": 15, "y": 60 },
-      { "name": "CheapTool", "x": 30, "y": 30 },
-      { "name": "Enterprise Corp", "x": 65, "y": 45 },
+      { "name": "[Real competitor 1]", "x": 20, "y": 55 },
+      { "name": "[Real competitor 2]", "x": 35, "y": 30 },
+      { "name": "[Real competitor 3]", "x": 60, "y": 40 },
       { "name": "${brandName}", "x": 75, "y": 75 }
     ],
     "differentiators": [

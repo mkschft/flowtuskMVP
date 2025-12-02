@@ -91,7 +91,7 @@ export function ChatPanel({
 
   return (
     <div className="w-full md:w-[420px] flex flex-col bg-background h-full">
-      <Card className="relative overflow-hidden border-0 md:border-r flex flex-col h-full rounded-none">
+      <Card className="relative overflow-hidden border-0 flex flex-col h-full rounded-none">
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, idx) => {
