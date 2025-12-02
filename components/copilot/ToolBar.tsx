@@ -46,9 +46,9 @@ export function ToolBar({
   canRedo = false
 }: ToolBarProps) {
   return (
-    <div className="flex items-center gap-3">
-      {/* Undo/Redo Controls */}
-      <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2 md:gap-3">
+      {/* Undo/Redo Controls - Desktop Only */}
+      <div className="hidden md:flex items-center gap-1">
         <Button
           variant="ghost"
           size="sm"
@@ -71,11 +71,11 @@ export function ToolBar({
         </Button>
       </div>
 
-      {/* Divider */}
-      <div className="h-6 w-px bg-border" />
+      {/* Divider - Desktop Only */}
+      <div className="hidden md:block h-6 w-px bg-border" />
 
-      {/* Team Members */}
-      <div className="flex items-center -space-x-2">
+      {/* Team Members - Desktop Only */}
+      <div className="hidden md:flex items-center -space-x-2">
         {teamMembers.map((member, idx) => (
           <div
             key={idx}
@@ -115,20 +115,61 @@ export function ToolBar({
         </DropdownMenu>
       </div>
 
-      {/* Divider */}
-      <div className="h-6 w-px bg-border" />
+      {/* Divider - Desktop Only */}
+      <div className="hidden md:block h-6 w-px bg-border" />
 
-      {/* Export & Share */}
-      <div className="flex items-center gap-2">
-        <ExportToFigmaButton
-          flowId={flowId}
-          workspaceData={workspaceData}
-          designAssets={designAssets}
-        />
-        <ExportDropdown activeTab={activeTab} onExport={onExport} />
-        <Button variant="outline" size="sm" className="gap-2" onClick={onShare}>
+      {/* Export & Share - Compact on Mobile */}
+      <div className="flex items-center gap-1 md:gap-2">
+        <div className="hidden md:block">
+          <ExportToFigmaButton
+            flowId={flowId}
+            workspaceData={workspaceData}
+            designAssets={designAssets}
+          />
+        </div>
+
+        {/* Mobile: Overflow Menu with All Actions */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="md:hidden">
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onUndo} disabled={!canUndo}>
+              <Undo2 className="w-4 h-4 mr-2" />
+              Undo
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onRedo} disabled={!canRedo}>
+              <Redo2 className="w-4 h-4 mr-2" />
+              Redo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onExport('png', 'Exporting as PNG...')}>
+              Export PNG
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExport('pdf', 'Exporting as PDF...')}>
+              Export PDF
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onShare}>
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="hidden md:block">
+          <ExportDropdown activeTab={activeTab} onExport={onExport} />
+        </div>
+        <Button variant="outline" size="sm" className="gap-2 hidden md:flex" onClick={onShare}>
           <Share2 className="w-4 h-4" />
           Share
+        </Button>
+
+        {/* Mobile: Share button only */}
+        <Button variant="outline" size="sm" className="h-8 w-8 p-0 md:hidden" onClick={onShare}>
+          <Share2 className="w-4 h-4" />
         </Button>
       </div>
     </div>

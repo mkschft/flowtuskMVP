@@ -295,12 +295,12 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
     <>
       <div className="flex flex-col h-screen w-full">
         {/* Navigation Header with Back Button */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
+        <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-3 border-b bg-background">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsChatVisible(!isChatVisible)}
-            className="h-8 w-8"
+            className="h-8 w-8 flex-shrink-0"
             title={isChatVisible ? "Hide chat panel" : "Show chat panel"}
           >
             <PanelLeft className="h-4 w-4" />
@@ -309,10 +309,11 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
             variant="ghost"
             size="sm"
             onClick={handleBackToConversations}
-            className="gap-1.5"
+            className="gap-1.5 flex-shrink-0"
           >
             <ChevronLeft className="w-5 h-5" />
-            Back to Conversations
+            <span className="hidden sm:inline">Back to Conversations</span>
+            <span className="sm:hidden">Back</span>
           </Button>
           <div className="flex-1" />
 
@@ -333,10 +334,13 @@ export function DesignStudioWorkspace({ icpId, flowId }: DesignStudioWorkspacePr
 
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden relative">
-          {/* Left: Chat Panel - Fixed Width with Slide Animation */}
+          {/* Left: Chat Panel - Responsive Width with Slide Animation */}
           <div
-            className={`transition-all duration-300 ease-in-out ${isChatVisible ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
-              } overflow-hidden flex-shrink-0`}
+            className={`transition-all duration-300 ease-in-out ${
+              isChatVisible
+                ? 'w-full md:w-[420px] opacity-100'
+                : 'w-0 opacity-0'
+            } overflow-hidden flex-shrink-0 md:relative absolute inset-0 md:inset-auto z-10 md:z-auto`}
           >
             <ChatPanel
               messages={chatMessages}

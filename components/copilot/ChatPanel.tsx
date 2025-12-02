@@ -90,8 +90,8 @@ export function ChatPanel({
   };
 
   return (
-    <div className="w-[420px] flex flex-col bg-background h-full">
-      <Card className="relative overflow-hidden border-0 border-r flex flex-col h-full rounded-none">
+    <div className="w-full md:w-[420px] flex flex-col bg-background h-full">
+      <Card className="relative overflow-hidden border-0 md:border-r flex flex-col h-full rounded-none">
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, idx) => {
@@ -228,7 +228,7 @@ export function ChatPanel({
         </div>
 
         {/* Chat Input */}
-        <div className="p-4 border-t bg-background">
+        <div className="p-3 md:p-4 border-t bg-background pb-safe">
           <div className="flex items-center gap-2">
             <Input
               ref={inputRef}
@@ -236,29 +236,30 @@ export function ChatPanel({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me to adjust colors, fonts, layout..."
-              className="flex-1"
+              className="flex-1 h-11 md:h-10"
               disabled={isStreaming || regenerationCount >= maxRegenerations}
             />
             <Button
               onClick={handleSend}
               disabled={!inputValue.trim() || isStreaming || regenerationCount >= maxRegenerations}
               size="icon"
-              className="shrink-0"
+              className="shrink-0 h-11 w-11 md:h-10 md:w-10"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-xs text-muted-foreground">
+          <div className="flex items-center justify-between mt-2 gap-2">
+            <p className="text-xs text-muted-foreground hidden sm:block flex-1 truncate">
               Try: "Show me the landing page" or "Change the brand colors"
             </p>
             <p className={cn(
-              "text-xs font-medium",
+              "text-xs font-medium whitespace-nowrap flex items-center gap-1",
               regenerationCount >= maxRegenerations
                 ? "text-orange-600"
                 : "text-muted-foreground"
             )}>
-              {regenerationCount}/{maxRegenerations} uses
+              <span className="hidden sm:inline">{regenerationCount}/{maxRegenerations} uses</span>
+              <span className="sm:hidden">{regenerationCount}/{maxRegenerations}</span>
             </p>
           </div>
         </div>

@@ -1,12 +1,7 @@
 "use client";
 
+import { lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { ValuePropCanvas } from "./ValuePropCanvas";
-import { BrandGuideCanvas } from "./BrandGuideCanvas";
-import { ComponentsCanvas } from "./ComponentsCanvas";
-// import { StyleGuideCanvas } from "./StyleGuideCanvas"; // BACKUP: Keep for rollback if needed
-import { LandingCanvas } from "./LandingCanvas";
-import { PreviewsCanvas } from "./PreviewsCanvas";
 import { BrandGuideCanvasSkeleton } from "./BrandGuideCanvasSkeleton";
 import { StyleGuideCanvasSkeleton } from "./StyleGuideCanvasSkeleton";
 import { LandingCanvasSkeleton } from "./LandingCanvasSkeleton";
@@ -19,6 +14,12 @@ import { AnimatePresence, motion } from "motion/react";
 import { Target, Palette, Box, Eye, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+
+// Lazy load heavy canvas components
+const ValuePropCanvas = lazy(() => import("./ValuePropCanvas").then(m => ({ default: m.ValuePropCanvas })));
+const BrandGuideCanvas = lazy(() => import("./BrandGuideCanvas").then(m => ({ default: m.BrandGuideCanvas })));
+const ComponentsCanvas = lazy(() => import("./ComponentsCanvas").then(m => ({ default: m.ComponentsCanvas })));
+const PreviewsCanvas = lazy(() => import("./PreviewsCanvas").then(m => ({ default: m.PreviewsCanvas })));
 
 type CanvasAreaProps = {
   project: DesignProject;
@@ -46,7 +47,7 @@ export function CanvasArea({
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Top Navigation Bar */}
-      <div className="flex items-center justify-center gap-3 px-6 py-3">
+      <div className="flex items-center justify-center gap-3 px-3 md:px-6 py-3 overflow-x-auto">
         <div className="flex items-center gap-3">
           {/* Tab Navigation - Segmented Control Style */}
           <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
@@ -55,56 +56,56 @@ export function CanvasArea({
               size="sm"
               onClick={() => onTabChange("strategy")}
               className={cn(
-                "gap-2 h-8",
+                "gap-1.5 md:gap-2 h-11 md:h-8 min-w-[44px] md:min-w-0",
                 activeTab === "strategy"
                   ? "bg-background shadow-sm text-primary"
                   : "text-muted-foreground"
               )}
             >
-              <Target className="w-3 h-3" />
-              Strategy
+              <Target className="w-4 h-4 md:w-3 md:h-3" />
+              <span className="hidden sm:inline text-xs md:text-sm">Strategy</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onTabChange("identity")}
               className={cn(
-                "gap-2 h-8",
+                "gap-1.5 md:gap-2 h-11 md:h-8 min-w-[44px] md:min-w-0",
                 activeTab === "identity"
                   ? "bg-background shadow-sm text-primary"
                   : "text-muted-foreground"
               )}
             >
-              <Palette className="w-3 h-3" />
-              Identity
+              <Palette className="w-4 h-4 md:w-3 md:h-3" />
+              <span className="hidden sm:inline text-xs md:text-sm">Identity</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onTabChange("components")}
               className={cn(
-                "gap-2 h-8",
+                "gap-1.5 md:gap-2 h-11 md:h-8 min-w-[44px] md:min-w-0",
                 activeTab === "components"
                   ? "bg-background shadow-sm text-primary"
                   : "text-muted-foreground"
               )}
             >
-              <Box className="w-3 h-3" />
-              Components
+              <Box className="w-4 h-4 md:w-3 md:h-3" />
+              <span className="hidden sm:inline text-xs md:text-sm">Components</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onTabChange("previews")}
               className={cn(
-                "gap-2 h-8",
+                "gap-1.5 md:gap-2 h-11 md:h-8 min-w-[44px] md:min-w-0",
                 activeTab === "previews"
                   ? "bg-background shadow-sm text-primary"
                   : "text-muted-foreground"
               )}
             >
-              <Eye className="w-3 h-3" />
-              Previews
+              <Eye className="w-4 h-4 md:w-3 md:h-3" />
+              <span className="hidden sm:inline text-xs md:text-sm">Previews</span>
             </Button>
           </div>
 
@@ -129,7 +130,7 @@ export function CanvasArea({
 
       {/* Canvas Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6" id="design-canvas-content">
+        <div className="p-3 md:p-6" id="design-canvas-content">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -138,10 +139,38 @@ export function CanvasArea({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {activeTab === "strategy" && <ValuePropCanvas project={project} persona={persona} manifest={manifest} />}
-              {activeTab === "identity" && (isGeneratingBrand ? <BrandGuideCanvasSkeleton /> : <BrandGuideCanvas project={project} manifest={manifest} />)}
-              {activeTab === "components" && (isGeneratingStyle ? <StyleGuideCanvasSkeleton /> : <ComponentsCanvas project={project} manifest={manifest} />)}
-              {activeTab === "previews" && (isGeneratingLanding ? <LandingCanvasSkeleton /> : <PreviewsCanvas project={project} persona={persona} manifest={manifest} />)}
+              {activeTab === "strategy" && (
+                <Suspense fallback={<BrandGuideCanvasSkeleton />}>
+                  <ValuePropCanvas project={project} persona={persona} manifest={manifest} />
+                </Suspense>
+              )}
+              {activeTab === "identity" && (
+                isGeneratingBrand ? (
+                  <BrandGuideCanvasSkeleton />
+                ) : (
+                  <Suspense fallback={<BrandGuideCanvasSkeleton />}>
+                    <BrandGuideCanvas project={project} manifest={manifest} />
+                  </Suspense>
+                )
+              )}
+              {activeTab === "components" && (
+                isGeneratingStyle ? (
+                  <StyleGuideCanvasSkeleton />
+                ) : (
+                  <Suspense fallback={<StyleGuideCanvasSkeleton />}>
+                    <ComponentsCanvas project={project} manifest={manifest} />
+                  </Suspense>
+                )
+              )}
+              {activeTab === "previews" && (
+                isGeneratingLanding ? (
+                  <LandingCanvasSkeleton />
+                ) : (
+                  <Suspense fallback={<LandingCanvasSkeleton />}>
+                    <PreviewsCanvas project={project} persona={persona} manifest={manifest} />
+                  </Suspense>
+                )
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

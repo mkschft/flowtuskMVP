@@ -107,11 +107,11 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Primary
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2 md:gap-3">
               {primaryColors.length > 0 ? primaryColors.map((color, idx) => (
                 <div key={idx} className="group relative">
                   <div
-                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                    className="h-16 w-full sm:w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all active:scale-95 md:hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-${idx}`)}
                     title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
@@ -159,11 +159,11 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Secondary
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2 md:gap-3">
               {secondaryColors.length > 0 ? secondaryColors.map((color, idx) => (
                 <div key={idx} className="group relative">
                   <div
-                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                    className="h-16 w-full sm:w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all active:scale-95 md:hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-sec-${idx}`)}
                     title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
@@ -209,11 +209,11 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Accent
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2 md:gap-3">
               {accentColors.length > 0 ? accentColors.map((color, idx) => (
                 <div key={idx} className="group relative">
                   <div
-                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                    className="h-16 w-full sm:w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all active:scale-95 md:hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-acc-${idx}`)}
                     title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
@@ -259,11 +259,11 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Neutral
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2 md:gap-3">
               {neutralColors.length > 0 ? neutralColors.map((color, idx) => (
                 <div key={idx} className="group relative">
                   <div
-                    className="h-16 w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                    className="h-16 w-full sm:w-16 rounded-md shadow-sm mb-1 relative overflow-hidden cursor-pointer transition-all active:scale-95 md:hover:scale-105 hover:shadow-md"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => handleCopy(color.hex, `color-neu-${idx}`)}
                     title={color.usage ? `${color.usage} - Click to copy` : "Click to copy hex code"}
@@ -394,7 +394,7 @@ export function BrandGuideCanvas({ project, manifest }: BrandGuideCanvasProps) {
           <h3 className="font-bold text-lg">Logo Variations</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {logoVariations.length > 0 ? logoVariations.map((logo, idx) => {
             // Generate logo dynamically with current manifest colors
             const brandName = manifest?.brandName || project.name;

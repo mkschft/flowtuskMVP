@@ -75,7 +75,7 @@ export function ExportToFigmaButton({ flowId, workspaceData, designAssets }: Exp
             </Button>
 
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <Figma className="w-5 h-5 text-[#F24E1E]" />

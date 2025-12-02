@@ -28,63 +28,63 @@ export function ComponentsCanvas({ project, manifest }: ComponentsCanvasProps) {
         <div className="max-w-6xl mx-auto space-y-6">
 
             {/* Sub-Tab Navigation */}
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center overflow-x-auto px-4">
                 <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setActiveSubTab("form-elements")}
                         className={cn(
-                            "gap-2 h-8 text-xs",
+                            "gap-1.5 md:gap-2 h-11 md:h-8 text-xs min-w-[44px] md:min-w-0 whitespace-nowrap",
                             activeSubTab === "form-elements"
                                 ? "bg-background shadow-sm text-primary"
                                 : "text-muted-foreground"
                         )}
                     >
-                        <FormInput className="w-3 h-3" />
-                        Form Elements
+                        <FormInput className="w-4 h-4 md:w-3 md:h-3" />
+                        <span className="hidden sm:inline">Forms</span>
                     </Button>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setActiveSubTab("buttons-actions")}
                         className={cn(
-                            "gap-2 h-8 text-xs",
+                            "gap-1.5 md:gap-2 h-11 md:h-8 text-xs min-w-[44px] md:min-w-0 whitespace-nowrap",
                             activeSubTab === "buttons-actions"
                                 ? "bg-background shadow-sm text-primary"
                                 : "text-muted-foreground"
                         )}
                     >
-                        <Square className="w-3 h-3" />
-                        Buttons & Actions
+                        <Square className="w-4 h-4 md:w-3 md:h-3" />
+                        <span className="hidden sm:inline">Buttons</span>
                     </Button>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setActiveSubTab("content-display")}
                         className={cn(
-                            "gap-2 h-8 text-xs",
+                            "gap-1.5 md:gap-2 h-11 md:h-8 text-xs min-w-[44px] md:min-w-0 whitespace-nowrap",
                             activeSubTab === "content-display"
                                 ? "bg-background shadow-sm text-primary"
                                 : "text-muted-foreground"
                         )}
                     >
-                        <Box className="w-3 h-3" />
-                        Content Display
+                        <Box className="w-4 h-4 md:w-3 md:h-3" />
+                        <span className="hidden sm:inline">Cards</span>
                     </Button>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setActiveSubTab("design-tokens")}
                         className={cn(
-                            "gap-2 h-8 text-xs",
+                            "gap-1.5 md:gap-2 h-11 md:h-8 text-xs min-w-[44px] md:min-w-0 whitespace-nowrap",
                             activeSubTab === "design-tokens"
                                 ? "bg-background shadow-sm text-primary"
                                 : "text-muted-foreground"
                         )}
                     >
-                        <Palette className="w-3 h-3" />
-                        Design Tokens
+                        <Palette className="w-4 h-4 md:w-3 md:h-3" />
+                        <span className="hidden sm:inline">Tokens</span>
                     </Button>
                 </div>
             </div>

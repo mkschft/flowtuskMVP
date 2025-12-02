@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Globe, Share2, Presentation, Mail, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LandingCanvas } from "./LandingCanvas";
-import { SocialMediaPreview } from "./SocialMediaPreview";
-import { PitchDeckPreview } from "./PitchDeckPreview";
-import { EmailPreview } from "./EmailPreview";
-import { BusinessCardPreview } from "./BusinessCardPreview";
+import { LandingCanvasSkeleton } from "./LandingCanvasSkeleton";
 import type { DesignProject } from "@/lib/design-studio-mock-data";
 import type { BrandManifest } from "@/lib/types/brand-manifest";
 import type { ICP } from "@/lib/types/database";
 import { cn } from "@/lib/utils";
+
+// Lazy load preview components
+const LandingCanvas = lazy(() => import("./LandingCanvas").then(m => ({ default: m.LandingCanvas })));
+const SocialMediaPreview = lazy(() => import("./SocialMediaPreview").then(m => ({ default: m.SocialMediaPreview })));
+const PitchDeckPreview = lazy(() => import("./PitchDeckPreview").then(m => ({ default: m.PitchDeckPreview })));
+const EmailPreview = lazy(() => import("./EmailPreview").then(m => ({ default: m.EmailPreview })));
+const BusinessCardPreview = lazy(() => import("./BusinessCardPreview").then(m => ({ default: m.BusinessCardPreview })));
 
 type PreviewType = "landing" | "social" | "pitchdeck" | "email" | "business-card";
 
@@ -27,98 +30,100 @@ export function PreviewsCanvas({ project, persona, manifest }: PreviewsCanvasPro
   return (
     <div className="space-y-6">
       {/* Preview Type Selector */}
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center overflow-x-auto px-4">
         <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActivePreview("landing")}
             className={cn(
-              "gap-2 h-9",
+              "gap-1.5 md:gap-2 h-11 md:h-9 min-w-[44px] md:min-w-0 whitespace-nowrap",
               activePreview === "landing"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <Globe className="w-4 h-4" />
-            Landing Page
+            <span className="hidden sm:inline text-xs md:text-sm">Landing</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActivePreview("social")}
             className={cn(
-              "gap-2 h-9",
+              "gap-1.5 md:gap-2 h-11 md:h-9 min-w-[44px] md:min-w-0 whitespace-nowrap",
               activePreview === "social"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <Share2 className="w-4 h-4" />
-            Social Post
+            <span className="hidden sm:inline text-xs md:text-sm">Social</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActivePreview("pitchdeck")}
             className={cn(
-              "gap-2 h-9",
+              "gap-1.5 md:gap-2 h-11 md:h-9 min-w-[44px] md:min-w-0 whitespace-nowrap",
               activePreview === "pitchdeck"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <Presentation className="w-4 h-4" />
-            Pitch Deck
+            <span className="hidden sm:inline text-xs md:text-sm">Pitch</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActivePreview("email")}
             className={cn(
-              "gap-2 h-9",
+              "gap-1.5 md:gap-2 h-11 md:h-9 min-w-[44px] md:min-w-0 whitespace-nowrap",
               activePreview === "email"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <Mail className="w-4 h-4" />
-            Email
+            <span className="hidden sm:inline text-xs md:text-sm">Email</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setActivePreview("business-card")}
             className={cn(
-              "gap-2 h-9",
+              "gap-1.5 md:gap-2 h-11 md:h-9 min-w-[44px] md:min-w-0 whitespace-nowrap",
               activePreview === "business-card"
                 ? "bg-background shadow-sm text-primary"
                 : "text-muted-foreground"
             )}
           >
             <CreditCard className="w-4 h-4" />
-            Card
+            <span className="hidden sm:inline text-xs md:text-sm">Card</span>
           </Button>
         </div>
       </div>
 
       {/* Preview Content */}
       <div>
-        {activePreview === "landing" && (
-          <LandingCanvas project={project} manifest={manifest} />
-        )}
-        {activePreview === "social" && (
-          <SocialMediaPreview project={project} manifest={manifest} />
-        )}
-        {activePreview === "pitchdeck" && (
-          <PitchDeckPreview project={project} manifest={manifest} />
-        )}
-        {activePreview === "email" && (
-          <EmailPreview project={project} persona={persona} manifest={manifest} />
-        )}
-        {activePreview === "business-card" && (
-          <BusinessCardPreview project={project} persona={persona} manifest={manifest} />
-        )}
+        <Suspense fallback={<LandingCanvasSkeleton />}>
+          {activePreview === "landing" && (
+            <LandingCanvas project={project} manifest={manifest} />
+          )}
+          {activePreview === "social" && (
+            <SocialMediaPreview project={project} manifest={manifest} />
+          )}
+          {activePreview === "pitchdeck" && (
+            <PitchDeckPreview project={project} manifest={manifest} />
+          )}
+          {activePreview === "email" && (
+            <EmailPreview project={project} persona={persona} manifest={manifest} />
+          )}
+          {activePreview === "business-card" && (
+            <BusinessCardPreview project={project} persona={persona} manifest={manifest} />
+          )}
+        </Suspense>
       </div>
 
       {/* Helper Text */}

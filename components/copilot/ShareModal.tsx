@@ -51,27 +51,27 @@ export function ShareModal({ open, onClose, onCopy, projectName }: ShareModalPro
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Share Design System</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             Share your design system with your team or export for presentations
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="link" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="link" className="gap-2">
-              <Link className="w-4 h-4" />
-              Share Link
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="link" className="gap-1 md:gap-2 text-xs md:text-sm py-2">
+              <Link className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Share</span> Link
             </TabsTrigger>
-            <TabsTrigger value="embed" className="gap-2">
-              <Code className="w-4 h-4" />
-              Embed Code
+            <TabsTrigger value="embed" className="gap-1 md:gap-2 text-xs md:text-sm py-2">
+              <Code className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Embed</span> Code
             </TabsTrigger>
-            <TabsTrigger value="pdf" className="gap-2">
-              <FileDown className="w-4 h-4" />
-              Export PDF
+            <TabsTrigger value="pdf" className="gap-1 md:gap-2 text-xs md:text-sm py-2">
+              <FileDown className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden xs:inline">Export</span> PDF
             </TabsTrigger>
           </TabsList>
 
