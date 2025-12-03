@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import html2canvas from "html2canvas";
+import { getPersonaAvatar } from "@/lib/utils/avatar";
 
 // Compact summary data type
 type PersonaSegment = {
@@ -306,8 +307,8 @@ export function CompactPersonaCard({
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    <img 
-                      src={`https://api.dicebear.com/7.x/open-peeps/svg?seed=AccountingOwner42&backgroundColor=transparent&strokeColor=000000`}
+                    <img
+                      src={getPersonaAvatar(summary.personaName || "Persona")}
                       alt="Persona Avatar"
                       className="w-16 h-16 rounded-full ring-2 ring-purple-200 dark:ring-purple-800 ring-offset-2 ring-offset-background bg-white"
                       style={{ filter: 'contrast(1.2)' }}
